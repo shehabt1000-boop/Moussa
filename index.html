@@ -355,7 +355,8 @@
             deleteDoc,
             increment,
             arrayRemove,
-            arrayUnion
+            arrayUnion,
+            writeBatch // تم إضافة writeBatch
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
@@ -905,7 +906,7 @@
                     }
                     // إعادة عرض الصفحة الرئيسية لتحديث الجرس
                     const currentRoute = navigationHistory[navigationHistory.length - 1];
-                    if (currentRoute && (currentRoute.page === 'clientHome' || currentRoute.page === 'providerHome')) {
+                    if (currentRoute && (currentRoute.page === 'clientHome' || currentRoute.page === 'providerHome' || currentRoute.page === 'chatList' || currentRoute.page === 'jobListings')) {
                         navigateTo(currentRoute.page, currentRoute.params);
                     }
                 } catch (error) {
@@ -997,8 +998,9 @@
             
             await batch.commit();
             
-            // تحديث العداد المحلي
+            // تحديث الـ userProfile محلياً وإعادة توجيه الصفحة لتحديث الـ UI
             if (unreadCountChange < 0) {
+                // تحديث العداد في Firestore
                 await updateNotificationCount(unreadCountChange);
             }
         }
@@ -1013,9 +1015,6 @@
 
         // === دالة عرض صفحة الإشعارات (محدثة - إصلاح مشكلة التحميل وتحديد الكل كمقروء) ===
         async function renderNotificationsPage() {
-            // === التعديل 1: تحديد جميع الإشعارات كمقروءة عند فتح الصفحة ===
-            // لا يمكن استخدام markNotificationsAsReadForPage هنا لأنها تحتاج إلى تحديد نوع الإشعار
-            // سنقوم بتحديد الكل كمقروء يدوياً في onSnapshot
             
             appContainer.innerHTML = `
                 <div class="pb-24">
@@ -1040,7 +1039,6 @@
 
 
             const notificationsColRef = collection(db, `artifacts/${appId}/public/data/notifications`);
-            // === إصلاح: استخدام where('recipientId', '==', userId) فقط، وترتيب حسب createdAt
             const q = query(notificationsColRef, 
                             where('recipientId', '==', userId), 
                             orderBy('createdAt', 'desc'));
@@ -1062,10 +1060,17 @@
                 if (unreadNotifications.length > 0) {
                     const batch = writeBatch(db);
                     unreadNotifications.forEach(n => {
-                        batch.update(doc(db, `artifacts/${appId}/public/data/notifications`, n.id), { isRead: true });
+                        // لا نغير حالة isRead هنا، بل نعتمد على النقر الفردي أو تحديد الصفحة
+                        // لكننا نستخدم هذه القائمة لتحديث العداد المحلي/المرئي
                     });
-                    await batch.commit();
-                    await updateNotificationCount(-unreadNotifications.length); // تحديث العداد
+                    
+                    // تحديث العداد إلى الصفر في Firestore
+                    await updateDoc(doc(db, `artifacts/${appId}/public/data/users`, userId), {
+                        unreadNotifications: 0
+                    });
+                    
+                    // تحديث الـ userProfile محلياً
+                    userProfile.unreadNotifications = 0;
                 }
 
 
@@ -1080,6 +1085,7 @@
 
 
                 listEl.innerHTML = notifications.map(n => {
+                    // نعتمد على حالة isRead المخزنة في Firestore للعرض
                     const bgColor = n.isRead ? 'bg-white' : 'bg-indigo-50 border-indigo-200';
                     const dateString = n.createdAt && n.createdAt.toDate ? new Date(n.createdAt.toDate()).toLocaleString('ar-EG') : 'تاريخ غير محدد';
                     const icon = n.type === 'message' ? ICONS.chat : (n.type === 'job' ? ICONS.job : ICONS.add);
@@ -3148,20 +3154,12 @@
             }
             
             // === التعديل 1: تحديث حالة القراءة عند الدخول للصفحة ===
-            // استخدام runTransaction لضمان تحديث آمن لـ unreadBy
-            runTransaction(db, async (transaction) => {
-                const chatDocRef = doc(db, `artifacts/${appId}/public/data/chats`, chatRoomId);
-                const chatDoc = await transaction.get(chatDocRef);
-                if (chatDoc.exists()) {
-                    const chatData = chatDoc.data();
-                    const unreadBy = chatData.unreadBy || [];
-                    if (unreadBy.includes(userId)) {
-                        const newUnreadBy = unreadBy.filter(uid => uid !== userId);
-                        transaction.update(chatDocRef, { unreadBy: newUnreadBy });
-                    }
-                }
+            // استخدام arrayRemove لإزالة المستخدم الحالي من قائمة unreadBy
+            const chatRoomDocRef = doc(db, `artifacts/${appId}/public/data/chats`, chatRoomId);
+            updateDoc(chatRoomDocRef, {
+                unreadBy: arrayRemove(userId)
             }).catch(error => {
-                console.error("Transaction failed to clear unread flag:", error);
+                console.error("Failed to clear unread flag:", error);
             });
 
 
@@ -4983,7 +4981,7 @@
 
 
                 if (isRegistering) {
-                    console.log('Registration in progress, onAuthStateChanged will handle.');
+                    console.log('Registration in progress, onAuthStateChanged will wait.');
                     return; 
                 }
 
