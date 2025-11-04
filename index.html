@@ -353,7 +353,9 @@
             getDocs,
             orderBy,
             deleteDoc,
-            increment 
+            increment,
+            arrayRemove,
+            arrayUnion
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
@@ -968,34 +970,53 @@
                 unreadNotifications: increment(1)
             });
             
-            // ⚠️ ملاحظة: لإرسال إشعار خارجي (عندما يكون المتصفح مغلقاً)، يجب استخدام خدمة
-            // مثل Firebase Cloud Messaging (FCM) وتخزين رمز الجهاز (FCM Token) للمستخدم
-            // وإرسال الإشعار عبر خادم خلفي. الكود الحالي يرسل إشعارات داخلية فقط.
+            // ⚠️ ملاحظة: الإشعارات الخارجية تتطلب إعداد FCM.
         }
         
-        // === التعديل 1: دالة طلب إذن الإشعارات الخارجية ===
-        function requestNotificationPermission() {
-            if ('Notification' in window) {
-                if (Notification.permission === 'default') {
-                    Notification.requestPermission().then(permission => {
-                        if (permission === 'granted') {
-                            console.log('✅ Notification permission granted.');
-                            // يمكنك هنا تفعيل إرسال رمز FCM للمستخدم
-                        } else {
-                            console.log('❌ Notification permission denied or blocked.');
-                        }
-                    });
-                } else if (Notification.permission === 'granted') {
-                    console.log('✅ Notification permission already granted.');
-                }
+        // === دالة تحديد الإشعارات كمقروءة حسب الصفحة (جديد - الطلب 1) ===
+        async function markNotificationsAsReadForPage(linkPage) {
+            if (!userId) return;
+            
+            const notificationsColRef = collection(db, `artifacts/${appId}/public/data/notifications`);
+            const q = query(notificationsColRef, 
+                            where('recipientId', '==', userId), 
+                            where('linkPage', '==', linkPage),
+                            where('isRead', '==', false));
+                            
+            const snapshot = await getDocs(q);
+            
+            if (snapshot.empty) return;
+            
+            let unreadCountChange = 0;
+            const batch = writeBatch(db);
+            
+            snapshot.docs.forEach(doc => {
+                batch.update(doc.ref, { isRead: true });
+                unreadCountChange -= 1;
+            });
+            
+            await batch.commit();
+            
+            // تحديث العداد المحلي
+            if (unreadCountChange < 0) {
+                await updateNotificationCount(unreadCountChange);
             }
         }
+        
+        // === دالة طلب إذن الإشعارات الخارجية (تم إلغاؤها - الطلب 3) ===
+        // function requestNotificationPermission() {
+        //     // ... (تم إلغاء المنطق)
+        // }
 
 
 
 
-        // === دالة عرض صفحة الإشعارات (محدثة - إصلاح مشكلة التحميل) ===
+        // === دالة عرض صفحة الإشعارات (محدثة - إصلاح مشكلة التحميل وتحديد الكل كمقروء) ===
         async function renderNotificationsPage() {
+            // === التعديل 1: تحديد جميع الإشعارات كمقروءة عند فتح الصفحة ===
+            // لا يمكن استخدام markNotificationsAsReadForPage هنا لأنها تحتاج إلى تحديد نوع الإشعار
+            // سنقوم بتحديد الكل كمقروء يدوياً في onSnapshot
+            
             appContainer.innerHTML = `
                 <div class="pb-24">
                     <header class="bg-indigo-800 text-white app-header shadow-md sticky top-0 z-10 flex items-center justify-between">
@@ -1027,7 +1048,7 @@
 
 
 
-            currentUnsubscribe = onSnapshot(q, (snapshot) => {
+            currentUnsubscribe = onSnapshot(q, async (snapshot) => {
                 const listEl = document.getElementById('notifications-list');
                 if (!listEl) return;
 
@@ -1035,6 +1056,17 @@
 
 
                 const notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // === منطق تحديد الكل كمقروء عند العرض (لإخفاء الدائرة الحمراء على الجرس) ===
+                const unreadNotifications = notifications.filter(n => !n.isRead);
+                if (unreadNotifications.length > 0) {
+                    const batch = writeBatch(db);
+                    unreadNotifications.forEach(n => {
+                        batch.update(doc(db, `artifacts/${appId}/public/data/notifications`, n.id), { isRead: true });
+                    });
+                    await batch.commit();
+                    await updateNotificationCount(-unreadNotifications.length); // تحديث العداد
+                }
 
 
 
@@ -1153,6 +1185,8 @@
                     renderClientHome();
                     break;
                 case 'providerHome':
+                    // === التعديل 1: تحديد طلبات الخدمات كمقروءة عند الدخول ===
+                    markNotificationsAsReadForPage('providerHome');
                     renderProviderHome();
                     break;
                 case 'category':
@@ -1183,6 +1217,8 @@
                     renderNewRequestPage();
                     break;
                 case 'jobListings':
+                    // === التعديل 1: تحديد إعلانات الوظائف كمقروءة عند الدخول ===
+                    markNotificationsAsReadForPage('jobListings');
                     renderJobListingsPage();
                     break;
                 case 'jobPosting':
@@ -3070,6 +3106,8 @@
 
         async function renderChatPage(otherUserId) {
             let otherUserProfile = null;
+            const chatRoomId = [userId, otherUserId].sort().join('_');
+            
             try {
                 const userDocRef = doc(db, `artifacts/${appId}/public/data/users`, otherUserId);
                 const userDoc = await getDoc(userDocRef);
@@ -3110,16 +3148,16 @@
             }
             
             // === التعديل 1: تحديث حالة القراءة عند الدخول للصفحة ===
-            const chatRoomId = [userId, otherUserId].sort().join('_');
-            const chatRoomDocRef = doc(db, `artifacts/${appId}/public/data/chats`, chatRoomId);
+            // استخدام runTransaction لضمان تحديث آمن لـ unreadBy
             runTransaction(db, async (transaction) => {
-                const chatDoc = await transaction.get(chatRoomDocRef);
+                const chatDocRef = doc(db, `artifacts/${appId}/public/data/chats`, chatRoomId);
+                const chatDoc = await transaction.get(chatDocRef);
                 if (chatDoc.exists()) {
                     const chatData = chatDoc.data();
                     const unreadBy = chatData.unreadBy || [];
                     if (unreadBy.includes(userId)) {
                         const newUnreadBy = unreadBy.filter(uid => uid !== userId);
-                        transaction.update(chatRoomDocRef, { unreadBy: newUnreadBy });
+                        transaction.update(chatDocRef, { unreadBy: newUnreadBy });
                     }
                 }
             }).catch(error => {
@@ -4183,8 +4221,8 @@
                     lastMessage: text,
                     lastSenderId: userId,
                     lastUpdate: Timestamp.now(),
-                    // === التعديل 1: تحديث حقل unreadBy ===
-                    unreadBy: [otherUserId]
+                    // === التعديل 1: تحديث حقل unreadBy (إضافة المستلم) ===
+                    unreadBy: arrayUnion(otherUserId)
                 };
                 await setDoc(chatRoomDocRef, chatRoomData, { merge: true });
 
@@ -4913,8 +4951,8 @@
 
         // 13. نقطة البداية الرئيسية
         window.onload = () => {
-            // === التعديل 1: طلب إذن الإشعارات الخارجية أولاً ===
-            requestNotificationPermission();
+            // === التعديل 3: إلغاء طلب الإذن الخارجي ===
+            // requestNotificationPermission(); 
 
             // === التعديل 1: البدء بصفحة التحميل ثم المصادقة ===
             navigateTo('loading');
