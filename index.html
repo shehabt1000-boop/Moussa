@@ -126,11 +126,10 @@
         .welcome-header {
             padding: 0.6rem 1rem; 
         }
-        /* === تنسيق حقول التسجيل (محدث) === */
-        /* التعديل 1: توحيد تصميم حقول الإدخال لتكون بإطار من لون البار */
+        /* === تنسيق حقول الإدخال (التعديل 2) === */
         .register-input-card {
             background-color: #ffffff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #1e40af; /* إطار نيلي غامق */
             border-radius: 0.5rem;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             padding: 0.75rem;
@@ -152,6 +151,15 @@
             color: #6b7280; /* gray-500 */
             margin-bottom: 0.25rem;
             display: block;
+        }
+        /* التعديل 2: إطار صورة الملف الشخصي */
+        .register-photo-preview {
+            border-color: #1e40af; /* إطار نيلي غامق */
+            border-width: 2px;
+            padding: 0.25rem;
+        }
+        .register-photo-preview:hover {
+            border-color: #3730a3; /* indigo-900 */
         }
         /* === تصغير بطاقات الدليل والوظائف في وضع الهاتف (محدث) === */
         @media (max-width: 767px) {
@@ -177,6 +185,70 @@
             .job-listing-card p {
                 font-size: 0.875rem; /* text-sm */
             }
+        }
+        
+        /* === التعديل 7: الوضع الداكن (Dark Mode) === */
+        body.dark {
+            background-color: #1f2937; /* bg-gray-800 */
+            color: #f3f4f6; /* text-gray-100 */
+        }
+        body.dark #app {
+            background-color: #1f2937;
+            box-shadow: none;
+        }
+        body.dark .bg-gray-50 {
+            background-color: #1f2937;
+        }
+        body.dark .bg-white {
+            background-color: #374151; /* bg-gray-700 */
+        }
+        body.dark .text-gray-900 {
+            color: #f3f4f6;
+        }
+        body.dark .text-gray-800 {
+            color: #d1d5db;
+        }
+        body.dark .text-gray-700 {
+            color: #9ca3af;
+        }
+        body.dark .text-gray-600 {
+            color: #6b7280;
+        }
+        body.dark .text-gray-500 {
+            color: #4b5563;
+        }
+        body.dark .register-input-card {
+            background-color: #374151;
+            border-color: #4f46e5; /* indigo-600 */
+        }
+        body.dark .register-input-card:focus-within {
+            border-color: #6366f1; /* indigo-500 */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+        body.dark .border-gray-200 {
+            border-color: #4b5563;
+        }
+        body.dark .border-gray-300 {
+            border-color: #4b5563;
+        }
+        body.dark .bg-indigo-50 {
+            background-color: #374151;
+        }
+        body.dark .bg-indigo-100 {
+            background-color: #4f46e5;
+        }
+        body.dark .bg-red-100 {
+            background-color: #ef4444;
+        }
+        body.dark .bg-green-100 {
+            background-color: #10b981;
+        }
+        body.dark .chat-bubble-received {
+            background-color: #4b5563;
+            color: #f3f4f6;
+        }
+        body.dark .shadow-md {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
@@ -325,15 +397,24 @@
 
         // === قائمة الوظائف الرئيسية للترتيب (محدثة) ===
         const MAIN_SERVICES_ORDER = [
-            'محاسب', 'مهندس مدني (تنفيذ)', 'طبيب بشري', 'ممرض منزلي', 'كهربائي', 'سباك', 'نجار موبيليا', 'فني تبريد وتكييف', 'نقاش ودهانات', 'صيانة هواتف وكمبيوتر'
+            'مهندس مدني (تنفيذ)', 'مهندس معماري (تصميم)', 'مهندس شبكات', 'مهندس برمجيات', 'مهندس كهرباء قوى', 'مهندس ميكانيكا إنتاج', 'مهندس إلكترونيات', 'مهندس زراعي', 'مهندس جودة', 'مهندس بترول',
+            'محاسب', 'محاسب قانوني', 'محاسب شركات', 'محاسب تكاليف', 
+            'طبيب بشري', 'ممرض منزلي', 'صيادلي', 'مسعف', 'طبيب أسنان', 'طبيب بيطري',
+            'كهربائي', 'سباك', 'نجار موبيليا', 'فني تبريد وتكييف', 'نقاش ودهانات', 'صيانة هواتف وكمبيوتر'
         ];
 
 
 
 
-        // === دالة ترتيب الخدمات ===
+        // === دالة ترتيب الخدمات (التعديل 3) ===
         function sortServices(services) {
-            return services.sort((a, b) => {
+            const otherService = services.find(s => s.name === 'أخرى (مهن حرة/عامة)');
+            const otherIndex = services.indexOf(otherService);
+            if (otherIndex !== -1) {
+                services.splice(otherIndex, 1); // إزالة "أخرى" مؤقتاً
+            }
+            
+            services.sort((a, b) => {
                 const indexA = MAIN_SERVICES_ORDER.indexOf(a.name);
                 const indexB = MAIN_SERVICES_ORDER.indexOf(b.name);
 
@@ -351,6 +432,12 @@
                 }
                 return a.name.localeCompare(b.name); // لا شيء في القائمة الرئيسية: ترتيب أبجدي
             });
+            
+            if (otherService) {
+                services.push(otherService); // إضافة "أخرى" في النهاية
+            }
+            
+            return services;
         }
 
 
@@ -735,7 +822,7 @@
 
 
 
-        // === التعديل 2: إصلاح مشكلة حالة الاتصال المعلقة باستخدام lastSeen ===
+        // === التعديل 5: إصلاح مشكلة حالة الاتصال المعلقة باستخدام lastSeen ===
         function getOnlineStatusHtml(user) {
             // Check if lastSeen is within the threshold
             const lastSeenTime = user.lastSeen && user.lastSeen.toMillis ? user.lastSeen.toMillis() : 0;
@@ -981,6 +1068,9 @@
 
             // تحديث عنوان الصفحة
             document.title = getPageTitle(page);
+            
+            // === التعديل 7: تطبيق الوضع الداكن ===
+            applyDarkMode(userProfile?.isDarkModeEnabled);
 
 
 
@@ -1069,6 +1159,16 @@
                 default: return 'مستقبل الشرقية';
             }
         }
+        
+        // === التعديل 7: دالة تطبيق الوضع الداكن ===
+        function applyDarkMode(isDarkModeEnabled) {
+            const body = document.body;
+            if (isDarkModeEnabled) {
+                body.classList.add('dark');
+            } else {
+                body.classList.remove('dark');
+            }
+        }
 
 
 
@@ -1138,6 +1238,7 @@
                             <h2 class="text-2xl font-semibold text-center text-gray-800 mb-4">تسجيل الدخول</h2>
                             <div id="login-error" class="text-red-500 text-sm text-center hidden"></div>
                             
+                            <!-- التعديل 2: تطبيق تصميم الإدخال الموحد -->
                             <div class="register-input-card">
                                 <label for="login-identifier">اسم المستخدم</label>
                                 <input type="text" id="login-identifier" required class="mt-1 block w-full text-gray-900 text-sm" placeholder="ادخل اسم المستخدم">
@@ -1201,13 +1302,13 @@
                     <form id="register-form" class="space-y-4 bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
                         <div id="register-error" class="text-red-500 text-sm text-center hidden"></div>
                         
-                        <!-- حقل الصورة ورفعها بالضغط -->
+                        <!-- التعديل 2: تطبيق تصميم الإدخال الموحد على الصورة -->
                         <div class="register-input-card">
                             <input type="file" id="photo-upload-input" accept="image/*" class="hidden">
                             <label for="photo-upload-input" class="block text-sm font-medium text-gray-700 text-center cursor-pointer">
                                 الصورة الشخصية (اختياري)
                                 <div class="mt-2 flex flex-col items-center justify-center">
-                                    <img id="photo-preview" class="w-24 h-24 rounded-full object-cover border-2 border-gray-300 p-1 hover:border-indigo-500 transition-colors" 
+                                    <img id="photo-preview" class="w-24 h-24 rounded-full object-cover register-photo-preview border-gray-300 p-1 hover:border-indigo-500 transition-colors" 
                                          src="https://placehold.co/100x100/EBF8FF/3182CE?text=User" alt="صورة افتراضية">
                                     <span class="text-xs text-indigo-500 mt-2 hover:underline">اضغط لرفع صورتك</span>
                                 </div>
@@ -1217,7 +1318,7 @@
                         
                         <hr class="my-3">
                         
-                        <!-- === تنسيق حقول التسجيل (محدث) === -->
+                        <!-- === تنسيق حقول التسجيل (التعديل 2) === -->
                         <div class="register-input-card">
                             <label for="register-username">اسم المستخدم</label>
                             <input type="text" id="register-username" required class="mt-1 block w-full text-gray-900 text-sm" placeholder="مثال: myname123">
@@ -1650,7 +1751,7 @@
 
 
 
-                    // === التعديل 2: عرض حالة الظهور باستخدام الدالة المحدثة ===
+                    // === التعديل 5: عرض حالة الظهور باستخدام الدالة المحدثة ===
                     const onlineStatusHtml = getOnlineStatusHtml(p);
 
 
@@ -1740,7 +1841,7 @@
                 listEl.innerHTML = filteredUsers.map(user => {
                     const userRole = user.role === 'provider' ? (user.jobTitle || 'مقدم خدمة') : 'عميل';
                     const userColor = user.role === 'provider' ? 'text-indigo-600' : 'text-green-600';
-                    // === التعديل 2: عرض حالة الظهور باستخدام الدالة المحدثة ===
+                    // === التعديل 5: عرض حالة الظهور باستخدام الدالة المحدثة ===
                     const onlineStatusHtml = getOnlineStatusHtml(user);
 
 
@@ -1775,8 +1876,10 @@
                 <div class="pb-24">
                     <header class="bg-indigo-800 text-white app-header shadow-md sticky top-0 z-10">
                         <h1 class="text-xl font-bold mb-0">دليل المستخدمين</h1>
-                        <!-- التعديل 1: تحسين تصميم حقل البحث -->
-                        <input type="text" id="search-directory" class="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm text-gray-900 mt-2" placeholder="ابحث بالاسم أو الوظيفة...">
+                        <!-- التعديل 2: تطبيق تصميم الإدخال الموحد على حقل البحث -->
+                        <div class="register-input-card p-2 mt-2">
+                            <input type="text" id="search-directory" class="w-full text-gray-900 text-sm" placeholder="ابحث بالاسم أو الوظيفة...">
+                        </div>
                     </header>
                     
                     <main class="main-padding bg-gray-50">
@@ -1919,7 +2022,7 @@
 
 
 
-                    // === التعديل 2: حالة الظهور في قائمة المحادثات باستخدام الدالة المحدثة ===
+                    // === التعديل 5: حالة الظهور في قائمة المحادثات باستخدام الدالة المحدثة ===
                     const onlineStatusHtml = getOnlineStatusHtml(otherUser);
 
 
@@ -2055,7 +2158,7 @@
 
 
 
-                // === التعديل 2: حالة الظهور باستخدام الدالة المحدثة ===
+                // === التعديل 5: حالة الظهور باستخدام الدالة المحدثة ===
                 const onlineStatusHtml = getOnlineStatusHtml(profileData);
 
 
@@ -2337,7 +2440,8 @@
 
 
                             <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2 pt-4">إعدادات العرض</h2>
-                            ${toggleHtml('toggle-dark-mode', 'الوضع الليلي (Dark Mode)', isDarkModeEnabled, 'تفعيل الوضع الليلي لواجهة التطبيق (ميزة قادمة).')}
+                            <!-- التعديل 7: تغيير وصف الوضع الداكن ليعكس الاعتماد على إعدادات المتصفح -->
+                            ${toggleHtml('toggle-dark-mode', 'الوضع الليلي (Dark Mode)', isDarkModeEnabled, 'تفعيل الوضع الليلي ليعتمد على إعدادات متصفحك/نظامك.')}
                             
                             <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2 pt-4">ميزات إضافية</h2>
                             ${toggleHtml('toggle-location-sharing', 'مشاركة الموقع (تقريبي)', isLocationSharingEnabled, 'مشاركة موقعك التقريبي مع مقدمي/طالبي الخدمة (ميزة قادمة).')}
@@ -2418,6 +2522,9 @@
 
                 // تحديث الـ userProfile المحلي
                 userProfile = { ...userProfile, ...updates };
+                
+                // === التعديل 7: تطبيق الوضع الداكن فوراً ===
+                applyDarkMode(isDarkModeEnabled);
 
 
 
@@ -2487,7 +2594,9 @@
             
             try {
                 // إعادة مصادقة المستخدم أولاً (ضرورية لتغيير كلمة المرور)
-                const credential = signInWithEmailAndPassword(auth, auth.currentUser.email, currentPassword);
+                // ملاحظة: في بيئة Firebase الحقيقية، يجب استخدام reauthenticateWithCredential
+                // ولكن في هذه البيئة المحدودة، نعتمد على signInWithEmailAndPassword كبديل
+                await signInWithEmailAndPassword(auth, auth.currentUser.email, currentPassword);
                 
                 // تغيير كلمة المرور
                 await updatePassword(auth.currentUser, newPassword);
@@ -2508,7 +2617,12 @@
                 
                 errorEl.textContent = errorMessage;
                 errorEl.classList.remove('hidden');
-                showModal(document.getElementById('modal-content').innerHTML); // إعادة عرض المودال مع الخطأ
+                // إعادة عرض المودال مع الخطأ إذا كان هناك خطأ
+                if (document.getElementById('modal-content').innerHTML.includes('تغيير كلمة المرور')) {
+                    showModal(document.getElementById('modal-content').innerHTML); 
+                } else {
+                    handleChangePasswordModal(); // إذا تم إغلاق المودال، افتحه مرة أخرى
+                }
             }
         }
 
@@ -2723,13 +2837,13 @@
                         <form id="edit-profile-form" class="space-y-4 bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
                             <div id="edit-error" class="text-red-500 text-sm text-center hidden"></div>
                             
-                            <!-- حقل الصورة ورفعها بالضغط -->
+                            <!-- التعديل 2: تطبيق تصميم الإدخال الموحد على الصورة -->
                             <div class="register-input-card">
                                 <input type="file" id="photo-upload-input" accept="image/*" class="hidden">
                                 <label for="photo-upload-input" class="block text-sm font-medium text-gray-700 text-center cursor-pointer">
                                     الصورة الشخصية
                                     <div class="mt-2 flex flex-col items-center justify-center">
-                                        <img id="photo-preview" class="w-24 h-24 rounded-full object-cover border-2 border-indigo-400 p-0.5 hover:border-indigo-700 transition-colors" 
+                                        <img id="photo-preview" class="w-24 h-24 rounded-full object-cover register-photo-preview border-gray-300 p-0.5 hover:border-indigo-700 transition-colors" 
                                              src="${userProfile.photoURL || 'https://placehold.co/100x100/EBF8FF/3182CE?text=User'}" alt="الصورة الحالية">
                                         <span class="text-xs text-indigo-500 mt-2 hover:underline">اضغط لتغيير صورتك</span>
                                     </div>
@@ -2746,6 +2860,7 @@
 
                             <hr class="my-3">
                             
+                            <!-- التعديل 2: تطبيق تصميم الإدخال الموحد على باقي الحقول -->
                             <div class="register-input-card">
                                 <label for="edit-name">الاسم الكامل</label>
                                 <input type="text" id="edit-name" value="${userProfile.name}" required class="mt-1 block w-full text-gray-900 text-sm">
@@ -2903,7 +3018,7 @@
 
 
 
-            // === التعديل 2: حالة الظهور باستخدام الدالة المحدثة ===
+            // === التعديل 5: حالة الظهور باستخدام الدالة المحدثة ===
             const onlineStatusHtml = getOnlineStatusHtml(otherUserProfile);
 
 
@@ -2947,8 +3062,10 @@
                     
                     <footer class="bg-white p-3 shadow-inner sticky bottom-0 z-10 border-t border-gray-200">
                         <form id="chat-form" class="flex items-center space-x-2 space-x-reverse">
-                            <!-- التعديل 1: تحسين تصميم حقل الإدخال في الشات -->
-                            <input type="text" id="message-input" class="flex-1 block w-full px-4 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="اكتب رسالتك..." required>
+                            <!-- التعديل 2: تطبيق تصميم الإدخال الموحد على حقل الشات -->
+                            <div class="register-input-card flex-1 p-2">
+                                <input type="text" id="message-input" class="w-full text-gray-900 text-sm" placeholder="اكتب رسالتك..." required>
+                            </div>
                             <button type="submit" data-action="sendMessage" data-otheruserid="${otherUserId}"
                                     class="p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                 ${ICONS.send}
@@ -3089,6 +3206,7 @@
                         <form id="new-request-form" class="space-y-4 bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
                             <div id="request-error" class="text-red-500 text-sm text-center hidden"></div>
                             
+                            <!-- التعديل 2: تطبيق تصميم الإدخال الموحد -->
                             <div class="register-input-card">
                                 <label for="request-title">عنوان الطلب</label>
                                 <input type="text" id="request-title" required class="mt-1 block w-full text-gray-900 text-sm" placeholder="مثال: أحتاج سباك لإصلاح صنبور">
@@ -3149,6 +3267,7 @@
                         <form id="job-posting-form" class="space-y-4 bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
                             <div id="job-post-error" class="text-red-500 text-sm text-center hidden"></div>
                             
+                            <!-- التعديل 2: تطبيق تصميم الإدخال الموحد -->
                             <div class="register-input-card">
                                 <label for="job-title">عنوان الوظيفة</label>
                                 <input type="text" id="job-title" required class="mt-1 block w-full text-gray-900 text-sm" placeholder="مثال: مطلوب سكرتيرة تنفيذية">
@@ -3583,6 +3702,9 @@
 
 
                 const jobTitleSearch = role === 'provider' ? jobTitle.toLowerCase() : null;
+                
+                // === التعديل 7: التحقق من إعدادات الوضع الداكن في المتصفح ===
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 
 
@@ -3618,7 +3740,7 @@
                     isMessageNotificationsEnabled: true,
                     isJobNotificationsEnabled: true,
                     isRequestNotificationsEnabled: true,
-                    isDarkModeEnabled: false,
+                    isDarkModeEnabled: prefersDark, // التعديل 7: تعيين الوضع الداكن الافتراضي بناءً على إعدادات المتصفح
                     isLocationSharingEnabled: false,
                     isOnline: true, 
                     unreadNotifications: 0, 
@@ -4661,7 +4783,17 @@
 
         // 13. نقطة البداية الرئيسية
         window.onload = () => {
+            // === التعديل 1: البدء بصفحة التحميل ثم المصادقة ===
             navigateTo('loading');
+            
+            // === التعديل 7: مراقبة تغيير إعدادات الوضع الداكن في النظام ===
+            if (window.matchMedia) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                    if (userProfile && userProfile.isDarkModeEnabled) {
+                        applyDarkMode(e.matches);
+                    }
+                });
+            }
 
 
 
@@ -4716,6 +4848,8 @@
                         userProfile = userDoc.data();
                         console.log('User profile found:', userProfile);
 
+                        // === التعديل 7: تطبيق الوضع الداكن عند تسجيل الدخول ===
+                        applyDarkMode(userProfile.isDarkModeEnabled);
 
                         // تحديث حالة الظهور إلى متصل عند التحميل
                         await updateOnlineStatus(true);
@@ -4738,6 +4872,7 @@
                     console.log('User is signed out.');
                     userId = null;
                     userProfile = null;
+                    // === التعديل 1: ضمان عرض صفحة تسجيل الدخول كواجهة أولى ===
                     navigateTo('auth');
                 }
             });
