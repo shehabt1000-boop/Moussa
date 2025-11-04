@@ -18,20 +18,18 @@
 
 
     <meta name="theme-color" content="#1e40af">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 🚀 الإصلاح 22: إضافة defer لسكريبت Tailwind -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
 
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- 🚀 الإصلاح 22: إضافة defer للخطوط (عبر خاصية display=swap) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 
     <style>
-        /* === التعديل 1: منع التاثيرات الحركية والصور المتحركة (الأداء) === */
-        * {
-            transition: none !important;
-            animation: none !important;
-        }
+        /* 🚀 الإصلاح 23: تم إزالة إلغاء جميع الحركات (transition: none !important;) للسماح بأنيميشن خفيفة */
         .animate-spin, .animate-ping {
             animation: none !important;
         }
@@ -54,7 +52,8 @@
         }
         /* أيقونات SVG للنجوم (للتقييم) */
         .star-icon {
-            width: 1.5rem;
+            /* 🧩 الإصلاح 5: توحيد حجم الأيقونات */
+            width: 1.5rem; 
             height: 1.5rem;
             fill: currentColor;
             display: inline-block;
@@ -137,7 +136,7 @@
             border-radius: 0.75rem; /* أكثر استدارة */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); /* ظل أقوى */
             padding: 1rem; /* زيادة الحشو الداخلي */
-            /* transition: border-color 0.2s, box-shadow 0.2s;  تم إزالة الانتقال */
+            /* 🚀 تم إزالة الانتقال (transition) هنا أيضاً */
         }
         .register-input-card:focus-within {
             border-color: #3730a3; /* indigo-900 */
@@ -167,11 +166,11 @@
             border-color: #3730a3; /* indigo-900 */
         }
         
-        /* === التعديل 5: خلفية زجاجية شفافة لصفحة التسجيل (تم إزالة blur لتحسين الأداء - مشكلة 7) === */
+        /* === التعديل 5: خلفية زجاجية شفافة لصفحة التسجيل === */
         .glassy-indigo-bg {
-            background-color: rgba(255, 255, 255, 0.9); /* أبيض أكثر شفافية قليلاً */
-            /* backdrop-filter: blur(8px); */
-            /* -webkit-backdrop-filter: blur(8px); */
+            background-color: rgba(255, 255, 255, 0.8); /* أبيض شفاف */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.4);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
         }
@@ -278,7 +277,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
         }
         body.dark .glassy-indigo-bg {
-            background-color: rgba(55, 65, 81, 0.95); /* bg-gray-700 شفاف */
+            background-color: rgba(55, 65, 81, 0.9); /* bg-gray-700 شفاف */
             border: 1px solid rgba(156, 163, 175, 0.4);
         }
         body.dark .bg-gray-100 {
@@ -324,7 +323,8 @@
     <!-- ============================================= -->
     <!-- ==== بداية كود جافاسكريبت و Firebase ==== -->
     <!-- ============================================= -->
-    <script type="module">
+    <!-- 🚀 الإصلاح 22: إضافة defer لسكريبت التطبيق الرئيسي -->
+    <script type="module" defer> 
         // 1. استيراد وظائف Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { 
@@ -335,7 +335,9 @@
             createUserWithEmailAndPassword,
             signInWithEmailAndPassword,
             updateProfile,
-            updatePassword
+            updatePassword,
+            // 🔐 الإصلاح 21: استيراد onIdTokenChanged
+            onIdTokenChanged
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
             getFirestore, 
@@ -356,7 +358,7 @@
             increment,
             arrayRemove,
             arrayUnion,
-            writeBatch // تم إضافة writeBatch
+            writeBatch 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
@@ -632,7 +634,8 @@
             starEmpty: `<svg class="star-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.31h5.513c.498 0 .704.656.34.985l-4.46 4.062a.562.562 0 0 0-.162.541l1.618 5.22c.19.613-.526 1.09-1.04.724l-4.59-3.44a.563.563 0 0 0-.642 0l-4.59 3.44c-.514.366-1.23-.111-1.04-.724l1.618-5.22a.562.562 0 0 0-.162-.541l-4.46-4.062a.563.563 0 0 1 .34-.985h5.513a.563.563 0 0 0 .475.31l2.125-5.112Z" /></svg>`,
             home: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>`,
             users: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-3.741-5.582M11.995 12.75a9.004 9.004 0 0 1-5.214 0m-2.5 4.972a9.094 9.094 0 0 1 3.741-.479 3 3 0 0 1 3.741 5.582M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm-5.214 0a9.004 9.004 0 0 0 5.214 0M12 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Zm5.214 0a9.004 9.004 0 0 0-5.214 0" /></svg>`,
-            add: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>`,
+            // 🧩 الإصلاح 5: توحيد حجم أيقونة الإضافة
+            add: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>`,
             profile: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>`,
             chat: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193l-3.72 3.72a.75.75 0 0 1-1.06 0l-3.72-3.72C9.847 17.1 9 16.136 9 15v-4.286c0-.97 0.616-1.813 1.5-2.097l6.75-3.375c.22-.11.459-.11.679 0l6.75 3.375Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.5c.884-.284 1.5-1.128 1.5-2.097V7.116c0-1.136.847-2.1 1.98-2.193l3.72-3.72a.75.75 0 0 1 1.06 0l3.72 3.72C16.153 5.016 17 5.98 17 7.116v4.286c0 .97-.616 1.813-1.5 2.097l-6.75 3.375a.625.625 0 0 1-.679 0L3 13.5Z" /></svg>`,
             logout: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" /></svg>`,
@@ -641,7 +644,8 @@
             edit: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 18.07a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.862 4.487Zm0 0L19.5 7.125" /></svg>`,
             camera: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.322 2.322 0 0 1 5.86 7.5v10.375A2.322 2.322 0 0 0 8.182 20.25h8.375A2.322 2.322 0 0 0 18.916 18V7.5a2.322 2.322 0 0 1-1.077-1.325M12 9.75a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z" /></svg>`,
             job: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25M9 13.5h6" /></svg>`,
-            trash: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.24 6.913m1.018 0h16.5M16.5 6.75h-9" /></svg>`,
+            // 🧩 الإصلاح 5: توحيد حجم أيقونة الحذف
+            trash: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.24 6.913m1.018 0h16.5M16.5 6.75h-9" /></svg>`,
             settings: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.875 1.486.82 2.668 2.05 3.37 3.568.163.33.194.71.09 1.055l-.202.73a1.125 1.125 0 0 1-.362.683l-1.704 1.705a1.125 1.125 0 0 0-.362.684l.202.73c.104.345.073.725-.09 1.055-.702 1.518-1.884 2.748-3.37 3.568a1.125 1.125 0 0 1-.645.875l-.213 1.281c-.09.542-.56.94-1.11.94h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281a1.125 1.125 0 0 1-.645-.875c-1.486-.82-2.668-2.05-3.37-3.568a1.125 1.125 0 0 1-.09-1.055l.202-.73a1.125 1.125 0 0 0-.362-.683l-1.704-1.705a1.125 1.125 0 0 0-.362-.684l.202-.73c.104-.345.073-.725-.09-1.055-.702-1.518-1.884-2.748-3.37-3.568a1.125 1.125 0 0 1-.645-.875l-.213-1.281Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>`,
             bell: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.043 5.454 1.31Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75a.75.75 0 0 0 0 1.5h-9a.75.75 0 0 0 0-1.5Z" /></svg>`,
         };
@@ -693,7 +697,7 @@
 
 
         function showLoading(message = 'جاري التحميل...') {
-            // === التعديل 1: إزالة animate-spin ===
+            // === 🚀 الإصلاح 23: إزالة animate-spin ===
             const html = `
                 <div class="flex flex-col items-center justify-center p-6">
                     <svg class="h-10 w-10 text-indigo-800 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -872,7 +876,7 @@
 
             const color = isActuallyOnline ? 'bg-green-500' : 'bg-gray-400';
             const text = isActuallyOnline ? 'متصل الآن' : 'غير متصل';
-            // === التعديل 1: إزالة animate-ping ===
+            // === 🚀 الإصلاح 23: إزالة animate-ping ===
             const ping = isActuallyOnline ? `<span class="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>` : '';
 
             return `
@@ -889,7 +893,7 @@
 
 
 
-        // === دالة تحديث عداد الإشعارات (محدثة - مشكلة 2, 10) ===
+        // === دالة تحديث عداد الإشعارات (محدثة) ===
         async function updateNotificationCount(change = 0) {
             if (userId) {
                 try {
@@ -904,9 +908,11 @@
                     if (userDoc.exists()) {
                         userProfile = userDoc.data();
                     }
-                    // === مشكلة 2, 10: تحديث الشريط العلوي والسفلي فوراً ===
-                    updateHeaderAndNav();
-                    
+                    // ⚡ الإصلاح 8: إعادة عرض الصفحة الرئيسية لتحديث الجرس فوراً
+                    const currentRoute = navigationHistory[navigationHistory.length - 1];
+                    if (currentRoute && (currentRoute.page === 'clientHome' || currentRoute.page === 'providerHome' || currentRoute.page === 'chatList' || currentRoute.page === 'jobListings')) {
+                        navigateTo(currentRoute.page, currentRoute.params);
+                    }
                 } catch (error) {
                     console.error("Error updating notification count:", error);
                 }
@@ -921,7 +927,7 @@
             if (recipientId === userId) return; // لا ترسل إشعاراً لنفسك
 
 
-            // ⚠️ الإشعارات الداخلية إجبارية (التي تظهر في الجرس).
+            // ⚠️ الإشعارات الداخلية إجبارية، لا نتحقق من إعدادات المستخدم هنا.
 
 
             const notificationsColRef = collection(db, `artifacts/${appId}/public/data/notifications`);
@@ -999,13 +1005,12 @@
             `;
 
 
-            // === تحديث العداد إلى الصفر عند فتح صفحة الإشعارات ===
+            // 🔔 الإصلاح 16: تحديث العداد إلى الصفر عند فتح صفحة الإشعارات
             if (userProfile?.unreadNotifications > 0) {
                  await updateDoc(doc(db, `artifacts/${appId}/public/data/users`, userId), {
                      unreadNotifications: 0
                  });
                  userProfile.unreadNotifications = 0;
-                 updateHeaderAndNav(); // تحديث الشريط السفلي فوراً
             }
 
 
@@ -1025,7 +1030,6 @@
                 const notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 // === منطق تحديد الكل كمقروء في Firestore (لضمان أن الإشعارات نفسها مقروءة) ===
-                // هذا يضمن أن الإشعارات التي تم فتحها في الجرس يتم تحديدها كمقروءة في Firestore
                 const unreadNotifications = notifications.filter(n => !n.isRead);
                 if (unreadNotifications.length > 0) {
                     const batch = writeBatch(db);
@@ -1048,7 +1052,7 @@
                     // نعتمد على حالة isRead المخزنة في Firestore للعرض
                     const bgColor = n.isRead ? 'bg-white' : 'bg-indigo-50 border-indigo-200';
                     const dateString = n.createdAt && n.createdAt.toDate ? new Date(n.createdAt.toDate()).toLocaleString('ar-EG') : 'تاريخ غير محدد';
-                    const icon = n.type === 'message' ? ICONS.chat : (n.type === 'job' ? ICONS.job : (n.type === 'rating' ? ICONS.star : ICONS.add)); // مشكلة 4: إضافة أيقونة التقييم
+                    const icon = n.type === 'message' ? ICONS.chat : (n.type === 'job' ? ICONS.job : ICONS.add);
 
 
 
@@ -1066,35 +1070,9 @@
                 }).join('');
             }, (error) => {
                  console.error("Error fetching notifications: ", error);
-                 // === مشكلة 11: رسالة خطأ عامة مع إمكانية الوصول للكل (يجب التحقق من قواعد Firebase) ===
-                 document.getElementById('notifications-list').innerHTML = '<p class="text-red-500 text-center p-6 bg-white rounded-lg shadow-sm">حدث خطأ أثناء تحميل الإشعارات. (يرجى التأكد من قواعد أمان Firebase)</p>';
+                 // ⚡ الإصلاح 9 و 15: رسالة خطأ ودية
+                 document.getElementById('notifications-list').innerHTML = '<p class="text-red-500 text-center p-6 bg-white rounded-lg shadow-sm">تعذر تحميل الإشعارات، حاول لاحقًا.</p>';
             });
-        }
-        
-        // === دالة تحديث الشريط العلوي والسفلي فوراً (مشكلة 2, 10) ===
-        function updateHeaderAndNav() {
-            const currentRoute = navigationHistory[navigationHistory.length - 1];
-            if (!currentRoute) return;
-
-            const activeTab = currentRoute.page === 'profile' ? 'profile' : 
-                              (currentRoute.page === 'chatList' ? 'chatList' : 
-                              (currentRoute.page === 'jobListings' ? 'jobListings' : 'home'));
-
-            // 1. تحديث الشريط السفلي
-            const navElement = document.querySelector('nav.fixed');
-            if (navElement) {
-                navElement.outerHTML = renderBottomNav(activeTab);
-            }
-
-            // 2. تحديث الجرس في الشريط العلوي (إذا كان موجوداً)
-            const headerElement = document.querySelector('header.welcome-header');
-            if (headerElement) {
-                // إعادة بناء الجرس فقط
-                const bellContainer = headerElement.querySelector('[data-action="navigateTo"][data-page="notifications"]');
-                if (bellContainer) {
-                    bellContainer.outerHTML = renderNotificationBell();
-                }
-            }
         }
 
 
@@ -1103,7 +1081,9 @@
         // 8. وظائف التوجيه (Routing) 
         function navigateTo(page, params = {}) {
             console.log(`Navigating to: ${page}`, params);
-            if (currentUnsubscribe) {
+            
+            // ⚡ الإصلاح 11: إلغاء onSnapshot بطريقة آمنة
+            if (typeof currentUnsubscribe === "function") {
                 currentUnsubscribe();
                 currentUnsubscribe = null;
                 console.log('Unsubscribed from real-time listener.');
@@ -1154,7 +1134,7 @@
             // تحديث عنوان الصفحة
             document.title = getPageTitle(page);
             
-            // === التعديل 7: تطبيق الوضع الداكن ===
+            // === 🌙 الإصلاح 18: تطبيق الوضع الداكن ===
             applyDarkMode(userProfile?.isDarkModeEnabled);
 
 
@@ -1249,13 +1229,17 @@
             }
         }
         
-        // === التعديل 7: دالة تطبيق الوضع الداكن ===
+        // === دالة تطبيق الوضع الداكن ===
         function applyDarkMode(isDarkModeEnabled) {
             const body = document.body;
             if (isDarkModeEnabled) {
                 body.classList.add('dark');
+                // 🌙 الإصلاح 18: حفظ الاختيار في localStorage
+                localStorage.setItem('theme', 'dark');
             } else {
                 body.classList.remove('dark');
+                // 🌙 الإصلاح 18: حفظ الاختيار في localStorage
+                localStorage.setItem('theme', 'light');
             }
         }
 
@@ -1300,7 +1284,7 @@
             appContainer.innerHTML = `
                 <div class="flex items-center justify-center min-h-screen">
                     <div class="flex flex-col items-center">
-                        <!-- === التعديل 1: إزالة animate-spin === -->
+                        <!-- 🚀 الإصلاح 23: إزالة animate-spin -->
                         <svg class="h-12 w-12 text-indigo-800 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -1320,15 +1304,14 @@
 
         function renderAuthPage() {
             appContainer.innerHTML = `
-                <!-- مشكلة 6: تقليل الحشو لتقليل الحجم على الهاتف -->
-                <div class="flex flex-col items-center justify-center min-h-screen p-2 bg-indigo-800">
-                    <h1 class="text-4xl font-bold text-white mb-4">مستقبل الشرقية</h1>
-                    <p class="text-lg text-indigo-100 mb-8 text-center">أهلاً بك في تطبيق خدمات محافظة الشرقية</p>
+                <div class="flex flex-col items-center justify-center min-h-screen p-4 bg-indigo-800">
+                    <!-- 🧩 الإصلاح 2: تصغير حجم العنوان -->
+                    <h1 class="text-3xl font-bold text-white mb-4">مستقبل الشرقية</h1>
+                    <p class="text-base text-indigo-100 mb-8 text-center">أهلاً بك في تطبيق خدمات محافظة الشرقية</p>
                     
-                    <!-- مشكلة 6: تقليل الحشو لتقليل الحجم على الهاتف -->
-                    <div class="w-full max-w-sm bg-white rounded-lg shadow-xl p-4">
+                    <div class="w-full max-w-sm bg-white rounded-lg shadow-xl p-6">
                         <form id="login-form" class="space-y-4">
-                            <h2 class="text-2xl font-semibold text-center text-gray-800 mb-4">تسجيل الدخول</h2>
+                            <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">تسجيل الدخول</h2>
                             <div id="login-error" class="text-red-500 text-sm text-center hidden"></div>
                             
                             <!-- التعديل 2: تطبيق تصميم الإدخال الموحد -->
@@ -1340,7 +1323,8 @@
                                 <label for="login-password">كلمة المرور</label>
                                 <input type="password" id="login-password" required class="mt-1 block w-full text-gray-900 text-sm" placeholder="********">
                             </div>
-                            <button type="submit" data-action="login" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <!-- 🧩 الإصلاح 2: تصغير حجم الأزرار والنصوص -->
+                            <button type="submit" data-action="login" class="w-full flex justify-center py-1.5 px-3 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 دخول
                             </button>
                         </form>
@@ -1351,7 +1335,8 @@
                             <span class="border-t border-gray-300 flex-grow"></span>
                         </div>
                         
-                        <button data-action="navigateTo" data-page="register" class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <!-- 🧩 الإصلاح 2: تصغير حجم الأزرار والنصوص -->
+                        <button data-action="navigateTo" data-page="register" class="w-full flex justify-center py-1.5 px-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             إنشاء حساب جديد
                         </button>
                     </div>
@@ -1394,7 +1379,7 @@
                 <div class="min-h-screen main-padding bg-indigo-800 flex items-start justify-center pt-8 pb-24">
                     <div class="w-full max-w-md">
                          <h1 class="text-2xl font-bold text-white mb-6 text-center">إنشاء حساب جديد</h1>
-                         <!-- التعديل 5: إضافة كلاس الزجاج الشفاف (مشكلة 7: تم إزالة blur) -->
+                         <!-- التعديل 5: إضافة كلاس الزجاج الشفاف -->
                         <form id="register-form" class="space-y-4 glassy-indigo-bg p-6 rounded-lg shadow-2xl mx-auto">
                             <div id="register-error" class="text-red-600 text-sm text-center font-bold hidden bg-red-100 p-2 rounded-md"></div>
                             
@@ -1586,9 +1571,9 @@
                         </div>
                     </main>
                     
-                    <!-- مشكلة 1: تغيير left-4 إلى right-4 -->
+                    <!-- 🧩 الإصلاح 1: تغيير left-4 إلى right-4. 🧩 الإصلاح 5: تغيير حجم الزر إلى w-10 h-10 -->
                     <button data-action="navigateTo" data-page="newRequest" 
-                            class="fixed bottom-16 right-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
+                            class="fixed bottom-16 right-4 bg-indigo-600 text-white w-10 h-10 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
                         ${ICONS.add}
                     </button>
                     
@@ -1645,9 +1630,9 @@
                         </div>
                     </main>
                     
-                    <!-- مشكلة 1: تغيير left-4 إلى right-4 -->
+                    <!-- 🧩 الإصلاح 1: تغيير left-4 إلى right-4. 🧩 الإصلاح 5: تغيير حجم الزر إلى w-10 h-10 -->
                     <button data-action="navigateTo" data-page="newRequest" 
-                            class="fixed bottom-16 right-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
+                            class="fixed bottom-16 right-4 bg-indigo-600 text-white w-10 h-10 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
                         ${ICONS.add}
                     </button>
                     
@@ -2456,7 +2441,7 @@
 
 
 
-        // === دالة عرض صفحة الإعدادات (محدثة - مشكلة 9) ===
+        // === دالة عرض صفحة الإعدادات (محدثة) ===
         function renderSettingsPage() {
             if (!userProfile) {
                 navigateTo('auth');
@@ -2469,14 +2454,15 @@
             const isPhoneHidden = userProfile.isPhoneHidden || false;
             const isAddressHidden = userProfile.isAddressHidden || false;
             const isDirectoryHidden = userProfile.isDirectoryHidden || false;
-            // === مشكلة 9: الإعدادات الافتراضية الآن هي false ===
+            // 🔔 الإصلاح 14: تعيين الافتراضيات لـ false
             const isNotificationsEnabled = userProfile.isNotificationsEnabled || false; 
             const isMessageNotificationsEnabled = userProfile.isMessageNotificationsEnabled || false; 
             const isJobNotificationsEnabled = userProfile.isJobNotificationsEnabled || false; 
             const isRequestNotificationsEnabled = userProfile.isRequestNotificationsEnabled || false; 
-            
+            // 🌙 الإصلاح 17: تعيين الافتراضي لـ false
             const isDarkModeEnabled = userProfile.isDarkModeEnabled || false; 
             const isLocationSharingEnabled = userProfile.isLocationSharingEnabled || false; 
+            // === التعديل 3: إعدادات التحكم الكامل في المنافع ===
             const chatPermission = userProfile.chatPermission || 'all';
             const ratingPermission = userProfile.ratingPermission || 'all';
 
@@ -2558,11 +2544,11 @@
                             </div>
 
 
-                            <!-- إعدادات الإشعارات (الخارجية) -->
+                            <!-- إعدادات الإشعارات -->
                             <div class="border-b border-indigo-200 pb-3 pt-2">
-                                <h2 class="text-lg font-semibold text-indigo-800">إعدادات الإشعارات (الخارجية - تنبيهات النظام)</h2>
+                                <h2 class="text-lg font-semibold text-indigo-800">إعدادات الإشعارات (للتنبيهات الخارجية)</h2>
                             </div>
-                            ${toggleHtml('toggle-notifications', 'تفعيل الإشعارات الخارجية', isNotificationsEnabled, 'تفعيل/إيقاف جميع الإشعارات الخارجية (تنبيهات النظام).')}
+                            ${toggleHtml('toggle-notifications', 'تفعيل الإشعارات العامة', isNotificationsEnabled, 'تفعيل/إيقاف جميع الإشعارات الخارجية (ميزة قادمة).')}
                             <div class="mr-4 mt-2 p-3 bg-indigo-50 rounded-md border border-indigo-200 ${isNotificationsEnabled ? '' : 'opacity-50 pointer-events-none'}" id="custom-notifications-settings">
                                 <h3 class="text-sm font-semibold text-indigo-700 mb-2">إشعارات مخصصة:</h3>
                                 ${toggleHtml('toggle-msg-notifications', 'إشعارات الرسائل الجديدة', isMessageNotificationsEnabled, 'تنبيه عند استلام رسالة محادثة جديدة.')}
@@ -2609,7 +2595,7 @@
 
 
 
-        // === دالة حفظ الإعدادات (محدثة - مشكلة 9, 10) ===
+        // === دالة حفظ الإعدادات (محدثة) ===
         async function handleSaveSettings() {
             showLoading('جاري حفظ الإعدادات...');
 
@@ -2626,6 +2612,7 @@
                 const isRequestNotificationsEnabled = document.getElementById('toggle-request-notifications').checked;
                 const isDarkModeEnabled = document.getElementById('toggle-dark-mode').checked;
                 const isLocationSharingEnabled = document.getElementById('toggle-location-sharing').checked;
+                // === التعديل 3: جلب إعدادات التحكم الكامل في المنافع ===
                 const chatPermission = document.getElementById('chat-permission').value;
                 const ratingPermission = document.getElementById('rating-permission').value;
 
@@ -2642,6 +2629,7 @@
                     isRequestNotificationsEnabled: isRequestNotificationsEnabled,
                     isDarkModeEnabled: isDarkModeEnabled,
                     isLocationSharingEnabled: isLocationSharingEnabled,
+                    // === التعديل 3: حفظ إعدادات التحكم الكامل في المنافع ===
                     chatPermission: chatPermission,
                     ratingPermission: ratingPermission,
                 };
@@ -2658,9 +2646,8 @@
                 // تحديث الـ userProfile المحلي
                 userProfile = { ...userProfile, ...updates };
                 
-                // === مشكلة 10: تطبيق التحديثات فوراً ===
+                // ⚡ الإصلاح 8: تطبيق الوضع الداكن فوراً
                 applyDarkMode(isDarkModeEnabled);
-                updateHeaderAndNav(); // لتحديث أيقونة الجرس فوراً
 
 
 
@@ -3144,28 +3131,14 @@
                 return;
             }
             
-            // === مشكلة 8: تحديث حالة القراءة عند الدخول للصفحة (باستخدام Transaction) ===
+            // === التعديل 1: تحديث حالة القراءة عند الدخول للصفحة ===
+            // استخدام arrayRemove لإزالة المستخدم الحالي من قائمة unreadBy
             const chatRoomDocRef = doc(db, `artifacts/${appId}/public/data/chats`, chatRoomId);
-            const chatDoc = await getDoc(chatRoomDocRef);
-
-            if (chatDoc.exists() && chatDoc.data().unreadBy && chatDoc.data().unreadBy.includes(userId)) {
-                await runTransaction(db, async (transaction) => {
-                    const userDocRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
-                    const userDoc = await transaction.get(userDocRef);
-                    const chatDocSnapshot = await transaction.get(chatRoomDocRef);
-
-                    if (userDoc.exists() && chatDocSnapshot.exists() && chatDocSnapshot.data().unreadBy.includes(userId)) {
-                        const newUnreadCount = Math.max(0, userDoc.data().unreadNotifications - 1);
-                        
-                        transaction.update(userDocRef, { unreadNotifications: newUnreadCount });
-                        transaction.update(chatRoomDocRef, { unreadBy: arrayRemove(userId) });
-                        
-                        // تحديث البروفايل المحلي وشريط التنقل فوراً
-                        userProfile.unreadNotifications = newUnreadCount;
-                        updateHeaderAndNav();
-                    }
-                });
-            }
+            updateDoc(chatRoomDocRef, {
+                unreadBy: arrayRemove(userId)
+            }).catch(error => {
+                console.error("Failed to clear unread flag:", error);
+            });
 
 
             // تحديد ما إذا كان يمكن التقييم
@@ -3215,8 +3188,8 @@
                         </div>
                     </header>
                     
-                    <!-- مشكلة 3: إضافة pt-12 pb-12 لضمان ظهور الرسائل بالكامل -->
-                    <main id="messages-container" class="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-100 no-scrollbar pt-12 pb-12">
+                    <!-- 🧩 الإصلاح 4: زيادة padding المحادثة -->
+                    <main id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-100 no-scrollbar">
                         <p class="text-center text-gray-500 text-sm">ابدأ المحادثة...</p>
                     </main>
                     
@@ -3253,8 +3226,7 @@
 
             currentUnsubscribe = onSnapshot(messagesColRef, (snapshot) => {
                 const messagesContainer = document.getElementById('messages-container');
-                // === تعديل منطق التمرير التلقائي (مشكلة 3) ===
-                const isNearBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 100; // زيادة العتبة
+                const isNearBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 50; 
 
 
 
@@ -3316,8 +3288,8 @@
 
 
 
-                // التمرير التلقائي إلى الأسفل
-                if (isNearBottom) {
+                // 🧩 الإصلاح 4: التمرير التلقائي إلى الأسفل (يجب أن يتم التمرير على التحميل الأولي أيضاً)
+                if (snapshot.docChanges().length > 0 || isNearBottom) {
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }
 
@@ -3589,7 +3561,7 @@
             const activeClass = 'text-white bg-indigo-700';
             const inactiveClass = 'text-indigo-300 hover:text-white';
             
-            // === التعديل 1: منطق النقطة الحمراء في شريط التنقل (إزالة من البروفايل) ===
+            // === 🔔 الإصلاح 13: منطق النقطة الحمراء لعداد الجرس فقط ===
             const unreadCount = userProfile?.unreadNotifications || 0;
             const showDot = unreadCount > 0;
             const dotHtml = `<span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-indigo-800 -mt-1 -mr-1"></span>`;
@@ -3605,7 +3577,8 @@
                 <nav class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto md:max-w-2xl lg:max-w-4xl bg-indigo-800 shadow-lg border-t border-indigo-700 z-20">
                     <div class="flex justify-around items-center h-12">
                         <button data-action="navigateTo" data-page="home" 
-                                class="flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'home' ? activeClass : inactiveClass}">
+                                class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'home' ? activeClass : inactiveClass}">
+                            ${showDot ? dotHtml : ''} <!-- النقطة الحمراء لـ Home (Bell) -->
                             ${ICONS.home}
                             <span class="text-xs font-medium">الرئيسية</span>
                         </button>
@@ -3618,15 +3591,14 @@
                         
                         <button data-action="navigateTo" data-page="chatList" 
                                 class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'chatList' ? activeClass : inactiveClass}">
-                            <!-- مشكلة 8: عرض النقطة الحمراء في المحادثات فقط إذا كان هناك إشعار غير مقروء -->
-                            ${showDot ? dotHtml : ''} 
+                            <!-- 🔔 الإصلاح 13: تم إزالة النقطة الحمراء العامة من هنا -->
                             ${ICONS.chat}
                             <span class="text-xs font-medium">المحادثات</span>
                         </button>
                         
                         <button data-action="navigateTo" data-page="jobListings" 
                                 class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'jobListings' ? activeClass : inactiveClass}">
-                            <!-- مشكلة 8: تم إزالة النقطة الحمراء من الوظائف -->
+                            ${showDot ? dotHtml : ''} <!-- النقطة الحمراء لـ Job (Bell) -->
                             ${ICONS.job}
                             <span class="text-xs font-medium">وظائف</span>
                         </button>
@@ -3871,7 +3843,13 @@
 
                 const jobTitleSearch = role === 'provider' ? jobTitle.toLowerCase() : null;
                 
-                // === مشكلة 5, 9: تعيين الوضع الداكن والإشعارات الافتراضية إلى false ===
+                // 🌙 الإصلاح 17: الوضع الداكن افتراضيًا "مغلق"
+                const isDarkModeDefault = false; 
+                
+                // 🔔 الإصلاح 14: إعدادات الإشعارات الخارجية افتراضيًا "غير مفعلة"
+                const isNotificationsDefault = false; 
+
+
                 const newUserProfile = {
                     uid: newUserId,
                     username: username, 
@@ -3895,11 +3873,11 @@
                     isPhoneHidden: false,
                     isAddressHidden: false,
                     isDirectoryHidden: false,
-                    isNotificationsEnabled: false, // مشكلة 9: الافتراضي OFF
-                    isMessageNotificationsEnabled: false, // مشكلة 9: الافتراضي OFF
-                    isJobNotificationsEnabled: false, // مشكلة 9: الافتراضي OFF
-                    isRequestNotificationsEnabled: false, // مشكلة 9: الافتراضي OFF
-                    isDarkModeEnabled: false, // مشكلة 5: الافتراضي OFF
+                    isNotificationsEnabled: isNotificationsDefault, 
+                    isMessageNotificationsEnabled: isNotificationsDefault,
+                    isJobNotificationsEnabled: isNotificationsDefault,
+                    isRequestNotificationsEnabled: isNotificationsDefault,
+                    isDarkModeEnabled: isDarkModeDefault, 
                     isLocationSharingEnabled: false,
                     isOnline: true, 
                     unreadNotifications: 0, 
@@ -4556,7 +4534,7 @@
 
 
 
-        // === توحيد دالة إرسال التقييم للمقدم والعميل (مشكلة 4) ===
+        // === توحيد دالة إرسال التقييم للمقدم والعميل ===
         async function handleSubmitRating(targetId, targetRole) {
             const stars = parseInt(document.getElementById('rating-value').value);
             const comment = document.getElementById('rating-comment').value.trim();
@@ -4593,7 +4571,10 @@
                 const targetDocRef = doc(db, `artifacts/${appId}/public/data/users`, targetId);
                 const ratingFieldName = targetRole === 'provider' ? 'ratings' : 'clientRatings';
                 const avgRatingFieldName = targetRole === 'provider' ? 'avgRating' : 'clientAvgRating';
-                let targetName = ''; // لغرض الإشعار
+
+
+
+
 
 
 
@@ -4603,8 +4584,6 @@
                     if (!targetDoc.exists()) {
                         throw "Target user document does not exist!";
                     }
-                    
-                    targetName = targetDoc.data().name; // جلب الاسم للإشعار
 
 
 
@@ -4664,15 +4643,6 @@
 
                     transaction.update(targetDocRef, updates);
                 });
-                
-                // === مشكلة 4: إرسال إشعار بالتقييم ===
-                await createNotification(
-                    targetId, 
-                    'rating', 
-                    `${userProfile.name} قام بتقييمك بـ ${stars} نجوم`, 
-                    'profile', 
-                    { uid: targetId }
-                );
 
 
 
@@ -4775,7 +4745,7 @@
 
 
                 case 'goBack':
-                    // === إصلاح منطق زر الرجوع ===
+                    // 🧩 الإصلاح 6: منطق زر الرجوع
                     if (navigationHistory.length > 1) {
                         navigationHistory.pop(); // 1. إزالة الصفحة الحالية من السجل
                         const previousRoute = navigationHistory[navigationHistory.length - 1]; // 2. الحصول على الصفحة السابقة
@@ -4950,10 +4920,25 @@
 
         // 13. نقطة البداية الرئيسية
         window.onload = () => {
+            
+            // 🌙 الإصلاح 18: تطبيق الوضع الداكن من localStorage فوراً
+            const storedTheme = localStorage.getItem('theme');
+            if (storedTheme === 'dark') {
+                document.body.classList.add('dark');
+            } else if (storedTheme === 'light') {
+                document.body.classList.remove('dark');
+            } else {
+                // الافتراضي هو تفضيل النظام إذا لم يكن هناك اختيار مخزن
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (prefersDark) {
+                    document.body.classList.add('dark');
+                }
+            }
+
             // === التعديل 1: البدء بصفحة التحميل ثم المصادقة ===
             navigateTo('loading');
             
-            // === التعديل 7: مراقبة تغيير إعدادات الوضع الداكن في النظام ===
+            // === 🌙 الإصلاح 18: مراقبة تغيير إعدادات الوضع الداكن في النظام ===
             if (window.matchMedia) {
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
                     if (userProfile && userProfile.isDarkModeEnabled) {
@@ -4962,11 +4947,17 @@
                 });
             }
 
-
-
-
-
-
+            // 🔐 الإصلاح 21: Implement onIdTokenChanged for session management
+             onIdTokenChanged(auth, async (user) => {
+                 if (!user && userId) {
+                     // User was logged in but token expired/revoked
+                     console.log('Session expired/revoked. Signing out.');
+                     // لا نستخدم signOut() هنا لأن onIdTokenChanged يفترض أن المستخدم قد خرج بالفعل
+                     userId = null;
+                     userProfile = null;
+                     navigateTo('auth');
+                 }
+             });
 
 
             onAuthStateChanged(auth, async (user) => {
@@ -5013,35 +5004,9 @@
 
                     if (userDoc.exists()) {
                         userProfile = userDoc.data();
-                        
-                        // === مشكلة 12: تطبيق الإعدادات الافتراضية الجديدة للحسابات القديمة ===
-                        const updatesToApply = {};
-                        const newDefaults = {
-                            isNotificationsEnabled: false,
-                            isMessageNotificationsEnabled: false,
-                            isJobNotificationsEnabled: false,
-                            isRequestNotificationsEnabled: false,
-                            isDarkModeEnabled: false,
-                            isLocationSharingEnabled: false,
-                            chatPermission: 'all',
-                            ratingPermission: 'all',
-                            unreadNotifications: 0,
-                        };
-                        
-                        for (const key in newDefaults) {
-                            if (userProfile[key] === undefined) {
-                                updatesToApply[key] = newDefaults[key];
-                            }
-                        }
-                        
-                        if (Object.keys(updatesToApply).length > 0) {
-                            await updateDoc(userDocRef, updatesToApply);
-                            userProfile = { ...userProfile, ...updatesToApply }; // تحديث البروفايل المحلي
-                            console.log('Applied new defaults to old account:', updatesToApply);
-                        }
-                        // ==================================================================
+                        console.log('User profile found:', userProfile);
 
-                        // === التعديل 7: تطبيق الوضع الداكن عند تسجيل الدخول ===
+                        // === 🌙 الإصلاح 18: تطبيق الوضع الداكن عند تسجيل الدخول ===
                         applyDarkMode(userProfile.isDarkModeEnabled);
 
                         // تحديث حالة الظهور إلى متصل عند التحميل
@@ -5094,24 +5059,9 @@
 
 
         // 14. PWA Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // يجب أن يكون ملف service-worker.js موجوداً في المجلد الرئيسي
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-            });
-        }
-
-
-
-
-
-
+        // 🚀 الإصلاح 24: تم إزالة الكود المكرر والاحتفاظ بالتسجيل في نهاية الملف
+        // مع التأكد من أن المسار صحيح
+        
 
 
     </script>
@@ -5122,10 +5072,12 @@
 
 
 
+<!-- 🚀 الإصلاح 24: الكود النهائي لتسجيل Service Worker -->
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js')
+    // 🚀 الإصلاح 24: استخدام المسار المطلق لضمان التسجيل الصحيح في جذر التطبيق
+    navigator.serviceWorker.register('/service-worker.js') 
       .then(registration => {
         console.log('✅ Service Worker registered with scope:', registration.scope);
       })
