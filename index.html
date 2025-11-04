@@ -167,11 +167,11 @@
             border-color: #3730a3; /* indigo-900 */
         }
         
-        /* === التعديل 5: خلفية زجاجية شفافة لصفحة التسجيل (تم إزالة blur لتحسين الأداء - مشكلة 7) === */
+        /* === التعديل 5: خلفية زجاجية شفافة لصفحة التسجيل === */
         .glassy-indigo-bg {
-            background-color: rgba(255, 255, 255, 0.9); /* أبيض أكثر شفافية قليلاً */
-            /* backdrop-filter: blur(8px); */
-            /* -webkit-backdrop-filter: blur(8px); */
+            background-color: rgba(255, 255, 255, 0.8); /* أبيض شفاف */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.4);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
         }
@@ -278,7 +278,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
         }
         body.dark .glassy-indigo-bg {
-            background-color: rgba(55, 65, 81, 0.95); /* bg-gray-700 شفاف */
+            background-color: rgba(55, 65, 81, 0.9); /* bg-gray-700 شفاف */
             border: 1px solid rgba(156, 163, 175, 0.4);
         }
         body.dark .bg-gray-100 {
@@ -889,7 +889,7 @@
 
 
 
-        // === دالة تحديث عداد الإشعارات (محدثة - مشكلة 2, 10) ===
+        // === دالة تحديث عداد الإشعارات (محدثة - مع إعادة توجيه فورية) ===
         async function updateNotificationCount(change = 0) {
             if (userId) {
                 try {
@@ -904,9 +904,12 @@
                     if (userDoc.exists()) {
                         userProfile = userDoc.data();
                     }
-                    // === مشكلة 2, 10: تحديث الشريط العلوي والسفلي فوراً ===
-                    updateHeaderAndNav();
                     
+                    // === التعديل 2 و 10: إعادة توجيه فورية لتحديث الـ UI ===
+                    const currentRoute = navigationHistory[navigationHistory.length - 1];
+                    if (currentRoute) {
+                        navigateTo(currentRoute.page, currentRoute.params);
+                    }
                 } catch (error) {
                     console.error("Error updating notification count:", error);
                 }
@@ -921,7 +924,7 @@
             if (recipientId === userId) return; // لا ترسل إشعاراً لنفسك
 
 
-            // ⚠️ الإشعارات الداخلية إجبارية (التي تظهر في الجرس).
+            // ⚠️ الإشعارات الداخلية إجبارية، لا نتحقق من إعدادات المستخدم هنا.
 
 
             const notificationsColRef = collection(db, `artifacts/${appId}/public/data/notifications`);
@@ -976,6 +979,14 @@
             }
         }
         
+        // === دالة طلب إذن الإشعارات الخارجية (تم إلغاؤها - الطلب 3) ===
+        // function requestNotificationPermission() {
+        //     // ... (تم إلغاء المنطق)
+        // }
+
+
+
+
         // === دالة عرض صفحة الإشعارات (محدثة - إصلاح مشكلة التحميل وتحديد الكل كمقروء) ===
         async function renderNotificationsPage() {
             
@@ -1005,7 +1016,6 @@
                      unreadNotifications: 0
                  });
                  userProfile.unreadNotifications = 0;
-                 updateHeaderAndNav(); // تحديث الشريط السفلي فوراً
             }
 
 
@@ -1025,7 +1035,6 @@
                 const notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 // === منطق تحديد الكل كمقروء في Firestore (لضمان أن الإشعارات نفسها مقروءة) ===
-                // هذا يضمن أن الإشعارات التي تم فتحها في الجرس يتم تحديدها كمقروءة في Firestore
                 const unreadNotifications = notifications.filter(n => !n.isRead);
                 if (unreadNotifications.length > 0) {
                     const batch = writeBatch(db);
@@ -1048,9 +1057,7 @@
                     // نعتمد على حالة isRead المخزنة في Firestore للعرض
                     const bgColor = n.isRead ? 'bg-white' : 'bg-indigo-50 border-indigo-200';
                     const dateString = n.createdAt && n.createdAt.toDate ? new Date(n.createdAt.toDate()).toLocaleString('ar-EG') : 'تاريخ غير محدد';
-                    const icon = n.type === 'message' ? ICONS.chat : (n.type === 'job' ? ICONS.job : (n.type === 'rating' ? ICONS.star : ICONS.add)); // مشكلة 4: إضافة أيقونة التقييم
-
-
+                    const icon = n.type === 'message' ? ICONS.chat : (n.type === 'job' ? ICONS.job : (n.type === 'rating' ? ICONS.star : ICONS.add)); // إضافة أيقونة التقييم
 
 
                     return `
@@ -1066,35 +1073,8 @@
                 }).join('');
             }, (error) => {
                  console.error("Error fetching notifications: ", error);
-                 // === مشكلة 11: رسالة خطأ عامة مع إمكانية الوصول للكل (يجب التحقق من قواعد Firebase) ===
-                 document.getElementById('notifications-list').innerHTML = '<p class="text-red-500 text-center p-6 bg-white rounded-lg shadow-sm">حدث خطأ أثناء تحميل الإشعارات. (يرجى التأكد من قواعد أمان Firebase)</p>';
+                 document.getElementById('notifications-list').innerHTML = '<p class="text-red-500 text-center p-6 bg-white rounded-lg shadow-sm">حدث خطأ أثناء تحميل الإشعارات.</p>';
             });
-        }
-        
-        // === دالة تحديث الشريط العلوي والسفلي فوراً (مشكلة 2, 10) ===
-        function updateHeaderAndNav() {
-            const currentRoute = navigationHistory[navigationHistory.length - 1];
-            if (!currentRoute) return;
-
-            const activeTab = currentRoute.page === 'profile' ? 'profile' : 
-                              (currentRoute.page === 'chatList' ? 'chatList' : 
-                              (currentRoute.page === 'jobListings' ? 'jobListings' : 'home'));
-
-            // 1. تحديث الشريط السفلي
-            const navElement = document.querySelector('nav.fixed');
-            if (navElement) {
-                navElement.outerHTML = renderBottomNav(activeTab);
-            }
-
-            // 2. تحديث الجرس في الشريط العلوي (إذا كان موجوداً)
-            const headerElement = document.querySelector('header.welcome-header');
-            if (headerElement) {
-                // إعادة بناء الجرس فقط
-                const bellContainer = headerElement.querySelector('[data-action="navigateTo"][data-page="notifications"]');
-                if (bellContainer) {
-                    bellContainer.outerHTML = renderNotificationBell();
-                }
-            }
         }
 
 
@@ -1320,13 +1300,12 @@
 
         function renderAuthPage() {
             appContainer.innerHTML = `
-                <!-- مشكلة 6: تقليل الحشو لتقليل الحجم على الهاتف -->
-                <div class="flex flex-col items-center justify-center min-h-screen p-2 bg-indigo-800">
+                <!-- === التعديل 6: تقليل الحشو الرأسي في وضع الهاتف === -->
+                <div class="flex flex-col items-center justify-center min-h-screen p-4 bg-indigo-800 sm:pt-8 sm:pb-8">
                     <h1 class="text-4xl font-bold text-white mb-4">مستقبل الشرقية</h1>
                     <p class="text-lg text-indigo-100 mb-8 text-center">أهلاً بك في تطبيق خدمات محافظة الشرقية</p>
                     
-                    <!-- مشكلة 6: تقليل الحشو لتقليل الحجم على الهاتف -->
-                    <div class="w-full max-w-sm bg-white rounded-lg shadow-xl p-4">
+                    <div class="w-full max-w-sm bg-white rounded-lg shadow-xl p-6">
                         <form id="login-form" class="space-y-4">
                             <h2 class="text-2xl font-semibold text-center text-gray-800 mb-4">تسجيل الدخول</h2>
                             <div id="login-error" class="text-red-500 text-sm text-center hidden"></div>
@@ -1394,7 +1373,7 @@
                 <div class="min-h-screen main-padding bg-indigo-800 flex items-start justify-center pt-8 pb-24">
                     <div class="w-full max-w-md">
                          <h1 class="text-2xl font-bold text-white mb-6 text-center">إنشاء حساب جديد</h1>
-                         <!-- التعديل 5: إضافة كلاس الزجاج الشفاف (مشكلة 7: تم إزالة blur) -->
+                         <!-- التعديل 5: إضافة كلاس الزجاج الشفاف -->
                         <form id="register-form" class="space-y-4 glassy-indigo-bg p-6 rounded-lg shadow-2xl mx-auto">
                             <div id="register-error" class="text-red-600 text-sm text-center font-bold hidden bg-red-100 p-2 rounded-md"></div>
                             
@@ -1586,9 +1565,8 @@
                         </div>
                     </main>
                     
-                    <!-- مشكلة 1: تغيير left-4 إلى right-4 -->
                     <button data-action="navigateTo" data-page="newRequest" 
-                            class="fixed bottom-16 right-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
+                            class="fixed bottom-16 right-4 sm:right-auto sm:left-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
                         ${ICONS.add}
                     </button>
                     
@@ -1645,9 +1623,8 @@
                         </div>
                     </main>
                     
-                    <!-- مشكلة 1: تغيير left-4 إلى right-4 -->
                     <button data-action="navigateTo" data-page="newRequest" 
-                            class="fixed bottom-16 right-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
+                            class="fixed bottom-16 right-4 sm:right-auto sm:left-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
                         ${ICONS.add}
                     </button>
                     
@@ -2289,7 +2266,7 @@
 
                 const profileContent = document.getElementById('profile-content');
                 profileContent.innerHTML = `
-                    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 flex flex-col items-center">
+                    <div class="bg-white p-6 rounded-lg shadow-md mt-4 border border-gray-200 flex flex-col items-center">
                         <img src="${profileData.photoURL || 'https://placehold.co/150x150/EBF8FF/3182CE?text=User'}" 
                              alt="${profileData.name}" class="w-28 h-28 rounded-full object-cover shadow-lg border-4 border-white mb-3">
                         <h2 class="text-2xl font-bold text-gray-900">${profileData.name}</h2>
@@ -2456,7 +2433,7 @@
 
 
 
-        // === دالة عرض صفحة الإعدادات (محدثة - مشكلة 9) ===
+        // === دالة عرض صفحة الإعدادات (محدثة) ===
         function renderSettingsPage() {
             if (!userProfile) {
                 navigateTo('auth');
@@ -2469,14 +2446,13 @@
             const isPhoneHidden = userProfile.isPhoneHidden || false;
             const isAddressHidden = userProfile.isAddressHidden || false;
             const isDirectoryHidden = userProfile.isDirectoryHidden || false;
-            // === مشكلة 9: الإعدادات الافتراضية الآن هي false ===
-            const isNotificationsEnabled = userProfile.isNotificationsEnabled || false; 
-            const isMessageNotificationsEnabled = userProfile.isMessageNotificationsEnabled || false; 
-            const isJobNotificationsEnabled = userProfile.isJobNotificationsEnabled || false; 
-            const isRequestNotificationsEnabled = userProfile.isRequestNotificationsEnabled || false; 
-            
-            const isDarkModeEnabled = userProfile.isDarkModeEnabled || false; 
-            const isLocationSharingEnabled = userProfile.isLocationSharingEnabled || false; 
+            const isNotificationsEnabled = userProfile.isNotificationsEnabled || false;
+            const isMessageNotificationsEnabled = userProfile.isMessageNotificationsEnabled !== false; 
+            const isJobNotificationsEnabled = userProfile.isJobNotificationsEnabled !== false; 
+            const isRequestNotificationsEnabled = userProfile.isRequestNotificationsEnabled !== false; 
+            const isDarkModeEnabled = userProfile.isDarkModeEnabled || false; // إعداد إضافي
+            const isLocationSharingEnabled = userProfile.isLocationSharingEnabled || false; // إعداد إضافي
+            // === التعديل 3: إعدادات التحكم الكامل في المنافع ===
             const chatPermission = userProfile.chatPermission || 'all';
             const ratingPermission = userProfile.ratingPermission || 'all';
 
@@ -2558,11 +2534,11 @@
                             </div>
 
 
-                            <!-- إعدادات الإشعارات (الخارجية) -->
+                            <!-- إعدادات الإشعارات -->
                             <div class="border-b border-indigo-200 pb-3 pt-2">
-                                <h2 class="text-lg font-semibold text-indigo-800">إعدادات الإشعارات (الخارجية - تنبيهات النظام)</h2>
+                                <h2 class="text-lg font-semibold text-indigo-800">إعدادات الإشعارات (للتنبيهات الخارجية)</h2>
                             </div>
-                            ${toggleHtml('toggle-notifications', 'تفعيل الإشعارات الخارجية', isNotificationsEnabled, 'تفعيل/إيقاف جميع الإشعارات الخارجية (تنبيهات النظام).')}
+                            ${toggleHtml('toggle-notifications', 'تفعيل الإشعارات العامة', isNotificationsEnabled, 'تفعيل/إيقاف جميع الإشعارات الخارجية (ميزة قادمة).')}
                             <div class="mr-4 mt-2 p-3 bg-indigo-50 rounded-md border border-indigo-200 ${isNotificationsEnabled ? '' : 'opacity-50 pointer-events-none'}" id="custom-notifications-settings">
                                 <h3 class="text-sm font-semibold text-indigo-700 mb-2">إشعارات مخصصة:</h3>
                                 ${toggleHtml('toggle-msg-notifications', 'إشعارات الرسائل الجديدة', isMessageNotificationsEnabled, 'تنبيه عند استلام رسالة محادثة جديدة.')}
@@ -2609,7 +2585,7 @@
 
 
 
-        // === دالة حفظ الإعدادات (محدثة - مشكلة 9, 10) ===
+        // === دالة حفظ الإعدادات (محدثة) ===
         async function handleSaveSettings() {
             showLoading('جاري حفظ الإعدادات...');
 
@@ -2626,6 +2602,7 @@
                 const isRequestNotificationsEnabled = document.getElementById('toggle-request-notifications').checked;
                 const isDarkModeEnabled = document.getElementById('toggle-dark-mode').checked;
                 const isLocationSharingEnabled = document.getElementById('toggle-location-sharing').checked;
+                // === التعديل 3: جلب إعدادات التحكم الكامل في المنافع ===
                 const chatPermission = document.getElementById('chat-permission').value;
                 const ratingPermission = document.getElementById('rating-permission').value;
 
@@ -2642,6 +2619,7 @@
                     isRequestNotificationsEnabled: isRequestNotificationsEnabled,
                     isDarkModeEnabled: isDarkModeEnabled,
                     isLocationSharingEnabled: isLocationSharingEnabled,
+                    // === التعديل 3: حفظ إعدادات التحكم الكامل في المنافع ===
                     chatPermission: chatPermission,
                     ratingPermission: ratingPermission,
                 };
@@ -2658,9 +2636,8 @@
                 // تحديث الـ userProfile المحلي
                 userProfile = { ...userProfile, ...updates };
                 
-                // === مشكلة 10: تطبيق التحديثات فوراً ===
+                // === التعديل 7: تطبيق الوضع الداكن فوراً ===
                 applyDarkMode(isDarkModeEnabled);
-                updateHeaderAndNav(); // لتحديث أيقونة الجرس فوراً
 
 
 
@@ -2671,9 +2648,10 @@
 
 
 
+                // === التعديل 10: تحديث فوري للصفحة ===
                 setTimeout(() => {
-                    navigateTo('profile', { uid: userId });
-                }, 1500);
+                    navigateTo('settings');
+                }, 500);
 
 
 
@@ -3144,28 +3122,14 @@
                 return;
             }
             
-            // === مشكلة 8: تحديث حالة القراءة عند الدخول للصفحة (باستخدام Transaction) ===
+            // === التعديل 1: تحديث حالة القراءة عند الدخول للصفحة ===
+            // استخدام arrayRemove لإزالة المستخدم الحالي من قائمة unreadBy
             const chatRoomDocRef = doc(db, `artifacts/${appId}/public/data/chats`, chatRoomId);
-            const chatDoc = await getDoc(chatRoomDocRef);
-
-            if (chatDoc.exists() && chatDoc.data().unreadBy && chatDoc.data().unreadBy.includes(userId)) {
-                await runTransaction(db, async (transaction) => {
-                    const userDocRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
-                    const userDoc = await transaction.get(userDocRef);
-                    const chatDocSnapshot = await transaction.get(chatRoomDocRef);
-
-                    if (userDoc.exists() && chatDocSnapshot.exists() && chatDocSnapshot.data().unreadBy.includes(userId)) {
-                        const newUnreadCount = Math.max(0, userDoc.data().unreadNotifications - 1);
-                        
-                        transaction.update(userDocRef, { unreadNotifications: newUnreadCount });
-                        transaction.update(chatRoomDocRef, { unreadBy: arrayRemove(userId) });
-                        
-                        // تحديث البروفايل المحلي وشريط التنقل فوراً
-                        userProfile.unreadNotifications = newUnreadCount;
-                        updateHeaderAndNav();
-                    }
-                });
-            }
+            updateDoc(chatRoomDocRef, {
+                unreadBy: arrayRemove(userId)
+            }).catch(error => {
+                console.error("Failed to clear unread flag:", error);
+            });
 
 
             // تحديد ما إذا كان يمكن التقييم
@@ -3215,8 +3179,7 @@
                         </div>
                     </header>
                     
-                    <!-- مشكلة 3: إضافة pt-12 pb-12 لضمان ظهور الرسائل بالكامل -->
-                    <main id="messages-container" class="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-100 no-scrollbar pt-12 pb-12">
+                    <main id="messages-container" class="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-100 no-scrollbar">
                         <p class="text-center text-gray-500 text-sm">ابدأ المحادثة...</p>
                     </main>
                     
@@ -3253,8 +3216,7 @@
 
             currentUnsubscribe = onSnapshot(messagesColRef, (snapshot) => {
                 const messagesContainer = document.getElementById('messages-container');
-                // === تعديل منطق التمرير التلقائي (مشكلة 3) ===
-                const isNearBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 100; // زيادة العتبة
+                const isNearBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 50; 
 
 
 
@@ -3605,7 +3567,8 @@
                 <nav class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto md:max-w-2xl lg:max-w-4xl bg-indigo-800 shadow-lg border-t border-indigo-700 z-20">
                     <div class="flex justify-around items-center h-12">
                         <button data-action="navigateTo" data-page="home" 
-                                class="flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'home' ? activeClass : inactiveClass}">
+                                class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'home' ? activeClass : inactiveClass}">
+                            ${showDot ? dotHtml : ''}
                             ${ICONS.home}
                             <span class="text-xs font-medium">الرئيسية</span>
                         </button>
@@ -3618,15 +3581,14 @@
                         
                         <button data-action="navigateTo" data-page="chatList" 
                                 class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'chatList' ? activeClass : inactiveClass}">
-                            <!-- مشكلة 8: عرض النقطة الحمراء في المحادثات فقط إذا كان هناك إشعار غير مقروء -->
-                            ${showDot ? dotHtml : ''} 
+                            ${showDot ? dotHtml : ''}
                             ${ICONS.chat}
                             <span class="text-xs font-medium">المحادثات</span>
                         </button>
                         
                         <button data-action="navigateTo" data-page="jobListings" 
                                 class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'jobListings' ? activeClass : inactiveClass}">
-                            <!-- مشكلة 8: تم إزالة النقطة الحمراء من الوظائف -->
+                            ${showDot ? dotHtml : ''}
                             ${ICONS.job}
                             <span class="text-xs font-medium">وظائف</span>
                         </button>
@@ -3871,7 +3833,16 @@
 
                 const jobTitleSearch = role === 'provider' ? jobTitle.toLowerCase() : null;
                 
-                // === مشكلة 5, 9: تعيين الوضع الداكن والإشعارات الافتراضية إلى false ===
+                // === التعديل 7: التحقق من إعدادات الوضع الداكن في المتصفح ===
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                
+                // === التعديل 5: تعيين حالة الوضع الداكن الافتراضية على false ===
+                const isDarkModeDefault = false; 
+                
+                // === التعديل 9: الإعدادات الافتراضية للإشعارات الخارجية (متعطلة) ===
+                const isNotificationsDefault = false; 
+
+
                 const newUserProfile = {
                     uid: newUserId,
                     username: username, 
@@ -3895,11 +3866,11 @@
                     isPhoneHidden: false,
                     isAddressHidden: false,
                     isDirectoryHidden: false,
-                    isNotificationsEnabled: false, // مشكلة 9: الافتراضي OFF
-                    isMessageNotificationsEnabled: false, // مشكلة 9: الافتراضي OFF
-                    isJobNotificationsEnabled: false, // مشكلة 9: الافتراضي OFF
-                    isRequestNotificationsEnabled: false, // مشكلة 9: الافتراضي OFF
-                    isDarkModeEnabled: false, // مشكلة 5: الافتراضي OFF
+                    isNotificationsEnabled: isNotificationsDefault, // ✅ تم التعديل
+                    isMessageNotificationsEnabled: isNotificationsDefault,
+                    isJobNotificationsEnabled: isNotificationsDefault,
+                    isRequestNotificationsEnabled: isNotificationsDefault,
+                    isDarkModeEnabled: isDarkModeDefault, // ✅ تم التعديل
                     isLocationSharingEnabled: false,
                     isOnline: true, 
                     unreadNotifications: 0, 
@@ -4556,7 +4527,7 @@
 
 
 
-        // === توحيد دالة إرسال التقييم للمقدم والعميل (مشكلة 4) ===
+        // === توحيد دالة إرسال التقييم للمقدم والعميل ===
         async function handleSubmitRating(targetId, targetRole) {
             const stars = parseInt(document.getElementById('rating-value').value);
             const comment = document.getElementById('rating-comment').value.trim();
@@ -4593,7 +4564,10 @@
                 const targetDocRef = doc(db, `artifacts/${appId}/public/data/users`, targetId);
                 const ratingFieldName = targetRole === 'provider' ? 'ratings' : 'clientRatings';
                 const avgRatingFieldName = targetRole === 'provider' ? 'avgRating' : 'clientAvgRating';
-                let targetName = ''; // لغرض الإشعار
+
+
+
+
 
 
 
@@ -4603,8 +4577,6 @@
                     if (!targetDoc.exists()) {
                         throw "Target user document does not exist!";
                     }
-                    
-                    targetName = targetDoc.data().name; // جلب الاسم للإشعار
 
 
 
@@ -4665,11 +4637,11 @@
                     transaction.update(targetDocRef, updates);
                 });
                 
-                // === مشكلة 4: إرسال إشعار بالتقييم ===
+                // === التعديل 4: إنشاء إشعار بالتقييم ===
                 await createNotification(
                     targetId, 
                     'rating', 
-                    `${userProfile.name} قام بتقييمك بـ ${stars} نجوم`, 
+                    `قام ${userProfile.name} بتقييمك!`, 
                     'profile', 
                     { uid: targetId }
                 );
@@ -4950,6 +4922,9 @@
 
         // 13. نقطة البداية الرئيسية
         window.onload = () => {
+            // === التعديل 3: إلغاء طلب الإذن الخارجي ===
+            // requestNotificationPermission(); 
+
             // === التعديل 1: البدء بصفحة التحميل ثم المصادقة ===
             navigateTo('loading');
             
@@ -5013,33 +4988,7 @@
 
                     if (userDoc.exists()) {
                         userProfile = userDoc.data();
-                        
-                        // === مشكلة 12: تطبيق الإعدادات الافتراضية الجديدة للحسابات القديمة ===
-                        const updatesToApply = {};
-                        const newDefaults = {
-                            isNotificationsEnabled: false,
-                            isMessageNotificationsEnabled: false,
-                            isJobNotificationsEnabled: false,
-                            isRequestNotificationsEnabled: false,
-                            isDarkModeEnabled: false,
-                            isLocationSharingEnabled: false,
-                            chatPermission: 'all',
-                            ratingPermission: 'all',
-                            unreadNotifications: 0,
-                        };
-                        
-                        for (const key in newDefaults) {
-                            if (userProfile[key] === undefined) {
-                                updatesToApply[key] = newDefaults[key];
-                            }
-                        }
-                        
-                        if (Object.keys(updatesToApply).length > 0) {
-                            await updateDoc(userDocRef, updatesToApply);
-                            userProfile = { ...userProfile, ...updatesToApply }; // تحديث البروفايل المحلي
-                            console.log('Applied new defaults to old account:', updatesToApply);
-                        }
-                        // ==================================================================
+                        console.log('User profile found:', userProfile);
 
                         // === التعديل 7: تطبيق الوضع الداكن عند تسجيل الدخول ===
                         applyDarkMode(userProfile.isDarkModeEnabled);
