@@ -889,7 +889,7 @@
 
 
 
-        // === دالة تحديث عداد الإشعارات (محدثة) ===
+        // === دالة تحديث عداد الإشعارات (محدثة - مع إعادة توجيه فورية) ===
         async function updateNotificationCount(change = 0) {
             if (userId) {
                 try {
@@ -904,9 +904,10 @@
                     if (userDoc.exists()) {
                         userProfile = userDoc.data();
                     }
-                    // إعادة عرض الصفحة الرئيسية لتحديث الجرس
+                    
+                    // === التعديل 2 و 10: إعادة توجيه فورية لتحديث الـ UI ===
                     const currentRoute = navigationHistory[navigationHistory.length - 1];
-                    if (currentRoute && (currentRoute.page === 'clientHome' || currentRoute.page === 'providerHome' || currentRoute.page === 'chatList' || currentRoute.page === 'jobListings')) {
+                    if (currentRoute) {
                         navigateTo(currentRoute.page, currentRoute.params);
                     }
                 } catch (error) {
@@ -1056,9 +1057,7 @@
                     // نعتمد على حالة isRead المخزنة في Firestore للعرض
                     const bgColor = n.isRead ? 'bg-white' : 'bg-indigo-50 border-indigo-200';
                     const dateString = n.createdAt && n.createdAt.toDate ? new Date(n.createdAt.toDate()).toLocaleString('ar-EG') : 'تاريخ غير محدد';
-                    const icon = n.type === 'message' ? ICONS.chat : (n.type === 'job' ? ICONS.job : ICONS.add);
-
-
+                    const icon = n.type === 'message' ? ICONS.chat : (n.type === 'job' ? ICONS.job : (n.type === 'rating' ? ICONS.star : ICONS.add)); // إضافة أيقونة التقييم
 
 
                     return `
@@ -1301,7 +1300,8 @@
 
         function renderAuthPage() {
             appContainer.innerHTML = `
-                <div class="flex flex-col items-center justify-center min-h-screen p-4 bg-indigo-800">
+                <!-- === التعديل 6: تقليل الحشو الرأسي في وضع الهاتف === -->
+                <div class="flex flex-col items-center justify-center min-h-screen p-4 bg-indigo-800 sm:pt-8 sm:pb-8">
                     <h1 class="text-4xl font-bold text-white mb-4">مستقبل الشرقية</h1>
                     <p class="text-lg text-indigo-100 mb-8 text-center">أهلاً بك في تطبيق خدمات محافظة الشرقية</p>
                     
@@ -1566,7 +1566,7 @@
                     </main>
                     
                     <button data-action="navigateTo" data-page="newRequest" 
-                            class="fixed bottom-16 left-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
+                            class="fixed bottom-16 right-4 sm:right-auto sm:left-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
                         ${ICONS.add}
                     </button>
                     
@@ -1624,7 +1624,7 @@
                     </main>
                     
                     <button data-action="navigateTo" data-page="newRequest" 
-                            class="fixed bottom-16 left-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
+                            class="fixed bottom-16 right-4 sm:right-auto sm:left-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
                         ${ICONS.add}
                     </button>
                     
@@ -2266,7 +2266,7 @@
 
                 const profileContent = document.getElementById('profile-content');
                 profileContent.innerHTML = `
-                    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 flex flex-col items-center">
+                    <div class="bg-white p-6 rounded-lg shadow-md mt-4 border border-gray-200 flex flex-col items-center">
                         <img src="${profileData.photoURL || 'https://placehold.co/150x150/EBF8FF/3182CE?text=User'}" 
                              alt="${profileData.name}" class="w-28 h-28 rounded-full object-cover shadow-lg border-4 border-white mb-3">
                         <h2 class="text-2xl font-bold text-gray-900">${profileData.name}</h2>
@@ -2648,9 +2648,10 @@
 
 
 
+                // === التعديل 10: تحديث فوري للصفحة ===
                 setTimeout(() => {
-                    navigateTo('profile', { uid: userId });
-                }, 1500);
+                    navigateTo('settings');
+                }, 500);
 
 
 
@@ -3835,8 +3836,11 @@
                 // === التعديل 7: التحقق من إعدادات الوضع الداكن في المتصفح ===
                 const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
                 
-                // === التعديل 4: تعيين حالة الإشعارات الافتراضية (إجبارية الآن) ===
-                const isNotificationsDefault = true; // ✅ الإشعارات الداخلية إجبارية
+                // === التعديل 5: تعيين حالة الوضع الداكن الافتراضية على false ===
+                const isDarkModeDefault = false; 
+                
+                // === التعديل 9: الإعدادات الافتراضية للإشعارات الخارجية (متعطلة) ===
+                const isNotificationsDefault = false; 
 
 
                 const newUserProfile = {
@@ -3863,10 +3867,10 @@
                     isAddressHidden: false,
                     isDirectoryHidden: false,
                     isNotificationsEnabled: isNotificationsDefault, // ✅ تم التعديل
-                    isMessageNotificationsEnabled: true,
-                    isJobNotificationsEnabled: true,
-                    isRequestNotificationsEnabled: true,
-                    isDarkModeEnabled: prefersDark, // التعديل 7: تعيين الوضع الداكن الافتراضي بناءً على إعدادات المتصفح
+                    isMessageNotificationsEnabled: isNotificationsDefault,
+                    isJobNotificationsEnabled: isNotificationsDefault,
+                    isRequestNotificationsEnabled: isNotificationsDefault,
+                    isDarkModeEnabled: isDarkModeDefault, // ✅ تم التعديل
                     isLocationSharingEnabled: false,
                     isOnline: true, 
                     unreadNotifications: 0, 
@@ -4632,6 +4636,15 @@
 
                     transaction.update(targetDocRef, updates);
                 });
+                
+                // === التعديل 4: إنشاء إشعار بالتقييم ===
+                await createNotification(
+                    targetId, 
+                    'rating', 
+                    `قام ${userProfile.name} بتقييمك!`, 
+                    'profile', 
+                    { uid: targetId }
+                );
 
 
 
