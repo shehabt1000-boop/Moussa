@@ -27,10 +27,14 @@
 
 
     <style>
-
-
-
-
+        /* === التعديل 1: منع التاثيرات الحركية والصور المتحركة (الأداء) === */
+        * {
+            transition: none !important;
+            animation: none !important;
+        }
+        .animate-spin, .animate-ping {
+            animation: none !important;
+        }
         /* استخدام خط Cairo كخط أساسي للمحتوى العربي */
         body {
             font-family: 'Cairo', 'Inter', sans-serif;
@@ -133,7 +137,7 @@
             border-radius: 0.75rem; /* أكثر استدارة */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); /* ظل أقوى */
             padding: 1rem; /* زيادة الحشو الداخلي */
-            transition: border-color 0.2s, box-shadow 0.2s;
+            /* transition: border-color 0.2s, box-shadow 0.2s;  تم إزالة الانتقال */
         }
         .register-input-card:focus-within {
             border-color: #3730a3; /* indigo-900 */
@@ -146,9 +150,10 @@
             outline: none !important;
             background-color: transparent !important;
         }
+        /* === التعديل 2: جعل العناوين الفرعية سوداء في الوضع الفاتح === */
         .register-input-card label {
             font-size: 0.75rem;
-            color: #6b7280; /* gray-500 */
+            color: #1f2937; /* text-gray-900 */
             margin-bottom: 0.25rem;
             display: block;
         }
@@ -211,7 +216,7 @@
         }
         
         
-        /* === التعديل 7: الوضع الداكن (Dark Mode) === */
+        /* === التعديل 7: الوضع الداكن (Dark Mode) - تم التأكد من التباين === */
         body.dark {
             background-color: #1f2937; /* bg-gray-800 */
             color: #f3f4f6; /* text-gray-100 */
@@ -248,6 +253,9 @@
         body.dark .register-input-card:focus-within {
             border-color: #6366f1; /* indigo-500 */
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+        body.dark .register-input-card label {
+            color: #d1d5db; /* تفتيح لون العنوان في الوضع الداكن */
         }
         body.dark .border-gray-200 {
             border-color: #4b5563;
@@ -687,10 +695,10 @@
 
 
         function showLoading(message = 'جاري التحميل...') {
-            // استخدام Modal للتحميل
+            // === التعديل 1: إزالة animate-spin ===
             const html = `
                 <div class="flex flex-col items-center justify-center p-6">
-                    <svg class="animate-spin h-10 w-10 text-indigo-800 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg class="h-10 w-10 text-indigo-800 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -866,7 +874,8 @@
 
             const color = isActuallyOnline ? 'bg-green-500' : 'bg-gray-400';
             const text = isActuallyOnline ? 'متصل الآن' : 'غير متصل';
-            const ping = isActuallyOnline ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>` : '';
+            // === التعديل 1: إزالة animate-ping ===
+            const ping = isActuallyOnline ? `<span class="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>` : '';
 
             return `
                 <div class="flex items-center text-gray-500">
@@ -1046,7 +1055,7 @@
 
                     return `
                         <div data-action="readNotification" data-id="${n.id}" data-page="${n.linkPage}" data-params='${JSON.stringify(n.linkParams)}'
-                             class="${bgColor} p-3 rounded-lg shadow-sm border cursor-pointer hover:shadow-md transition-shadow flex items-start space-x-3 space-x-reverse">
+                             class="${bgColor} p-3 rounded-lg shadow-sm border cursor-pointer hover:shadow-md flex items-start space-x-3 space-x-reverse">
                             <span class="flex-shrink-0 text-indigo-600">${icon}</span>
                             <div class="flex-1">
                                 <h3 class="text-sm font-semibold text-gray-900">${n.title}</h3>
@@ -1222,7 +1231,7 @@
 
 
 
-        // === دالة مساعدة لعرض جرس الإشعارات (محدثة) ===
+        // === دالة مساعدة لعرض جرس الإشعارات (محدثة - الطلب 5) ===
         function renderNotificationBell() {
             const unreadCount = userProfile?.unreadNotifications || 0;
             const bellClass = unreadCount > 0 ? 'text-red-500' : 'text-white hover:text-indigo-100';
@@ -1236,9 +1245,10 @@
 
 
             return `
-                <button data-action="navigateTo" data-page="notifications" class="relative p-1 ${bellClass} rounded-full transition-colors">
+                <button data-action="navigateTo" data-page="notifications" class="relative flex items-center p-1 ${bellClass} rounded-full">
                     ${bellDot}
                     ${ICONS.bell}
+                    <span class="text-xs font-medium mr-1 text-white">الإشعارات</span> 
                 </button>
             `;
         }
@@ -1259,7 +1269,8 @@
             appContainer.innerHTML = `
                 <div class="flex items-center justify-center min-h-screen">
                     <div class="flex flex-col items-center">
-                        <svg class="animate-spin h-12 w-12 text-indigo-800 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <!-- === التعديل 1: إزالة animate-spin === -->
+                        <svg class="h-12 w-12 text-indigo-800 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -1357,10 +1368,10 @@
                             <!-- التعديل 2: تطبيق تصميم الإدخال الموحد على الصورة -->
                             <div class="register-input-card p-4">
                                 <input type="file" id="photo-upload-input" accept="image/*" class="hidden">
-                                <label for="photo-upload-input" class="block text-sm font-medium text-gray-700 text-center cursor-pointer">
+                                <label for="photo-upload-input" class="block text-sm font-medium text-gray-900 text-center cursor-pointer">
                                     الصورة الشخصية (اختياري)
                                     <div class="mt-2 flex flex-col items-center justify-center">
-                                        <img id="photo-preview" class="w-24 h-24 rounded-full object-cover register-photo-preview border-gray-300 p-1 hover:border-indigo-500 transition-colors" 
+                                        <img id="photo-preview" class="w-24 h-24 rounded-full object-cover register-photo-preview border-gray-300 p-1 hover:border-indigo-500" 
                                              src="https://placehold.co/100x100/EBF8FF/3182CE?text=User" alt="صورة افتراضية">
                                         <span class="text-xs text-indigo-500 mt-2 hover:underline">اضغط لرفع صورتك</span>
                                     </div>
@@ -1394,7 +1405,7 @@
                             
                             <!-- اختيار الجنس -->
                             <div class="register-input-card">
-                                <label class="block text-sm font-medium text-gray-700">الجنس</label>
+                                <label class="block text-sm font-medium text-gray-900">الجنس</label>
                                 <div class="mt-1 flex space-x-4 space-x-reverse">
                                     <label class="flex items-center">
                                         <input type="radio" name="gender" value="ذكر" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300" required>
@@ -1431,7 +1442,7 @@
                             <hr class="my-3 border-gray-300">
                             
                             <div class="register-input-card">
-                                <label class="block text-sm font-medium text-gray-700">أرغب في التسجيل كـ:</label>
+                                <label class="block text-sm font-medium text-gray-900">أرغب في التسجيل كـ:</label>
                                 <div class="mt-2 flex space-x-4 space-x-reverse">
                                     <label class="flex items-center">
                                         <input type="radio" name="role" value="client" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300" checked>
@@ -1512,7 +1523,7 @@
         function renderClientHome() {
             const categoriesHtml = SERVICES_LIST.map(cat => `
                 <div data-action="navigateTo" data-page="category" data-category="${cat.name.toLowerCase()}" 
-                     class="flex flex-col items-center justify-center bg-indigo-50 p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-indigo-200 hover:border-indigo-500">
+                     class="flex flex-col items-center justify-center bg-indigo-50 p-3 rounded-lg shadow-sm hover:shadow-md cursor-pointer border border-indigo-200 hover:border-indigo-500">
                     <span class="text-3xl mb-1">${cat.icon}</span>
                     <h3 class="text-xs font-semibold text-gray-800 text-center">${cat.name}</h3>
                 </div>
@@ -1543,7 +1554,7 @@
                     </main>
                     
                     <button data-action="navigateTo" data-page="newRequest" 
-                            class="fixed bottom-16 left-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700 transition-colors">
+                            class="fixed bottom-16 left-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
                         ${ICONS.add}
                     </button>
                     
@@ -1563,7 +1574,7 @@
         async function renderProviderHome() {
             const categoriesHtml = SERVICES_LIST.map(cat => `
                 <div data-action="navigateTo" data-page="category" data-category="${cat.name.toLowerCase()}" 
-                     class="flex flex-col items-center justify-center bg-indigo-50 p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-indigo-200 hover:border-indigo-500">
+                     class="flex flex-col items-center justify-center bg-indigo-50 p-3 rounded-lg shadow-sm hover:shadow-md cursor-pointer border border-indigo-200 hover:border-indigo-500">
                     <span class="text-3xl mb-1">${cat.icon}</span>
                     <h3 class="text-xs font-semibold text-gray-800 text-center">${cat.name}</h3>
                 </div>
@@ -1601,7 +1612,7 @@
                     </main>
                     
                     <button data-action="navigateTo" data-page="newRequest" 
-                            class="fixed bottom-16 left-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700 transition-colors">
+                            class="fixed bottom-16 left-4 bg-indigo-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 hover:bg-indigo-700">
                         ${ICONS.add}
                     </button>
                     
@@ -1711,7 +1722,7 @@
                         <h3 class="text-base font-semibold text-gray-900 mb-1">${req.title}</h3>
                         <p class="text-sm text-gray-600 mb-3">${req.description.substring(0, 100)}...</p>
                         <button data-action="navigateTo" data-page="chat" data-otheruserid="${req.requesterId}"
-                                class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors">
+                                class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-indigo-700">
                             تواصل مع العميل
                         </button>
                     </div>
@@ -1731,7 +1742,7 @@
                 <div class="pb-24">
                     <header class="bg-indigo-800 text-white app-header shadow-md sticky top-0 z-10 flex items-center justify-between">
                         <h1 class="text-lg font-bold">مقدمو خدمة: ${categoryName || 'كل الخدمات'}</h1>
-                        <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100 transition-colors">
+                        <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100">
                             ${ICONS.back}
                         </button>
                     </header>
@@ -1832,7 +1843,7 @@
                             </div>
                         </div>
                         <button data-action="navigateTo" data-page="chat" data-otheruserid="${p.uid}"
-                                class="flex-shrink-0 bg-indigo-100 text-indigo-700 py-1.5 px-3 rounded-md text-sm font-medium hover:bg-indigo-200 transition-colors">
+                                class="flex-shrink-0 bg-indigo-100 text-indigo-700 py-1.5 px-3 rounded-md text-sm font-medium hover:bg-indigo-200">
                             تواصل
                         </button>
                     </div>
@@ -1902,7 +1913,7 @@
 
                     return `
                     <div data-action="navigateTo" data-page="profile" data-uid="${user.uid}" 
-                         class="bg-indigo-50 p-3 rounded-lg shadow-sm border border-indigo-200 flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-indigo-100 transition-colors directory-card">
+                         class="bg-indigo-50 p-3 rounded-lg shadow-sm border border-indigo-200 flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-indigo-100 directory-card">
                         <img src="${user.photoURL || 'https://placehold.co/100x100/EBF8FF/3182CE?text=User'}" 
                              alt="${user.name}" class="w-8 h-8 rounded-full object-cover">
                         <div class="flex-1">
@@ -2075,6 +2086,13 @@
 
 
 
+                    // === التعديل 8: منطق النقطة الحمراء لرسالة غير مقروءة ===
+                    const isUnread = chat.lastSenderId === otherUserId; // افتراض بسيط: إذا كان آخر مرسل هو الطرف الآخر، فهي غير مقروءة
+                    const unreadDot = isUnread ? `<span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white -mt-1 -mr-1"></span>` : '';
+
+
+
+
                     // === التعديل 5: حالة الظهور في قائمة المحادثات باستخدام الدالة المحدثة ===
                     const onlineStatusHtml = getOnlineStatusHtml(otherUser);
 
@@ -2083,9 +2101,12 @@
 
                     return `
                     <div data-action="navigateTo" data-page="chat" data-otheruserid="${otherUserId}"
-                         class="bg-indigo-50 p-3 rounded-lg shadow-sm border border-indigo-200 flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-indigo-100 transition-colors">
-                        <img src="${otherUser.photoURL || 'https://placehold.co/100x100/EBF8FF/3182CE?text=User'}" 
-                             alt="${otherUser.name}" class="w-12 h-12 rounded-full object-cover">
+                         class="bg-indigo-50 p-3 rounded-lg shadow-sm border border-indigo-200 flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-indigo-100 relative">
+                        <div class="relative flex-shrink-0">
+                            <img src="${otherUser.photoURL || 'https://placehold.co/100x100/EBF8FF/3182CE?text=User'}" 
+                                 alt="${otherUser.name}" class="w-12 h-12 rounded-full object-cover">
+                            ${unreadDot}
+                        </div>
                         <div class="flex-1 overflow-hidden">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-base font-semibold text-gray-900 truncate-1-line">${otherUser.name}</h3>
@@ -2124,21 +2145,21 @@
                     <header class="bg-indigo-800 text-white app-header shadow-md sticky top-0 z-10 flex items-center justify-between">
                         <h1 class="text-xl font-bold">الملف الشخصي</h1>
                         <div class="flex items-center space-x-2 space-x-reverse">
+                            <!-- === التعديل 2: زر الإعدادات مع النص === -->
                             ${uid === userId ? `
-                                <!-- === التعديل 2: زر الإعدادات مع النص === -->
                                 <button data-action="navigateTo" data-page="settings"
-                                        class="flex items-center space-x-1 space-x-reverse p-1 bg-indigo-700 rounded-full text-white hover:bg-indigo-600 transition-colors cursor-pointer">
+                                        class="flex items-center space-x-1 space-x-reverse p-1 bg-indigo-700 rounded-full text-white hover:bg-indigo-600 cursor-pointer">
                                     ${ICONS.settings}
                                     <span class="text-xs font-medium mr-1">الإعدادات</span>
                                 </button>
                                 <!-- === التعديل 2: زر التعديل مع النص === -->
                                 <button data-action="navigateTo" data-page="editProfile"
-                                        class="flex items-center space-x-1 space-x-reverse p-1 bg-indigo-700 rounded-full text-white hover:bg-indigo-600 transition-colors cursor-pointer">
+                                        class="flex items-center space-x-1 space-x-reverse p-1 bg-indigo-700 rounded-full text-white hover:bg-indigo-600 cursor-pointer">
                                     ${ICONS.edit}
                                     <span class="text-xs font-medium mr-1">تعديل</span>
                                 </button>
                             ` : ''}
-                            <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100 transition-colors">
+                            <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100">
                                 ${ICONS.back}
                             </button>
                         </div>
@@ -2235,7 +2256,7 @@
                         
                         ${uid !== userId ? `
                             <button data-action="navigateTo" data-page="chat" data-otheruserid="${uid}"
-                                    class="mt-4 bg-indigo-600 text-white py-2 px-6 rounded-lg font-semibold text-base hover:bg-indigo-700 transition-colors">
+                                    class="mt-4 bg-indigo-600 text-white py-2 px-6 rounded-lg font-semibold text-base hover:bg-indigo-700">
                                 تواصل الآن
                             </button>
                         ` : ''}
@@ -2356,7 +2377,7 @@
                     ${uid === userId ? `
                         <!-- إضافة زر عرض الإعلانات والطلبات -->
                         <button data-action="navigateTo" data-page="myPostings" 
-                                class="mt-6 w-full bg-indigo-100 text-indigo-700 py-2 px-6 rounded-lg font-semibold text-base hover:bg-indigo-200 transition-colors flex items-center justify-center space-x-2 space-x-reverse">
+                                class="mt-6 w-full bg-indigo-100 text-indigo-700 py-2 px-6 rounded-lg font-semibold text-base hover:bg-indigo-200 flex items-center justify-center space-x-2 space-x-reverse">
                             ${ICONS.job}
                             <span>عرض إعلاناتي وطلباتي</span>
                         </button>
@@ -2365,7 +2386,7 @@
 
 
                         <button data-action="logout" 
-                                class="mt-3 w-full bg-red-100 text-red-700 py-2 px-6 rounded-lg font-semibold text-base hover:bg-red-200 transition-colors flex items-center justify-center space-x-2 space-x-reverse">
+                                class="mt-3 w-full bg-red-100 text-red-700 py-2 px-6 rounded-lg font-semibold text-base hover:bg-red-200 flex items-center justify-center space-x-2 space-x-reverse">
                             ${ICONS.logout}
                             <span>تسجيل الخروج</span>
                         </button>
@@ -2417,7 +2438,7 @@
             const toggleHtml = (id, label, isChecked, description) => `
                 <div class="flex items-center justify-between py-3 border-b border-gray-100 settings-toggle-container">
                     <div class="flex-1 mr-4">
-                        <label for="${id}" class="block text-sm font-medium text-gray-700">${label}</label>
+                        <label for="${id}" class="block text-sm font-medium text-gray-900">${label}</label>
                         <p class="text-xs text-gray-500 mt-1">${description}</p>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
@@ -2435,7 +2456,7 @@
                 <div class="pb-24">
                     <header class="bg-indigo-800 text-white app-header shadow-md sticky top-0 z-10 flex items-center justify-between">
                         <h1 class="text-xl font-bold">إعدادات الحساب</h1>
-                        <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100 transition-colors">
+                        <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100">
                             ${ICONS.back}
                         </button>
                     </header>
@@ -2448,7 +2469,7 @@
                             <div class="border-b border-indigo-200 pb-3">
                                 <h2 class="text-lg font-semibold text-indigo-800">إعدادات الأمان</h2>
                             </div>
-                            <button data-action="openChangePasswordModal" class="w-full bg-indigo-100 text-indigo-700 py-2 rounded-md hover:bg-indigo-200 transition-colors text-sm font-medium border border-indigo-300">
+                            <button data-action="openChangePasswordModal" class="w-full bg-indigo-100 text-indigo-700 py-2 rounded-md hover:bg-indigo-200 text-sm font-medium border border-indigo-300">
                                 تغيير كلمة المرور
                             </button>
                             
@@ -2465,7 +2486,7 @@
                                 <h2 class="text-lg font-semibold text-indigo-800">إعدادات التواصل</h2>
                             </div>
                             <div class="register-input-card p-3">
-                                <label for="chat-permission" class="block text-sm font-medium text-gray-700 mb-1">من يمكنه بدء محادثة معي؟</label>
+                                <label for="chat-permission" class="block text-sm font-medium text-gray-900 mb-1">من يمكنه بدء محادثة معي؟</label>
                                 <select id="chat-permission" class="mt-1 block w-full text-gray-900 text-sm bg-white">
                                     <option value="all" ${chatPermission === 'all' ? 'selected' : ''}>الجميع (عملاء ومقدمو خدمات)</option>
                                     <option value="providers" ${chatPermission === 'providers' ? 'selected' : ''}>مقدمو الخدمات فقط</option>
@@ -2479,7 +2500,7 @@
                                 <h2 class="text-lg font-semibold text-indigo-800">إعدادات التقييم</h2>
                             </div>
                             <div class="register-input-card p-3">
-                                <label for="rating-permission" class="block text-sm font-medium text-gray-700 mb-1">من يمكنه تقييمي؟</label>
+                                <label for="rating-permission" class="block text-sm font-medium text-gray-900 mb-1">من يمكنه تقييمي؟</label>
                                 <select id="rating-permission" class="mt-1 block w-full text-gray-900 text-sm bg-white">
                                     <option value="all" ${ratingPermission === 'all' ? 'selected' : ''}>الجميع (عملاء ومقدمو خدمات)</option>
                                     <option value="providers" ${ratingPermission === 'providers' ? 'selected' : ''}>مقدمو الخدمات فقط</option>
@@ -2703,7 +2724,7 @@
                 <div class="pb-24">
                     <header class="bg-indigo-800 text-white app-header shadow-md sticky top-0 z-10 flex items-center justify-between">
                         <h1 class="text-xl font-bold">إعلاناتي وطلباتي</h1>
-                        <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100 transition-colors">
+                        <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100">
                             ${ICONS.back}
                         </button>
                     </header>
@@ -2832,7 +2853,7 @@
                             <p class="text-sm text-indigo-600 mb-3 font-medium">القسم: ${category}</p>
                             
                             <button data-action="deletePosting" data-type="${post.type}" data-id="${post.id}"
-                                    class="mt-2 w-full flex items-center justify-center space-x-1 space-x-reverse bg-red-500 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-red-600 transition-colors">
+                                    class="mt-2 w-full flex items-center justify-center space-x-1 space-x-reverse bg-red-500 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-red-600">
                                 ${ICONS.trash}
                                 <span>حذف هذا ${isRequest ? 'الطلب' : 'الإعلان'}</span>
                             </button>
@@ -2896,7 +2917,7 @@
                 <div class="pb-24">
                     <header class="bg-indigo-800 text-white app-header shadow-md sticky top-0 z-10 flex items-center justify-between">
                         <h1 class="text-xl font-bold">تعديل الملف الشخصي</h1>
-                        <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100 transition-colors">
+                        <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100">
                             ${ICONS.back}
                         </button>
                     </header>
@@ -2908,10 +2929,10 @@
                             <!-- التعديل 2: تطبيق تصميم الإدخال الموحد على الصورة -->
                             <div class="register-input-card">
                                 <input type="file" id="photo-upload-input" accept="image/*" class="hidden">
-                                <label for="photo-upload-input" class="block text-sm font-medium text-gray-700 text-center cursor-pointer">
+                                <label for="photo-upload-input" class="block text-sm font-medium text-gray-900 text-center cursor-pointer">
                                     الصورة الشخصية
                                     <div class="mt-2 flex flex-col items-center justify-center">
-                                        <img id="photo-preview" class="w-24 h-24 rounded-full object-cover register-photo-preview border-gray-300 p-0.5 hover:border-indigo-700 transition-colors" 
+                                        <img id="photo-preview" class="w-24 h-24 rounded-full object-cover register-photo-preview border-gray-300 p-0.5 hover:border-indigo-700" 
                                              src="${userProfile.photoURL || 'https://placehold.co/100x100/EBF8FF/3182CE?text=User'}" alt="الصورة الحالية">
                                         <span class="text-xs text-indigo-500 mt-2 hover:underline">اضغط لتغيير صورتك</span>
                                     </div>
@@ -2940,7 +2961,7 @@
                             
                             <!-- اختيار الجنس -->
                             <div class="register-input-card">
-                                <label class="block text-sm font-medium text-gray-700">الجنس</label>
+                                <label class="block text-sm font-medium text-gray-900">الجنس</label>
                                 <div class="mt-1 flex space-x-4 space-x-reverse">
                                     <label class="flex items-center">
                                         <input type="radio" name="edit-gender" value="ذكر" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300" ${userProfile.gender === 'ذكر' ? 'checked' : ''} required>
@@ -3066,7 +3087,7 @@
                     <div class="flex flex-col items-center justify-center min-h-screen p-4">
                         <h1 class="text-xl font-bold text-red-600 mb-4">غير مصرح لك بالتواصل</h1>
                         <p class="text-center text-gray-700">قام هذا المستخدم بتقييد من يمكنه بدء محادثة معه.</p>
-                        <button data-action="goBack" class="mt-6 bg-indigo-600 text-white py-2 px-6 rounded-lg font-semibold text-base hover:bg-indigo-700 transition-colors">
+                        <button data-action="goBack" class="mt-6 bg-indigo-600 text-white py-2 px-6 rounded-lg font-semibold text-base hover:bg-indigo-700">
                             العودة للخلف
                         </button>
                     </div>
@@ -3118,7 +3139,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.31h5.513c.498 0 .704.656.34.985l-4.46 4.062a.562.562 0 0 0-.162.541l1.618 5.22c.19.613-.526 1.09-1.04.724l-4.59-3.44a.563.563 0 0 0-.642 0l-4.59 3.44c-.514.366-1.23-.111-1.04-.724l1.618-5.22a.562.562 0 0 0-.162-.541l-4.46-4.062a.563.563 0 0 1 .34-.985h5.513a.563.563 0 0 0 .475.31l2.125-5.112Z" /></svg>
                                 </button>
                             ` : ''}
-                            <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100 transition-colors">
+                            <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100">
                                 ${ICONS.back}
                             </button>
                         </div>
@@ -3265,7 +3286,7 @@
                 <div class="pb-24">
                     <header class="bg-indigo-800 text-white app-header shadow-md sticky top-0 z-10 flex items-center justify-between">
                         <h1 class="text-xl font-bold">طلب خدمة جديد</h1>
-                        <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100 transition-colors">
+                        <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100">
                             ${ICONS.back}
                         </button>
                     </header>
@@ -3326,7 +3347,7 @@
                 <div class="pb-24">
                     <header class="bg-indigo-800 text-white app-header shadow-md sticky top-0 z-10 flex items-center justify-between">
                         <h1 class="text-xl font-bold">نشر إعلان وظيفة</h1>
-                        <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100 transition-colors">
+                        <button data-action="goBack" class="bg-white text-indigo-800 rounded-full p-1 w-7 h-7 flex items-center justify-center hover:bg-gray-100">
                             ${ICONS.back}
                         </button>
                     </header>
@@ -3381,7 +3402,7 @@
                          <div class="flex items-center space-x-2 space-x-reverse">
                             <!-- تم إزالة جرس الإشعارات من هنا -->
                             <button data-action="navigateTo" data-page="jobPosting" 
-                                class="bg-indigo-600 text-white py-1 px-3 rounded-md text-xs font-medium hover:bg-indigo-700 transition-colors">
+                                class="bg-indigo-600 text-white py-1 px-3 rounded-md text-xs font-medium hover:bg-indigo-700">
                                 + إعلان جديد
                             </button>
                         </div>
@@ -3474,7 +3495,7 @@
                         </div>
                         
                         <button data-action="navigateTo" data-page="chat" data-otheruserid="${job.posterId}"
-                                class="mt-2 w-full bg-indigo-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors">
+                                class="mt-2 w-full bg-indigo-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-indigo-700">
                             تواصل للتقديم
                         </button>
                     </div>
@@ -3496,6 +3517,11 @@
         function renderBottomNav(activeTab) {
             const activeClass = 'text-white bg-indigo-700';
             const inactiveClass = 'text-indigo-300 hover:text-white';
+            
+            // === التعديل 8: منطق النقطة الحمراء في شريط التنقل ===
+            const unreadCount = userProfile?.unreadNotifications || 0;
+            const showDot = unreadCount > 0;
+            const dotHtml = `<span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-indigo-800 -mt-1 -mr-1"></span>`;
 
 
 
@@ -3508,7 +3534,8 @@
                 <nav class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto md:max-w-2xl lg:max-w-4xl bg-indigo-800 shadow-lg border-t border-indigo-700 z-20">
                     <div class="flex justify-around items-center h-12">
                         <button data-action="navigateTo" data-page="home" 
-                                class="flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'home' ? activeClass : inactiveClass}">
+                                class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'home' ? activeClass : inactiveClass}">
+                            ${showDot ? dotHtml : ''}
                             ${ICONS.home}
                             <span class="text-xs font-medium">الرئيسية</span>
                         </button>
@@ -3520,19 +3547,22 @@
                         </button>
                         
                         <button data-action="navigateTo" data-page="chatList" 
-                                class="flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'chatList' ? activeClass : inactiveClass}">
+                                class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'chatList' ? activeClass : inactiveClass}">
+                            ${showDot ? dotHtml : ''}
                             ${ICONS.chat}
                             <span class="text-xs font-medium">المحادثات</span>
                         </button>
                         
                         <button data-action="navigateTo" data-page="jobListings" 
-                                class="flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'jobListings' ? activeClass : inactiveClass}">
+                                class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'jobListings' ? activeClass : inactiveClass}">
+                            ${showDot ? dotHtml : ''}
                             ${ICONS.job}
                             <span class="text-xs font-medium">وظائف</span>
                         </button>
                         
                         <button data-action="navigateTo" data-page="profile" data-uid="${userId}"
-                                class="flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'profile' ? activeClass : inactiveClass}">
+                                class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'profile' ? activeClass : inactiveClass}">
+                            ${showDot ? dotHtml : ''}
                             ${ICONS.profile}
                             <span class="text-xs font-medium">ملفي</span>
                         </button>
@@ -4883,7 +4913,7 @@
 
 
                 if (isRegistering) {
-                    console.log('Registration in progress, onAuthStateChanged will wait.');
+                    console.log('Registration in progress, onAuthStateChanged will handle.');
                     return; 
                 }
 
