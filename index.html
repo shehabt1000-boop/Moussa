@@ -15,7 +15,6 @@
     <link rel="assetlinks" href="https://shehabt1000-boop.github.io/.well-known/assetlinks.json" type="application/json">
 
     <meta name="theme-color" content="#1e40af">
-    <!-- تم إبقاء هذا السكريبت بدون defer لضمان تحميل الأنماط أولاً -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -313,7 +312,6 @@
         const firebaseConfig = {
           apiKey: "AIzaSyA5OiTcX95GBgiJoDHnY3y7N23o-j8hsQ8",
           authDomain: "services-cef84.firebaseapp.com",
-          databaseURL: "https://services-cef84-default-rtdb.firebaseio.com",
           projectId: "services-cef84",
           storageBucket: "services-cef84.firebasestorage.app",
           messagingSenderId: "902396219187",
@@ -714,7 +712,7 @@
         async function createNotification(recipientId, type, title, linkPage, linkParams = {}) {
             if (recipientId === userId) return; // لا ترسل إشعاراً لنفسك
 
-            // ⚠️ الإشعارات الداخلية إجبارية، لا نتحقق من إعدادات المستخدم هنا.
+            // ⚠️ الإشعارات الداخلية إجبارية.
 
             const notificationsColRef = collection(db, `artifacts/${appId}/public/data/notifications`);
             await addDoc(notificationsColRef, {
@@ -728,7 +726,7 @@
                 createdAt: Timestamp.now()
             });
 
-            // زيادة عداد الإشعارات غير المقروءة
+            // زيادة عداد الإشعارات غير المقروءة (للتحديث الفوري للواجهة)
             await updateDoc(doc(db, `artifacts/${appId}/public/data/users`, recipientId), {
                 unreadNotifications: increment(1)
             });
@@ -764,6 +762,65 @@
             if (unreadCountChange < 0) {
                 // تحديث العداد في Firestore
                 await updateNotificationCount(unreadCountChange);
+            }
+        }
+
+        // === دالة حذف جميع الإشعارات (تم نقلها هنا) ===
+        async function handleDeleteAllNotifications() {
+            const confirmDelete = await new Promise(resolve => {
+                showModal(`
+                    <h2 class="text-xl font-semibold text-center text-red-600 mb-4">تأكيد حذف الكل</h2>
+                    <p class="text-center text-gray-700">هل أنت متأكد من أنك تريد حذف جميع إشعاراتك؟ لا يمكن التراجع عن هذا الإجراء.</p>
+                    <div class="flex justify-between mt-6 space-x-4 space-x-reverse">
+                        <button data-action="closeModal" class="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm transition duration-150">
+                            إلغاء
+                        </button>
+                        <button data-action="confirmDeleteAll" class="flex-1 py-2 px-4 border border-transparent rounded-md text-white bg-red-600 hover:bg-red-700 text-sm transition duration-150">
+                            تأكيد حذف الكل
+                        </button>
+                    </div>
+                `);
+                document.querySelector('[data-action="confirmDeleteAll"]').addEventListener('click', () => {
+                    hideModal();
+                    resolve(true);
+                });
+                document.querySelector('[data-action="closeModal"]').addEventListener('click', () => {
+                    hideModal();
+                    resolve(false);
+                });
+            });
+
+            if (!confirmDelete) return;
+
+            showLoading('جاري حذف جميع الإشعارات...');
+            try {
+                const notificationsColRef = collection(db, `artifacts/${appId}/public/data/notifications`);
+                const q = query(notificationsColRef, where('recipientId', '==', userId));
+                const snapshot = await getDocs(q);
+
+                const batch = writeBatch(db);
+                snapshot.docs.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                await batch.commit();
+
+                // تصفير العداد في ملف المستخدم
+                await updateDoc(doc(db, `artifacts/${appId}/public/data/users`, userId), {
+                    unreadNotifications: 0
+                });
+                userProfile.unreadNotifications = 0;
+
+                hideLoading();
+                showMessageModal('نجاح', 'تم حذف جميع الإشعارات بنجاح.', true);
+                
+                // إعادة تحميل الصفحة لعرض التحديث
+                setTimeout(() => {
+                    navigateTo('notifications');
+                }, 1000); 
+            } catch (error) {
+                console.error("Error deleting all notifications: ", error);
+                hideLoading();
+                showMessageModal('خطأ', 'حدث خطأ أثناء حذف الإشعارات. يرجى المحاولة مرة أخرى.', false);
             }
         }
 
@@ -815,9 +872,6 @@
 
                 const notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                // === تم إزالة منطق تحديد الكل كمقروء من هنا لضمان استقرار الإشعارات ===
-                // الآن يتم تحديد الإشعار كمقروء فقط عند النقر عليه.
-
                 if (notifications.length === 0) {
                     listEl.innerHTML = '<p class="text-gray-500 text-center p-6 bg-white rounded-lg shadow-sm">لا توجد إشعارات جديدة.</p>';
                     return;
@@ -880,7 +934,7 @@
             // تحديث عنوان الصفحة
             document.title = getPageTitle(page);
             
-            // === التعديل 7: تطبيق الوضع الداكن ===
+            // === تطبيق الوضع الداكن ===
             applyDarkMode(userProfile?.isDarkModeEnabled);
 
             switch (page) {
@@ -1807,10 +1861,6 @@
             const isPhoneHidden = userProfile.isPhoneHidden || false;
             const isAddressHidden = userProfile.isAddressHidden || false;
             const isDirectoryHidden = userProfile.isDirectoryHidden || false;
-            const isNotificationsEnabled = userProfile.isNotificationsEnabled || false;
-            const isMessageNotificationsEnabled = userProfile.isMessageNotificationsEnabled !== false; 
-            const isJobNotificationsEnabled = userProfile.isJobNotificationsEnabled !== false; 
-            const isRequestNotificationsEnabled = userProfile.isRequestNotificationsEnabled !== false; 
             const isDarkModeEnabled = userProfile.isDarkModeEnabled || false; // إعداد إضافي
             const isLocationSharingEnabled = userProfile.isLocationSharingEnabled || false; // إعداد إضافي
             // === التعديل 3: إعدادات التحكم الكامل في المنافع ===
@@ -1888,18 +1938,6 @@
                                 </select>
                             </div>
 
-                            <!-- إعدادات الإشعارات -->
-                            <div class="border-b border-indigo-200 pb-3 pt-2">
-                                <h2 class="text-lg font-semibold text-indigo-800">إعدادات الإشعارات (للتنبيهات الخارجية)</h2>
-                            </div>
-                            ${toggleHtml('toggle-notifications', 'تفعيل الإشعارات العامة', isNotificationsEnabled, 'تفعيل/إيقاف جميع الإشعارات الخارجية (ميزة قادمة).')}
-                            <div class="mr-4 mt-2 p-3 bg-indigo-50 rounded-md border border-indigo-200 ${isNotificationsEnabled ? '' : 'opacity-50 pointer-events-none'}" id="custom-notifications-settings">
-                                <h3 class="text-sm font-semibold text-indigo-700 mb-2">إشعارات مخصصة:</h3>
-                                ${toggleHtml('toggle-msg-notifications', 'إشعارات الرسائل الجديدة', isMessageNotificationsEnabled, 'تنبيه عند استلام رسالة محادثة جديدة.')}
-                                ${toggleHtml('toggle-job-notifications', 'إعلانات الوظائف الجديدة', isJobNotificationsEnabled, 'تنبيه عند نشر إعلان وظيفة جديد في مجالك.')}
-                                ${toggleHtml('toggle-request-notifications', 'طلبات الخدمات الجديدة', isRequestNotificationsEnabled, 'تنبيه عند نشر طلب خدمة جديد في مجالك.')}
-                            </div>
-
                             <!-- إعدادات العرض -->
                             <div class="border-b border-indigo-200 pb-3 pt-2">
                                 <h2 class="text-lg font-semibold text-indigo-800">إعدادات العرض</h2>
@@ -1924,15 +1962,7 @@
                 </div>
             `;
             
-            // تحديث حالة إعدادات الإشعارات المخصصة عند تغيير التبديل العام
-            document.getElementById('toggle-notifications').addEventListener('change', (e) => {
-                const customSettings = document.getElementById('custom-notifications-settings');
-                if (e.target.checked) {
-                    customSettings.classList.remove('opacity-50', 'pointer-events-none');
-                } else {
-                    customSettings.classList.add('opacity-50', 'pointer-events-none');
-                }
-            });
+            // تم إزالة مستمع حدث تغيير الإشعارات المخصصة لأن الإشعارات أصبحت إجبارية
         }
 
         // === دالة حفظ الإعدادات (محدثة) ===
@@ -1943,10 +1973,6 @@
                 const isPhoneHidden = document.getElementById('toggle-phone').checked;
                 const isAddressHidden = document.getElementById('toggle-address').checked;
                 const isDirectoryHidden = document.getElementById('toggle-directory').checked;
-                const isNotificationsEnabled = document.getElementById('toggle-notifications').checked;
-                const isMessageNotificationsEnabled = document.getElementById('toggle-msg-notifications').checked;
-                const isJobNotificationsEnabled = document.getElementById('toggle-job-notifications').checked;
-                const isRequestNotificationsEnabled = document.getElementById('toggle-request-notifications').checked;
                 const isDarkModeEnabled = document.getElementById('toggle-dark-mode').checked;
                 const isLocationSharingEnabled = document.getElementById('toggle-location-sharing').checked;
                 // === التعديل 3: جلب إعدادات التحكم الكامل في المنافع ===
@@ -1957,10 +1983,6 @@
                     isPhoneHidden: isPhoneHidden,
                     isAddressHidden: isAddressHidden,
                     isDirectoryHidden: isDirectoryHidden,
-                    isNotificationsEnabled: isNotificationsEnabled,
-                    isMessageNotificationsEnabled: isMessageNotificationsEnabled,
-                    isJobNotificationsEnabled: isJobNotificationsEnabled,
-                    isRequestNotificationsEnabled: isRequestNotificationsEnabled,
                     isDarkModeEnabled: isDarkModeEnabled,
                     isLocationSharingEnabled: isLocationSharingEnabled,
                     // === التعديل 3: حفظ إعدادات التحكم الكامل في المنافع ===
@@ -2781,9 +2803,6 @@
                 // === تعيين حالة الوضع الداكن الافتراضية على false ===
                 const isDarkModeDefault = false; 
                 
-                // === الإعدادات الافتراضية للإشعارات الخارجية (متعطلة) ===
-                const isNotificationsDefault = false; 
-
                 const newUserProfile = {
                     uid: newUserId,
                     username: username, 
@@ -2807,10 +2826,6 @@
                     isPhoneHidden: false,
                     isAddressHidden: false,
                     isDirectoryHidden: false,
-                    isNotificationsEnabled: isNotificationsDefault, 
-                    isMessageNotificationsEnabled: isNotificationsDefault,
-                    isJobNotificationsEnabled: isNotificationsDefault,
-                    isRequestNotificationsEnabled: isNotificationsDefault,
                     isDarkModeEnabled: isDarkModeDefault, 
                     isLocationSharingEnabled: false,
                     isOnline: true, 
@@ -3136,65 +3151,6 @@
             }
         }
 
-        // === دالة حذف جميع الإشعارات ===
-        async function handleDeleteAllNotifications() {
-            const confirmDelete = await new Promise(resolve => {
-                showModal(`
-                    <h2 class="text-xl font-semibold text-center text-red-600 mb-4">تأكيد حذف الكل</h2>
-                    <p class="text-center text-gray-700">هل أنت متأكد من أنك تريد حذف جميع إشعاراتك؟ لا يمكن التراجع عن هذا الإجراء.</p>
-                    <div class="flex justify-between mt-6 space-x-4 space-x-reverse">
-                        <button data-action="closeModal" class="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm transition duration-150">
-                            إلغاء
-                        </button>
-                        <button data-action="confirmDeleteAll" class="flex-1 py-2 px-4 border border-transparent rounded-md text-white bg-red-600 hover:bg-red-700 text-sm transition duration-150">
-                            تأكيد حذف الكل
-                        </button>
-                    </div>
-                `);
-                document.querySelector('[data-action="confirmDeleteAll"]').addEventListener('click', () => {
-                    hideModal();
-                    resolve(true);
-                });
-                document.querySelector('[data-action="closeModal"]').addEventListener('click', () => {
-                    hideModal();
-                    resolve(false);
-                });
-            });
-
-            if (!confirmDelete) return;
-
-            showLoading('جاري حذف جميع الإشعارات...');
-            try {
-                const notificationsColRef = collection(db, `artifacts/${appId}/public/data/notifications`);
-                const q = query(notificationsColRef, where('recipientId', '==', userId));
-                const snapshot = await getDocs(q);
-
-                const batch = writeBatch(db);
-                snapshot.docs.forEach(doc => {
-                    batch.delete(doc.ref);
-                });
-                await batch.commit();
-
-                // تصفير العداد في ملف المستخدم
-                await updateDoc(doc(db, `artifacts/${appId}/public/data/users`, userId), {
-                    unreadNotifications: 0
-                });
-                userProfile.unreadNotifications = 0;
-
-                hideLoading();
-                showMessageModal('نجاح', 'تم حذف جميع الإشعارات بنجاح.', true);
-                
-                // إعادة تحميل الصفحة لعرض التحديث
-                setTimeout(() => {
-                    navigateTo('notifications');
-                }, 1000); 
-            } catch (error) {
-                console.error("Error deleting all notifications: ", error);
-                hideLoading();
-                showMessageModal('خطأ', 'حدث خطأ أثناء حذف الإشعارات. يرجى المحاولة مرة أخرى.', false);
-            }
-        }
-
         function handleOpenRatingModal(targetRole, targetId, targetName) {
             // === التعديل 3: التحقق من إذن التقييم ===
             const ratingPermission = userProfile.ratingPermission || 'all';
@@ -3496,14 +3452,14 @@
             // 1. تحميل وتطبيق الوضع الداكن من التخزين المحلي فوراً
             loadDarkModePreference();
 
-            // === التعديل 7: مراقبة تغيير إعدادات الوضع الداكن في النظام ===
-            if (window.matchMedia) {
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-                    if (userProfile && userProfile.isDarkModeEnabled) {
-                        applyDarkMode(e.matches);
-                    }
-                });
-            }
+            // === تم إلغاء الاستماع لتغييرات نظام التشغيل للوضع الداكن ===
+            // if (window.matchMedia) {
+            //     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            //         if (userProfile && userProfile.isDarkModeEnabled) {
+            //             applyDarkMode(e.matches);
+            //         }
+            //     });
+            // }
 
             onAuthStateChanged(auth, async (user) => {
 
@@ -3527,10 +3483,6 @@
                         const updates = {};
                         const defaultSettings = {
                             isDarkModeEnabled: false,
-                            isNotificationsEnabled: false,
-                            isMessageNotificationsEnabled: false,
-                            isJobNotificationsEnabled: false,
-                            isRequestNotificationsEnabled: false,
                             chatPermission: 'all', 
                             ratingPermission: 'all', 
                             isPhoneHidden: false,
@@ -3551,10 +3503,22 @@
                                 userProfile[key] = defaultSettings[key]; // Update local profile immediately
                                 needsUpdate = true;
                             }
+                            // إزالة الحقول القديمة المتعلقة بالإشعارات التي أصبحت إجبارية
+                            if (userProfile.hasOwnProperty('isNotificationsEnabled')) {
+                                updates['isNotificationsEnabled'] = null;
+                                updates['isMessageNotificationsEnabled'] = null;
+                                updates['isJobNotificationsEnabled'] = null;
+                                updates['isRequestNotificationsEnabled'] = null;
+                                delete userProfile.isNotificationsEnabled;
+                                delete userProfile.isMessageNotificationsEnabled;
+                                delete userProfile.isJobNotificationsEnabled;
+                                delete userProfile.isRequestNotificationsEnabled;
+                                needsUpdate = true;
+                            }
                         }
 
                         if (needsUpdate) {
-                            console.log('Applying default settings to old account:', updates);
+                            console.log('Applying default settings/migration to old account:', updates);
                             await updateDoc(userDocRef, updates);
                         }
                         // === END: Data Migration/Default Check ===
