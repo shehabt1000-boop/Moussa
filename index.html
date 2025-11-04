@@ -918,37 +918,12 @@
 
 
 
-        // === دالة إنشاء إشعار (محدثة) ===
+        // === دالة إنشاء إشعار (محدثة - الإشعارات الداخلية إجبارية) ===
         async function createNotification(recipientId, type, title, linkPage, linkParams = {}) {
             if (recipientId === userId) return; // لا ترسل إشعاراً لنفسك
 
 
-
-
-            const userDocRef = doc(db, `artifacts/${appId}/public/data/users`, recipientId);
-            const userDoc = await getDoc(userDocRef);
-            if (!userDoc.exists()) return;
-            const recipientProfile = userDoc.data();
-
-
-
-
-            // التحقق من إعدادات الإشعارات للمستلم
-            if (!recipientProfile.isNotificationsEnabled) return;
-            if (type === 'message' && !recipientProfile.isMessageNotificationsEnabled) return;
-            if (type === 'job' && !recipientProfile.isJobNotificationsEnabled) return;
-            if (type === 'request' && !recipientProfile.isRequestNotificationsEnabled) return;
-
-
-
-
-            // التحقق من إشعارات المجال (للوظائف والطلبات)
-            if ((type === 'job' || type === 'request') && recipientProfile.role === 'provider' && recipientProfile.jobTitle !== title.split(': ')[1]) {
-                // إذا كان مقدم خدمة والإعلان ليس في مجاله، لا ترسل الإشعار
-                return;
-            }
-
-
+            // ⚠️ الإشعارات الداخلية إجبارية، لا نتحقق من إعدادات المستخدم هنا.
 
 
             const notificationsColRef = collection(db, `artifacts/${appId}/public/data/notifications`);
@@ -964,10 +939,8 @@
             });
 
 
-
-
             // زيادة عداد الإشعارات غير المقروءة
-            await updateDoc(userDocRef, {
+            await updateDoc(doc(db, `artifacts/${appId}/public/data/users`, recipientId), {
                 unreadNotifications: increment(1)
             });
             
@@ -1036,6 +1009,13 @@
             `;
 
 
+            // === تحديث العداد إلى الصفر عند فتح صفحة الإشعارات ===
+            if (userProfile?.unreadNotifications > 0) {
+                 await updateDoc(doc(db, `artifacts/${appId}/public/data/users`, userId), {
+                     unreadNotifications: 0
+                 });
+                 userProfile.unreadNotifications = 0;
+            }
 
 
             const notificationsColRef = collection(db, `artifacts/${appId}/public/data/notifications`);
@@ -1051,29 +1031,17 @@
                 if (!listEl) return;
 
 
-
-
                 const notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                // === منطق تحديد الكل كمقروء عند العرض (لإخفاء الدائرة الحمراء على الجرس) ===
+                // === منطق تحديد الكل كمقروء في Firestore (لضمان أن الإشعارات نفسها مقروءة) ===
                 const unreadNotifications = notifications.filter(n => !n.isRead);
                 if (unreadNotifications.length > 0) {
                     const batch = writeBatch(db);
                     unreadNotifications.forEach(n => {
-                        // لا نغير حالة isRead هنا، بل نعتمد على النقر الفردي أو تحديد الصفحة
-                        // لكننا نستخدم هذه القائمة لتحديث العداد المحلي/المرئي
+                        batch.update(doc(db, `artifacts/${appId}/public/data/notifications`, n.id), { isRead: true });
                     });
-                    
-                    // تحديث العداد إلى الصفر في Firestore
-                    await updateDoc(doc(db, `artifacts/${appId}/public/data/users`, userId), {
-                        unreadNotifications: 0
-                    });
-                    
-                    // تحديث الـ userProfile محلياً
-                    userProfile.unreadNotifications = 0;
+                    await batch.commit();
                 }
-
-
 
 
                 if (notifications.length === 0) {
@@ -2568,9 +2536,9 @@
 
                             <!-- إعدادات الإشعارات -->
                             <div class="border-b border-indigo-200 pb-3 pt-2">
-                                <h2 class="text-lg font-semibold text-indigo-800">إعدادات الإشعارات</h2>
+                                <h2 class="text-lg font-semibold text-indigo-800">إعدادات الإشعارات (للتنبيهات الخارجية)</h2>
                             </div>
-                            ${toggleHtml('toggle-notifications', 'تفعيل الإشعارات العامة', isNotificationsEnabled, 'تفعيل/إيقاف جميع الإشعارات (صوتية ومنبثقة).')}
+                            ${toggleHtml('toggle-notifications', 'تفعيل الإشعارات العامة', isNotificationsEnabled, 'تفعيل/إيقاف جميع الإشعارات الخارجية (ميزة قادمة).')}
                             <div class="mr-4 mt-2 p-3 bg-indigo-50 rounded-md border border-indigo-200 ${isNotificationsEnabled ? '' : 'opacity-50 pointer-events-none'}" id="custom-notifications-settings">
                                 <h3 class="text-sm font-semibold text-indigo-700 mb-2">إشعارات مخصصة:</h3>
                                 ${toggleHtml('toggle-msg-notifications', 'إشعارات الرسائل الجديدة', isMessageNotificationsEnabled, 'تنبيه عند استلام رسالة محادثة جديدة.')}
@@ -3867,14 +3835,8 @@
                 // === التعديل 7: التحقق من إعدادات الوضع الداكن في المتصفح ===
                 const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
                 
-                // === التعديل 4: تعيين حالة الإشعارات الافتراضية بناءً على إذن المتصفح ===
-                const isNotificationsGranted = 'Notification' in window && Notification.permission === 'granted';
-
-
-
-
-
-
+                // === التعديل 4: تعيين حالة الإشعارات الافتراضية (إجبارية الآن) ===
+                const isNotificationsDefault = true; // ✅ الإشعارات الداخلية إجبارية
 
 
                 const newUserProfile = {
@@ -3900,7 +3862,7 @@
                     isPhoneHidden: false,
                     isAddressHidden: false,
                     isDirectoryHidden: false,
-                    isNotificationsEnabled: isNotificationsGranted, // التعديل 4
+                    isNotificationsEnabled: isNotificationsDefault, // ✅ تم التعديل
                     isMessageNotificationsEnabled: true,
                     isJobNotificationsEnabled: true,
                     isRequestNotificationsEnabled: true,
@@ -4219,15 +4181,15 @@
                     lastMessage: text,
                     lastSenderId: userId,
                     lastUpdate: Timestamp.now(),
-                    // === التعديل 1: تحديث حقل unreadBy (إضافة المستلم) ===
+                    // === تحديث حقل unreadBy (إضافة المستلم) ===
                     unreadBy: arrayUnion(otherUserId)
                 };
+                
+                // 2. تحديث وثيقة المحادثة (انتظار اكتمالها)
                 await setDoc(chatRoomDocRef, chatRoomData, { merge: true });
 
 
-
-
-                // === إنشاء إشعار للمستلم (محدث) ===
+                // 3. إنشاء إشعار للمستلم (محدث) - يتم استدعاؤه بعد تحديث المحادثة
                 await createNotification(
                     otherUserId, 
                     'message', 
@@ -4235,8 +4197,6 @@
                     'chat', 
                     { otherUserId: userId }
                 );
-
-
 
 
             } catch (error) {
