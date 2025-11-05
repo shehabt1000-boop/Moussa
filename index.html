@@ -263,23 +263,35 @@
         /* [إصلاح المشكلة 1] تثبيت ارتفاع الحاوية العلوية لشريط الإدخال */
         position: relative;
         flex-shrink: 0;
-        min-height: 50px; /* ارتفاع تقريبي لضمان عدم الاهتزاز */
+        /* الارتفاع الأدنى: ارتفاع شريط الإدخال (46px) + ارتفاع مؤشر الكتابة (18px) + مسافة (3px) */
+        min-height: 67px; 
     }
     .chat-input {
       display: flex; align-items: center; gap: 6px; /* <--- تصغير */ padding: 5px; /* <--- تصغير */
       background: var(--main-bg-gradient); border-top: 1px solid rgba(255,255,255,0.08);
-      direction: ltr; position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; 
+      direction: ltr; 
+      /* [إصلاح المشكلة 1] تثبيت شريط الإدخال في الأسفل */
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; 
+      height: 46px; /* ارتفاع ثابت لشريط الإدخال */
       flex-shrink: 0;
     }
     /* حاوية اقتباس الرد فوق حقل الإدخال */
     .reply-quote-container-wrapper {
         position: absolute;
-        bottom: 100%; /* <--- يرفع الحاوية فوق شريط الإدخال */
+        bottom: 46px; /* [إصلاح المشكلة 1] يرفع الحاوية فوق شريط الإدخال الثابت (46px) */
         left: 0;
         right: 0;
         z-index: 1; /* <--- يجب أن تكون أقل من شريط الإدخال نفسه */
         padding: 0 5px; /* <--- هامش من الجانبين */
-        margin-bottom: 3px; /* <--- [إصلاح المشكلة 1] مسافة بسيطة فوق بار الكتابة */
+        margin-bottom: 3px; 
+        /* [إصلاح المشكلة 1] إخفاء يحافظ على المساحة */
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.2s, visibility 0.2s;
+    }
+    .reply-quote-container-wrapper.active {
+        visibility: visible;
+        opacity: 1;
     }
     .reply-quote-container {
         background: var(--card-bg-color);
@@ -352,7 +364,7 @@
     /* === [محدث] مؤشر الكتابة === */
     .typing-indicator-wrapper {
         position: absolute;
-        bottom: 100%;
+        bottom: 46px; /* [إصلاح المشكلة 1] يرفع الحاوية فوق شريط الإدخال الثابت (46px) */
         left: 0;
         right: 0;
         z-index: 1;
@@ -360,9 +372,11 @@
         visibility: hidden; 
         height: 18px; /* ارتفاع ثابت */
         overflow: hidden;
+        transition: opacity 0.2s, visibility 0.2s;
     }
     .typing-indicator-wrapper.active {
         visibility: visible;
+        opacity: 1;
     }
     .typing-indicator {
         text-align: center;
@@ -1811,7 +1825,7 @@
     function clearReplyState() {
         replyingToMessage = null;
         const container = pageCache.chat?.querySelector('#replyQuoteContainerWrapper');
-        if (container) container.style.display = 'none';
+        if (container) container.classList.remove('active'); // استخدام الكلاس الجديد
         pageCache.chat?.querySelector('#msgInput').focus();
     }
 
@@ -1829,7 +1843,7 @@
         const container = pageCache.chat.querySelector('#replyQuoteContainerWrapper');
         container.querySelector('#replyQuoteName').textContent = `رد على: ${sender.name}`;
         container.querySelector('#replyQuoteText').textContent = msgData.text;
-        container.style.display = 'block';
+        container.classList.add('active'); // استخدام الكلاس الجديد
         pageCache.chat.querySelector('#msgInput').focus();
         messageActionModal.classList.remove('active'); 
     }
@@ -2979,7 +2993,7 @@
                 showToast("فشل إرسال الرسالة.");
                 if (messageData.replyToId) {
                     replyingToMessage = { id: messageData.replyToId, name: messageData.replyToName, text: messageData.replyToText };
-                    pageCache.chat.querySelector('#replyQuoteContainerWrapper').style.display = 'block';
+                    pageCache.chat.querySelector('#replyQuoteContainerWrapper').classList.add('active');
                 }
             }
 
