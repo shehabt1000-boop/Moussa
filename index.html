@@ -332,6 +332,15 @@
       cursor: pointer; display: flex;
       align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     }
+    /* [جديد] زر الإيموجي */
+    .emoji-btn {
+        width: 36px; height: 36px; /* <--- تصغير */
+        border: none; border-radius: 50%; background: #f39c12;
+        color: var(--text-light); font-size: 16px; /* <--- تصغير */
+        cursor: pointer; display: flex;
+        align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        flex-shrink: 0;
+    }
 
 
     /* === [جديد] مؤشر الكتابة === */
@@ -663,6 +672,31 @@
         background-color: rgba(0,0,0,0.1);
     }
     /* === نهاية مودال التفاعلات === */
+    
+    /* [جديد] مودال اختيار الإيموجي */
+    #emojiPickerModal .modal-content {
+        width: 90%;
+        max-width: 350px;
+        padding: 10px;
+    }
+    .emoji-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+        gap: 5px;
+        max-height: 250px;
+        overflow-y: auto;
+        padding: 5px;
+    }
+    .emoji-item {
+        font-size: 24px;
+        cursor: pointer;
+        text-align: center;
+        padding: 2px;
+        border-radius: 5px;
+    }
+    .emoji-item:hover {
+        background-color: rgba(0,0,0,0.1);
+    }
 
 
 
@@ -810,6 +844,21 @@
     <!-- === نهاية نافذة التفاعلات === -->
 
 
+    <!-- === [جديد] نافذة اختيار الإيموجي (مودال) === -->
+    <div id="emojiPickerModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="modal-title">اختر إيموجي</h3>
+            <div class="emoji-grid" id="emojiGrid">
+                <!-- سيتم ملؤها بواسطة JavaScript -->
+            </div>
+            <div class="modal-buttons" style="margin-top: 10px;">
+                <button id="emojiPickerModalClose" class="form-btn-cancel">إغلاق</button>
+            </div>
+        </div>
+    </div>
+    <!-- === نهاية نافذة اختيار الإيموجي === -->
+
+
 
 
   </div>
@@ -911,6 +960,11 @@
     const reactionModal = document.getElementById('reactionModal');
     const reactionGrid = document.getElementById('reactionGrid');
     const reactionModalCancel = document.getElementById('reactionModalCancel');
+    
+    // [جديد] عناصر مودال الإيموجي
+    const emojiPickerModal = document.getElementById('emojiPickerModal');
+    const emojiGrid = document.getElementById('emojiGrid');
+    const emojiPickerModalClose = document.getElementById('emojiPickerModalClose');
 
 
 
@@ -959,6 +1013,19 @@
     const availableReactions = [
       '👍', '❤️', '😂', '😢', '😡', '🙏', '🔥', '🤯', '🥳', '🤔', 
       '👏', '💯', '💔', '😍', '😴', '😭', '🤩', '🤮', '😈', '😇'
+    ];
+    
+    // [جديد] قائمة الإيموجي للاختيار (50 رمزاً)
+    const emojiList = [
+        '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃', 
+        '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', 
+        '🥲', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', 
+        '🤔', '🫡', '🤨', '😐', '😑', '😶', '🫥', '😶‍🌫️', '😏', '😒', 
+        '🙄', '😬', '😮‍💨', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷',
+        '🤒', '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '😵‍💫',
+        '🤯', '🤠', '🥳', '🥸', '🥺', '🥹', '😭', '😢', '😥', '泄',
+        '😨', '😩', '😫', '💢', '🔥', '💯', '👍', '👎', '👏', '🙏',
+        '❤️', '💔', '🌹', '🍕', '🍺', '⚽', '💻', '💡', '⏰', '🚀'
     ];
 
 
@@ -1117,7 +1184,7 @@
     }
 
 
-    // [جديد] دالة تحديث حالة الكتابة (مع Debounce)
+    // [محدث] دالة تحديث حالة الكتابة (مع Debounce)
     let typingTimeout;
     async function updateTypingStatus(isTyping) {
         if (!auth.currentUser || !currentUserProfile) return;
@@ -1410,7 +1477,7 @@
         });
 
 
-        // [جديد] 4. مراقبة حالة الكتابة للجميع
+        // [محدث] 4. مراقبة حالة الكتابة للجميع
         const unsubscribeTyping = onSnapshot(typingStatusDoc, (doc) => {
             const data = doc.data() || {};
             const now = Timestamp.now().toMillis();
@@ -1625,16 +1692,17 @@
         const page = document.createElement('div');
         page.id = 'chat';
         page.className = 'page chat-page';
-        // [تم التعديل] إضافة مؤشر الكتابة
-        page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><form class="chat-input" id="messageForm"><div id="replyQuoteContainerWrapper" class="reply-quote-container-wrapper" style="display:none;"><div id="replyQuoteContainer" class="reply-quote-container"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div></div><div id="typingIndicator" class="typing-indicator"></div><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form>`;
+        // [محدث] إضافة زر الإيموجي
+        page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><form class="chat-input" id="messageForm"><div id="replyQuoteContainerWrapper" class="reply-quote-container-wrapper" style="display:none;"><div id="replyQuoteContainer" class="reply-quote-container"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div></div><div id="typingIndicator" class="typing-indicator"></div><button type="button" class="emoji-btn" id="openEmojiPicker">😀</button><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form>`;
         page.querySelector('#messageForm').addEventListener('submit', sendMessage);
         page.querySelector('#clearReplyBtn').addEventListener('click', clearReplyState);
         page.querySelector('#msgInput').addEventListener('input', () => updateTypingStatus(true)); // [جديد] ربط مؤشر الكتابة
+        page.querySelector('#openEmojiPicker').addEventListener('click', showEmojiPickerModal); // [جديد] ربط زر الإيموجي
         return page;
     }
 
 
-    // [جديد] دالة تحديث مؤشر الكتابة
+    // [محدث] دالة تحديث مؤشر الكتابة
     function updateTypingIndicator() {
         if (!pageCache.chat) return;
         const indicator = pageCache.chat.querySelector('#typingIndicator');
@@ -1687,6 +1755,28 @@
         page.id = 'settings';
         page.className = 'page page-container';
         return page;
+    }
+
+
+    // [جديد] دالة إظهار مودال اختيار الإيموجي
+    function showEmojiPickerModal() {
+        emojiGrid.innerHTML = '';
+        emojiList.forEach(emoji => {
+            const span = document.createElement('span');
+            span.className = 'emoji-item';
+            span.textContent = emoji;
+            span.onclick = () => {
+                const msgInput = document.getElementById('msgInput');
+                msgInput.value += emoji;
+                msgInput.focus();
+                emojiPickerModal.classList.remove('active');
+                updateTypingStatus(true); // تحديث حالة الكتابة بعد إضافة الإيموجي
+            };
+            emojiGrid.appendChild(span);
+        });
+        
+        emojiPickerModalClose.onclick = () => emojiPickerModal.classList.remove('active');
+        emojiPickerModal.classList.add('active');
     }
 
 
