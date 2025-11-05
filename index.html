@@ -370,6 +370,7 @@
         z-index: 1;
         /* [إصلاح المشكلة 1] نستخدم visibility: hidden للحفاظ على الـ layout */
         visibility: hidden; 
+        opacity: 0;
         height: 18px; /* ارتفاع ثابت */
         overflow: hidden;
         transition: opacity 0.2s, visibility 0.2s;
@@ -390,6 +391,23 @@
         overflow: hidden;
         text-overflow: ellipsis;
         display: block; /* نجعله دائماً block داخل الـ wrapper */
+    }
+    /* [جديد] تأثير الفقاعات الوامضة */
+    .typing-indicator .dot {
+        display: inline-block;
+        width: 4px;
+        height: 4px;
+        margin: 0 1px;
+        border-radius: 50%;
+        background-color: var(--primary-dark);
+        animation: dot-blink 1.4s infinite ease-in-out both;
+    }
+    .typing-indicator .dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator .dot:nth-child(2) { animation-delay: -0.16s; }
+    .typing-indicator .dot:nth-child(3) { animation-delay: 0s; }
+    @keyframes dot-blink {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
     }
     /* === نهاية مؤشر الكتابة === */
 
@@ -1722,7 +1740,7 @@
         page.id = 'chat';
         page.className = 'page chat-page';
         // [محدث] تم تغليف شريط الإدخال في wrapper لتثبيت ارتفاعه
-        page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><div class="chat-input-wrapper"><div id="replyQuoteContainerWrapper" class="reply-quote-container-wrapper" style="display:none;"><div id="replyQuoteContainer" class="reply-quote-container"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div></div><div id="typingIndicatorWrapper" class="typing-indicator-wrapper"><div id="typingIndicator" class="typing-indicator"></div></div><form class="chat-input" id="messageForm"><button type="button" class="emoji-btn" id="openEmojiPicker">😀</button><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form></div>`;
+        page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><div class="chat-input-wrapper"><div id="replyQuoteContainerWrapper" class="reply-quote-container-wrapper"><div id="replyQuoteContainer" class="reply-quote-container"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div></div><div id="typingIndicatorWrapper" class="typing-indicator-wrapper"><div id="typingIndicator" class="typing-indicator">يكتب الآن <span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div><form class="chat-input" id="messageForm"><button type="button" class="emoji-btn" id="openEmojiPicker">😀</button><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form></div>`;
         page.querySelector('#messageForm').addEventListener('submit', sendMessage);
         page.querySelector('#clearReplyBtn').addEventListener('click', clearReplyState);
         page.querySelector('#msgInput').addEventListener('input', () => updateTypingStatus(true)); // [جديد] ربط مؤشر الكتابة
@@ -1741,17 +1759,17 @@
 
         if (typingNames.length === 0) {
             indicatorWrapper.classList.remove('active');
-            indicator.textContent = '';
+            indicator.innerHTML = '';
         } else {
             let text;
             if (typingNames.length === 1) {
-                text = `${typingNames[0]} يكتب الآن...`;
+                text = `${typingNames[0]} يكتب الآن <span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
             } else if (typingNames.length === 2) {
-                text = `${typingNames[0]} و ${typingNames[1]} يكتبان الآن...`;
+                text = `${typingNames[0]} و ${typingNames[1]} يكتبان الآن <span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
             } else {
-                text = `${typingNames[0]} و ${typingNames.length - 1} آخرون يكتبون الآن...`;
+                text = `${typingNames[0]} و ${typingNames.length - 1} آخرون يكتبون الآن <span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
             }
-            indicator.textContent = text;
+            indicator.innerHTML = text;
             indicatorWrapper.classList.add('active');
         }
     }
