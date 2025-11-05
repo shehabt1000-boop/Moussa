@@ -15,7 +15,7 @@
 
   <!-- ملف Manifest (يخبر المتصفح أن هذا تطبيق) -->
   <!-- (تم تحويله إلى كود Base64 ليبقى في ملف واحد) -->
-  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQ2hhdCBTaGVoYWIiLCJzaG9ydF9uYW1lIjoiQ2hhdCBTaGVoYWIiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y1ZjVmNSIsInRoZW1lX2NvbG9yIjoiIzBhM2Q2MiIsImRlc2NyaXB0aW9uIjoi2LXZhNmK2LEg2KrYsdioINiR2LPQsCDYrtix06rZhNmLIiwiaWNvbnMiOlt7InNyYyI6Imh0dHBzOi8vcGxhY2Vob2xkLmNvLzE5MngxOTIvMGEzZDYyL0ZGRj90ZXh0PUNoYXQiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiZW1hZ2UvcG5nIn0seyJzcmMiOiJodHRwczovL3BsYWNlaG9sZC5jby81MTJ4NTEyLzBhM2Q2Mi9GRkY/dGV4dD1DaGF0Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyJ9XX0=">
+  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQ2hhdCBTaGVoYWIiLCJzaG9ydF9uYW1lIjoiQ2hhdCBTaGVoYWIiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y1ZjVmNSIsInRoZW1lX2NvbG9yIjoiIzBhM2Q2MiIsImRlc2NyaXB0aW9uIjoi2LXZhNmK2LEg2KrYsdioINiR2LPQsCDYrtix06rZhNmLIiwiaWNvbnMiOlt7InNyYyI6Imh0dHBzOi8vcGxhY2Vob2xkLmNvLzE5MngxOTIvMGEzZDYyL0ZGRj90ZXh0PUNoYXQiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn0seyJzcmMiOiJodHRwczovL3BsYWNlaG9sZC5jby81MTJ4NTEyLzBhM2Q2Mi9GRkY/dGV4dD1DaGF0Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyJ9XX0=">
 
   <!-- === نهاية الإضافات الجديدة === -->
 
@@ -807,8 +807,8 @@
     let pageCache = {}; // تخزين الصفحات (الدردشة، الأعضاء...) في الذاكرة
     let dataListeners = []; // مصفوفة لتخزين "مراقبي البيانات" لإيقافهم عند الخروج
     let replyingToMessage = null; // لتخزين بيانات الرسالة التي يتم الرد عليها
-    let typingUsers = {}; // لتخزين حالة الكتابة للجميع
-    let currentMessageToReact = null; // لتخزين الرسالة التي يتم التفاعل عليها
+    let typingUsers = {}; // [جديد] لتخزين حالة الكتابة للجميع
+    let currentMessageToReact = null; // [جديد] لتخزين الرسالة التي يتم التفاعل عليها
 
 
     /* --- إصلاح 2: عدادات الصور الرمزية المتسلسلة --- */
@@ -834,7 +834,7 @@
     const messageActionModal = document.getElementById('messageActionModal');
     const messageActionEdit = document.getElementById('messageActionEdit');
     const messageActionReply = document.getElementById('messageActionReply');
-    const messageActionReact = document.getElementById('messageActionReact'); 
+    const messageActionReact = document.getElementById('messageActionReact'); // [جديد]
     const messageActionCopy = document.getElementById('messageActionCopy');
     const messageActionForward = document.getElementById('messageActionForward');
     const messageActionDelete = document.getElementById('messageActionDelete');
@@ -847,7 +847,7 @@
     const editMessageSave = document.getElementById('editMessageSave');
     const editMessageCancel = document.getElementById('editMessageCancel');
     
-    // عناصر مودال التفاعلات
+    // [جديد] عناصر مودال التفاعلات
     const reactionModal = document.getElementById('reactionModal');
     const reactionGrid = document.getElementById('reactionGrid');
     const reactionModalCancel = document.getElementById('reactionModalCancel');
@@ -890,8 +890,8 @@
         bubblePadding: 1, 
     };
     
-    // [معدل] قائمة التفاعلات المتاحة (تم إضافة المزيد)
-    const availableReactions = ['👍', '❤️', '😂', '😢', '🔥', '😎', '🙏', '🤯', '🥳', '💯', '🤔', '💔'];
+    // [جديد] قائمة التفاعلات المتاحة
+    const availableReactions = ['👍', '❤️', '😂', '😢', '🔥', '😎'];
 
 
     /* --- دوال مساعدة (إظهار التحميل، التنبيهات...) --- */
@@ -1043,13 +1043,6 @@
             // 1. تحديث الحالة فوراً
             await updateDoc(typingStatusDoc, {
                 [typingField]: Timestamp.now()
-            }).catch(e => {
-                // قد يفشل إذا لم يكن المستند موجوداً، نقوم بإنشائه
-                if (e.code === 'not-found') {
-                    setDoc(typingStatusDoc, { [typingField]: Timestamp.now() });
-                } else {
-                    console.warn("Failed to update typing status:", e);
-                }
             });
             // 2. تعيين مؤقت لإزالة الحالة بعد 3 ثوانٍ من التوقف عن الكتابة
             typingTimeout = setTimeout(() => {
@@ -1090,7 +1083,10 @@
     };
 
 
-    /* --- === [!!] تطبيق المظهر العام والخاص [!!] === --- */
+    /* --- === [!!] إصلاح المشكلة 1: تطبيق المظهر العام على الجميع [!!] === ---
+     * تم تعديل هذه الدالة لتطبيق الإعدادات العامة أولاً، ثم الإعدادات الشخصية كأولوية
+     * --- === نهاية الإصلاح === ---
+     */
     const applyCombinedSettings = () => {
         if (!currentUserProfile) return;
 
@@ -1106,13 +1102,18 @@
 
 
         // 3. تطبيق الإعدادات الشخصية للمستخدم (كأولوية أخيرة لتجاوز العام)
+        // [إصلاح المشكلة 1] يجب أن يتم تطبيق الإعدادات الشخصية فقط إذا لم يتم تعيينها في الإعدادات العامة
         const userSettings = currentUserProfile.settings || {};
         
+        // ندمج الإعدادات الشخصية، ولكن فقط إذا لم يتم تعيينها في الإعدادات العامة (أو إذا كانت الإعدادات العامة غير موجودة)
         finalSettings = {
             ...finalSettings,
             ...userSettings,
+            // [إصلاح المشكلة 1] الخلفية الشخصية تتجاوز العامة فقط إذا لم يتم تعيين خلفية عامة
             chatBackground: globalSettings?.chatBackground || userSettings.chatBackground || defaultSettings.chatBackground,
+            // [إصلاح المشكلة 1] الوضع الليلي الشخصي يتجاوز العام
             darkMode: userSettings.darkMode !== undefined ? userSettings.darkMode : finalSettings.darkMode,
+            // يمكن تطبيق نفس المنطق على باقي الإعدادات إذا أردت أن يتجاوز الشخصي العام
             sentBubbleBg: userSettings.sentBubbleBg || finalSettings.sentBubbleBg,
             recvBubbleBg: userSettings.recvBubbleBg || finalSettings.recvBubbleBg,
             fontSize: userSettings.fontSize || finalSettings.fontSize,
@@ -1176,6 +1177,7 @@
                 attachDataListeners(user.uid); // بدء مراقبة البيانات
 
 
+                // [تم التعديل] سيتم تطبيق الإعدادات بعد جلب الإعدادات العامة في attachDataListeners
                 updateHeaderUI(currentUserProfile); // تحديث الهيدر
                 headerEl.style.display = "flex";
                 navEl.style.display = "flex";
@@ -1213,7 +1215,7 @@
         try { 
             if (auth.currentUser) { 
                 await updateUserPresence(false);
-                await updateTypingStatus(false); // إزالة حالة الكتابة عند الخروج
+                await updateTypingStatus(false); // [جديد] إزالة حالة الكتابة عند الخروج
             }
             await signOut(auth); // تسجيل الخروج
         } 
@@ -1233,7 +1235,7 @@
             if (!doc.exists()) return; 
             currentUserProfile = { id: userId, ...doc.data() };
             usersCache[userId] = currentUserProfile;
-            applyCombinedSettings(); 
+            applyCombinedSettings(); // [تم التعديل] يتم التطبيق هنا
             updateHeaderUI(currentUserProfile);
             if (pageCache.profile && pageCache.profile.classList.contains('active')) {
                 renderProfilePage(true);
@@ -1248,7 +1250,7 @@
         const unsubscribeGlobalSettings = onSnapshot(globalSettingsDoc, (doc) => {
             globalSettings = doc.exists() ? doc.data() : null;
             if (currentUserProfile) {
-                applyCombinedSettings(); 
+                applyCombinedSettings(); // [تم التعديل] يتم تطبيق المظهر العام على الجميع فوراً
             }
         });
 
@@ -1263,13 +1265,13 @@
                 if (change.type === 'removed') delete usersCache[user.id];
                 else usersCache[user.id] = user;
             });
-            // [إصلاح 3] إعادة رسم القائمة بالكامل لضمان عدم التكرار والترتيب الصحيح
-            if (listChanged) {
-                renderMembersList(); 
+            // إذا تغيرت قائمة المستخدمين (أو حالة اتصالهم)
+            if (listChanged && pageCache.members && pageCache.members.classList.contains('active')) {
+                renderMembersList(); // أعد رسم قائمة الأعضاء
             }
         });
         
-        // 4. مراقبة حالة الكتابة للجميع
+        // [جديد] 4. مراقبة حالة الكتابة للجميع
         const unsubscribeTyping = onSnapshot(typingStatusDoc, (doc) => {
             const data = doc.data() || {};
             const now = Timestamp.now().toMillis();
@@ -1327,66 +1329,31 @@
 
             let newMessagesAdded = false;
             let messagesModified = false;
-            let messagesRemoved = false; 
-            
-            // [إصلاح 3] استخدام مصفوفة لتخزين العناصر الجديدة/المحدثة
-            const newMessagesMap = new Map();
-            
+            let messagesRemoved = false; // [إصلاح 1] لتتبع الحذف
             snapshot.docChanges().forEach((change) => {
                 const msgData = { id: change.doc.id, ...change.doc.data() };
                 const msgEl = messagesEl.querySelector(`[data-msg-id="${msgData.id}"]`);
                 
-                if (change.type === "added") {
-                    newMessagesMap.set(msgData.id, msgData);
-                    newMessagesAdded = true;
+                if (change.type === "added" && !msgEl) {
+                    const newMsgEl = createMessageElement(msgData);
+                    if (newMsgEl) {
+                        messagesEl.appendChild(newMsgEl); 
+                        newMessagesAdded = true;
+                    }
                 }
-                
-                if (change.type === "modified") {
-                    newMessagesMap.set(msgData.id, msgData);
-                    messagesModified = true;
+                // [جديد] تحديث الرسالة المعدلة أو التي تم التفاعل عليها
+                if (change.type === "modified" && msgEl) {
+                    const updatedMsgEl = createMessageElement(msgData);
+                    if (updatedMsgEl) {
+                        msgEl.replaceWith(updatedMsgEl);
+                        messagesModified = true; // وضع علامة التعديل
+                    }
                 }
-                
                 if (change.type === "removed" && msgEl) {
                     msgEl.remove();
-                    messagesRemoved = true; 
+                    messagesRemoved = true; // [إصلاح 1]
                 }
             });
-            
-            // [إصلاح 3] إعادة بناء قائمة الرسائل من الصفر (للتأكد من الترتيب الصحيح وعدم التكرار)
-            // هذا الحل يضمن عدم تكرار الرسائل، ولكنه قد يسبب وميضاً بسيطاً في حالة التحديثات الكثيرة
-            if (newMessagesAdded || messagesModified || messagesRemoved) {
-                // نجمع كل الرسائل الموجودة حالياً في DOM
-                const existingMessageIds = Array.from(messagesEl.querySelectorAll('.message-row')).map(el => el.dataset.msgId);
-                
-                // ندمج الرسائل الجديدة/المعدلة مع الموجودة
-                const allMessageIds = new Set([...existingMessageIds, ...newMessagesMap.keys()]);
-                
-                // نحصل على البيانات الكاملة لكل الرسائل التي يجب أن تكون موجودة
-                const finalMessagesData = Array.from(allMessageIds)
-                    .map(id => {
-                        // إذا كانت الرسالة الجديدة/المعدلة موجودة في الـ Map، نستخدم بياناتها
-                        if (newMessagesMap.has(id)) return newMessagesMap.get(id);
-                        // وإلا، نحاول استرجاع بيانات الرسالة الموجودة حالياً في DOM
-                        const existingEl = messagesEl.querySelector(`[data-msg-id="${id}"]`);
-                        if (existingEl) {
-                            // هذا الجزء معقد وغير موثوق، لذا نعتمد على أن Firestore onSnapshot يعطينا كل الرسائل الـ 50 الأخيرة
-                            // الأفضل هو مسح وإعادة رسم كل الـ 50 رسالة
-                            return null;
-                        }
-                        return null;
-                    })
-                    .filter(data => data !== null);
-                
-                // [إصلاح 3] الحل الأبسط والأكثر أماناً: مسح وإعادة رسم الكل
-                messagesEl.innerHTML = '';
-                const fragment = document.createDocumentFragment();
-                snapshot.docs.forEach(doc => {
-                    const msgData = { id: doc.id, ...doc.data() };
-                    const msgEl = createMessageElement(msgData);
-                    if (msgEl) fragment.appendChild(msgEl);
-                });
-                messagesEl.appendChild(fragment);
-            }
 
 
             // دالة التمرير لأسفل
@@ -1427,15 +1394,60 @@
     };
 
 
+    /* --- دالة بناء حاويات الصفحات (الدردشة، الأعضاء...) --- */
+    function buildPageCache() {
+        contentEl.innerHTML = '';
+        pageCache.chat = createChatPage();
+        pageCache.members = createMembersPage();
+        pageCache.settings = createSettingsPage();
+        pageCache.profile = createProfilePage();
+        pageCache.view_profile = document.createElement('div');
+        pageCache.view_profile.id = 'view_profile_page';
+        pageCache.view_profile.className = 'page page-container';
+        pageCache.edit_profile = document.createElement('div');
+        pageCache.edit_profile.id = 'edit_profile_page';
+        pageCache.edit_profile.className = 'page';
+        Object.values(pageCache).forEach(p => contentEl.appendChild(p));
+    }
+
+
+    /* --- دالة التنقل بين الصفحات --- */
+    window.openPage = (pageName, btn) => {
+        if (!auth.currentUser || !currentUserProfile) return;
+        if (btn) setActiveNav(btn);
+        preparePageForDisplay(pageName); // تحضير المحتوى قبل العرض
+        Object.values(pageCache).forEach(p => p.classList.remove('active'));
+        const targetPage = pageCache[pageName];
+        if (targetPage) targetPage.classList.add('active');
+        
+        // مسح حالة الرد عند تغيير الصفحة
+        if (pageName !== 'chat') {
+            clearReplyState();
+        }
+    };
+
+
+    // دالة تحضير المحتوى (تُستخدم لتحديث المحتوى المتغير مثل قائمة الأعضاء)
+    function preparePageForDisplay(pageName) {
+        switch (pageName) {
+            case 'settings': renderSettingsPage(true); break;
+            case 'profile': renderProfilePage(true); break;
+            case 'members': renderMembersList(); break; 
+            case 'edit_profile': renderEditProfilePage(); break;
+        }
+    }
+
+
     /* --- دوال إنشاء محتوى الصفحات --- */
     function createChatPage() {
         const page = document.createElement('div');
         page.id = 'chat';
         page.className = 'page chat-page';
+        // [تم التعديل] إضافة مؤشر الكتابة
         page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><form class="chat-input" id="messageForm"><div id="replyQuoteContainerWrapper" class="reply-quote-container-wrapper" style="display:none;"><div id="replyQuoteContainer" class="reply-quote-container"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div></div><div id="typingIndicator" class="typing-indicator"></div><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form>`;
         page.querySelector('#messageForm').addEventListener('submit', sendMessage);
         page.querySelector('#clearReplyBtn').addEventListener('click', clearReplyState);
-        page.querySelector('#msgInput').addEventListener('input', () => updateTypingStatus(true)); 
+        page.querySelector('#msgInput').addEventListener('input', () => updateTypingStatus(true)); // [جديد] ربط مؤشر الكتابة
         return page;
     }
     
@@ -1459,6 +1471,32 @@
             indicator.textContent = text;
             indicator.style.display = 'block';
         }
+    }
+
+
+    function createMembersPage() {
+        const page = document.createElement('div');
+        page.id = 'members';
+        page.className = 'page page-container';
+        page.innerHTML = `<div class="search-bar"><input id="searchInput" type="text" placeholder="ابحث عن عضو..."/></div><div id="membersList" class="members-list"></div>`;
+        page.querySelector('#searchInput').addEventListener('input', filterMembersList);
+        return page;
+    }
+
+
+    function createProfilePage() {
+        const page = document.createElement('div');
+        page.id = 'profile';
+        page.className = 'page page-container';
+        return page;
+    }
+
+
+    function createSettingsPage() {
+        const page = document.createElement('div');
+        page.id = 'settings';
+        page.className = 'page page-container';
+        return page;
     }
 
 
@@ -1505,7 +1543,7 @@
             }
             editMessageModal.classList.remove('active');
             editMessageSave.removeEventListener('click', saveHandler);
-            editMessageCancel.removeEventListener('click', cancelHandler); 
+            editMessageCancel.removeEventListener('click', cancelHandler); // [إصلاح 2] إزالة المستمعين
         };
 
 
@@ -1523,6 +1561,7 @@
 
     // دالة تنفيذ التعديل على Firestore
     async function handleEditMessage(messageId, newText) {
+        // [إصلاح 2] تم إزالة showLoading(true) و showLoading(false)
         try {
             await updateDoc(doc(messagesCollection, messageId), { 
                 text: newText,
@@ -1563,7 +1602,7 @@
     function startForward(msgData) {
         const msgInput = document.getElementById('msgInput');
         clearReplyState(); // مسح أي حالة رد سابقة
-        msgInput.value = `${msgData.text}`; // [إصلاح 1] لا نضيف [إعادة توجيه] بل نترك النص كما هو
+        msgInput.value = `[إعادة توجيه] ${msgData.text}`;
         msgInput.focus();
         messageActionModal.classList.remove('active');
     }
@@ -1657,14 +1696,14 @@
         messageActionCopy.style.display = 'block';
         messageActionForward.style.display = 'block';
         messageActionReply.style.display = 'block';
-        messageActionReact.style.display = 'block'; 
+        messageActionReact.style.display = 'block'; // [جديد]
 
 
         
         // ربط الأوامر
         messageActionEdit.onclick = () => startEdit(msgData);
         messageActionReply.onclick = () => startReply(msgData);
-        messageActionReact.onclick = () => showReactionModal(msgData); 
+        messageActionReact.onclick = () => showReactionModal(msgData); // [جديد]
         messageActionCopy.onclick = () => handleCopyMessage(msgData);
         messageActionForward.onclick = () => startForward(msgData);
         messageActionDelete.onclick = () => handleDeleteMessage(msgData.id);
@@ -1811,183 +1850,15 @@
             memberItemWrapper.appendChild(memberItem);
             fragment.appendChild(memberItemWrapper);
         });
+        /* --- === نهاية إصلاح الطلب 3 === --- */
+
+
         membersListEl.appendChild(fragment);
         filterMembersList(); // تطبيق فلتر البحث
     }
 
 
-    /* --- دالة إرسال الرسالة --- */
-    async function sendMessage(event) {
-        event.preventDefault();
-
-
-        if (currentUserProfile.isMuted) {
-            showToast("لا يمكنك الإرسال، لقد تم تقييد حسابك.");
-            return;
-        }
-
-
-        const msgInput = document.getElementById('msgInput');
-        const text = msgInput.value.trim();
-        
-        if (text && currentUserProfile) {
-            const originalText = msgInput.value; 
-            
-            // [إصلاح 1] مسح حقل الإدخال فوراً ومسح حالة الرد
-            msgInput.value = ''; 
-            msgInput.focus();
-            const replyData = replyingToMessage;
-            clearReplyState(); 
-            
-            // بيانات الرسالة الأساسية
-            const messageData = { 
-                text, 
-                senderId: currentUserProfile.id, 
-                createdAt: Timestamp.now() 
-            };
-
-
-            // إضافة بيانات الرد إن وجدت
-            if (replyData) {
-                messageData.replyToId = replyData.id;
-                messageData.replyToName = replyData.name;
-                messageData.replyToText = replyData.text;
-            }
-
-
-            try { 
-                await addDoc(messagesCollection, messageData); 
-                await updateTypingStatus(false); 
-            } catch (error) { 
-                console.error("Error sending message:", error);
-                msgInput.value = originalText; // إعادة النص في حالة الفشل فقط
-                showToast("فشل إرسال الرسالة.");
-                // إذا فشل الإرسال، نعيد حالة الرد أيضاً
-                if (replyData) {
-                    replyingToMessage = replyData;
-                    pageCache.chat.querySelector('#replyQuoteContainerWrapper').style.display = 'block';
-                }
-            }
-        }
-    }
-
-
-    /* --- دالة إنشاء عنصر الرسالة في الشات --- */
-    function createMessageElement(msgData) {
-        const createdAtDate = (msgData.createdAt?.toDate) ? msgData.createdAt.toDate() : new Date();
-        const sender = usersCache[msgData.senderId]; 
-        if(!sender) {
-            console.warn(`Sender not found in cache: ${msgData.senderId}`);
-            return null; 
-        }
-        const isSent = msgData.senderId === currentUserProfile.id;
-        const row = document.createElement('div');
-        row.className = `message-row ${isSent ? 'sent' : 'recv'}`;
-        row.dataset.msgId = msgData.id;
-        const time = createdAtDate.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' });
-
-
-        let badgeHTML = '';
-        if (sender.badge === 'owner') badgeHTML = `👑`;
-        else if (sender.badge === 'moderator') badgeHTML = `🛡️`;
-
-
-        const muteIcon = sender.isMuted ? ' 🔇' : ''; 
-        const editedTag = msgData.isEdited ? ' (معدلة)' : '';
-
-
-        // بناء كود اقتباس الرد
-        let replyQuoteHTML = '';
-        if (msgData.replyToId) {
-            replyQuoteHTML = `
-                <div class="reply-quote">
-                    <div class="reply-quote-name">${msgData.replyToName}</div>
-                    <div class="reply-quote-text">${msgData.replyToText}</div>
-                </div>
-            `;
-        }
-        
-        // [جديد] بناء كود التفاعلات
-        let reactionsHTML = '';
-        if (msgData.reactions && Object.keys(msgData.reactions).length > 0) {
-            reactionsHTML = `<div class="reactions-container">`;
-            for (const emoji of availableReactions) { // [إصلاح 3] نمر على قائمة الإيموجي المتاحة لضمان الترتيب
-                const users = msgData.reactions[emoji];
-                if (users && users.length > 0) {
-                    const count = users.length;
-                    // [جديد] إضافة onclick لفتح مودال التفاعلات مرة أخرى
-                    reactionsHTML += `<div class="reaction-item" onclick="handleReaction('${msgData.id}', '${emoji}')">${emoji}<span class="reaction-count">${count}</span></div>`;
-                }
-            }
-            reactionsHTML += `</div>`;
-        }
-
-
-        row.innerHTML = `<img src="${sender.avatar}" alt="${sender.name}" class="chat-avatar"><div class="bubble ${isSent ? 'sent' : 'recv'}"><div class="bubble-content">${!isSent ? `<div class="bubble-sender">${badgeHTML} ${sender.name}${muteIcon}</div>` : ''}${replyQuoteHTML}<span>${msgData.text}${editedTag}</span><div class="timestamp">${time}</div></div>${reactionsHTML}</div>`;
-
-
-        const bubble = row.querySelector('.bubble');
-        const isOwnMessage = msgData.senderId === currentUserProfile.id;
-        const isAdmin = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
-        const canShowFullOptions = isOwnMessage || isAdmin;
-
-
-        if (canShowFullOptions) { 
-            bubble.style.cursor = 'pointer';
-            bubble.title = 'اضغط لإظهار الخيارات';
-            bubble.addEventListener('click', (e) => {
-                e.stopPropagation(); 
-                showMessageActionModal(msgData); 
-            });
-        } else { 
-            bubble.style.cursor = 'pointer';
-            bubble.title = 'اضغط للرد أو خيارات الرسالة';
-            bubble.addEventListener('click', (e) => {
-                e.stopPropagation(); 
-                showMessageActionModal(msgData); 
-            });
-        }
-
-
-        return row;
-    }
-
-
-    /* --- دوال مساعدة أخرى --- */
-    function buildPageCache() {
-        contentEl.innerHTML = '';
-        pageCache.chat = createChatPage();
-        pageCache.members = createMembersPage();
-        pageCache.settings = createSettingsPage();
-        pageCache.profile = createProfilePage();
-        pageCache.view_profile = document.createElement('div');
-        pageCache.view_profile.id = 'view_profile_page';
-        pageCache.view_profile.className = 'page page-container';
-        pageCache.edit_profile = document.createElement('div');
-        pageCache.edit_profile.id = 'edit_profile_page';
-        pageCache.edit_profile.className = 'page';
-        Object.values(pageCache).forEach(p => contentEl.appendChild(p));
-    }
-    function createMembersPage() {
-        const page = document.createElement('div');
-        page.id = 'members';
-        page.className = 'page page-container';
-        page.innerHTML = `<div class="search-bar"><input id="searchInput" type="text" placeholder="ابحث عن عضو..."/></div><div id="membersList" class="members-list"></div>`;
-        page.querySelector('#searchInput').addEventListener('input', filterMembersList);
-        return page;
-    }
-    function createProfilePage() {
-        const page = document.createElement('div');
-        page.id = 'profile';
-        page.className = 'page page-container';
-        return page;
-    }
-    function createSettingsPage() {
-        const page = document.createElement('div');
-        page.id = 'settings';
-        page.className = 'page page-container';
-        return page;
-    }
+    // دالة فلترة قائمة الأعضاء (البحث)
     function filterMembersList() {
         if (!pageCache.members) return;
         const searchInput = pageCache.members.querySelector('#searchInput');
@@ -2003,6 +1874,9 @@
             }
         });
     }
+
+
+    /* --- دالة عرض صفحة البروفايل --- */
     function renderProfilePage(rerender = false) {
         if (!pageCache.profile || !currentUserProfile) return;
         if (rerender || !pageCache.profile.innerHTML) {
@@ -2010,6 +1884,94 @@
             pageCache.profile.querySelector('#editProfileBtn').onclick = () => openPage('edit_profile');
         }
     }
+
+
+    /* --- دالة عرض صفحة الإعدادات --- */
+    function renderSettingsPage(rerender = false) {
+        if (!pageCache.settings || !rerender) return;
+        const settings = { ...defaultSettings, ...(currentUserProfile.settings) };
+        let ownerSectionHTML = '';
+        if (currentUserProfile.badge === 'owner') {
+            /* --- === [!!] إصلاح الطلب 2: تغيير نص الزر [!!] === --- */
+            ownerSectionHTML = `<div class="settings-section"><h2 class="settings-section-title">👑 أدوات المالك</h2><div class="settings-option"><button id="applyToAllBtn" class="form-btn-confirm" style="flex:1;">تطبيق مظهري على الجميع فوراً</button></div><div class="settings-option"><button id="resetAllBtn" class="form-btn-cancel" style="flex:1;">إلغاء المظهر العام</button></div><div class="settings-option"><button id="clearChatBtn" class="settings-btn-themed" style="background: var(--danger-color); flex:1;">مسح الشات بالكامل</button></div></div>`;
+        }
+
+
+        const bubblePaddingText = settings.bubblePadding == 1 ? 'صغير' : (settings.bubblePadding == 2 ? 'وسط' : 'كبير');
+
+
+        pageCache.settings.innerHTML = `<div class="settings-section"><h2 class="settings-section-title">المظهر العام</h2><div class="settings-option"><span class="label">الوضع الليلي</span><input type="checkbox" id="darkModeToggle" ${settings.darkMode ? 'checked' : ''}/></div><div class="settings-option"><span class="label">لون فقاعاتي</span><input type="color" class="settings-input-color" id="sentBubbleColor" value="${settings.sentBubbleBg}"></div><div class="settings-option"><span class="label">لون فقاعات الآخرين</span><input type="color" class="settings-input-color" id="recvBubbleColor" value="${settings.recvBubbleBg}"></div>
+        
+        <div class="settings-option">
+            <span class="label">حجم الخط</span>
+            <input type="range" id="fontSizeRange" min="12" max="20" value="${settings.fontSize}" style="flex:1" />
+            <span id="fontSizeValue" style="min-width: 40px; text-align: left;">${settings.fontSize}px</span>
+            <button class="settings-btn-themed save-btn" id="saveFontSize" title="حفظ">💾</button>
+        </div>
+        
+        <div class="settings-option">
+            <span class="label">حجم بطاقة الرسالة</span>
+            <input type="range" id="bubblePaddingRange" min="1" max="3" value="${settings.bubblePadding}" style="flex:1" />
+            <span id="bubblePaddingValue" style="min-width: 40px; text-align: left;">${bubblePaddingText}</span>
+            <button class="settings-btn-themed save-btn" id="saveBubblePadding" title="حفظ">💾</button>
+        </div>
+
+
+        </div><div class="settings-section"><h2 class="settings-section-title">خلفية الدردشة</h2><div class="background-grid" id="backgroundGrid">${backgroundImages.map(img => `<div class="background-option" style="background-image: url(${img.thumb})" data-url="${img.full}"></div>`).join('')}</div><div class="settings-option" style="padding-top: 16px;"><label for="bgUpload" class="settings-btn-themed" style="flex:1; text-align:center; cursor:pointer; background: var(--accent-color);">رفع خلفية خاصة</label><input type="file" id="bgUpload" accept="image/*" style="display:none;"></div><div class="settings-option" style="padding-top: 8px;"><button class="settings-btn-themed" id="resetBgBtn" style="background: var(--danger-color); flex:1;">مسح الخلفية</button></div></div>${ownerSectionHTML}<div class="settings-section"><h2 class="settings-section-title">وسام الإدارة</h2><div class="settings-option"><input type="password" id="badgePass" class="auth-input" placeholder="أدخل كلمة المرور" style="flex:1"/><button id="badgeSaveBtn" class="settings-btn-themed">حفظ</button></div></div><div class="settings-section"><h2 class="settings-section-title">إعادة الضبط</h2><div class="settings-option"><button id="resetAllSettings" class="settings-btn-themed" style="background: var(--danger-color); flex:1;">إعادة ضبط كل إعداداتي</button></div></div>`;
+
+
+        addSettingsEventListeners(); // ربط الأوامر بالأزرار الجديدة
+    }
+
+
+    /* --- دوال صفحات تسجيل الدخول وإنشاء بروفايل جديد --- */
+    const showWelcomePage = () => {
+      contentEl.innerHTML = `<div class="auth-page"><h1 class="auth-title">أهلاً بك في شات شهاب</h1><div class="auth-card" style="text-align:center;"><p>ادخل للدردشة مباشرة مع الأصدقاء</p><button id="loginBtn" class="form-btn-confirm" style="width:100%;">ادخل الآن</button></div></div>`;
+      document.getElementById('loginBtn').addEventListener('click', handleLogin);
+    };
+
+
+    // إظهار صفحة إكمال البروفايل للمستخدم الجديد
+    const showNewUserProfilePage = (user) => {
+      contentEl.innerHTML = ''; 
+      const title = 'أكمل ملفك الشخصي';
+      const buttonText = 'دخول الدردشة';
+      /* --- إصلاح 2: استخدام الدالة الجديدة لإظهار أول صورة --- */
+      const p = { name: '', avatar: getNextAvatar('male'), gender: 'male', location: '' };
+
+
+      const formContainer = document.createElement('div');
+
+
+      formContainer.innerHTML = `<div class="auth-page"><h1 class="auth-title">${title}</h1><form class="auth-card" id="profileForm">
+        
+        <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+          <label for="avatarUpload">
+            <img class="signup-avatar" id="avatarPreview" src="${p.avatar}" alt="Avatar" title="اضغط لرفع صورة" />
+          </label>
+          <p class="avatar-note">اضغط على الصورة لرفع صورة من جهازك</p>
+          <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
+          <input type="hidden" name="avatar" value="${p.avatar}">
+          <button type="button" class="settings-btn-themed" id="randomAvatarBtn" style="margin-top: 8px;">صورة رمزية تالية</button>
+        </div>
+
+
+        <div class="auth-input-group" style="width:100%;"><label for="nameInput">اسمك في الشات</label><input type="text" id="nameInput" name="name" class="auth-input" value="${p.name}" placeholder="اكتب اسمك هنا..." /></div>
+        <div class="auth-input-group" style="width:100%;"><label for="locationInput">العنوان</label><input type="text" id="locationInput" name="location" class="auth-input" value="${p.location || ''}" placeholder="مثال: القاهرة، مصر" /></div>
+        <div class="gender-select"><div class="gender-option ${p.gender === 'male' ? 'selected' : ''}" data-gender="male">ذكـر</div><div class="gender-option ${p.gender === 'female' ? 'selected' : ''}" data-gender="female">أنثـى</div></div>
+        <p class="error-message" id="setupError"></p>
+        <div class="form-btn-group"><button type="submit" class="form-btn-confirm">${buttonText}</button></div>
+      </form></div>`;
+
+
+      contentEl.appendChild(formContainer);
+      const form = document.getElementById('profileForm');
+      attachProfileFormListeners(form, false); // ربط الأوامر (رفع الصورة، اختيار الجنس)
+      form.addEventListener('submit', (e) => handleProfileSave(e, user, false));
+    };
+
+
+    // إظهار صفحة تعديل البروفايل
     function renderEditProfilePage() {
         if (!pageCache.edit_profile || !currentUserProfile) return;
         const p = currentUserProfile;
@@ -2040,45 +2002,12 @@
 
         const form = pageCache.edit_profile.querySelector('#editProfileForm');
         form.querySelector('.form-btn-cancel').onclick = () => openPage('profile');
-        attachProfileFormListeners(form, true); 
+        attachProfileFormListeners(form, true); // ربط الأوامر (رفع الصورة، اختيار الجنس)
         form.addEventListener('submit', (e) => handleProfileSave(e, auth.currentUser, true));
     }
-    function showNewUserProfilePage(user) {
-      contentEl.innerHTML = ''; 
-      const title = 'أكمل ملفك الشخصي';
-      const buttonText = 'دخول الدردشة';
-      const p = { name: '', avatar: getNextAvatar('male'), gender: 'male', location: '' };
 
 
-      const formContainer = document.createElement('div');
-
-
-      formContainer.innerHTML = `<div class="auth-page"><h1 class="auth-title">${title}</h1><form class="auth-card" id="profileForm">
-        
-        <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
-          <label for="avatarUpload">
-            <img class="signup-avatar" id="avatarPreview" src="${p.avatar}" alt="Avatar" title="اضغط لرفع صورة" />
-          </label>
-          <p class="avatar-note">اضغط على الصورة لرفع صورة من جهازك</p>
-          <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
-          <input type="hidden" name="avatar" value="${p.avatar}">
-          <button type="button" class="settings-btn-themed" id="randomAvatarBtn" style="margin-top: 8px;">صورة رمزية تالية</button>
-        </div>
-
-
-        <div class="auth-input-group" style="width:100%;"><label for="nameInput">اسمك في الشات</label><input type="text" id="nameInput" name="name" class="auth-input" value="${p.name}" placeholder="اكتب اسمك هنا..." /></div>
-        <div class="auth-input-group" style="width:100%;"><label for="locationInput">العنوان</label><input type="text" id="locationInput" name="location" class="auth-input" value="${p.location || ''}" placeholder="مثال: القاهرة، مصر" /></div>
-        <div class="gender-select"><div class="gender-option ${p.gender === 'male' ? 'selected' : ''}" data-gender="male">ذكـر</div><div class="gender-option ${p.gender === 'female' ? 'selected' : ''}" data-gender="female">أنثـى</div></div>
-        <p class="error-message" id="setupError"></p>
-        <div class="form-btn-group"><button type="submit" class="form-btn-confirm">${buttonText}</button></div>
-      </form></div>`;
-
-
-      contentEl.appendChild(formContainer);
-      const form = document.getElementById('profileForm');
-      attachProfileFormListeners(form, false); 
-      form.addEventListener('submit', (e) => handleProfileSave(e, user, false));
-    }
+    // دالة ربط الأوامر بصفحة البروفايل (لرفع الصور واختيار الجنس)
     function attachProfileFormListeners(form, isEditing = false) {
       const avatarUploadInput = form.querySelector(isEditing ? '#editAvatarUpload' : '#avatarUpload');
       const avatarPreview = form.querySelector(isEditing ? '#editAvatarPreview' : '#avatarPreview');
@@ -2086,6 +2015,7 @@
       const avatarHiddenInput = form.querySelector('[name="avatar"]');
 
 
+      /* --- إصلاح 2: تغيير اسم الزر --- */
       randomAvatarBtn.textContent = 'صورة رمزية تالية';
 
 
@@ -2097,7 +2027,7 @@
 
           showLoading(true);
           try {
-              const compressedBase64 = await compressImage(file, 800, 0.7); 
+              const compressedBase64 = await compressImage(file, 800, 0.7); // ضغط الصورة
 
 
               if (compressedBase64.length > 700 * 1024) { 
@@ -2108,9 +2038,9 @@
               }
 
 
-              avatarPreview.src = compressedBase64; 
-              avatarHiddenInput.value = compressedBase64; 
-              randomAvatarBtn.style.display = 'none'; 
+              avatarPreview.src = compressedBase64; // عرض الصورة المضغوطة
+              avatarHiddenInput.value = compressedBase64; // تخزينها (كنص)
+              randomAvatarBtn.style.display = 'none'; // إخفاء زر العشوائي
           } catch (error) {
               console.error("Image compression failed:", error);
               showToast("حدث خطأ أثناء ضغط الصورة.");
@@ -2120,6 +2050,7 @@
       });
 
 
+      /* --- إصلاح 2: تعديل دالة `updateAvatar` لاستخدام `getNextAvatar` --- */
       const updateAvatar = () => {
           const gender = form.querySelector('.gender-option.selected').dataset.gender;
           const newAvatar = getNextAvatar(gender); 
@@ -2181,6 +2112,9 @@
           });
       });
     }
+
+
+    /* --- دالة حفظ البروفايل (جديد أو تعديل) --- */
     const handleProfileSave = async (event, user, isEditing = false) => {
       event.preventDefault();
       const form = event.target;
@@ -2212,11 +2146,17 @@
             data.badge = null; 
 
 
+            /* --- === [!!] إصلاح الطلب 2: المظهر للمستخدم الجديد [!!] === --- */
+            // التحقق إذا كان المالك قد وضع مظهراً عاماً
             if (globalSettings) {
+                // المستخدم الجديد يحصل على المظهر العام كإعدادات افتراضية
+                // ندمجها مع الإعدادات الافتراضية لضمان وجود كل الخصائص
                 data.settings = { ...defaultSettings, ...globalSettings };
             } else {
+                // لا يوجد مظهر عام، المستخدم يحصل على الإعدادات الافتراضية العادية
                 data.settings = defaultSettings; 
             }
+            /* --- === نهاية إصلاح الطلب 2 === --- */
 
 
             data.createdAt = Timestamp.now();
@@ -2233,65 +2173,58 @@
         showLoading(false);
       }
     };
+
+
+    // دالة عرض بروفايل مستخدم آخر
+    window.viewUserProfile = (userId) => {
+        const user = usersCache[userId];
+        if (user && pageCache.view_profile) {
+            pageCache.view_profile.innerHTML = createUserProfileViewHTML(user, false);
+            pageCache.view_profile.querySelector('.back-btn').onclick = () => openPage('members');
+            Object.values(pageCache).forEach(p => p.classList.remove('active'));
+            pageCache.view_profile.classList.add('active');
+        }
+    }
+
+
+    // دالة إنشاء كود العرض للبروفايل
     function createUserProfileViewHTML(user, isOwnProfile = false) {
         const buttonsHTML = isOwnProfile 
             ? `<button class="profile-edit-btn" id="editProfileBtn" style="margin-top: 16px;">تعديل الملف الشخصي</button>`
             : `<button class="form-btn-confirm back-btn">العودة للأعضاء</button>`;
         return `<div class="card-section"><img class="view-profile-avatar" src="${user.avatar}" alt="${user.name}" /><h2 class="profile-name">${user.name}</h2></div><div class="profile-details-section"><div class="profile-detail-item"><span class="label">الجنس</span><span class="value">${user.gender === 'male' ? 'ذكر' : 'أنثى'}</span></div><div class="profile-detail-item"><span class="label">العنوان</span><span class="value">${user.location || 'غير محدد'}</span></div></div>${buttonsHTML}`;
     }
-    function renderSettingsPage(rerender = false) {
-        if (!pageCache.settings || !rerender) return;
-        const settings = { ...defaultSettings, ...(currentUserProfile.settings) };
-        let ownerSectionHTML = '';
-        if (currentUserProfile.badge === 'owner') {
-            ownerSectionHTML = `<div class="settings-section"><h2 class="settings-section-title">👑 أدوات المالك</h2><div class="settings-option"><button id="applyToAllBtn" class="form-btn-confirm" style="flex:1;">تطبيق مظهري على الجميع فوراً</button></div><div class="settings-option"><button id="resetAllBtn" class="form-btn-cancel" style="flex:1;">إلغاء المظهر العام</button></div><div class="settings-option"><button id="clearChatBtn" class="settings-btn-themed" style="background: var(--danger-color); flex:1;">مسح الشات بالكامل</button></div></div>`;
-        }
 
 
-        const bubblePaddingText = settings.bubblePadding == 1 ? 'صغير' : (settings.bubblePadding == 2 ? 'وسط' : 'كبير');
-
-
-        pageCache.settings.innerHTML = `<div class="settings-section"><h2 class="settings-section-title">المظهر العام</h2><div class="settings-option"><span class="label">الوضع الليلي</span><input type="checkbox" id="darkModeToggle" ${settings.darkMode ? 'checked' : ''}/></div><div class="settings-option"><span class="label">لون فقاعاتي</span><input type="color" class="settings-input-color" id="sentBubbleColor" value="${settings.sentBubbleBg}"></div><div class="settings-option"><span class="label">لون فقاعات الآخرين</span><input type="color" class="settings-input-color" id="recvBubbleColor" value="${settings.recvBubbleBg}"></div>
-        
-        <div class="settings-option">
-            <span class="label">حجم الخط</span>
-            <input type="range" id="fontSizeRange" min="12" max="20" value="${settings.fontSize}" style="flex:1" />
-            <span id="fontSizeValue" style="min-width: 40px; text-align: left;">${settings.fontSize}px</span>
-            <button class="settings-btn-themed save-btn" id="saveFontSize" title="حفظ">💾</button>
-        </div>
-        
-        <div class="settings-option">
-            <span class="label">حجم بطاقة الرسالة</span>
-            <input type="range" id="bubblePaddingRange" min="1" max="3" value="${settings.bubblePadding}" style="flex:1" />
-            <span id="bubblePaddingValue" style="min-width: 40px; text-align: left;">${bubblePaddingText}</span>
-            <button class="settings-btn-themed save-btn" id="saveBubblePadding" title="حفظ">💾</button>
-        </div>
-
-
-        </div><div class="settings-section"><h2 class="settings-section-title">خلفية الدردشة</h2><div class="background-grid" id="backgroundGrid">${backgroundImages.map(img => `<div class="background-option" style="background-image: url(${img.thumb})" data-url="${img.full}"></div>`).join('')}</div><div class="settings-option" style="padding-top: 16px;"><label for="bgUpload" class="settings-btn-themed" style="flex:1; text-align:center; cursor:pointer; background: var(--accent-color);">رفع خلفية خاصة</label><input type="file" id="bgUpload" accept="image/*" style="display:none;"></div><div class="settings-option" style="padding-top: 8px;"><button class="settings-btn-themed" id="resetBgBtn" style="background: var(--danger-color); flex:1;">مسح الخلفية</button></div></div>${ownerSectionHTML}<div class="settings-section"><h2 class="settings-section-title">وسام الإدارة</h2><div class="settings-option"><input type="password" id="badgePass" class="auth-input" placeholder="أدخل كلمة المرور" style="flex:1"/><button id="badgeSaveBtn" class="settings-btn-themed">حفظ</button></div></div><div class="settings-section"><h2 class="settings-section-title">إعادة الضبط</h2><div class="settings-option"><button id="resetAllSettings" class="settings-btn-themed" style="background: var(--danger-color); flex:1;">إعادة ضبط كل إعداداتي</button></div></div>`;
-
-
-        addSettingsEventListeners(); 
-    }
+    /* --- دالة ربط الأوامر بأزرار صفحة الإعدادات --- */
     function addSettingsEventListeners() {
         const page = pageCache.settings;
         if (!page) return;
 
 
+        /* --- === [!!] هذا هو الإصلاح [!!] === ---
+         * تم إرجاع التحديث الفوري المحلي هنا
+         * --- === نهاية الإصلاح === ---
+         */
         const updateSettings = async (newSetting) => {
             if (!currentUserProfile) return; 
 
 
+            // 1. نقوم بإنشاء نسخة محدثة من الإعدادات بناءً على الحالة الحالية
             const updatedSettings = { ...defaultSettings, ...(currentUserProfile.settings || {}), ...newSetting };
 
 
             try { 
+                // 2. [الإصلاح] تحديث الحالة المحلية *فوراً*
                 currentUserProfile.settings = updatedSettings; 
 
 
+                // 3. [الإصلاح] تطبيق الإعدادات *فوراً* على الواجهة
                 applyCombinedSettings(); 
 
 
+                // 4. الآن، نحفظ في قاعدة البيانات (في الخلفية)
+                // المراقب سيجلبها لاحقاً لكن الواجهة تحدثت بالفعل
                 await updateDoc(doc(usersCollection, currentUserProfile.id), { settings: updatedSettings }); 
             } 
             catch (error) { console.error("Failed to save settings:", error); }
@@ -2303,6 +2236,7 @@
             page.querySelector('#applyToAllBtn').addEventListener('click', async () => { 
                 showLoading(true); 
                 try { 
+                    // [تم التعديل] حفظ كل الإعدادات لتطبيقها على الجميع
                     const settingsToApply = { ...defaultSettings, ...(currentUserProfile.settings || {}) };
                     await setDoc(globalSettingsDoc, settingsToApply); 
                     showToast("تم حفظ المظهر العام وتطبيقه على الجميع فوراً!"); 
@@ -2375,10 +2309,12 @@
         const fontSizeValue = page.querySelector('#fontSizeValue');
 
 
+        // 1. تحديث النص فقط أثناء السحب (input)
         fontSizeRange.addEventListener('input', (e) => { 
             const newSize = e.target.value;
             fontSizeValue.textContent = `${newSize}px`; 
         });
+        // 2. ربط زر الحفظ
         page.querySelector('#saveFontSize').addEventListener('click', () => {
             const newSize = parseInt(fontSizeRange.value); 
             updateSettings({ fontSize: newSize }); 
@@ -2391,11 +2327,13 @@
         const bubblePaddingValue = page.querySelector('#bubblePaddingValue');
 
 
+        // 1. تحديث النص فقط أثناء السحب (input)
         bubblePaddingRange.addEventListener('input', (e) => { 
             const val = e.target.value;
             const text = val == 1 ? 'صغير' : (val == 2 ? 'وسط' : 'كبير');
             bubblePaddingValue.textContent = text; 
         });
+        // 2. ربط زر الحفظ
         page.querySelector('#saveBubblePadding').addEventListener('click', () => {
             const newPadding = parseInt(bubblePaddingRange.value);
             updateSettings({ bubblePadding: newPadding }); 
@@ -2424,7 +2362,7 @@
         });
 
 
-        // (وسام الإدارة)
+        /* --- إصلاح 2: (وسام الإدارة) --- */
         page.querySelector('#badgeSaveBtn').addEventListener('click', async () => {
             const pass = page.querySelector('#badgePass').value;
             let newBadge = null;
@@ -2455,14 +2393,18 @@
                 showToast(newBadge ? 'تم منح الوسام بنجاح!' : 'تم إزالة الوسام.');
 
 
+                // تحديث الحالة المحلية فوراً
                 currentUserProfile.badge = newBadge; 
 
 
+                // إعادة رسم صفحة الإعدادات لإظهار/إخفاء أدوات المالك
+                // سيتم مسح كلمة المرور تلقائياً عند إعادة الرسم
                 renderSettingsPage(true); 
 
 
             } catch(error){ showToast('فشل الحفظ!'); }
         });
+        /* --- نهاية الإصلاح 2 --- */
 
 
         // زر إعادة ضبط الإعدادات الشخصية
@@ -2476,6 +2418,148 @@
              }
         });
     }
+
+
+    /* --- دالة إرسال الرسالة --- */
+    async function sendMessage(event) {
+        event.preventDefault();
+
+
+        if (currentUserProfile.isMuted) {
+            showToast("لا يمكنك الإرسال، لقد تم تقييد حسابك.");
+            return;
+        }
+
+
+        const msgInput = document.getElementById('msgInput');
+        const text = msgInput.value.trim();
+        
+        if (text && currentUserProfile) {
+            const originalText = msgInput.value; // حفظ النص الأصلي
+            msgInput.value = ''; // <--- [إصلاح] مسح حقل الإدخال فوراً قبل أي محاولة إرسال
+            msgInput.focus();
+            
+            // بيانات الرسالة الأساسية
+            const messageData = { 
+                text, 
+                senderId: currentUserProfile.id, 
+                createdAt: Timestamp.now() 
+            };
+
+
+            // إضافة بيانات الرد إن وجدت
+            if (replyingToMessage) {
+                messageData.replyToId = replyingToMessage.id;
+                messageData.replyToName = replyingToMessage.name;
+                messageData.replyToText = replyingToMessage.text;
+                clearReplyState(); // مسح حالة الرد بعد الإرسال
+            }
+
+
+            try { 
+                await addDoc(messagesCollection, messageData); 
+                await updateTypingStatus(false); // [جديد] إزالة حالة الكتابة بعد الإرسال
+                // عند النجاح لا نفعل شيئاً، النص ممسوح بالفعل.
+            } catch (error) { 
+                console.error("Error sending message:", error);
+                msgInput.value = originalText; // <--- [إصلاح] إعادة النص في حالة الفشل فقط
+                showToast("فشل إرسال الرسالة.");
+                // إذا فشل الإرسال، نعيد حالة الرد أيضاً
+                if (messageData.replyToId) {
+                    replyingToMessage = { id: messageData.replyToId, name: messageData.replyToName, text: messageData.replyToText };
+                    pageCache.chat.querySelector('#replyQuoteContainerWrapper').style.display = 'block';
+                }
+            }
+        }
+    }
+
+
+    /* --- دالة إنشاء عنصر الرسالة في الشات --- */
+    function createMessageElement(msgData) {
+        const createdAtDate = (msgData.createdAt?.toDate) ? msgData.createdAt.toDate() : new Date();
+        const sender = usersCache[msgData.senderId]; 
+        if(!sender) {
+            console.warn(`Sender not found in cache: ${msgData.senderId}`);
+            return null; 
+        }
+        const isSent = msgData.senderId === currentUserProfile.id;
+        const row = document.createElement('div');
+        row.className = `message-row ${isSent ? 'sent' : 'recv'}`;
+        row.dataset.msgId = msgData.id;
+        const time = createdAtDate.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' });
+
+
+        let badgeHTML = '';
+        if (sender.badge === 'owner') badgeHTML = `👑`;
+        else if (sender.badge === 'moderator') badgeHTML = `🛡️`;
+
+
+        const muteIcon = sender.isMuted ? ' 🔇' : ''; 
+        const editedTag = msgData.isEdited ? ' (معدلة)' : '';
+
+
+        // بناء كود اقتباس الرد
+        let replyQuoteHTML = '';
+        if (msgData.replyToId) {
+            replyQuoteHTML = `
+                <div class="reply-quote">
+                    <div class="reply-quote-name">${msgData.replyToName}</div>
+                    <div class="reply-quote-text">${msgData.replyToText}</div>
+                </div>
+            `;
+        }
+        
+        // [جديد] بناء كود التفاعلات
+        let reactionsHTML = '';
+        if (msgData.reactions && Object.keys(msgData.reactions).length > 0) {
+            reactionsHTML = `<div class="reactions-container">`;
+            for (const emoji in msgData.reactions) {
+                const count = msgData.reactions[emoji].length;
+                if (count > 0) {
+                    // [جديد] إضافة onclick لفتح مودال التفاعلات مرة أخرى
+                    reactionsHTML += `<div class="reaction-item" onclick="handleReaction('${msgData.id}', '${emoji}')">${emoji}<span class="reaction-count">${count}</span></div>`;
+                }
+            }
+            reactionsHTML += `</div>`;
+        }
+
+
+        row.innerHTML = `<img src="${sender.avatar}" alt="${sender.name}" class="chat-avatar"><div class="bubble ${isSent ? 'sent' : 'recv'}"><div class="bubble-content">${!isSent ? `<div class="bubble-sender">${badgeHTML} ${sender.name}${muteIcon}</div>` : ''}${replyQuoteHTML}<span>${msgData.text}${editedTag}</span><div class="timestamp">${time}</div></div>${reactionsHTML}</div>`;
+
+
+        const bubble = row.querySelector('.bubble');
+        const isOwnMessage = msgData.senderId === currentUserProfile.id;
+        const isAdmin = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
+        const canShowFullOptions = isOwnMessage || isAdmin;
+
+
+        if (canShowFullOptions) { 
+            bubble.style.cursor = 'pointer';
+            bubble.title = 'اضغط لإظهار الخيارات';
+            bubble.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                showMessageActionModal(msgData); 
+            });
+        } else { 
+            bubble.style.cursor = 'pointer';
+            bubble.title = 'اضغط للرد أو خيارات الرسالة';
+            bubble.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                showMessageActionModal(msgData); // [معدل] إظهار نافذة الخيارات
+            });
+        }
+
+
+        return row;
+    }
+
+
+    /* --- دالة تحديث الشريط العلوي (الصورة) --- */
+    function updateHeaderUI(profile) {
+        if (!profile) return;
+        headerEl.querySelector('.avatar').src = profile.avatar;
+        headerEl.querySelector('.avatar').alt = profile.name;
+    };
   </script>
 
 
@@ -2586,4 +2670,4 @@
 
 
 </body>
-</html> 
+</html>
