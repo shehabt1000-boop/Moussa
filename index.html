@@ -19,7 +19,7 @@
 
   <!-- ملف Manifest (يخبر المتصفح أن هذا تطبيق) -->
   <!-- (تم تحويله إلى كود Base64 ليبقى في ملف واحد) -->
-  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQ2hhdCBTaGVoYWIiLCJzaG9ydF9uYW1lIjoiQ2hhdCBTaGVoYWIiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y1ZjVmNSIsInRoZW1lX2NvbG9yIjoiIzBhM2Q2MiIsImRlc2NyaXB0aW9uIjoi2LXZhNmK2LEg2KrYsdioINiR2LPQsCDYrtix06rZhNmLIiwiaWNvbnMiOlt7InNyYyI6Imh0dHBzOi8vcGxhY2Vob2xkLmNvLzE5MngxOTIvMGEzZDYyL0ZGRj90ZXh0PUNoYXQiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn0seyJzcmMiOiJodHRwczovL3BsYWNlaG9sZC5jby81MTJ4NTEyLzBhM2Q2Mi9GRkY/dGV4dD1DaGF0Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyJ9XX0=">
+  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQ2hhdCBTaGVoYWIiLCJzaG9ydF9uYW1lIjoiQ2hhdCBTaGVoYWIiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2Nvb3ciOiI2ZjVmZjUiLCJ0aGVtZV9jb2xvciI6IiMwYTNkNjIiLCJkZXNjcmlwdGlvbiI6Iti12YTZitsxINiq2LHYqCDYkdi30Lgg2K7YsdOq2YbZiiIsImljb25zIjpbeyJzcmMiOiJodHRwczovL3BsYWNlaG9sZC5jby8xOTJ4MTkyLzBhM2Q2Mi9GRkY/dGV4dD1DaGF0Iiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3BuZyJ9LHsic3JjIjoiaHR0cHM6Ly9wbGFjZWhvbGQuY28vNTEyeDUxMi8wYTNkNjIvRkZGP3RleHQ9Q2hhdCIsInNpemVzIjoiNTEyeDUxMiIsInR5cGUiOiJpbWFnZS9wbmcifV19">
 
 
   <!-- === نهاية الإضافات الجديدة === -->
@@ -227,12 +227,15 @@
       flex-shrink: 0;
     }
     /* حاوية اقتباس الرد فوق حقل الإدخال */
-    .reply-quote-container {
+    .reply-quote-container-wrapper {
         position: absolute;
-        top: 0;
+        bottom: 100%; /* <--- يرفع الحاوية فوق شريط الإدخال */
         left: 0;
         right: 0;
-        transform: translateY(-100%);
+        z-index: 9;
+        padding: 0 5px; /* <--- هامش من الجانبين */
+    }
+    .reply-quote-container {
         background: var(--card-bg-color);
         padding: 6px 10px; /* <--- تصغير */
         border-top-left-radius: 10px; /* <--- تصغير */
@@ -242,8 +245,9 @@
         align-items: center;
         gap: 8px; /* <--- تصغير */
         box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-        z-index: 9;
         max-height: 45px; /* <--- تصغير الارتفاع الكلي */
+        max-width: 95%; /* <--- تصغير العرض من الجانبين */
+        margin: 0 auto; /* <--- توسيط الحاوية */
     }
     .reply-quote-content {
         flex: 1;
@@ -976,7 +980,7 @@
     const getNextAvatar = (gender = 'male') => {
         if (gender === 'male') {
             const avatar = maleAvatars[maleAvatarIndex];
-            maleAvatarIndex = (maleAvatarIndex + 1) % maleAvatars.length; // زيادة العداد والعودة للصفر
+            maleAvatarIndex = (maleAvatars.length + maleAvatarIndex + 1) % maleAvatars.length; // زيادة العداد والعودة للصفر
             return avatar;
         } else {
             const avatar = femaleAvatars[femaleAvatarIndex];
@@ -1697,7 +1701,7 @@
         page.id = 'chat';
         page.className = 'page chat-page';
         // [تم التعديل] إضافة حاوية الرد
-        page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><form class="chat-input" id="messageForm"><div id="replyQuoteContainer" class="reply-quote-container" style="display:none;"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form>`;
+        page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><form class="chat-input" id="messageForm"><div id="replyQuoteContainerWrapper" class="reply-quote-container-wrapper" style="display:none;"><div id="replyQuoteContainer" class="reply-quote-container"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div></div><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form>`;
         page.querySelector('#messageForm').addEventListener('submit', sendMessage);
         page.querySelector('#clearReplyBtn').addEventListener('click', clearReplyState);
         return page;
@@ -1767,7 +1771,7 @@
     // [جديد] دالة مسح حالة الرد
     function clearReplyState() {
         replyingToMessage = null;
-        const container = pageCache.chat?.querySelector('#replyQuoteContainer');
+        const container = pageCache.chat?.querySelector('#replyQuoteContainerWrapper');
         if (container) container.style.display = 'none';
         pageCache.chat?.querySelector('#msgInput').focus();
     }
@@ -1780,12 +1784,12 @@
             name: sender.name, 
             text: msgData.text 
         };
-        const container = pageCache.chat.querySelector('#replyQuoteContainer');
+        const container = pageCache.chat.querySelector('#replyQuoteContainerWrapper');
         container.querySelector('#replyQuoteName').textContent = `رد على: ${sender.name}`;
         container.querySelector('#replyQuoteText').textContent = msgData.text;
-        container.style.display = 'flex';
+        container.style.display = 'block';
         pageCache.chat.querySelector('#msgInput').focus();
-        messageActionModal.classList.remove('active');
+        messageActionModal.classList.remove('active'); // <--- [إصلاح الخطأ 1] إخفاء مودال الخيارات
     }
 
     // [جديد] دالة بدء التعديل
@@ -1793,6 +1797,7 @@
         editMessageInput.value = msgData.text;
         editMessageModal.classList.add('active');
         editMessageInput.focus();
+        messageActionModal.classList.remove('active'); // <--- [إصلاح الخطأ 1] إخفاء مودال الخيارات
 
         const saveHandler = async () => {
             const newText = editMessageInput.value.trim();
@@ -1811,7 +1816,6 @@
 
         editMessageSave.addEventListener('click', saveHandler);
         editMessageCancel.addEventListener('click', cancelHandler);
-        messageActionModal.classList.remove('active');
     }
 
     // [جديد] دالة تنفيذ التعديل على Firestore
@@ -1834,11 +1838,11 @@
 
     // [معدل] دالة حذف الرسالة
     async function handleDeleteMessage(messageId) {
+        messageActionModal.classList.remove('active'); // <--- [إصلاح الخطأ 1] إخفاء مودال الخيارات
         if(await showConfirmModal('حذف الرسالة', 'هل أنت متأكد من حذف هذه الرسالة بشكل نهائي؟')) {
             try { await deleteDoc(doc(messagesCollection, messageId)); showToast('تم حذف الرسالة.'); } 
             catch (error) { console.error("Error deleting message:", error); showToast('فشل حذف الرسالة.'); }
         }
-        messageActionModal.classList.remove('active');
     }
 
     // [جديد] إظهار نافذة إجراءات الرسالة
