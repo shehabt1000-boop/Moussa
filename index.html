@@ -1182,7 +1182,7 @@
 
 
 
-    /* --- === [!!] إصلاح الطلب 1: تطبيق المظهر العام على الجميع [!!] === ---
+    /* --- === [!!] إصلاح المشكلة 1: تطبيق المظهر العام على الجميع [!!] === ---
      * تم تعديل هذه الدالة لتطبيق الإعدادات العامة أولاً، ثم الإعدادات الشخصية كأولوية
      * --- === نهاية الإصلاح === ---
      */
@@ -1201,9 +1201,23 @@
 
 
         // 3. تطبيق الإعدادات الشخصية للمستخدم (كأولوية أخيرة لتجاوز العام)
-        if (currentUserProfile.settings) {
-            finalSettings = { ...finalSettings, ...currentUserProfile.settings };
-        }
+        // [إصلاح المشكلة 1] يجب أن يتم تطبيق الإعدادات الشخصية فقط إذا لم يتم تعيينها في الإعدادات العامة
+        const userSettings = currentUserProfile.settings || {};
+        
+        // ندمج الإعدادات الشخصية، ولكن فقط إذا لم يتم تعيينها في الإعدادات العامة (أو إذا كانت الإعدادات العامة غير موجودة)
+        finalSettings = {
+            ...finalSettings,
+            ...userSettings,
+            // [إصلاح المشكلة 1] الخلفية الشخصية تتجاوز العامة فقط إذا لم يتم تعيين خلفية عامة
+            chatBackground: globalSettings?.chatBackground || userSettings.chatBackground || defaultSettings.chatBackground,
+            // [إصلاح المشكلة 1] الوضع الليلي الشخصي يتجاوز العام
+            darkMode: userSettings.darkMode !== undefined ? userSettings.darkMode : finalSettings.darkMode,
+            // يمكن تطبيق نفس المنطق على باقي الإعدادات إذا أردت أن يتجاوز الشخصي العام
+            sentBubbleBg: userSettings.sentBubbleBg || finalSettings.sentBubbleBg,
+            recvBubbleBg: userSettings.recvBubbleBg || finalSettings.recvBubbleBg,
+            fontSize: userSettings.fontSize || finalSettings.fontSize,
+            bubblePadding: userSettings.bubblePadding || finalSettings.bubblePadding,
+        };
 
 
         // 4. تطبيق الإعدادات النهائية
