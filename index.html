@@ -19,7 +19,7 @@
 
   <!-- ملف Manifest (يخبر المتصفح أن هذا تطبيق) -->
   <!-- (تم تحويله إلى كود Base64 ليبقى في ملف واحد) -->
-  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQ2hhdCBTaGVoYWIiLCJzaG9ydF9uYW1lIjoiQ2hhdCBTaGVoYWIiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2Nvb3ciOiI2ZjVmZjUiLCJ0aGVtZV9jb2xvciI6IiMwYTNkNjIiLCJkZXNjcmlwdGlvbiI6Iti12YTZitsxINiq2LHYqCDYkdi30Lgg2K7YsdOq2YbZiiIsImljb25zIjpbeyJzcmMiOiJodHRwczovL3BsYWNlaG9sZC5jby8xOTJ4MTkyLzBhM2Q2Mi9GRkY/dGV4dD1DaGF0Iiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3BuZyJ9LHsic3JjIjoiaHR0cHM6Ly9wbGFjZWhvbGQuY28vNTEyeDUxMi8wYTNkNjIvRkZGP3RleHQ9Q2hhdCIsInNpemVzIjoiNTEyeDUxMiIsInR5cGUiOiJpbWFnZS9wbmcifV19">
+  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQ2hhdCBTaGVoYWIiLCJzaG9ydF9uYW1lIjoiQ2hhdCBTaGVoYWIiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y1ZjVmNSIsInRoZW1lX2NvbG9yIjoiIzBhM2Q2MiIsImRlc2NyaXB0aW9uIjoi2LXZhNmK2LEg2KrYsdioINiR2LPQsCDYrtix06rZhNmLIiwiaWNvbnMiOlt7InNyYyI6Imh0dHBzOi8vcGxhY2Vob2xkLmNvLzE5MngxOTIvMGEzZDYyL0ZGRj90ZXh0PUNoYXQiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn0seyJzcmMiOiJodHRwczovL3BsYWNlaG9sZC5jby81MTJ4NTEyLzBhM2Q2Mi9GRkY/dGV4dD1DaGF0Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyJ9XX0=">
 
 
   <!-- === نهاية الإضافات الجديدة === -->
@@ -223,7 +223,7 @@
     .chat-input {
       display: flex; align-items: center; gap: 6px; /* <--- تصغير */ padding: 5px; /* <--- تصغير */
       background: var(--main-bg-gradient); border-top: 1px solid rgba(255,255,255,0.08);
-      direction: ltr; position: relative; z-index: 10;
+      direction: ltr; position: relative; z-index: 10; /* <--- [إصلاح المشكلة 2] زيادة الـ z-index */
       flex-shrink: 0;
     }
     /* حاوية اقتباس الرد فوق حقل الإدخال */
@@ -232,8 +232,9 @@
         bottom: 100%; /* <--- يرفع الحاوية فوق شريط الإدخال */
         left: 0;
         right: 0;
-        z-index: 9;
+        z-index: 1; /* <--- يجب أن تكون أقل من شريط الإدخال نفسه */
         padding: 0 5px; /* <--- هامش من الجانبين */
+        margin-bottom: 5px; /* <--- [إصلاح المشكلة 1] مسافة بسيطة فوق بار الكتابة */
     }
     .reply-quote-container {
         background: var(--card-bg-color);
@@ -733,6 +734,8 @@
             <div class="modal-buttons" style="flex-direction: column; gap: 10px;">
                 <button id="messageActionEdit" class="settings-btn-themed" style="background: var(--primary-dark);">✏️ تعديل الرسالة</button>
                 <button id="messageActionReply" class="settings-btn-themed" style="background: var(--accent-color);">↩️ رد على الرسالة</button>
+                <button id="messageActionCopy" class="settings-btn-themed" style="background: #3498db;">📋 نسخ الرسالة</button>
+                <button id="messageActionForward" class="settings-btn-themed" style="background: #f39c12;">➡️ إعادة توجيه</button>
                 <button id="messageActionDelete" class="settings-btn-themed" style="background: var(--danger-color);">🗑️ حذف الرسالة</button>
                 <button id="messageActionCancel" class="form-btn-cancel">إلغاء</button>
             </div>
@@ -877,6 +880,8 @@
     const messageActionModal = document.getElementById('messageActionModal');
     const messageActionEdit = document.getElementById('messageActionEdit');
     const messageActionReply = document.getElementById('messageActionReply');
+    const messageActionCopy = document.getElementById('messageActionCopy');
+    const messageActionForward = document.getElementById('messageActionForward');
     const messageActionDelete = document.getElementById('messageActionDelete');
     const messageActionCancel = document.getElementById('messageActionCancel');
 
@@ -1700,7 +1705,7 @@
         const page = document.createElement('div');
         page.id = 'chat';
         page.className = 'page chat-page';
-        // [تم التعديل] إضافة حاوية الرد
+        // [تم التعديل] نقل حاوية الرد داخل شريط الإدخال
         page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><form class="chat-input" id="messageForm"><div id="replyQuoteContainerWrapper" class="reply-quote-container-wrapper" style="display:none;"><div id="replyQuoteContainer" class="reply-quote-container"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div></div><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form>`;
         page.querySelector('#messageForm').addEventListener('submit', sendMessage);
         page.querySelector('#clearReplyBtn').addEventListener('click', clearReplyState);
@@ -1845,6 +1850,26 @@
         }
     }
 
+    // [جديد] دالة نسخ الرسالة
+    function handleCopyMessage(msgData) {
+        navigator.clipboard.writeText(msgData.text).then(() => {
+            showToast('تم نسخ الرسالة إلى الحافظة.');
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            showToast('فشل نسخ الرسالة.');
+        });
+        messageActionModal.classList.remove('active');
+    }
+
+    // [جديد] دالة بدء إعادة التوجيه
+    function startForward(msgData) {
+        const msgInput = document.getElementById('msgInput');
+        msgInput.value = `[إعادة توجيه] ${msgData.text}`;
+        clearReplyState(); // مسح أي حالة رد سابقة
+        msgInput.focus();
+        messageActionModal.classList.remove('active');
+    }
+
     // [جديد] إظهار نافذة إجراءات الرسالة
     function showMessageActionModal(msgData) {
         const isOwnMessage = msgData.senderId === currentUserProfile.id;
@@ -1856,6 +1881,8 @@
         // ربط الأوامر
         messageActionEdit.onclick = () => startEdit(msgData);
         messageActionReply.onclick = () => startReply(msgData);
+        messageActionCopy.onclick = () => handleCopyMessage(msgData);
+        messageActionForward.onclick = () => startForward(msgData);
         messageActionDelete.onclick = () => handleDeleteMessage(msgData.id);
         messageActionCancel.onclick = () => messageActionModal.classList.remove('active');
 
@@ -2979,9 +3006,10 @@
 
         const msgInput = document.getElementById('msgInput');
         const text = msgInput.value.trim();
+        
         if (text && currentUserProfile) {
-            const originalText = text;
-            msgInput.value = ''; 
+            const originalText = msgInput.value; // حفظ النص الأصلي
+            msgInput.value = ''; // مسح حقل الإدخال فوراً
             msgInput.focus();
             
             // [جديد] بيانات الرسالة
@@ -3003,7 +3031,7 @@
                 await addDoc(messagesCollection, messageData); 
             } catch (error) { 
                 console.error("Error sending message:", error);
-                msgInput.value = originalText; 
+                msgInput.value = originalText; // إعادة النص في حالة الفشل
                 showToast("فشل إرسال الرسالة.");
             }
         }
