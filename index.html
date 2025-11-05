@@ -5,25 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>شات شهاب</title>
 
-
   <!-- === [!!] الإضافات الجديدة لجعله تطبيقاً [!!] === -->
-
 
   <!-- لون شريط المتصفح العلوي (للهاتف) -->
   <meta name="theme-color" content="#0a3d62">
 
-
   <!-- أيقونة التطبيق لأجهزة آبل -->
   <link rel="apple-touch-icon" href="https://placehold.co/180x180/0a3d62/FFF?text=Chat">
-
 
   <!-- ملف Manifest (يخبر المتصفح أن هذا تطبيق) -->
   <!-- (تم تحويله إلى كود Base64 ليبقى في ملف واحد) -->
   <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQ2hhdCBTaGVoYWIiLCJzaG9ydF9uYW1lIjoiQ2hhdCBTaGVoYWIiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y1ZjVmNSIsInRoZW1lX2NvbG9yIjoiIzBhM2Q2MiIsImRlc2NyaXB0aW9uIjoi2LXZhNmK2LEg2KrYsdioINiR2LPQsCDYrtix06rZhNmLIiwiaWNvbnMiOlt7InNyYyI6Imh0dHBzOi8vcGxhY2Vob2xkLmNvLzE5MngxOTIvMGEzZDYyL0ZGRj90ZXh0PUNoYXQiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn0seyJzcmMiOiJodHRwczovL3BsYWNlaG9sZC5jby81MTJ4NTEyLzBhM2Q2Mi9GRkY/dGV4dD1DaGF0Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyJ9XX0=">
 
-
   <!-- === نهاية الإضافات الجديدة === -->
-
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -160,7 +154,7 @@
         color: var(--text-dark); max-width: 80%;
     }
     /* السطر الخاص بكل رسالة (لتحديد يمين/يسار) */
-    .message-row { display: flex; align-items: flex-end; gap: 6px; /* <--- تصغير */ max-width: 85%; }
+    .message-row { display: flex; align-items: flex-end; gap: 6px; /* <--- تصغير */ max-width: 85%; position: relative; }
     .message-row.sent { align-self: flex-end; flex-direction: row-reverse; }
     .message-row.recv { align-self: flex-start; flex-direction: row; max-width: 75%; }
     /* تعديل: تصغير أيقونة المرسل (الخاصة بي) */
@@ -219,6 +213,41 @@
         margin-top: 3px; /* <--- تصغير */
         direction: ltr; text-shadow: none;
     }
+    
+    /* === [جديد] تنسيق التفاعلات === */
+    .reactions-container {
+        position: absolute;
+        bottom: -10px; /* يرفعها قليلاً فوق الحافة */
+        right: 0;
+        background: var(--card-bg-color);
+        border-radius: 10px;
+        padding: 1px 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        display: flex;
+        gap: 3px;
+        font-size: 10px;
+        z-index: 2;
+        border: 1px solid var(--border-color);
+    }
+    .reaction-item {
+        display: flex;
+        align-items: center;
+        gap: 1px;
+        padding: 1px 2px;
+        border-radius: 8px;
+        background: rgba(0,0,0,0.05);
+        cursor: pointer;
+    }
+    .reaction-item:hover {
+        background: rgba(0,0,0,0.1);
+    }
+    .reaction-count {
+        font-size: 8px;
+        color: var(--text-dark);
+        font-weight: bold;
+    }
+    /* === نهاية تنسيق التفاعلات === */
+
     /* الشريط السفلي لإدخال الرسالة */
     .chat-input {
       display: flex; align-items: center; gap: 6px; /* <--- تصغير */ padding: 5px; /* <--- تصغير */
@@ -293,6 +322,28 @@
       cursor: pointer; display: flex;
       align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     }
+    
+    /* === [جديد] مؤشر الكتابة === */
+    .typing-indicator {
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 10px;
+        color: var(--text-dark);
+        padding: 2px 0;
+        background: rgba(255, 255, 255, 0.8);
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        z-index: 1;
+        display: none; /* مخفي افتراضياً */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    /* === نهاية مؤشر الكتابة === */
+
     /* تعديل: تقليل الهوامش في الصفحات (الأعضاء، الإعدادات...) */
     .page-container { flex: 1; display: flex; flex-direction: column; padding: 10px; /* <--- تصغير */ gap: 10px; /* <--- تصغير */ overflow-y: auto; }
     .search-bar {
@@ -363,12 +414,6 @@
     /* --- نهاية الإضافة --- */
 
 
-
-
-
-
-
-
     /* قسم عرض البروفايل (الصورة والاسم) */
     .card-section {
       display: flex; flex-direction: column; gap: 6px; /* <--- تصغير */ background: var(--card-bg-color); padding: 10px; /* <--- تصغير */
@@ -420,12 +465,6 @@
     }
 
 
-
-
-
-
-
-
     /* تعديل: تصغير أيقونة التسجيل */
     .signup-avatar { 
         width: 60px; height: 60px; /* <--- تصغير */ border-radius: 50%; 
@@ -435,20 +474,6 @@
     .avatar-note {
         font-size: 11px; /* <--- تصغير */ color: #777; margin: 3px 0 0 0; /* <--- تصغير */ text-align: center;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     .error-message { color: var(--danger-color); font-size: 11px; /* <--- تصغير */ text-align: center; margin-top: 6px; /* <--- تصغير */ display: none; }
@@ -461,12 +486,6 @@
       border-radius: 50%; width: 30px; height: 30px; /* <--- تصغير */ animation: spin 1s linear infinite;
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-
-
-
-
-
 
 
     /* قسم في صفحة الإعدادات */
@@ -516,8 +535,6 @@
     }
 
 
-
-
     /* --- إصلاح 3: إضافة ستايل لزر الحفظ الصغير --- */
     .save-btn {
         padding: 4px 8px; /* <--- تصغير الحشو */
@@ -526,12 +543,6 @@
         flex-shrink: 0;
         margin-right: 8px; /* <--- تصغير مسافة من النص */
     }
-
-
-
-
-
-
 
 
     /* إعدادات الوضع الليلي */
@@ -545,20 +556,6 @@
     body.dark-mode .welcome-message { background-color: rgba(0,0,0,0.2); }
     body.dark-mode .form-btn-cancel { background: #4a627a; color: var(--text-dark); }
     body.dark-mode .reply-quote-content .reply-quote-text { color: #bdc3c7; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /* --- تعديل: تصغير النافذة المنبثقة (مودال) --- */
@@ -609,20 +606,32 @@
         direction: rtl;
         margin-bottom: 8px; /* <--- تصغير */
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    /* === [جديد] مودال التفاعلات === */
+    #reactionModal .modal-content {
+        width: auto;
+        max-width: 300px;
+        padding: 10px;
+    }
+    .reaction-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+    .reaction-emoji-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 8px;
+        transition: background-color 0.1s;
+    }
+    .reaction-emoji-btn:hover {
+        background-color: rgba(0,0,0,0.1);
+    }
+    /* === نهاية مودال التفاعلات === */
 
 
     /* --- تصميم خاص بالشاشات الأكبر (الكمبيوتر) --- */
@@ -687,12 +696,6 @@
     <div id="loadingScreen" style="display: none;"><div class="loading-spinner"></div></div>
 
 
-
-
-
-
-
-
     <!-- نافذة تأكيد الإجراءات (مودال) -->
     <div id="confirmModal" class="modal-overlay">
         <div class="modal-content">
@@ -704,12 +707,6 @@
             </div>
         </div>
     </div>
-
-
-
-
-
-
 
 
     <!-- نافذة إجراءات العضو (مودال) -->
@@ -734,6 +731,7 @@
             <div class="modal-buttons" style="flex-direction: column; gap: 10px;">
                 <button id="messageActionEdit" class="settings-btn-themed" style="background: var(--primary-dark);">✏️ تعديل الرسالة</button>
                 <button id="messageActionReply" class="settings-btn-themed" style="background: var(--accent-color);">↩️ رد على الرسالة</button>
+                <button id="messageActionReact" class="settings-btn-themed" style="background: #f39c12;">😀 تفاعل على الرسالة</button>
                 <button id="messageActionCopy" class="settings-btn-themed" style="background: #3498db;">📋 نسخ الرسالة</button>
                 <button id="messageActionForward" class="settings-btn-themed" style="background: #f39c12;">➡️ إعادة توجيه</button>
                 <button id="messageActionDelete" class="settings-btn-themed" style="background: var(--danger-color);">🗑️ حذف الرسالة</button>
@@ -754,44 +752,30 @@
             </div>
         </div>
     </div>
+    
+    <!-- === [جديد] نافذة التفاعلات (مودال) === -->
+    <div id="reactionModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="modal-title">اختر تفاعلك</h3>
+            <div class="reaction-grid" id="reactionGrid">
+                <!-- سيتم ملؤها بواسطة JavaScript -->
+            </div>
+            <div class="modal-buttons" style="margin-top: 10px;">
+                <button id="reactionModalCancel" class="form-btn-cancel">إلغاء</button>
+            </div>
+        </div>
+    </div>
+    <!-- === نهاية نافذة التفاعلات === -->
 
 
   </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   <script type="module">
     // --- استيراد مكتبات Firebase ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, updateDoc, query, Timestamp, addDoc, orderBy, deleteDoc, getDocs, writeBatch, where, limitToLast } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, updateDoc, query, Timestamp, addDoc, orderBy, deleteDoc, getDocs, writeBatch, where, limitToLast, FieldPath, FieldValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
     /* --- إعدادات Firebase --- */
@@ -805,20 +789,6 @@
     };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /* --- تهيئة Firebase --- */
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app); // وحدة المصادقة
@@ -826,20 +796,8 @@
     const usersCollection = collection(db, `public/data/users`);
     const messagesCollection = collection(db, `public/data/messages`);
     const globalSettingsDoc = doc(db, `public/data/global_config/settings`);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // [جديد] مرجع حالة الكتابة
+    const typingStatusDoc = doc(db, 'public/data/typing_status', 'status');
 
 
     /* --- متغيرات الحالة العامة والتخزين المؤقت --- */
@@ -848,18 +806,14 @@
     let globalSettings = null; // الإعدادات العامة التي يطبقها المالك
     let pageCache = {}; // تخزين الصفحات (الدردشة، الأعضاء...) في الذاكرة
     let dataListeners = []; // مصفوفة لتخزين "مراقبي البيانات" لإيقافهم عند الخروج
-    let replyingToMessage = null; // [جديد] لتخزين بيانات الرسالة التي يتم الرد عليها
+    let replyingToMessage = null; // لتخزين بيانات الرسالة التي يتم الرد عليها
+    let typingUsers = {}; // [جديد] لتخزين حالة الكتابة للجميع
+    let currentMessageToReact = null; // [جديد] لتخزين الرسالة التي يتم التفاعل عليها
 
 
     /* --- إصلاح 2: عدادات الصور الرمزية المتسلسلة --- */
     let maleAvatarIndex = 0;
     let femaleAvatarIndex = 0;
-
-
-
-
-
-
 
 
     /* --- جلب عناصر الصفحة الأساسية --- */
@@ -876,34 +830,27 @@
     const memberActionDelete = document.getElementById('memberActionDelete');
     const memberActionCancel = document.getElementById('memberActionCancel');
     
-    // [جديد] عناصر مودال إجراءات الرسالة
+    // عناصر مودال إجراءات الرسالة
     const messageActionModal = document.getElementById('messageActionModal');
     const messageActionEdit = document.getElementById('messageActionEdit');
     const messageActionReply = document.getElementById('messageActionReply');
+    const messageActionReact = document.getElementById('messageActionReact'); // [جديد]
     const messageActionCopy = document.getElementById('messageActionCopy');
     const messageActionForward = document.getElementById('messageActionForward');
     const messageActionDelete = document.getElementById('messageActionDelete');
     const messageActionCancel = document.getElementById('messageActionCancel');
 
-    // [جديد] عناصر مودال تعديل الرسالة
+
+    // عناصر مودال تعديل الرسالة
     const editMessageModal = document.getElementById('editMessageModal');
     const editMessageInput = document.getElementById('editMessageInput');
     const editMessageSave = document.getElementById('editMessageSave');
     const editMessageCancel = document.getElementById('editMessageCancel');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    // [جديد] عناصر مودال التفاعلات
+    const reactionModal = document.getElementById('reactionModal');
+    const reactionGrid = document.getElementById('reactionGrid');
+    const reactionModalCancel = document.getElementById('reactionModalCancel');
 
 
     /* --- الصور الرمزية الافتراضية والإعدادات --- */
@@ -929,7 +876,6 @@
     ];
 
 
-    /* --- إصلاح 1: تحديث روابط الخلفيات لنسخ عالية الجودة --- */
     const backgroundImages = [
         { thumb: 'https://images.pexels.com/photos/15286/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=150', full: 'https://images.pexels.com/photos/15286/pexels-photo.jpg' },
         { thumb: 'https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg?auto=compress&cs=tinysrgb&w=150', full: 'https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg' },
@@ -943,20 +889,9 @@
         fontSize: 12, chatBackground: '', 
         bubblePadding: 1, 
     };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    // [جديد] قائمة التفاعلات المتاحة
+    const availableReactions = ['👍', '❤️', '😂', '😢', '🔥', '😎'];
 
 
     /* --- دوال مساعدة (إظهار التحميل، التنبيهات...) --- */
@@ -977,8 +912,6 @@
             setTimeout(() => { toast.remove(); }, 500);
         }, 3000);
     };
-
-
 
 
     /* --- إصلاح 2: استبدال دالة "عشوائي" بدالة "التالي" --- */
@@ -1016,24 +949,12 @@
     };
 
 
-
-
-
-
-
-
     // --- دالة جديدة: تنسيق الوقت (منذ 5 دقائق...) ---
     function formatTimeAgo(timestamp) {
         if (!timestamp) return 'غير معروف';
         const date = timestamp.toDate();
         const now = new Date();
         const seconds = Math.floor((now - date) / 1000);
-
-
-
-
-
-
 
 
         let interval = seconds / 31536000;
@@ -1050,12 +971,6 @@
     }
 
 
-
-
-
-
-
-
     /* --- دالة ضغط الصور --- */
     async function compressImage(file, maxSize = 800, quality = 0.7) {
         return new Promise((resolve, reject) => {
@@ -1069,12 +984,6 @@
                     let height = img.height;
 
 
-
-
-
-
-
-
                     if (width > height) {
                         if (width > maxSize) {
                             height *= maxSize / width;
@@ -1086,12 +995,6 @@
                             height = maxSize;
                         }
                     }
-
-
-
-
-
-
 
 
                     const canvas = document.createElement('canvas');
@@ -1113,12 +1016,6 @@
     }
 
 
-
-
-
-
-
-
     // --- دالة جديدة: تحديث حالة الاتصال ---
     async function updateUserPresence(isOnline) {
         if (!auth.currentUser) return;
@@ -1132,20 +1029,32 @@
             console.warn("Failed to update presence:", error.code);
         }
     }
+    
+    // [جديد] دالة تحديث حالة الكتابة (مع Debounce)
+    let typingTimeout;
+    async function updateTypingStatus(isTyping) {
+        if (!auth.currentUser || !currentUserProfile) return;
+        const userId = auth.currentUser.uid;
+        const typingField = FieldPath.of(userId);
 
+        clearTimeout(typingTimeout);
 
-
-
-
-
-
-
-
-
-
-
-
-
+        if (isTyping) {
+            // 1. تحديث الحالة فوراً
+            await updateDoc(typingStatusDoc, {
+                [typingField]: Timestamp.now()
+            });
+            // 2. تعيين مؤقت لإزالة الحالة بعد 3 ثوانٍ من التوقف عن الكتابة
+            typingTimeout = setTimeout(() => {
+                updateTypingStatus(false);
+            }, 3000);
+        } else {
+            // 3. إزالة الحالة من Firestore
+            await updateDoc(typingStatusDoc, {
+                [typingField]: FieldValue.delete()
+            }).catch(e => console.warn("Failed to delete typing status:", e));
+        }
+    }
 
 
     /* --- دالة تطبيق إعدادات المستخدم على الواجهة --- */
@@ -1165,8 +1074,6 @@
         rootStyle.setProperty('--bubble-padding', paddingValue);
 
 
-
-
         if (pageCache.chat) { 
             const bgValue = s.chatBackground 
                 ? `url(${s.chatBackground})` 
@@ -1174,12 +1081,6 @@
             pageCache.chat.style.backgroundImage = bgValue;
         }
     };
-
-
-
-
-
-
 
 
     /* --- === [!!] إصلاح المشكلة 1: تطبيق المظهر العام على الجميع [!!] === ---
@@ -1225,50 +1126,17 @@
     };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /* --- دالة إيقاف مراقبة البيانات (عند تسجيل الخروج) --- */
     function detachAllListeners() {
         dataListeners.forEach(unsubscribe => unsubscribe());
         dataListeners = [];
+        clearTimeout(typingTimeout); // [جديد] مسح مؤقت الكتابة
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /* --- الدالة الرئيسية لتهيئة التطبيق بعد التحقق من تسجيل الدخول --- */
     async function initializeAppState(user) {
         detachAllListeners(); // إيقاف أي مراقبات سابقة
-
-
-
-
-
-
 
 
         // إذا لم يكن هناك مستخدم (تم تسجيل الخروج)
@@ -1283,23 +1151,11 @@
         }
 
 
-
-
-
-
-
-
         // إذا كان هناك مستخدم
         showLoading(true);
         try {
             const userDocRef = doc(usersCollection, user.uid);
             const userDoc = await getDoc(userDocRef);
-
-
-
-
-
-
 
 
             if (userDoc.exists()) {
@@ -1317,20 +1173,8 @@
                 });
 
 
-
-
-
-
-
-
                 buildPageCache(); // بناء حاويات الصفحات
                 attachDataListeners(user.uid); // بدء مراقبة البيانات
-
-
-
-
-
-
 
 
                 // [تم التعديل] سيتم تطبيق الإعدادات بعد جلب الإعدادات العامة في attachDataListeners
@@ -1354,36 +1198,8 @@
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /* --- مراقبة تغيير حالة تسجيل الدخول --- */
     onAuthStateChanged(auth, initializeAppState);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /* --- دوال تسجيل الدخول والخروج --- */
@@ -1394,17 +1210,12 @@
     };
 
 
-
-
-
-
-
-
     const handleLogout = async () => {
         showLoading(true);
         try { 
             if (auth.currentUser) { 
                 await updateUserPresence(false);
+                await updateTypingStatus(false); // [جديد] إزالة حالة الكتابة عند الخروج
             }
             await signOut(auth); // تسجيل الخروج
         } 
@@ -1413,21 +1224,9 @@
     };
 
 
-
-
-
-
-
-
     /* --- دالة بدء مراقبة البيانات (الرسائل، المستخدمين...) --- */
     function attachDataListeners(userId) {
         if (dataListeners.length > 0) return; // منع تكرار المراقبة
-
-
-
-
-
-
 
 
         // 1. مراقبة ملف المستخدم الحالي
@@ -1447,12 +1246,6 @@
         });
 
 
-
-
-
-
-
-
         // 2. مراقبة الإعدادات العامة (للمالك)
         const unsubscribeGlobalSettings = onSnapshot(globalSettingsDoc, (doc) => {
             globalSettings = doc.exists() ? doc.data() : null;
@@ -1460,12 +1253,6 @@
                 applyCombinedSettings(); // [تم التعديل] يتم تطبيق المظهر العام على الجميع فوراً
             }
         });
-
-
-
-
-
-
 
 
         // 3. مراقبة كل المستخدمين (لقائمة الأعضاء)
@@ -1483,23 +1270,30 @@
                 renderMembersList(); // أعد رسم قائمة الأعضاء
             }
         });
+        
+        // [جديد] 4. مراقبة حالة الكتابة للجميع
+        const unsubscribeTyping = onSnapshot(typingStatusDoc, (doc) => {
+            const data = doc.data() || {};
+            const now = Timestamp.now().toMillis();
+            typingUsers = {};
+            
+            for (const userId in data) {
+                // تجاهل المستخدم الحالي
+                if (userId === currentUserProfile.id) continue; 
+                
+                const timestamp = data[userId].toMillis();
+                // اعتبار المستخدم يكتب إذا كان آخر تحديث له أقل من 5 ثوانٍ
+                if (now - timestamp < 5000) { 
+                    typingUsers[userId] = usersCache[userId]?.name || 'عضو مجهول';
+                }
+            }
+            updateTypingIndicator();
+        });
 
 
-
-
-
-
-
-
-        // 4. مراقبة الرسائل الجديدة
+        // 5. مراقبة الرسائل الجديدة
         let isInitialMessagesLoad = true;
         const messagesQuery = query(messagesCollection, orderBy("createdAt"), limitToLast(50));
-
-
-
-
-
-
 
 
         const unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
@@ -1507,20 +1301,11 @@
             if (!messagesEl) return; 
 
 
-
-
-
-
-
-
             const welcome = messagesEl.querySelector('.welcome-message');
             const isScrolledUp = messagesEl.scrollHeight - messagesEl.clientHeight > messagesEl.scrollTop + 150;
-
-
-
-
-
-
+            
+            // [إصلاح 1] حفظ ارتفاع التمرير قبل التحديث
+            const scrollHeightBefore = messagesEl.scrollHeight;
 
 
             if (!snapshot.empty && !messagesEl.querySelector('.load-more-btn')) {
@@ -1535,12 +1320,6 @@
             }
 
 
-
-
-
-
-
-
             if (snapshot.empty && welcome) {
                 welcome.innerHTML = `<h3>لا توجد رسائل بعد</h3><p>ابدأ الدردشة الآن!</p>`;
             } else if (welcome) {
@@ -1548,14 +1327,9 @@
             }
 
 
-
-
-
-
-
-
             let newMessagesAdded = false;
             let messagesModified = false;
+            let messagesRemoved = false; // [إصلاح 1] لتتبع الحذف
             snapshot.docChanges().forEach((change) => {
                 const msgData = { id: change.doc.id, ...change.doc.data() };
                 const msgEl = messagesEl.querySelector(`[data-msg-id="${msgData.id}"]`);
@@ -1567,7 +1341,7 @@
                         newMessagesAdded = true;
                     }
                 }
-                // [جديد] تحديث الرسالة المعدلة
+                // [جديد] تحديث الرسالة المعدلة أو التي تم التفاعل عليها
                 if (change.type === "modified" && msgEl) {
                     const updatedMsgEl = createMessageElement(msgData);
                     if (updatedMsgEl) {
@@ -1575,14 +1349,11 @@
                         messagesModified = true; // وضع علامة التعديل
                     }
                 }
-                if (change.type === "removed" && msgEl) msgEl.remove();
+                if (change.type === "removed" && msgEl) {
+                    msgEl.remove();
+                    messagesRemoved = true; // [إصلاح 1]
+                }
             });
-
-
-
-
-
-
 
 
             // دالة التمرير لأسفل
@@ -1591,27 +1362,24 @@
                     messagesEl.scrollTop = messagesEl.scrollHeight;
                 }, 0);
             };
+            
+            // [إصلاح 1] تعديل منطق التمرير
+            if (messagesRemoved) {
+                // إذا تم حذف رسالة، يتم تعويضها برسالة قديمة (الـ 51).
+                // نقوم بتعديل التمرير للحفاظ على موضع الرؤية.
+                const scrollHeightAfter = messagesEl.scrollHeight;
+                const scrollDiff = scrollHeightAfter - scrollHeightBefore;
+                messagesEl.scrollTop += scrollDiff;
+            }
 
 
-
-
-
-
-
-
-            if (newMessagesAdded || messagesModified) { // [إصلاح المشكلة 2] التمرير التلقائي عند التعديل أيضاً
+            if (newMessagesAdded || messagesModified) { // التمرير التلقائي عند التعديل أيضاً
                 if (isInitialMessagesLoad || !isScrolledUp) {
                     scrollToBottom();
                 }
             } else if (isInitialMessagesLoad) {
                 scrollToBottom();
             }
-
-
-
-
-
-
 
 
             isInitialMessagesLoad = false; 
@@ -1621,29 +1389,9 @@
         });
 
 
-
-
-
-
-
-
         // إضافة كل المراقبات للمصفوفة لإيقافها لاحقاً
-        dataListeners.push(unsubscribeProfile, unsubscribeGlobalSettings, unsubscribeUsers, unsubscribeMessages);
+        dataListeners.push(unsubscribeProfile, unsubscribeGlobalSettings, unsubscribeUsers, unsubscribeTyping, unsubscribeMessages);
     };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /* --- دالة بناء حاويات الصفحات (الدردشة، الأعضاء...) --- */
@@ -1663,12 +1411,6 @@
     }
 
 
-
-
-
-
-
-
     /* --- دالة التنقل بين الصفحات --- */
     window.openPage = (pageName, btn) => {
         if (!auth.currentUser || !currentUserProfile) return;
@@ -1678,17 +1420,11 @@
         const targetPage = pageCache[pageName];
         if (targetPage) targetPage.classList.add('active');
         
-        // [جديد] مسح حالة الرد عند تغيير الصفحة
+        // مسح حالة الرد عند تغيير الصفحة
         if (pageName !== 'chat') {
             clearReplyState();
         }
     };
-
-
-
-
-
-
 
 
     // دالة تحضير المحتوى (تُستخدم لتحديث المحتوى المتغير مثل قائمة الأعضاء)
@@ -1702,37 +1438,40 @@
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /* --- دوال إنشاء محتوى الصفحات --- */
     function createChatPage() {
         const page = document.createElement('div');
         page.id = 'chat';
         page.className = 'page chat-page';
-        // [تم التعديل] نقل حاوية الرد داخل شريط الإدخال
-        page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><form class="chat-input" id="messageForm"><div id="replyQuoteContainerWrapper" class="reply-quote-container-wrapper" style="display:none;"><div id="replyQuoteContainer" class="reply-quote-container"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div></div><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form>`;
+        // [تم التعديل] إضافة مؤشر الكتابة
+        page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><form class="chat-input" id="messageForm"><div id="replyQuoteContainerWrapper" class="reply-quote-container-wrapper" style="display:none;"><div id="replyQuoteContainer" class="reply-quote-container"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div></div><div id="typingIndicator" class="typing-indicator"></div><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form>`;
         page.querySelector('#messageForm').addEventListener('submit', sendMessage);
         page.querySelector('#clearReplyBtn').addEventListener('click', clearReplyState);
+        page.querySelector('#msgInput').addEventListener('input', () => updateTypingStatus(true)); // [جديد] ربط مؤشر الكتابة
         return page;
     }
-
-
-
-
-
-
+    
+    // [جديد] دالة تحديث مؤشر الكتابة
+    function updateTypingIndicator() {
+        if (!pageCache.chat) return;
+        const indicator = pageCache.chat.querySelector('#typingIndicator');
+        const typingNames = Object.values(typingUsers);
+        
+        if (typingNames.length === 0) {
+            indicator.style.display = 'none';
+        } else {
+            let text;
+            if (typingNames.length === 1) {
+                text = `${typingNames[0]} يكتب الآن...`;
+            } else if (typingNames.length === 2) {
+                text = `${typingNames[0]} و ${typingNames[1]} يكتبان الآن...`;
+            } else {
+                text = `${typingNames[0]} و ${typingNames.length - 1} آخرون يكتبون الآن...`;
+            }
+            indicator.textContent = text;
+            indicator.style.display = 'block';
+        }
+    }
 
 
     function createMembersPage() {
@@ -1745,24 +1484,12 @@
     }
 
 
-
-
-
-
-
-
     function createProfilePage() {
         const page = document.createElement('div');
         page.id = 'profile';
         page.className = 'page page-container';
         return page;
     }
-
-
-
-
-
-
 
 
     function createSettingsPage() {
@@ -1773,23 +1500,9 @@
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /* --- دوال التعامل مع الإجراءات (حذف رسالة، تعديل، رد...) --- */
     
-    // [جديد] دالة مسح حالة الرد
+    // دالة مسح حالة الرد
     function clearReplyState() {
         replyingToMessage = null;
         const container = pageCache.chat?.querySelector('#replyQuoteContainerWrapper');
@@ -1797,7 +1510,8 @@
         pageCache.chat?.querySelector('#msgInput').focus();
     }
 
-    // [جديد] دالة بدء الرد
+
+    // دالة بدء الرد
     function startReply(msgData) {
         const sender = usersCache[msgData.senderId] || { name: 'عضو محذوف' };
         replyingToMessage = { 
@@ -1810,15 +1524,17 @@
         container.querySelector('#replyQuoteText').textContent = msgData.text;
         container.style.display = 'block';
         pageCache.chat.querySelector('#msgInput').focus();
-        messageActionModal.classList.remove('active'); // <--- [إصلاح الخطأ 1] إخفاء مودال الخيارات
+        messageActionModal.classList.remove('active'); 
     }
 
-    // [جديد] دالة بدء التعديل
+
+    // دالة بدء التعديل
     function startEdit(msgData) {
         editMessageInput.value = msgData.text;
         editMessageModal.classList.add('active');
         editMessageInput.focus();
-        messageActionModal.classList.remove('active'); // <--- [إصلاح الخطأ 1] إخفاء مودال الخيارات
+        messageActionModal.classList.remove('active'); 
+
 
         const saveHandler = async () => {
             const newText = editMessageInput.value.trim();
@@ -1827,7 +1543,9 @@
             }
             editMessageModal.classList.remove('active');
             editMessageSave.removeEventListener('click', saveHandler);
+            editMessageCancel.removeEventListener('click', cancelHandler); // [إصلاح 2] إزالة المستمعين
         };
+
 
         const cancelHandler = () => {
             editMessageModal.classList.remove('active');
@@ -1835,13 +1553,15 @@
             editMessageCancel.removeEventListener('click', cancelHandler);
         };
 
+
         editMessageSave.addEventListener('click', saveHandler);
         editMessageCancel.addEventListener('click', cancelHandler);
     }
 
-    // [جديد] دالة تنفيذ التعديل على Firestore
+
+    // دالة تنفيذ التعديل على Firestore
     async function handleEditMessage(messageId, newText) {
-        showLoading(true);
+        // [إصلاح 2] تم إزالة showLoading(true) و showLoading(false)
         try {
             await updateDoc(doc(messagesCollection, messageId), { 
                 text: newText,
@@ -1852,21 +1572,21 @@
         } catch (error) {
             console.error("Error editing message:", error);
             showToast('فشل تعديل الرسالة.');
-        } finally {
-            showLoading(false);
         }
     }
 
+
     // [معدل] دالة حذف الرسالة
     async function handleDeleteMessage(messageId) {
-        messageActionModal.classList.remove('active'); // <--- [إصلاح الخطأ 1] إخفاء مودال الخيارات
+        messageActionModal.classList.remove('active'); 
         if(await showConfirmModal('حذف الرسالة', 'هل أنت متأكد من حذف هذه الرسالة بشكل نهائي؟')) {
             try { await deleteDoc(doc(messagesCollection, messageId)); showToast('تم حذف الرسالة.'); } 
             catch (error) { console.error("Error deleting message:", error); showToast('فشل حذف الرسالة.'); }
         }
     }
 
-    // [جديد] دالة نسخ الرسالة
+
+    // دالة نسخ الرسالة
     function handleCopyMessage(msgData) {
         navigator.clipboard.writeText(msgData.text).then(() => {
             showToast('تم نسخ الرسالة إلى الحافظة.');
@@ -1877,7 +1597,8 @@
         messageActionModal.classList.remove('active');
     }
 
-    // [جديد] دالة بدء إعادة التوجيه
+
+    // دالة بدء إعادة التوجيه
     function startForward(msgData) {
         const msgInput = document.getElementById('msgInput');
         clearReplyState(); // مسح أي حالة رد سابقة
@@ -1885,37 +1606,112 @@
         msgInput.focus();
         messageActionModal.classList.remove('active');
     }
+    
+    // [جديد] دالة إظهار مودال التفاعلات
+    function showReactionModal(msgData) {
+        currentMessageToReact = msgData;
+        reactionGrid.innerHTML = '';
+        
+        availableReactions.forEach(emoji => {
+            const button = document.createElement('button');
+            button.className = 'reaction-emoji-btn';
+            button.textContent = emoji;
+            button.onclick = () => handleReaction(msgData.id, emoji);
+            reactionGrid.appendChild(button);
+        });
+        
+        reactionModalCancel.onclick = () => reactionModal.classList.remove('active');
+        reactionModal.classList.add('active');
+        messageActionModal.classList.remove('active');
+    }
+    
+    // [جديد] دالة تنفيذ التفاعل
+    async function handleReaction(messageId, emoji) {
+        if (!currentUserProfile) return;
+        reactionModal.classList.remove('active');
+        
+        const messageRef = doc(messagesCollection, messageId);
+        const userId = currentUserProfile.id;
+        
+        try {
+            // جلب الرسالة الحالية لمعرفة التفاعلات
+            const msgDoc = await getDoc(messageRef);
+            if (!msgDoc.exists()) return;
+            const reactions = msgDoc.data().reactions || {};
+            
+            let updateNeeded = false;
+            
+            // 1. إزالة تفاعل المستخدم من أي إيموجي آخر
+            for (const existingEmoji in reactions) {
+                const userIndex = reactions[existingEmoji].indexOf(userId);
+                if (userIndex !== -1 && existingEmoji !== emoji) {
+                    reactions[existingEmoji].splice(userIndex, 1);
+                    if (reactions[existingEmoji].length === 0) {
+                        delete reactions[existingEmoji];
+                    }
+                    updateNeeded = true;
+                }
+            }
+            
+            // 2. إضافة أو إزالة التفاعل الجديد
+            if (reactions[emoji] && reactions[emoji].includes(userId)) {
+                // إزالة التفاعل (لأنه ضغط عليه مرة أخرى)
+                const userIndex = reactions[emoji].indexOf(userId);
+                reactions[emoji].splice(userIndex, 1);
+                if (reactions[emoji].length === 0) {
+                    delete reactions[emoji];
+                }
+                updateNeeded = true;
+            } else {
+                // إضافة التفاعل
+                if (!reactions[emoji]) {
+                    reactions[emoji] = [];
+                }
+                reactions[emoji].push(userId);
+                updateNeeded = true;
+            }
+            
+            if (updateNeeded) {
+                await updateDoc(messageRef, { reactions: reactions });
+            }
+            
+        } catch (error) {
+            console.error("Error handling reaction:", error);
+            showToast('فشل التفاعل على الرسالة.');
+        }
+    }
+
 
     // [جديد] إظهار نافذة إجراءات الرسالة
     function showMessageActionModal(msgData) {
         const isOwnMessage = msgData.senderId === currentUserProfile.id;
         const isAdmin = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
 
+
         // إظهار/إخفاء الأزرار بناءً على الصلاحيات
         messageActionEdit.style.display = isOwnMessage ? 'block' : 'none';
         messageActionDelete.style.display = isOwnMessage || isAdmin ? 'block' : 'none';
         
-        // [إصلاح المشكلة 3] إظهار الخيارات المتاحة للجميع
+        // إظهار الخيارات المتاحة للجميع
         messageActionCopy.style.display = 'block';
         messageActionForward.style.display = 'block';
         messageActionReply.style.display = 'block';
+        messageActionReact.style.display = 'block'; // [جديد]
+
+
         
         // ربط الأوامر
         messageActionEdit.onclick = () => startEdit(msgData);
         messageActionReply.onclick = () => startReply(msgData);
+        messageActionReact.onclick = () => showReactionModal(msgData); // [جديد]
         messageActionCopy.onclick = () => handleCopyMessage(msgData);
         messageActionForward.onclick = () => startForward(msgData);
         messageActionDelete.onclick = () => handleDeleteMessage(msgData.id);
         messageActionCancel.onclick = () => messageActionModal.classList.remove('active');
 
+
         messageActionModal.classList.add('active');
     }
-
-
-
-
-
-
 
 
     async function handleDeleteMember(userId, userName) {
@@ -1938,23 +1734,11 @@
     }
 
 
-
-
-
-
-
-
     // إظهار نافذة إجراءات العضو (تقييد، حذف...)
     function showMemberActionModal(user) {
         memberActionTitle.textContent = user.name;
         memberActionMute.style.display = user.isMuted ? 'none' : 'block';
         memberActionUnmute.style.display = user.isMuted ? 'block' : 'none';
-
-
-
-
-
-
 
 
         memberActionViewProfile.onclick = () => {
@@ -1970,20 +1754,8 @@
         memberActionCancel.onclick = () => memberActionModal.classList.remove('active');
 
 
-
-
-
-
-
-
         memberActionModal.classList.add('active');
     }
-
-
-
-
-
-
 
 
     // دالة تقييد العضو (كتم)
@@ -2004,13 +1776,7 @@
     }
 
 
-
-
-
-
-
-
-    /* --- === [!!] إصلاح الطلب 1: ترتيب الأعضاء [!!] === --- */
+    /* --- === [!!] إصلاح الطلب 3: ترتيب الأعضاء [!!] === --- */
     function renderMembersList() {
         if (!pageCache.members) return;
         const membersListEl = pageCache.members.querySelector('#membersList');
@@ -2019,38 +1785,29 @@
         const isAdmin = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
 
 
-
-
-
-
-
-
         // 1. تحويل الكاش إلى مصفوفة وحساب حالة الاتصال الحقيقية
         const allUsers = Object.values(usersCache).map(user => {
             const minutesAgo = user.lastSeen ? (new Date() - user.lastSeen.toDate()) / 60000 : Infinity;
-            const trulyOnline = user.isOnline && minutesAgo < 2;
+            const trulyOnline = user.isOnline && minutesAgo < 2; // متصل إذا كان isOnline=true وآخر ظهور أقل من دقيقتين
             return { ...user, trulyOnline }; // إضافة الحالة للمستخدم
         });
 
 
-
-
-
-
-
-
-        // 2. ترتيب المصفوفة: المتصلون أولاً، ثم أبجدياً
+        // 2. ترتيب المصفوفة: المتصلون أولاً، ثم حسب آخر ظهور (الأحدث أولاً)
         allUsers.sort((a, b) => {
-            if (a.trulyOnline && !b.trulyOnline) return -1; // 'a' متصل، 'b' غير متصل -> 'a' يأتي أولاً
-            if (!a.trulyOnline && b.trulyOnline) return 1;  // 'b' متصل، 'a' غير متصل -> 'b' يأتي أولاً
-            return a.name.localeCompare(b.name); // إذا كانت حالتهما واحدة، رتب أبجدياً
+            // 1. Online status (trulyOnline first)
+            if (a.trulyOnline && !b.trulyOnline) return -1; 
+            if (!a.trulyOnline && b.trulyOnline) return 1;  
+
+            // 2. Last Seen (Descending - most recent first)
+            // نطبق هذا فقط إذا كانت حالة الاتصال متساوية (كلاهما متصل أو كلاهما غير متصل)
+            const aTime = a.lastSeen ? a.lastSeen.toMillis() : 0;
+            const bTime = b.lastSeen ? b.lastSeen.toMillis() : 0;
+            if (bTime !== aTime) return bTime - aTime; // Descending (الأحدث أولاً)
+            
+            // 3. Name (Alphabetical)
+            return a.name.localeCompare(b.name); 
         });
-
-
-
-
-
-
 
 
         // 3. عرض القائمة المرتبة
@@ -2060,20 +1817,8 @@
             memberItemWrapper.dataset.userId = user.id;
 
 
-
-
-
-
-
-
             const memberItem = document.createElement('div');
             memberItem.className = 'member-item';
-
-
-
-
-
-
 
 
             const muteIcon = user.isMuted ? ' 🔇' : '';
@@ -2094,12 +1839,6 @@
             `;
 
 
-
-
-
-
-
-
             // إذا كان المستخدم الحالي أدمن AND العضو الظاهر ليس هو نفسه
             if (isAdmin && user.id !== currentUserProfile.id) {
                 memberItem.onclick = () => showMemberActionModal(user); // إظهار نافذة الإجراءات
@@ -2108,27 +1847,15 @@
             }
 
 
-
-
-
-
-
-
             memberItemWrapper.appendChild(memberItem);
             fragment.appendChild(memberItemWrapper);
         });
-        /* --- === نهاية إصلاح الطلب 1 === --- */
+        /* --- === نهاية إصلاح الطلب 3 === --- */
 
 
         membersListEl.appendChild(fragment);
         filterMembersList(); // تطبيق فلتر البحث
     }
-
-
-
-
-
-
 
 
     // دالة فلترة قائمة الأعضاء (البحث)
@@ -2137,12 +1864,6 @@
         const searchInput = pageCache.members.querySelector('#searchInput');
         const searchTerm = searchInput.value.toLowerCase().trim();
         const membersListEl = pageCache.members.querySelector('#membersList');
-
-
-
-
-
-
 
 
         membersListEl.querySelectorAll('.member-item-wrapper').forEach(wrapper => {
@@ -2155,12 +1876,6 @@
     }
 
 
-
-
-
-
-
-
     /* --- دالة عرض صفحة البروفايل --- */
     function renderProfilePage(rerender = false) {
         if (!pageCache.profile || !currentUserProfile) return;
@@ -2169,20 +1884,6 @@
             pageCache.profile.querySelector('#editProfileBtn').onclick = () => openPage('edit_profile');
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /* --- دالة عرض صفحة الإعدادات --- */
@@ -2197,8 +1898,6 @@
 
 
         const bubblePaddingText = settings.bubblePadding == 1 ? 'صغير' : (settings.bubblePadding == 2 ? 'وسط' : 'كبير');
-
-
 
 
         pageCache.settings.innerHTML = `<div class="settings-section"><h2 class="settings-section-title">المظهر العام</h2><div class="settings-option"><span class="label">الوضع الليلي</span><input type="checkbox" id="darkModeToggle" ${settings.darkMode ? 'checked' : ''}/></div><div class="settings-option"><span class="label">لون فقاعاتي</span><input type="color" class="settings-input-color" id="sentBubbleColor" value="${settings.sentBubbleBg}"></div><div class="settings-option"><span class="label">لون فقاعات الآخرين</span><input type="color" class="settings-input-color" id="recvBubbleColor" value="${settings.recvBubbleBg}"></div>
@@ -2218,31 +1917,11 @@
         </div>
 
 
-
-
         </div><div class="settings-section"><h2 class="settings-section-title">خلفية الدردشة</h2><div class="background-grid" id="backgroundGrid">${backgroundImages.map(img => `<div class="background-option" style="background-image: url(${img.thumb})" data-url="${img.full}"></div>`).join('')}</div><div class="settings-option" style="padding-top: 16px;"><label for="bgUpload" class="settings-btn-themed" style="flex:1; text-align:center; cursor:pointer; background: var(--accent-color);">رفع خلفية خاصة</label><input type="file" id="bgUpload" accept="image/*" style="display:none;"></div><div class="settings-option" style="padding-top: 8px;"><button class="settings-btn-themed" id="resetBgBtn" style="background: var(--danger-color); flex:1;">مسح الخلفية</button></div></div>${ownerSectionHTML}<div class="settings-section"><h2 class="settings-section-title">وسام الإدارة</h2><div class="settings-option"><input type="password" id="badgePass" class="auth-input" placeholder="أدخل كلمة المرور" style="flex:1"/><button id="badgeSaveBtn" class="settings-btn-themed">حفظ</button></div></div><div class="settings-section"><h2 class="settings-section-title">إعادة الضبط</h2><div class="settings-option"><button id="resetAllSettings" class="settings-btn-themed" style="background: var(--danger-color); flex:1;">إعادة ضبط كل إعداداتي</button></div></div>`;
-
-
-
-
 
 
         addSettingsEventListeners(); // ربط الأوامر بالأزرار الجديدة
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /* --- دوال صفحات تسجيل الدخول وإنشاء بروفايل جديد --- */
@@ -2250,12 +1929,6 @@
       contentEl.innerHTML = `<div class="auth-page"><h1 class="auth-title">أهلاً بك في شات شهاب</h1><div class="auth-card" style="text-align:center;"><p>ادخل للدردشة مباشرة مع الأصدقاء</p><button id="loginBtn" class="form-btn-confirm" style="width:100%;">ادخل الآن</button></div></div>`;
       document.getElementById('loginBtn').addEventListener('click', handleLogin);
     };
-
-
-
-
-
-
 
 
     // إظهار صفحة إكمال البروفايل للمستخدم الجديد
@@ -2267,15 +1940,7 @@
       const p = { name: '', avatar: getNextAvatar('male'), gender: 'male', location: '' };
 
 
-
-
       const formContainer = document.createElement('div');
-
-
-
-
-
-
 
 
       formContainer.innerHTML = `<div class="auth-page"><h1 class="auth-title">${title}</h1><form class="auth-card" id="profileForm">
@@ -2291,24 +1956,12 @@
         </div>
 
 
-
-
-
-
-
-
         <div class="auth-input-group" style="width:100%;"><label for="nameInput">اسمك في الشات</label><input type="text" id="nameInput" name="name" class="auth-input" value="${p.name}" placeholder="اكتب اسمك هنا..." /></div>
         <div class="auth-input-group" style="width:100%;"><label for="locationInput">العنوان</label><input type="text" id="locationInput" name="location" class="auth-input" value="${p.location || ''}" placeholder="مثال: القاهرة، مصر" /></div>
         <div class="gender-select"><div class="gender-option ${p.gender === 'male' ? 'selected' : ''}" data-gender="male">ذكـر</div><div class="gender-option ${p.gender === 'female' ? 'selected' : ''}" data-gender="female">أنثـى</div></div>
         <p class="error-message" id="setupError"></p>
         <div class="form-btn-group"><button type="submit" class="form-btn-confirm">${buttonText}</button></div>
       </form></div>`;
-
-
-
-
-
-
 
 
       contentEl.appendChild(formContainer);
@@ -2318,24 +1971,12 @@
     };
 
 
-
-
-
-
-
-
     // إظهار صفحة تعديل البروفايل
     function renderEditProfilePage() {
         if (!pageCache.edit_profile || !currentUserProfile) return;
         const p = currentUserProfile;
         const title = 'تعديل الملف الشخصي';
         const buttonText = 'حفظ التعديلات';
-
-
-
-
-
-
 
 
         pageCache.edit_profile.innerHTML = `<div class="auth-page"><h1 class="auth-title">${title}</h1><form class="auth-card" id="editProfileForm">
@@ -2351,12 +1992,6 @@
         </div>
 
 
-
-
-
-
-
-
         <div class="auth-input-group" style="width:100%;"><label for="editNameInput">اسمك في الشات</label><input type="text" id="editNameInput" name="name" class="auth-input" value="${p.name}" placeholder="اكتب اسمك هنا..." /></div>
         <div class="auth-input-group" style="width:100%;"><label for="editLocationInput">العنوان</label><input type="text" id="editLocationInput" name="location" class="auth-input" value="${p.location || ''}" placeholder="مثال: القاهرة، مصر" /></div>
         <div class="gender-select"><div class="gender-option ${p.gender === 'male' ? 'selected' : ''}" data-gender="male">ذكـر</div><div class="gender-option ${p.gender === 'female' ? 'selected' : ''}" data-gender="female">أنثـى</div></div>
@@ -2365,23 +2000,11 @@
         </form></div>`;
 
 
-
-
-
-
-
-
         const form = pageCache.edit_profile.querySelector('#editProfileForm');
         form.querySelector('.form-btn-cancel').onclick = () => openPage('profile');
         attachProfileFormListeners(form, true); // ربط الأوامر (رفع الصورة، اختيار الجنس)
         form.addEventListener('submit', (e) => handleProfileSave(e, auth.currentUser, true));
     }
-
-
-
-
-
-
 
 
     // دالة ربط الأوامر بصفحة البروفايل (لرفع الصور واختيار الجنس)
@@ -2396,33 +2019,15 @@
       randomAvatarBtn.textContent = 'صورة رمزية تالية';
 
 
-
-
-
-
-
-
       // عند اختيار ملف صورة
       avatarUploadInput.addEventListener('change', async (event) => {
           const file = event.target.files[0];
           if (!file) return;
 
 
-
-
-
-
-
-
           showLoading(true);
           try {
               const compressedBase64 = await compressImage(file, 800, 0.7); // ضغط الصورة
-
-
-
-
-
-
 
 
               if (compressedBase64.length > 700 * 1024) { 
@@ -2431,12 +2036,6 @@
                   showLoading(false);
                   return;
               }
-
-
-
-
-
-
 
 
               avatarPreview.src = compressedBase64; // عرض الصورة المضغوطة
@@ -2449,12 +2048,6 @@
               showLoading(false);
           }
       });
-
-
-
-
-
-
 
 
       /* --- إصلاح 2: تعديل دالة `updateAvatar` لاستخدام `getNextAvatar` --- */
@@ -2471,12 +2064,6 @@
           randomAvatarBtn.disabled = true;
           randomAvatarBtn.textContent = '...';
           await new Promise(resolve => setTimeout(resolve, 10)); 
-
-
-
-
-
-
 
 
           try {
@@ -2501,12 +2088,6 @@
       });
 
 
-
-
-
-
-
-
       form.querySelectorAll('.gender-option').forEach(option => {
           option.addEventListener('click', async () => { 
               form.querySelectorAll('.gender-option').forEach(opt => opt.classList.remove('selected'));
@@ -2516,12 +2097,6 @@
               randomAvatarBtn.disabled = true;
               randomAvatarBtn.textContent = '...';
               await new Promise(resolve => setTimeout(resolve, 10));
-
-
-
-
-
-
 
 
               try {
@@ -2539,20 +2114,6 @@
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /* --- دالة حفظ البروفايل (جديد أو تعديل) --- */
     const handleProfileSave = async (event, user, isEditing = false) => {
       event.preventDefault();
@@ -2567,12 +2128,6 @@
       form.querySelector('.error-message').style.display = 'none';
 
 
-
-
-
-
-
-
       try {
         const userRef = doc(usersCollection, user.uid);
         const data = { 
@@ -2581,12 +2136,6 @@
             location: form.querySelector('[name="location"]').value.trim() 
         };
         data.avatar = form.querySelector('[name="avatar"]').value; 
-
-
-
-
-
-
 
 
         if (isEditing) {
@@ -2626,20 +2175,6 @@
     };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // دالة عرض بروفايل مستخدم آخر
     window.viewUserProfile = (userId) => {
         const user = usersCache[userId];
@@ -2652,20 +2187,6 @@
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // دالة إنشاء كود العرض للبروفايل
     function createUserProfileViewHTML(user, isOwnProfile = false) {
         const buttonsHTML = isOwnProfile 
@@ -2675,22 +2196,10 @@
     }
 
 
-
-
-
-
-
-
     /* --- دالة ربط الأوامر بأزرار صفحة الإعدادات --- */
     function addSettingsEventListeners() {
         const page = pageCache.settings;
         if (!page) return;
-
-
-
-
-
-
 
 
         /* --- === [!!] هذا هو الإصلاح [!!] === ---
@@ -2722,12 +2231,6 @@
         };
 
 
-
-
-
-
-
-
         // --- ربط أوامر المالك ---
         if (currentUserProfile.badge === 'owner') {
             page.querySelector('#applyToAllBtn').addEventListener('click', async () => { 
@@ -2741,12 +2244,6 @@
             });
 
 
-
-
-
-
-
-
             page.querySelector('#resetAllBtn').addEventListener('click', async () => { 
                 showLoading(true); 
                 try { 
@@ -2754,12 +2251,6 @@
                     showToast("تم إلغاء المظهر العام. سيتم تطبيق الإعدادات الشخصية/الافتراضية."); 
                 } catch (e) { console.error(e); showToast("حدث خطأ."); } finally { showLoading(false); } 
             });
-
-
-
-
-
-
 
 
             page.querySelector('#clearChatBtn').addEventListener('click', async () => {
@@ -2778,19 +2269,7 @@
         }
 
 
-
-
-
-
-
-
         // --- ربط أوامر الإعدادات العادية ---
-
-
-
-
-
-
 
 
         // رفع خلفية خاصة
@@ -2820,21 +2299,9 @@
         });
 
 
-
-
-
-
-
-
         page.querySelector('#darkModeToggle').addEventListener('change', (e) => updateSettings({ darkMode: e.target.checked }));
         page.querySelector('#sentBubbleColor').addEventListener('change', (e) => updateSettings({ sentBubbleBg: e.target.value }));
         page.querySelector('#recvBubbleColor').addEventListener('change', (e) => updateSettings({ recvBubbleBg: e.target.value }));
-
-
-
-
-
-
 
 
         // شريط حجم الخط
@@ -2853,12 +2320,6 @@
             updateSettings({ fontSize: newSize }); 
             showToast('تم حفظ حجم الخط.');
         });
-
-
-
-
-
-
 
 
         // شريط حجم بطاقة الرسالة
@@ -2880,12 +2341,6 @@
         });
 
 
-
-
-
-
-
-
         // ربط أزرار الخلفيات الجاهزة
         const settings = { ...defaultSettings, ...(currentUserProfile.settings) };
         page.querySelectorAll('.background-option').forEach(el => {
@@ -2899,12 +2354,6 @@
         });
 
 
-
-
-
-
-
-
         // زر مسح الخلفية
         page.querySelector('#resetBgBtn').addEventListener('click', () => { 
             page.querySelectorAll('.background-option').forEach(opt => opt.classList.remove('selected')); 
@@ -2913,19 +2362,11 @@
         });
 
 
-
-
-
-
-
-
         /* --- إصلاح 2: (وسام الإدارة) --- */
         page.querySelector('#badgeSaveBtn').addEventListener('click', async () => {
             const pass = page.querySelector('#badgePass').value;
             let newBadge = null;
             let isValidPass = false;
-
-
 
 
             if (pass === '1532') {
@@ -2947,8 +2388,6 @@
             }
 
 
-
-
             try { 
                 await updateDoc(doc(usersCollection, currentUserProfile.id), { badge: newBadge }); 
                 showToast(newBadge ? 'تم منح الوسام بنجاح!' : 'تم إزالة الوسام.');
@@ -2963,17 +2402,9 @@
                 renderSettingsPage(true); 
 
 
-
-
             } catch(error){ showToast('فشل الحفظ!'); }
         });
         /* --- نهاية الإصلاح 2 --- */
-
-
-
-
-
-
 
 
         // زر إعادة ضبط الإعدادات الشخصية
@@ -2989,41 +2420,15 @@
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /* --- دالة إرسال الرسالة --- */
     async function sendMessage(event) {
         event.preventDefault();
-
-
-
-
-
-
 
 
         if (currentUserProfile.isMuted) {
             showToast("لا يمكنك الإرسال، لقد تم تقييد حسابك.");
             return;
         }
-
-
-
-
-
-
 
 
         const msgInput = document.getElementById('msgInput');
@@ -3041,6 +2446,7 @@
                 createdAt: Timestamp.now() 
             };
 
+
             // إضافة بيانات الرد إن وجدت
             if (replyingToMessage) {
                 messageData.replyToId = replyingToMessage.id;
@@ -3049,8 +2455,10 @@
                 clearReplyState(); // مسح حالة الرد بعد الإرسال
             }
 
+
             try { 
                 await addDoc(messagesCollection, messageData); 
+                await updateTypingStatus(false); // [جديد] إزالة حالة الكتابة بعد الإرسال
                 // عند النجاح لا نفعل شيئاً، النص ممسوح بالفعل.
             } catch (error) { 
                 console.error("Error sending message:", error);
@@ -3064,12 +2472,6 @@
             }
         }
     }
-
-
-
-
-
-
 
 
     /* --- دالة إنشاء عنصر الرسالة في الشات --- */
@@ -3087,27 +2489,16 @@
         const time = createdAtDate.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' });
 
 
-
-
-
-
-
-
         let badgeHTML = '';
         if (sender.badge === 'owner') badgeHTML = `👑`;
         else if (sender.badge === 'moderator') badgeHTML = `🛡️`;
 
 
-
-
-
-
-
-
         const muteIcon = sender.isMuted ? ' 🔇' : ''; 
         const editedTag = msgData.isEdited ? ' (معدلة)' : '';
 
-        // [جديد] بناء كود اقتباس الرد
+
+        // بناء كود اقتباس الرد
         let replyQuoteHTML = '';
         if (msgData.replyToId) {
             replyQuoteHTML = `
@@ -3117,21 +2508,23 @@
                 </div>
             `;
         }
+        
+        // [جديد] بناء كود التفاعلات
+        let reactionsHTML = '';
+        if (msgData.reactions && Object.keys(msgData.reactions).length > 0) {
+            reactionsHTML = `<div class="reactions-container">`;
+            for (const emoji in msgData.reactions) {
+                const count = msgData.reactions[emoji].length;
+                if (count > 0) {
+                    // [جديد] إضافة onclick لفتح مودال التفاعلات مرة أخرى
+                    reactionsHTML += `<div class="reaction-item" onclick="handleReaction('${msgData.id}', '${emoji}')">${emoji}<span class="reaction-count">${count}</span></div>`;
+                }
+            }
+            reactionsHTML += `</div>`;
+        }
 
 
-
-
-
-
-
-
-        row.innerHTML = `<img src="${sender.avatar}" alt="${sender.name}" class="chat-avatar"><div class="bubble ${isSent ? 'sent' : 'recv'}"><div class="bubble-content">${!isSent ? `<div class="bubble-sender">${badgeHTML} ${sender.name}${muteIcon}</div>` : ''}${replyQuoteHTML}<span>${msgData.text}${editedTag}</span><div class="timestamp">${time}</div></div></div>`;
-
-
-
-
-
-
+        row.innerHTML = `<img src="${sender.avatar}" alt="${sender.name}" class="chat-avatar"><div class="bubble ${isSent ? 'sent' : 'recv'}"><div class="bubble-content">${!isSent ? `<div class="bubble-sender">${badgeHTML} ${sender.name}${muteIcon}</div>` : ''}${replyQuoteHTML}<span>${msgData.text}${editedTag}</span><div class="timestamp">${time}</div></div>${reactionsHTML}</div>`;
 
 
         const bubble = row.querySelector('.bubble');
@@ -3140,20 +2533,14 @@
         const canShowFullOptions = isOwnMessage || isAdmin;
 
 
-
-
-
-
-
-
-        if (canShowFullOptions) { // [إصلاح المشكلة 3] إظهار الخيارات الكاملة لرسالتي وللإدارة
+        if (canShowFullOptions) { 
             bubble.style.cursor = 'pointer';
             bubble.title = 'اضغط لإظهار الخيارات';
             bubble.addEventListener('click', (e) => {
                 e.stopPropagation(); 
                 showMessageActionModal(msgData); 
             });
-        } else { // [إصلاح المشكلة 3] إظهار خيارات الرد/النسخ/التوجيه لرسالة شخص آخر
+        } else { 
             bubble.style.cursor = 'pointer';
             bubble.title = 'اضغط للرد أو خيارات الرسالة';
             bubble.addEventListener('click', (e) => {
@@ -3163,20 +2550,8 @@
         }
 
 
-
-
-
-
-
-
         return row;
     }
-
-
-
-
-
-
 
 
     /* --- دالة تحديث الشريط العلوي (الصورة) --- */
