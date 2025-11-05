@@ -2821,14 +2821,10 @@
         event.preventDefault();
 
 
-
-
         if (currentUserProfile.isMuted) {
             showToast("لا يمكنك الإرسال، لقد تم تقييد حسابك.");
             return;
         }
-
-
 
 
         const msgInput = document.getElementById('msgInput');
@@ -2836,9 +2832,8 @@
 
 
         if (text && currentUserProfile) {
-            const originalText = msgInput.value; // حفظ النص الأصلي
-            msgInput.value = ''; // <--- [إصلاح المشكلة 1] مسح حقل الإدخال فوراً قبل أي محاولة إرسال
-            msgInput.focus();
+            const originalText = msgInput.value; 
+            msgInput.value = ''; // <--- [إصلاح المشكلة 1] مسح حقل الإدخال فوراً
 
 
             // بيانات الرسالة الأساسية
@@ -2847,8 +2842,6 @@
                 senderId: currentUserProfile.id, 
                 createdAt: Timestamp.now() 
             };
-
-
 
 
             // إضافة بيانات الرد إن وجدت
@@ -2860,22 +2853,36 @@
             }
 
 
+            let messageSentSuccessfully = false;
 
 
             try { 
+                // 1. محاولة إرسال الرسالة
                 await addDoc(messagesCollection, messageData); 
-                await updateTypingStatus(false); // [جديد] إزالة حالة الكتابة بعد الإرسال
-                // عند النجاح لا نفعل شيئاً، النص ممسوح بالفعل.
+                messageSentSuccessfully = true;
             } catch (error) { 
                 console.error("Error sending message:", error);
-                msgInput.value = originalText; // <--- [إصلاح المشكلة 1] إعادة النص في حالة الفشل فقط
+                // 2. في حالة فشل الإرسال، نعيد النص وحالة الرد
+                msgInput.value = originalText; 
                 showToast("فشل إرسال الرسالة.");
-                // إذا فشل الإرسال، نعيد حالة الرد أيضاً
                 if (messageData.replyToId) {
                     replyingToMessage = { id: messageData.replyToId, name: messageData.replyToName, text: messageData.replyToText };
                     pageCache.chat.querySelector('#replyQuoteContainerWrapper').style.display = 'block';
                 }
             }
+
+
+            // 3. إذا نجح الإرسال، نحاول تحديث حالة الكتابة (في كتلة try/catch منفصلة لتجنب مشكلة "فشل الإرسال")
+            if (messageSentSuccessfully) {
+                try {
+                    await updateTypingStatus(false); 
+                } catch (error) {
+                    console.warn("Failed to clear typing status after send:", error);
+                    // لا نعرض رسالة خطأ للمستخدم لأن الرسالة وصلت بالفعل
+                }
+            }
+            
+            msgInput.focus(); // إعادة التركيز على حقل الإدخال
         }
     }
 
