@@ -1866,8 +1866,8 @@
     // [جديد] دالة بدء إعادة التوجيه
     function startForward(msgData) {
         const msgInput = document.getElementById('msgInput');
-        msgInput.value = `[إعادة توجيه] ${msgData.text}`;
         clearReplyState(); // مسح أي حالة رد سابقة
+        msgInput.value = `[إعادة توجيه] ${msgData.text}`;
         msgInput.focus();
         messageActionModal.classList.remove('active');
     }
@@ -1881,8 +1881,7 @@
         messageActionEdit.style.display = isOwnMessage ? 'block' : 'none';
         messageActionDelete.style.display = isOwnMessage || isAdmin ? 'block' : 'none';
         
-        // [إصلاح المشكلة 3] إخفاء/إظهار باقي الأزرار للمستخدم العادي ورسائل الآخرين
-        const isOtherUserMessage = !isOwnMessage && !isAdmin;
+        // [إصلاح المشكلة 3] إظهار الخيارات المتاحة للجميع
         messageActionCopy.style.display = 'block';
         messageActionForward.style.display = 'block';
         messageActionReply.style.display = 'block';
@@ -3018,17 +3017,17 @@
         
         if (text && currentUserProfile) {
             const originalText = msgInput.value; // حفظ النص الأصلي
-            msgInput.value = ''; // مسح حقل الإدخال فوراً
+            msgInput.value = ''; // <--- [إصلاح] مسح حقل الإدخال فوراً قبل أي محاولة إرسال
             msgInput.focus();
             
-            // [جديد] بيانات الرسالة
+            // بيانات الرسالة الأساسية
             const messageData = { 
                 text, 
                 senderId: currentUserProfile.id, 
                 createdAt: Timestamp.now() 
             };
 
-            // [جديد] إضافة بيانات الرد إن وجدت
+            // إضافة بيانات الرد إن وجدت
             if (replyingToMessage) {
                 messageData.replyToId = replyingToMessage.id;
                 messageData.replyToName = replyingToMessage.name;
@@ -3038,10 +3037,16 @@
 
             try { 
                 await addDoc(messagesCollection, messageData); 
+                // عند النجاح لا نفعل شيئاً، النص ممسوح بالفعل.
             } catch (error) { 
                 console.error("Error sending message:", error);
-                msgInput.value = originalText; // إعادة النص في حالة الفشل
+                msgInput.value = originalText; // <--- [إصلاح] إعادة النص في حالة الفشل فقط
                 showToast("فشل إرسال الرسالة.");
+                // إذا فشل الإرسال، نعيد حالة الرد أيضاً
+                if (messageData.replyToId) {
+                    replyingToMessage = { id: messageData.replyToId, name: messageData.replyToName, text: messageData.replyToText };
+                    pageCache.chat.querySelector('#replyQuoteContainerWrapper').style.display = 'block';
+                }
             }
         }
     }
