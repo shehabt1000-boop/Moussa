@@ -234,7 +234,7 @@
         right: 0;
         z-index: 1; /* <--- يجب أن تكون أقل من شريط الإدخال نفسه */
         padding: 0 5px; /* <--- هامش من الجانبين */
-        margin-bottom: 5px; /* <--- [إصلاح المشكلة 1] مسافة بسيطة فوق بار الكتابة */
+        margin-bottom: 3px; /* <--- [إصلاح المشكلة 1] مسافة بسيطة فوق بار الكتابة */
     }
     .reply-quote-container {
         background: var(--card-bg-color);
@@ -1541,6 +1541,7 @@
 
 
             let newMessagesAdded = false;
+            let messagesModified = false;
             snapshot.docChanges().forEach((change) => {
                 const msgData = { id: change.doc.id, ...change.doc.data() };
                 const msgEl = messagesEl.querySelector(`[data-msg-id="${msgData.id}"]`);
@@ -1557,6 +1558,7 @@
                     const updatedMsgEl = createMessageElement(msgData);
                     if (updatedMsgEl) {
                         msgEl.replaceWith(updatedMsgEl);
+                        messagesModified = true; // وضع علامة التعديل
                     }
                 }
                 if (change.type === "removed" && msgEl) msgEl.remove();
@@ -1583,7 +1585,7 @@
 
 
 
-            if (newMessagesAdded) {
+            if (newMessagesAdded || messagesModified) { // [إصلاح المشكلة 2] التمرير التلقائي عند التعديل أيضاً
                 if (isInitialMessagesLoad || !isScrolledUp) {
                     scrollToBottom();
                 }
@@ -1873,10 +1875,17 @@
     // [جديد] إظهار نافذة إجراءات الرسالة
     function showMessageActionModal(msgData) {
         const isOwnMessage = msgData.senderId === currentUserProfile.id;
-        const canDeleteAsAdmin = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
+        const isAdmin = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
 
-        // إظهار/إخفاء زر التعديل
+        // إظهار/إخفاء الأزرار بناءً على الصلاحيات
         messageActionEdit.style.display = isOwnMessage ? 'block' : 'none';
+        messageActionDelete.style.display = isOwnMessage || isAdmin ? 'block' : 'none';
+        
+        // [إصلاح المشكلة 3] إخفاء/إظهار باقي الأزرار للمستخدم العادي ورسائل الآخرين
+        const isOtherUserMessage = !isOwnMessage && !isAdmin;
+        messageActionCopy.style.display = 'block';
+        messageActionForward.style.display = 'block';
+        messageActionReply.style.display = 'block';
         
         // ربط الأوامر
         messageActionEdit.onclick = () => startEdit(msgData);
@@ -3107,8 +3116,9 @@
 
 
         const bubble = row.querySelector('.bubble');
-        const canDeleteAsAdmin = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
         const isOwnMessage = msgData.senderId === currentUserProfile.id;
+        const isAdmin = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
+        const canShowFullOptions = isOwnMessage || isAdmin;
 
 
 
@@ -3117,20 +3127,19 @@
 
 
 
-        if (canDeleteAsAdmin || isOwnMessage) {
+        if (canShowFullOptions) { // [إصلاح المشكلة 3] إظهار الخيارات الكاملة لرسالتي وللإدارة
             bubble.style.cursor = 'pointer';
             bubble.title = 'اضغط لإظهار الخيارات';
             bubble.addEventListener('click', (e) => {
                 e.stopPropagation(); 
-                showMessageActionModal(msgData); // [معدل] إظهار نافذة الخيارات
+                showMessageActionModal(msgData); 
             });
-        } else {
-            // [جديد] السماح بالرد على رسائل الآخرين
+        } else { // [إصلاح المشكلة 3] إظهار خيارات الرد/النسخ/التوجيه لرسالة شخص آخر
             bubble.style.cursor = 'pointer';
-            bubble.title = 'اضغط للرد على الرسالة';
+            bubble.title = 'اضغط للرد أو خيارات الرسالة';
             bubble.addEventListener('click', (e) => {
                 e.stopPropagation(); 
-                startReply(msgData);
+                showMessageActionModal(msgData); // [معدل] إظهار نافذة الخيارات
             });
         }
 
