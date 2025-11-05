@@ -259,10 +259,16 @@
 
 
     /* الشريط السفلي لإدخال الرسالة */
+    .chat-input-wrapper {
+        /* [إصلاح المشكلة 1] تثبيت ارتفاع الحاوية العلوية لشريط الإدخال */
+        position: relative;
+        flex-shrink: 0;
+        min-height: 50px; /* ارتفاع تقريبي لضمان عدم الاهتزاز */
+    }
     .chat-input {
       display: flex; align-items: center; gap: 6px; /* <--- تصغير */ padding: 5px; /* <--- تصغير */
       background: var(--main-bg-gradient); border-top: 1px solid rgba(255,255,255,0.08);
-      direction: ltr; position: relative; z-index: 10; /* <--- [إصلاح المشكلة 2] زيادة الـ z-index */
+      direction: ltr; position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; 
       flex-shrink: 0;
     }
     /* حاوية اقتباس الرد فوق حقل الإدخال */
@@ -343,12 +349,22 @@
     }
 
 
-    /* === [جديد] مؤشر الكتابة === */
-    .typing-indicator {
+    /* === [محدث] مؤشر الكتابة === */
+    .typing-indicator-wrapper {
         position: absolute;
         bottom: 100%;
         left: 0;
         right: 0;
+        z-index: 1;
+        /* [إصلاح المشكلة 1] نستخدم visibility: hidden للحفاظ على الـ layout */
+        visibility: hidden; 
+        height: 18px; /* ارتفاع ثابت */
+        overflow: hidden;
+    }
+    .typing-indicator-wrapper.active {
+        visibility: visible;
+    }
+    .typing-indicator {
         text-align: center;
         font-size: 10px;
         color: var(--text-dark);
@@ -356,11 +372,10 @@
         background: rgba(255, 255, 255, 0.8);
         border-top-left-radius: 5px;
         border-top-right-radius: 5px;
-        z-index: 1;
-        display: none; /* مخفي افتراضياً */
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        display: block; /* نجعله دائماً block داخل الـ wrapper */
     }
     /* === نهاية مؤشر الكتابة === */
 
@@ -1485,7 +1500,7 @@
 
 
             for (const userId in data) {
-                // تجاهل المستخدم الحالي
+                // [مهم] تجاهل المستخدم الحالي عند العرض فقط
                 if (userId === currentUserProfile.id) continue; 
 
 
@@ -1692,8 +1707,8 @@
         const page = document.createElement('div');
         page.id = 'chat';
         page.className = 'page chat-page';
-        // [محدث] إضافة زر الإيموجي
-        page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><form class="chat-input" id="messageForm"><div id="replyQuoteContainerWrapper" class="reply-quote-container-wrapper" style="display:none;"><div id="replyQuoteContainer" class="reply-quote-container"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div></div><div id="typingIndicator" class="typing-indicator"></div><button type="button" class="emoji-btn" id="openEmojiPicker">😀</button><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form>`;
+        // [محدث] تم تغليف شريط الإدخال في wrapper لتثبيت ارتفاعه
+        page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><div class="chat-input-wrapper"><div id="replyQuoteContainerWrapper" class="reply-quote-container-wrapper" style="display:none;"><div id="replyQuoteContainer" class="reply-quote-container"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div></div><div id="typingIndicatorWrapper" class="typing-indicator-wrapper"><div id="typingIndicator" class="typing-indicator"></div></div><form class="chat-input" id="messageForm"><button type="button" class="emoji-btn" id="openEmojiPicker">😀</button><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form></div>`;
         page.querySelector('#messageForm').addEventListener('submit', sendMessage);
         page.querySelector('#clearReplyBtn').addEventListener('click', clearReplyState);
         page.querySelector('#msgInput').addEventListener('input', () => updateTypingStatus(true)); // [جديد] ربط مؤشر الكتابة
@@ -1705,12 +1720,14 @@
     // [محدث] دالة تحديث مؤشر الكتابة
     function updateTypingIndicator() {
         if (!pageCache.chat) return;
+        const indicatorWrapper = pageCache.chat.querySelector('#typingIndicatorWrapper');
         const indicator = pageCache.chat.querySelector('#typingIndicator');
         const typingNames = Object.values(typingUsers);
 
 
         if (typingNames.length === 0) {
-            indicator.style.display = 'none';
+            indicatorWrapper.classList.remove('active');
+            indicator.textContent = '';
         } else {
             let text;
             if (typingNames.length === 1) {
@@ -1721,7 +1738,7 @@
                 text = `${typingNames[0]} و ${typingNames.length - 1} آخرون يكتبون الآن...`;
             }
             indicator.textContent = text;
-            indicator.style.display = 'block';
+            indicatorWrapper.classList.add('active');
         }
     }
 
@@ -1767,7 +1784,12 @@
             span.textContent = emoji;
             span.onclick = () => {
                 const msgInput = document.getElementById('msgInput');
-                msgInput.value += emoji;
+                // لإضافة الإيموجي في موضع المؤشر
+                const start = msgInput.selectionStart;
+                const end = msgInput.selectionEnd;
+                msgInput.value = msgInput.value.substring(0, start) + emoji + msgInput.value.substring(end);
+                msgInput.selectionStart = msgInput.selectionEnd = start + emoji.length;
+                
                 msgInput.focus();
                 emojiPickerModal.classList.remove('active');
                 updateTypingStatus(true); // تحديث حالة الكتابة بعد إضافة الإيموجي
