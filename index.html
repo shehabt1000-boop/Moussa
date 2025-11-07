@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -259,34 +259,62 @@
 
 
     /* الشريط السفلي لإدخال الرسالة */
-    .chat-input-wrapper {
-        /* [إصلاح المشكلة 1] تثبيت ارتفاع الحاوية العلوية لشريط الإدخال */
-        position: relative;
-        flex-shrink: 0;
-        /* الارتفاع الأدنى: ارتفاع شريط الإدخال (46px) + ارتفاع شريط الرد (45px) + مسافة (3px) = 94px */
-        /* بما أننا ألغينا الرد ومؤشر الكتابة، نثبت الارتفاع على شريط الإدخال فقط */
-        min-height: 46px; 
-    }
     .chat-input {
       display: flex; align-items: center; gap: 6px; /* <--- تصغير */ padding: 5px; /* <--- تصغير */
       background: var(--main-bg-gradient); border-top: 1px solid rgba(255,255,255,0.08);
-      direction: ltr; 
-      /* [إصلاح المشكلة 1] تثبيت شريط الإدخال في الأسفل */
-      position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; 
-      height: 46px; /* ارتفاع ثابت لشريط الإدخال */
+      direction: ltr; position: relative; z-index: 10; /* <--- [إصلاح المشكلة 2] زيادة الـ z-index */
       flex-shrink: 0;
     }
     /* حاوية اقتباس الرد فوق حقل الإدخال */
     .reply-quote-container-wrapper {
-        /* [إلغاء ميزة الرد] إخفاء تام */
-        display: none !important;
+        position: absolute;
+        bottom: 100%; /* <--- يرفع الحاوية فوق شريط الإدخال */
+        left: 0;
+        right: 0;
+        z-index: 1; /* <--- يجب أن تكون أقل من شريط الإدخال نفسه */
+        padding: 0 5px; /* <--- هامش من الجانبين */
+        margin-bottom: 3px; /* <--- [إصلاح المشكلة 1] مسافة بسيطة فوق بار الكتابة */
     }
-    
-    /* [إلغاء ميزة يكتب الآن] */
-    .typing-indicator-wrapper {
-        display: none !important;
+    .reply-quote-container {
+        background: var(--card-bg-color);
+        padding: 6px 10px; /* <--- تصغير */
+        border-top-left-radius: 10px; /* <--- تصغير */
+        border-top-right-radius: 10px; /* <--- تصغير */
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 8px; /* <--- تصغير */
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        max-height: 45px; /* <--- تصغير الارتفاع الكلي */
+        max-width: 95%; /* <--- تصغير العرض من الجانبين */
+        margin: 0 auto; /* <--- توسيط الحاوية */
     }
-
+    .reply-quote-content {
+        flex: 1;
+        border-right: 3px solid var(--primary-dark);
+        padding-right: 6px; /* <--- تصغير */
+        max-height: 35px; /* <--- تصغير */
+        overflow: hidden;
+    }
+    .reply-quote-content .reply-quote-name {
+        font-size: 11px; /* <--- تصغير */
+        font-weight: bold;
+        color: var(--primary-dark);
+        margin-bottom: 1px;
+    }
+    .reply-quote-content .reply-quote-text {
+        font-size: 10px; /* <--- تصغير */
+        color: var(--text-dark);
+    }
+    .reply-quote-close {
+        background: none;
+        border: none;
+        color: var(--danger-color);
+        font-size: 16px; /* <--- تصغير */
+        cursor: pointer;
+        padding: 0;
+        flex-shrink: 0;
+    }
     /* تعديل: تصغير حقل الإدخال */
     .msg-input {
       flex: 1; padding: 7px 10px; /* <--- تصغير */
@@ -304,15 +332,28 @@
       cursor: pointer; display: flex;
       align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     }
-    /* [جديد] زر الإيموجي */
-    .emoji-btn {
-        width: 36px; height: 36px; /* <--- تصغير */
-        border: none; border-radius: 50%; background: #f39c12;
-        color: var(--text-light); font-size: 16px; /* <--- تصغير */
-        cursor: pointer; display: flex;
-        align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-        flex-shrink: 0;
+
+
+    /* === [جديد] مؤشر الكتابة === */
+    .typing-indicator {
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 10px;
+        color: var(--text-dark);
+        padding: 2px 0;
+        background: rgba(255, 255, 255, 0.8);
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        z-index: 1;
+        display: none; /* مخفي افتراضياً */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
+    /* === نهاية مؤشر الكتابة === */
 
 
     /* تعديل: تقليل الهوامش في الصفحات (الأعضاء، الإعدادات...) */
@@ -622,31 +663,6 @@
         background-color: rgba(0,0,0,0.1);
     }
     /* === نهاية مودال التفاعلات === */
-    
-    /* [جديد] مودال اختيار الإيموجي */
-    #emojiPickerModal .modal-content {
-        width: 90%;
-        max-width: 350px;
-        padding: 10px;
-    }
-    .emoji-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
-        gap: 5px;
-        max-height: 250px;
-        overflow-y: auto;
-        padding: 5px;
-    }
-    .emoji-item {
-        font-size: 24px;
-        cursor: pointer;
-        text-align: center;
-        padding: 2px;
-        border-radius: 5px;
-    }
-    .emoji-item:hover {
-        background-color: rgba(0,0,0,0.1);
-    }
 
 
 
@@ -794,21 +810,6 @@
     <!-- === نهاية نافذة التفاعلات === -->
 
 
-    <!-- === [جديد] نافذة اختيار الإيموجي (مودال) === -->
-    <div id="emojiPickerModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 class="modal-title">اختر إيموجي</h3>
-            <div class="emoji-grid" id="emojiGrid">
-                <!-- سيتم ملؤها بواسطة JavaScript -->
-            </div>
-            <div class="modal-buttons" style="margin-top: 10px;">
-                <button id="emojiPickerModalClose" class="form-btn-cancel">إغلاق</button>
-            </div>
-        </div>
-    </div>
-    <!-- === نهاية نافذة اختيار الإيموجي === -->
-
-
 
 
   </div>
@@ -845,8 +846,8 @@
     const usersCollection = collection(db, `public/data/users`);
     const messagesCollection = collection(db, `public/data/messages`);
     const globalSettingsDoc = doc(db, `public/data/global_config/settings`);
-    // [تم إلغاء مرجع حالة الكتابة]
-    // const typingStatusDoc = doc(db, 'public/data/typing_status', 'status');
+    // [جديد] مرجع حالة الكتابة
+    const typingStatusDoc = doc(db, 'public/data/typing_status', 'status');
 
 
 
@@ -857,10 +858,8 @@
     let globalSettings = null; // الإعدادات العامة التي يطبقها المالك
     let pageCache = {}; // تخزين الصفحات (الدردشة، الأعضاء...) في الذاكرة
     let dataListeners = []; // مصفوفة لتخزين "مراقبي البيانات" لإيقافهم عند الخروج
-    // [تم إلغاء حالة الرد]
-    let replyingToMessage = null; 
-    // [تم إلغاء حالة الكتابة]
-    // let typingUsers = {}; 
+    let replyingToMessage = null; // لتخزين بيانات الرسالة التي يتم الرد عليها
+    let typingUsers = {}; // [جديد] لتخزين حالة الكتابة للجميع
     let currentMessageToReact = null; // [جديد] لتخزين الرسالة التي يتم التفاعل عليها
 
 
@@ -912,11 +911,6 @@
     const reactionModal = document.getElementById('reactionModal');
     const reactionGrid = document.getElementById('reactionGrid');
     const reactionModalCancel = document.getElementById('reactionModalCancel');
-    
-    // [جديد] عناصر مودال الإيموجي
-    const emojiPickerModal = document.getElementById('emojiPickerModal');
-    const emojiGrid = document.getElementById('emojiGrid');
-    const emojiPickerModalClose = document.getElementById('emojiPickerModalClose');
 
 
 
@@ -961,24 +955,8 @@
     };
 
 
-    // [محدث] قائمة التفاعلات المتاحة (تم توسيعها لـ 20 رمزاً)
-    const availableReactions = [
-      '👍', '❤️', '😂', '😢', '😡', '🙏', '🔥', '🤯', '🥳', '🤔', 
-      '👏', '💯', '💔', '😍', '😴', '😭', '🤩', '🤮', '😈', '😇'
-    ];
-    
-    // [جديد] قائمة الإيموجي للاختيار (50 رمزاً)
-    const emojiList = [
-        '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃', 
-        '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', 
-        '🥲', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', 
-        '🤔', '🫡', '🤨', '😐', '😑', '😶', '🫥', '😶‍🌫️', '😏', '😒', 
-        '🙄', '😬', '😮‍💨', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷',
-        '🤒', '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '😵‍💫',
-        '🤯', '🤠', '🥳', '🥸', '🥺', '🥹', '😭', '😢', '😥', '泄',
-        '😨', '😩', '😫', '💢', '🔥', '💯', '👍', '👎', '👏', '🙏',
-        '❤️', '💔', '🌹', '🍕', '🍺', '⚽', '💻', '💡', '⏰', '🚀'
-    ];
+    // [جديد] قائمة التفاعلات المتاحة
+    const availableReactions = ['👍', '❤️', '😂', '😢', '🔥', '😎'];
 
 
 
@@ -1136,9 +1114,32 @@
     }
 
 
-    // [تم إلغاء دالة تحديث حالة الكتابة]
+    // [جديد] دالة تحديث حالة الكتابة (مع Debounce)
+    let typingTimeout;
     async function updateTypingStatus(isTyping) {
-        // لا تفعل شيئاً
+        if (!auth.currentUser || !currentUserProfile) return;
+        const userId = auth.currentUser.uid;
+        const typingField = FieldPath.of(userId);
+
+
+        clearTimeout(typingTimeout);
+
+
+        if (isTyping) {
+            // 1. تحديث الحالة فوراً
+            await updateDoc(typingStatusDoc, {
+                [typingField]: Timestamp.now()
+            });
+            // 2. تعيين مؤقت لإزالة الحالة بعد 3 ثوانٍ من التوقف عن الكتابة
+            typingTimeout = setTimeout(() => {
+                updateTypingStatus(false);
+            }, 3000);
+        } else {
+            // 3. إزالة الحالة من Firestore
+            await updateDoc(typingStatusDoc, {
+                [typingField]: FieldValue.delete()
+            }).catch(e => console.warn("Failed to delete typing status:", e));
+        }
     }
 
 
@@ -1176,7 +1177,10 @@
 
 
 
-    /* --- === [!!] تطبيق الإعدادات المدمجة [!!] === --- */
+    /* --- === [!!] إصلاح المشكلة 1: تطبيق المظهر العام على الجميع [!!] === ---
+     * تم تعديل هذه الدالة لتطبيق الإعدادات العامة أولاً، ثم الإعدادات الشخصية كأولوية
+     * --- === نهاية الإصلاح === ---
+     */
     const applyCombinedSettings = () => {
         if (!currentUserProfile) return;
 
@@ -1198,14 +1202,19 @@
 
 
         // 3. تطبيق الإعدادات الشخصية للمستخدم (كأولوية أخيرة لتجاوز العام)
+        // [إصلاح المشكلة 1] يجب أن يتم تطبيق الإعدادات الشخصية فقط إذا لم يتم تعيينها في الإعدادات العامة
         const userSettings = currentUserProfile.settings || {};
 
 
+        // ندمج الإعدادات الشخصية، ولكن فقط إذا لم يتم تعيينها في الإعدادات العامة (أو إذا كانت الإعدادات العامة غير موجودة)
         finalSettings = {
             ...finalSettings,
             ...userSettings,
+            // [إصلاح المشكلة 1] الخلفية الشخصية تتجاوز العامة فقط إذا لم يتم تعيين خلفية عامة
             chatBackground: globalSettings?.chatBackground || userSettings.chatBackground || defaultSettings.chatBackground,
+            // [إصلاح المشكلة 1] الوضع الليلي الشخصي يتجاوز العام
             darkMode: userSettings.darkMode !== undefined ? userSettings.darkMode : finalSettings.darkMode,
+            // يمكن تطبيق نفس المنطق على باقي الإعدادات إذا أردت أن يتجاوز الشخصي العام
             sentBubbleBg: userSettings.sentBubbleBg || finalSettings.sentBubbleBg,
             recvBubbleBg: userSettings.recvBubbleBg || finalSettings.recvBubbleBg,
             fontSize: userSettings.fontSize || finalSettings.fontSize,
@@ -1226,7 +1235,7 @@
     function detachAllListeners() {
         dataListeners.forEach(unsubscribe => unsubscribe());
         dataListeners = [];
-        // [تم إلغاء مسح مؤقت الكتابة]
+        clearTimeout(typingTimeout); // [جديد] مسح مؤقت الكتابة
     }
 
 
@@ -1333,7 +1342,7 @@
         try { 
             if (auth.currentUser) { 
                 await updateUserPresence(false);
-                // [تم إلغاء تحديث حالة الكتابة]
+                await updateTypingStatus(false); // [جديد] إزالة حالة الكتابة عند الخروج
             }
             await signOut(auth); // تسجيل الخروج
         } 
@@ -1398,8 +1407,26 @@
         });
 
 
-        // [تم إلغاء مراقبة حالة الكتابة]
-        // const unsubscribeTyping = onSnapshot(typingStatusDoc, (doc) => { /* ... */ });
+        // [جديد] 4. مراقبة حالة الكتابة للجميع
+        const unsubscribeTyping = onSnapshot(typingStatusDoc, (doc) => {
+            const data = doc.data() || {};
+            const now = Timestamp.now().toMillis();
+            typingUsers = {};
+
+
+            for (const userId in data) {
+                // تجاهل المستخدم الحالي
+                if (userId === currentUserProfile.id) continue; 
+
+
+                const timestamp = data[userId].toMillis();
+                // اعتبار المستخدم يكتب إذا كان آخر تحديث له أقل من 5 ثوانٍ
+                if (now - timestamp < 5000) { 
+                    typingUsers[userId] = usersCache[userId]?.name || 'عضو مجهول';
+                }
+            }
+            updateTypingIndicator();
+        });
 
 
 
@@ -1462,17 +1489,8 @@
                 if (change.type === "added" && !msgEl) {
                     const newMsgEl = createMessageElement(msgData);
                     if (newMsgEl) {
-                        // [الإصلاح 2] إذا كانت الرسالة المضافة هي أول رسالة في الـ Snapshot 
-                        // (وهذا يحدث عندما يتم سحب رسالة قديمة لتعويض رسالة محذوفة)
-                        if (change.newIndex === 0 && messagesEl.querySelector('.message-row')) {
-                            // نقوم بإدراجها قبل أول رسالة موجودة (الأقدم)
-                            const firstMessageRow = messagesEl.querySelector('.message-row');
-                            messagesEl.insertBefore(newMsgEl, firstMessageRow);
-                        } else {
-                            // وإلا، فهي رسالة جديدة حقيقية، نقوم بإلحاقها في الأسفل
-                            messagesEl.appendChild(newMsgEl); 
-                            newMessagesAdded = true;
-                        }
+                        messagesEl.appendChild(newMsgEl); 
+                        newMessagesAdded = true;
                     }
                 }
                 // [جديد] تحديث الرسالة المعدلة أو التي تم التفاعل عليها
@@ -1533,7 +1551,7 @@
 
 
         // إضافة كل المراقبات للمصفوفة لإيقافها لاحقاً
-        dataListeners.push(unsubscribeProfile, unsubscribeGlobalSettings, unsubscribeUsers, unsubscribeMessages);
+        dataListeners.push(unsubscribeProfile, unsubscribeGlobalSettings, unsubscribeUsers, unsubscribeTyping, unsubscribeMessages);
     };
 
 
@@ -1595,18 +1613,37 @@
         const page = document.createElement('div');
         page.id = 'chat';
         page.className = 'page chat-page';
-        // [محدث] تم تبسيط شريط الإدخال لضمان الثبات
-        page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><div class="chat-input-wrapper"><form class="chat-input" id="messageForm"><button type="button" class="emoji-btn" id="openEmojiPicker">😀</button><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form></div>`;
+        // [تم التعديل] إضافة مؤشر الكتابة
+        page.innerHTML = `<div class="messages" id="messages"><div class="welcome-message"><h3>أهلاً بك!</h3><p>جاري تحميل الرسائل...</p></div></div><form class="chat-input" id="messageForm"><div id="replyQuoteContainerWrapper" class="reply-quote-container-wrapper" style="display:none;"><div id="replyQuoteContainer" class="reply-quote-container"><div class="reply-quote-content"><div class="reply-quote-name" id="replyQuoteName"></div><div class="reply-quote-text" id="replyQuoteText"></div></div><button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button></div></div><div id="typingIndicator" class="typing-indicator"></div><input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" /><button class="send-btn" type="submit" title="إرسال">➤</button></form>`;
         page.querySelector('#messageForm').addEventListener('submit', sendMessage);
-        // [تم إلغاء ربط دالة الرد]
-        // [تم إلغاء ربط دالة مؤشر الكتابة]
-        page.querySelector('#openEmojiPicker').addEventListener('click', showEmojiPickerModal); // [جديد] ربط زر الإيموجي
+        page.querySelector('#clearReplyBtn').addEventListener('click', clearReplyState);
+        page.querySelector('#msgInput').addEventListener('input', () => updateTypingStatus(true)); // [جديد] ربط مؤشر الكتابة
         return page;
     }
 
 
-    // [تم إلغاء دالة تحديث مؤشر الكتابة]
-    // function updateTypingIndicator() { /* ... */ }
+    // [جديد] دالة تحديث مؤشر الكتابة
+    function updateTypingIndicator() {
+        if (!pageCache.chat) return;
+        const indicator = pageCache.chat.querySelector('#typingIndicator');
+        const typingNames = Object.values(typingUsers);
+
+
+        if (typingNames.length === 0) {
+            indicator.style.display = 'none';
+        } else {
+            let text;
+            if (typingNames.length === 1) {
+                text = `${typingNames[0]} يكتب الآن...`;
+            } else if (typingNames.length === 2) {
+                text = `${typingNames[0]} و ${typingNames[1]} يكتبان الآن...`;
+            } else {
+                text = `${typingNames[0]} و ${typingNames.length - 1} آخرون يكتبون الآن...`;
+            }
+            indicator.textContent = text;
+            indicator.style.display = 'block';
+        }
+    }
 
 
 
@@ -1641,52 +1678,36 @@
     }
 
 
-    // [جديد] دالة إظهار مودال اختيار الإيموجي
-    function showEmojiPickerModal() {
-        emojiGrid.innerHTML = '';
-        emojiList.forEach(emoji => {
-            const span = document.createElement('span');
-            span.className = 'emoji-item';
-            span.textContent = emoji;
-            span.onclick = () => {
-                const msgInput = document.getElementById('msgInput');
-                // لإضافة الإيموجي في موضع المؤشر
-                const start = msgInput.selectionStart;
-                const end = msgInput.selectionEnd;
-                msgInput.value = msgInput.value.substring(0, start) + emoji + msgInput.value.substring(end);
-                msgInput.selectionStart = msgInput.selectionEnd = start + emoji.length;
-                
-                msgInput.focus();
-                emojiPickerModal.classList.remove('active');
-                // [تم إلغاء تحديث حالة الكتابة]
-            };
-            emojiGrid.appendChild(span);
-        });
-        
-        emojiPickerModalClose.onclick = () => emojiPickerModal.classList.remove('active');
-        emojiPickerModal.classList.add('active');
-    }
-
-
 
 
     /* --- دوال التعامل مع الإجراءات (حذف رسالة، تعديل، رد...) --- */
 
 
-    // [تم إلغاء دالة مسح حالة الرد]
+    // دالة مسح حالة الرد
     function clearReplyState() {
         replyingToMessage = null;
-        // [تم إلغاء الكود المتعلق بالواجهة]
-        // pageCache.chat?.querySelector('#replyQuoteContainerWrapper').classList.remove('active');
+        const container = pageCache.chat?.querySelector('#replyQuoteContainerWrapper');
+        if (container) container.style.display = 'none';
         pageCache.chat?.querySelector('#msgInput').focus();
     }
 
 
 
 
-    // [تم إلغاء دالة بدء الرد]
+    // دالة بدء الرد
     function startReply(msgData) {
-        // [تم إلغاء الكود المتعلق بالرد]
+        const sender = usersCache[msgData.senderId] || { name: 'عضو محذوف' };
+        replyingToMessage = { 
+            id: msgData.id, 
+            name: sender.name, 
+            text: msgData.text 
+        };
+        const container = pageCache.chat.querySelector('#replyQuoteContainerWrapper');
+        container.querySelector('#replyQuoteName').textContent = `رد على: ${sender.name}`;
+        container.querySelector('#replyQuoteText').textContent = msgData.text;
+        container.style.display = 'block';
+        pageCache.chat.querySelector('#msgInput').focus();
+        messageActionModal.classList.remove('active'); 
     }
 
 
@@ -1889,8 +1910,8 @@
         // إظهار الخيارات المتاحة للجميع
         messageActionCopy.style.display = 'block';
         messageActionForward.style.display = 'block';
-        messageActionReply.style.display = 'none'; // [تم إلغاء ميزة الرد]
-        messageActionReact.style.display = 'block'; 
+        messageActionReply.style.display = 'block';
+        messageActionReact.style.display = 'block'; // [جديد]
 
 
 
@@ -1899,8 +1920,8 @@
 
         // ربط الأوامر
         messageActionEdit.onclick = () => startEdit(msgData);
-        messageActionReply.onclick = () => startReply(msgData); // لا يزال موجوداً في الكود لكنه مخفي
-        messageActionReact.onclick = () => showReactionModal(msgData); 
+        messageActionReply.onclick = () => startReply(msgData);
+        messageActionReact.onclick = () => showReactionModal(msgData); // [جديد]
         messageActionCopy.onclick = () => handleCopyMessage(msgData);
         messageActionForward.onclick = () => startForward(msgData);
         messageActionDelete.onclick = () => handleDeleteMessage(msgData.id);
@@ -2788,10 +2809,14 @@
         event.preventDefault();
 
 
+
+
         if (currentUserProfile.isMuted) {
             showToast("لا يمكنك الإرسال، لقد تم تقييد حسابك.");
             return;
         }
+
+
 
 
         const msgInput = document.getElementById('msgInput');
@@ -2799,8 +2824,9 @@
 
 
         if (text && currentUserProfile) {
-            const originalText = msgInput.value; 
-            msgInput.value = ''; // <--- [إصلاح المشكلة 1] مسح حقل الإدخال فوراً
+            const originalText = msgInput.value; // حفظ النص الأصلي
+            msgInput.value = ''; // <--- [إصلاح] مسح حقل الإدخال فوراً قبل أي محاولة إرسال
+            msgInput.focus();
 
 
             // بيانات الرسالة الأساسية
@@ -2811,45 +2837,33 @@
             };
 
 
-            // [تم إلغاء منطق الرد]
-            /*
+
+
+            // إضافة بيانات الرد إن وجدت
             if (replyingToMessage) {
                 messageData.replyToId = replyingToMessage.id;
                 messageData.replyToName = replyingToMessage.name;
                 messageData.replyToText = replyingToMessage.text;
-                clearReplyState(); 
+                clearReplyState(); // مسح حالة الرد بعد الإرسال
             }
-            */
 
 
-            let messageSentSuccessfully = false;
 
 
             try { 
-                // 1. محاولة إرسال الرسالة
                 await addDoc(messagesCollection, messageData); 
-                messageSentSuccessfully = true;
+                await updateTypingStatus(false); // [جديد] إزالة حالة الكتابة بعد الإرسال
+                // عند النجاح لا نفعل شيئاً، النص ممسوح بالفعل.
             } catch (error) { 
                 console.error("Error sending message:", error);
-                // 2. في حالة فشل الإرسال، نعيد النص وحالة الرد
-                msgInput.value = originalText; 
+                msgInput.value = originalText; // <--- [إصلاح] إعادة النص في حالة الفشل فقط
                 showToast("فشل إرسال الرسالة.");
-                // [تم إلغاء استعادة حالة الرد]
-            }
-
-
-            // 3. [تم إلغاء تحديث حالة الكتابة]
-            /*
-            if (messageSentSuccessfully) {
-                try {
-                    await updateTypingStatus(false); 
-                } catch (error) {
-                    console.warn("Failed to clear typing status after send:", error);
+                // إذا فشل الإرسال، نعيد حالة الرد أيضاً
+                if (messageData.replyToId) {
+                    replyingToMessage = { id: messageData.replyToId, name: messageData.replyToName, text: messageData.replyToText };
+                    pageCache.chat.querySelector('#replyQuoteContainerWrapper').style.display = 'block';
                 }
             }
-            */
-            
-            msgInput.focus(); // إعادة التركيز على حقل الإدخال
         }
     }
 
@@ -2886,9 +2900,8 @@
 
 
 
-        // بناء كود اقتباس الرد (تم إلغاءه)
+        // بناء كود اقتباس الرد
         let replyQuoteHTML = '';
-        /*
         if (msgData.replyToId) {
             replyQuoteHTML = `
                 <div class="reply-quote">
@@ -2897,7 +2910,6 @@
                 </div>
             `;
         }
-        */
 
 
         // [جديد] بناء كود التفاعلات
