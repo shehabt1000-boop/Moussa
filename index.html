@@ -937,7 +937,8 @@
     const emojiPickerModal = document.getElementById('emojiPickerModal');
     const emojiGrid = document.getElementById('emojiGrid');
     const emojiPickerModalCancel = document.getElementById('emojiPickerModalCancel');
-    const msgInput = document.getElementById('msgInput'); // تم جلبها هنا لتكون متاحة عالمياً
+    // لا يمكن جلب msgInput هنا لأنه غير موجود في DOM عند التحميل الأولي
+    // const msgInput = document.getElementById('msgInput'); 
 
 
 
@@ -1490,9 +1491,11 @@
 
             // [إصلاح نهائي 3] حفظ ارتفاع التمرير قبل التحديث
             const scrollHeightBefore = messagesEl.scrollHeight;
-            let messagesRemoved = false; // [إصلاح نهائي 3] لتتبع الحذف
-
-
+            let messagesRemoved = false; 
+            
+            // [إصلاح نهائي 3] قائمة الرسائل الموجودة حالياً في DOM
+            const messagesInDOM = Array.from(messagesEl.querySelectorAll('.message-row')).map(el => el.dataset.msgId);
+            const currentMessageIds = new Set();
 
 
             if (!snapshot.empty && !messagesEl.querySelector('.load-more-btn')) {
@@ -1521,11 +1524,6 @@
             let newMessagesAdded = false;
             let messagesModified = false;
             
-            // [إصلاح نهائي 3] قائمة بالرسائل التي يجب إزالتها يدوياً
-            const messagesToRemove = Array.from(messagesEl.querySelectorAll('.message-row')).map(el => el.dataset.msgId);
-            const currentMessageIds = new Set();
-
-
             snapshot.docChanges().forEach((change) => {
                 const msgData = { id: change.doc.id, ...change.doc.data() };
                 currentMessageIds.add(msgData.id);
@@ -1543,7 +1541,7 @@
                 if (change.type === "modified" && msgEl) {
                     const updatedMsgEl = createMessageElement(msgData);
                     if (updatedMsgEl) {
-                        msgEl.replaceWith(updatedMsgMsgEl);
+                        msgEl.replaceWith(updatedMsgEl);
                         messagesModified = true; // وضع علامة التعديل
                     }
                 }
@@ -1554,13 +1552,11 @@
             });
 
 
-            // [إصلاح نهائي 3] إزالة الرسائل التي لم تعد في الـ 50 الأخيرة (لمنع التكرار)
-            messagesToRemove.forEach(msgId => {
+            // [إصلاح نهائي 3] إزالة الرسائل التي لم تعد في الـ 50 الأخيرة
+            messagesInDOM.forEach(msgId => {
                 if (!currentMessageIds.has(msgId)) {
                     const el = messagesEl.querySelector(`[data-msg-id="${msgId}"]`);
-                    if (el && el.previousElementSibling?.classList.contains('load-more-container')) {
-                        // لا تحذف الرسالة التي تسبق زر "تحميل المزيد"
-                    } else if (el) {
+                    if (el) {
                         el.remove();
                         messagesRemoved = true;
                     }
@@ -1634,7 +1630,10 @@
         // ربط عناصر الإدخال بعد إضافة صفحة الشات للـ DOM
         document.getElementById('msgInput').addEventListener('input', () => updateTypingStatus(true));
         document.getElementById('emojiBtn').addEventListener('click', openEmojiPicker);
-        emojiPickerModalCancel.addEventListener('click', () => emojiPickerModal.classList.remove('active'));
+        emojiPickerModalCancel.addEventListener('click', () => {
+            emojiPickerModal.classList.remove('active');
+            document.getElementById('msgInput').focus(); // [إصلاح نهائي 1] التركيز على حقل الإدخال بعد الإغلاق اليدوي
+        });
     }
 
 
@@ -1777,11 +1776,8 @@
         // إعادة موضع المؤشر بعد الإيموجي
         msgInput.selectionStart = msgInput.selectionEnd = start + emoji.length; 
         
-        // [إصلاح نهائي 1.أ] **لا يتم إغلاق المودال تلقائياً**
+        // [إصلاح نهائي 1.أ] **لا يتم إغلاق المودال تلقائياً ولا يتم التركيز على الإدخال**
         
-        // التركيز على حقل الإدخال (لإظهار الكيبورد الافتراضي مرة أخرى)
-        // لا يتم التركيز هنا، بل يظل التركيز على المودال حتى يغلقه المستخدم
-        // msgInput.focus(); 
         updateTypingStatus(true); // تحديث حالة الكتابة بعد الإدخال
     }
 
