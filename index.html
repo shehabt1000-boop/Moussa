@@ -1021,7 +1021,7 @@
 
 
 
-    /* --- إصلاح 2: استبدال دالة "عشوائي" بدالة "التالي" --- */
+    /* --- إصلاح 2: عدادات الصور الرمزية المتسلسلة --- */
     const getNextAvatar = (gender = 'male') => {
         if (gender === 'male') {
             const avatar = maleAvatars[maleAvatarIndex];
@@ -1472,13 +1472,13 @@
 
         // 5. مراقبة الرسائل الجديدة
         let isInitialMessagesLoad = true;
+        const messagesEl = pageCache.chat.querySelector('.messages');
         const messagesQuery = query(messagesCollection, orderBy("createdAt"), limitToLast(50));
 
 
 
 
         const unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
-            const messagesEl = pageCache.chat.querySelector('.messages');
             if (!messagesEl) return; 
 
 
@@ -1488,8 +1488,9 @@
             const isScrolledUp = messagesEl.scrollHeight - messagesEl.clientHeight > messagesEl.scrollTop + 150;
 
 
-            // [إصلاح 1] حفظ ارتفاع التمرير قبل التحديث
+            // [إصلاح نهائي 3] حفظ ارتفاع التمرير قبل التحديث
             const scrollHeightBefore = messagesEl.scrollHeight;
+            let messagesRemoved = false; // [إصلاح نهائي 3] لتتبع الحذف
 
 
 
@@ -1519,9 +1520,15 @@
 
             let newMessagesAdded = false;
             let messagesModified = false;
-            let messagesRemoved = false; // [إصلاح 1] لتتبع الحذف
+            
+            // [إصلاح نهائي 3] قائمة بالرسائل التي يجب إزالتها يدوياً
+            const messagesToRemove = Array.from(messagesEl.querySelectorAll('.message-row')).map(el => el.dataset.msgId);
+            const currentMessageIds = new Set();
+
+
             snapshot.docChanges().forEach((change) => {
                 const msgData = { id: change.doc.id, ...change.doc.data() };
+                currentMessageIds.add(msgData.id);
                 const msgEl = messagesEl.querySelector(`[data-msg-id="${msgData.id}"]`);
 
 
@@ -1536,13 +1543,27 @@
                 if (change.type === "modified" && msgEl) {
                     const updatedMsgEl = createMessageElement(msgData);
                     if (updatedMsgEl) {
-                        msgEl.replaceWith(updatedMsgEl);
+                        msgEl.replaceWith(updatedMsgMsgEl);
                         messagesModified = true; // وضع علامة التعديل
                     }
                 }
                 if (change.type === "removed" && msgEl) {
                     msgEl.remove();
-                    messagesRemoved = true; // [إصلاح 1]
+                    messagesRemoved = true; // [إصلاح نهائي 3]
+                }
+            });
+
+
+            // [إصلاح نهائي 3] إزالة الرسائل التي لم تعد في الـ 50 الأخيرة (لمنع التكرار)
+            messagesToRemove.forEach(msgId => {
+                if (!currentMessageIds.has(msgId)) {
+                    const el = messagesEl.querySelector(`[data-msg-id="${msgId}"]`);
+                    if (el && el.previousElementSibling?.classList.contains('load-more-container')) {
+                        // لا تحذف الرسالة التي تسبق زر "تحميل المزيد"
+                    } else if (el) {
+                        el.remove();
+                        messagesRemoved = true;
+                    }
                 }
             });
 
@@ -1557,7 +1578,7 @@
             };
 
 
-            // [إصلاح 1] تعديل منطق التمرير: إذا تم حذف رسالة وتم تعويضها برسالة قديمة، نحافظ على موضع الرؤية
+            // [إصلاح نهائي 3] تعديل منطق التمرير: إذا تم حذف رسالة وتم تعويضها برسالة قديمة، نحافظ على موضع الرؤية
             if (messagesRemoved) {
                 const scrollHeightAfter = messagesEl.scrollHeight;
                 const scrollDiff = scrollHeightAfter - scrollHeightBefore;
@@ -1721,12 +1742,12 @@
     }
 
 
-    // [إصلاح نهائي 2] دالة فتح إطار الإيموجي
+    // [إصلاح نهائي 1] دالة فتح إطار الإيموجي
     function openEmojiPicker() {
         emojiGrid.innerHTML = '';
         const msgInput = document.getElementById('msgInput');
         
-        // [إصلاح نهائي 2.ب] إزالة التركيز عن حقل الإدخال لمنع الكيبورد من الظهور والاختباء بسرعة
+        // [إصلاح نهائي 1.ب] إزالة التركيز عن حقل الإدخال لمنع الكيبورد من الظهور
         msgInput.blur(); 
 
         insertionEmojis.forEach(emoji => {
@@ -1742,7 +1763,7 @@
     }
 
 
-    // [إصلاح نهائي 2] دالة إدخال الإيموجي
+    // [إصلاح نهائي 1] دالة إدخال الإيموجي
     function insertEmoji(emoji) {
         const msgInput = document.getElementById('msgInput');
         
@@ -1756,11 +1777,11 @@
         // إعادة موضع المؤشر بعد الإيموجي
         msgInput.selectionStart = msgInput.selectionEnd = start + emoji.length; 
         
-        // [إصلاح نهائي 2.أ] **تم إزالة الإغلاق التلقائي للمودال**
-        // emojiPickerModal.classList.remove('active'); 
+        // [إصلاح نهائي 1.أ] **لا يتم إغلاق المودال تلقائياً**
         
         // التركيز على حقل الإدخال (لإظهار الكيبورد الافتراضي مرة أخرى)
-        msgInput.focus();
+        // لا يتم التركيز هنا، بل يظل التركيز على المودال حتى يغلقه المستخدم
+        // msgInput.focus(); 
         updateTypingStatus(true); // تحديث حالة الكتابة بعد الإدخال
     }
 
@@ -1856,12 +1877,19 @@
 
 
 
-    // [معدل] دالة حذف الرسالة
+    // [إصلاح نهائي 3] دالة حذف الرسالة
     async function handleDeleteMessage(messageId) {
         messageActionModal.classList.remove('active'); 
         if(await showConfirmModal('حذف الرسالة', 'هل أنت متأكد من حذف هذه الرسالة بشكل نهائي؟')) {
-            try { await deleteDoc(doc(messagesCollection, messageId)); showToast('تم حذف الرسالة.'); } 
-            catch (error) { console.error("Error deleting message:", error); showToast('فشل حذف الرسالة.'); }
+            try { 
+                // [إصلاح نهائي 3] حذف الرسالة من قاعدة البيانات فقط
+                await deleteDoc(doc(messagesCollection, messageId)); 
+                showToast('تم حذف الرسالة.'); 
+            } 
+            catch (error) { 
+                console.error("Error deleting message:", error); 
+                showToast('فشل حذف الرسالة.'); 
+            }
         }
     }
 
@@ -2911,7 +2939,7 @@
 
         if (text && currentUserProfile) {
             
-            // [إصلاح نهائي 1] مسح حقل الإدخال فوراً قبل أي محاولة إرسال
+            // [إصلاح نهائي 2] مسح حقل الإدخال فوراً قبل أي محاولة إرسال
             msgInput.value = ''; 
             msgInput.focus();
 
@@ -2934,12 +2962,13 @@
 
 
             try { 
+                // [إصلاح نهائي 2] لا يوجد استعادة للنص عند النجاح
                 await addDoc(messagesCollection, messageData); 
                 await updateTypingStatus(false); 
                 // عند النجاح لا نفعل شيئاً، النص ممسوح بالفعل.
             } catch (error) { 
                 console.error("Error sending message:", error);
-                // [إصلاح نهائي 1] لم نعد نستعيد النص هنا.
+                // [إصلاح نهائي 2] لا يتم استعادة النص هنا.
                 showToast("فشل إرسال الرسالة. يرجى إعادة المحاولة.");
                 // إذا فشل الإرسال، نعيد حالة الرد فقط
                 if (messageData.replyToId) {
