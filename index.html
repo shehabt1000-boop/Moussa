@@ -19,7 +19,7 @@
 
   <!-- ملف Manifest (يخبر المتصفح أن هذا تطبيق) -->
   <!-- (تم تحويله إلى كود Base64 ليبقى في ملف واحد) -->
-  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQ2hhdCBTaGVoYWIiLCJzaG9ydF9uYW1lIjoiQ2hhdCBTaGVoYWIiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y1ZjVmNSIsInRoZW1lX2NvbG9yIjoiIzBhM2Q2MiIsImRlc2NyaXB0aW9uIjoi2LXZhNmK2LEg2KrYsdioINiR2LPQsCDYrtix06rZhNmLIiwiaWNvbnMiOlt7InNyYyI6Imh0dHBzOi8vcGxhY2Vob2xkLmNvLzE5MngxOTIvMGEzZDYyL0ZGRj90ZXh0PUNoYXQiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn0seyJzcmMiOiJodHRwczovL3BsYWNlaG9sZC5jby81MTJ4NTEyLzBhM2Q2Mi9GRkY/dGV4dD1DaGF0Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyJ9XX0=">
+  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQ2hhdCBTaGVoYWIiLCJzaG9ydF9uYW1lIjoiQ2hhdCBTaGVoYWIiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y1ZjVmNSIsInRoZW1lX2NvbG9yIjoiIzBhM2Q2MiIsImRlc2NyaXB0aW9uIjoi2LXZhNmK2LEg2KrYsdioINiR2LPQsCDYrtix06rZhNmLIiwiaWNvbnMiOlt7InNyYyI6Imh0dHBzOi8vcGxhY2Vob2xkLmNvLzE5MngxOTIvMGEzZDYyL0ZGRj90ZXh0PUNoYXQiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiY1MvE9nSFlJmFtZ3IvcG5nIn0seyJzcmMiOiJodHRwczovL3BsYWNlaG9sZC5jby81MTJ4NTEyLzBhM2Q2Mi9GRkY/dGV4dD1DaGF0Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyJ9XX0=">
 
 
   <!-- === نهاية الإضافات الجديدة === -->
@@ -1721,10 +1721,13 @@
     }
 
 
-    // [مطلوب 2] دالة فتح إطار الإيموجي
+    // [إصلاح نهائي 2] دالة فتح إطار الإيموجي
     function openEmojiPicker() {
         emojiGrid.innerHTML = '';
-
+        const msgInput = document.getElementById('msgInput');
+        
+        // [إصلاح نهائي 2.ب] إزالة التركيز عن حقل الإدخال لمنع الكيبورد من الظهور والاختباء بسرعة
+        msgInput.blur(); 
 
         insertionEmojis.forEach(emoji => {
             const button = document.createElement('button');
@@ -1735,12 +1738,11 @@
             emojiGrid.appendChild(button);
         });
 
-
         emojiPickerModal.classList.add('active');
     }
 
 
-    // [مطلوب 2] دالة إدخال الإيموجي
+    // [إصلاح نهائي 2] دالة إدخال الإيموجي
     function insertEmoji(emoji) {
         const msgInput = document.getElementById('msgInput');
         
@@ -1754,8 +1756,10 @@
         // إعادة موضع المؤشر بعد الإيموجي
         msgInput.selectionStart = msgInput.selectionEnd = start + emoji.length; 
         
-        // إغلاق المودال والتركيز على حقل الإدخال
-        emojiPickerModal.classList.remove('active');
+        // [إصلاح نهائي 2.أ] **تم إزالة الإغلاق التلقائي للمودال**
+        // emojiPickerModal.classList.remove('active'); 
+        
+        // التركيز على حقل الإدخال (لإظهار الكيبورد الافتراضي مرة أخرى)
         msgInput.focus();
         updateTypingStatus(true); // تحديث حالة الكتابة بعد الإدخال
     }
@@ -2617,7 +2621,7 @@
 
         /* --- === [!!] هذا هو الإصلاح [!!] === ---
          * تم إرجاع التحديث الفوري المحلي هنا
-         * --- === نهاية الإصلاح ---
+         * --- === نهاية الإصلاح === ---
          */
         const updateSettings = async (newSetting) => {
             if (!currentUserProfile) return; 
@@ -2899,15 +2903,16 @@
 
         if (currentUserProfile.isMuted) {
             showToast("لا يمكنك الإرسال، لقد تم تقييد حسابك.");
-            // [إصلاح مشكلة 2] يجب مسح الحقل حتى لو كان مقيداً لإعطاء تجربة مستخدم أفضل
+            // [إصلاح نهائي 1] مسح الحقل حتى لو كان مقيداً
             msgInput.value = ''; 
             return;
         }
 
 
         if (text && currentUserProfile) {
-            const originalText = msgInput.value; // حفظ النص الأصلي
-            msgInput.value = ''; // <--- [إصلاح مشكلة 2] مسح حقل الإدخال فوراً قبل أي محاولة إرسال
+            
+            // [إصلاح نهائي 1] مسح حقل الإدخال فوراً قبل أي محاولة إرسال
+            msgInput.value = ''; 
             msgInput.focus();
 
 
@@ -2919,28 +2924,24 @@
             };
 
 
-
-
             // إضافة بيانات الرد إن وجدت
             if (replyingToMessage) {
                 messageData.replyToId = replyingToMessage.id;
-                messageData.replyToName = replyingToingMessage.name;
+                messageData.replyToName = replyingToMessage.name;
                 messageData.replyToText = replyingToMessage.text;
                 clearReplyState(); // مسح حالة الرد بعد الإرسال
             }
 
 
-
-
             try { 
                 await addDoc(messagesCollection, messageData); 
-                await updateTypingStatus(false); // [جديد] إزالة حالة الكتابة بعد الإرسال
+                await updateTypingStatus(false); 
                 // عند النجاح لا نفعل شيئاً، النص ممسوح بالفعل.
             } catch (error) { 
                 console.error("Error sending message:", error);
-                msgInput.value = originalText; // <--- [إصلاح مشكلة 2] إعادة النص في حالة الفشل فقط
-                showToast("فشل إرسال الرسالة.");
-                // إذا فشل الإرسال، نعيد حالة الرد أيضاً
+                // [إصلاح نهائي 1] لم نعد نستعيد النص هنا.
+                showToast("فشل إرسال الرسالة. يرجى إعادة المحاولة.");
+                // إذا فشل الإرسال، نعيد حالة الرد فقط
                 if (messageData.replyToId) {
                     replyingToMessage = { id: messageData.replyToId, name: messageData.replyToName, text: messageData.replyToText };
                     pageCache.chat.querySelector('#replyQuoteContainerWrapper').style.display = 'block';
