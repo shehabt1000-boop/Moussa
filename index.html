@@ -503,7 +503,7 @@
                 <select id="scannerMode">
                     <option value="original">الأصلية (بدون فلتر)</option>
                     <option value="grayscale">أبيض وأسود (Grayscale)</option>
-                    <option value="high-contrast">تباين عالي (High Contrast)</option>
+                    <option value="high-contrast">تباين عالي للمستندات</option>
                     <option value="cs-light">ماسح ضوئي خفيف (CS Light)</option>
                     <option value="cs-dark">ماسح ضوئي داكن (CS Dark)</option>
                     <option value="blue-text">نص أزرق (Blue Pen)</option>
@@ -731,7 +731,7 @@
         }
         
         // =================================================================
-        // 0. وظائف فلاتر الماسح الضوئي (Canvas Image Filters)
+        // 0. وظائف فلاتر الماسح الضوئي (Canvas Image Filters) - مُحسَّنة
         // =================================================================
         /**
          * تطبق فلتر محدد على صورة باستخدام Canvas.
@@ -760,37 +760,34 @@
                         const r = data[i];
                         const g = data[i + 1];
                         const b = data[i + 2];
-                        let avg = (r + g + b) / 3;
+                        // Luma (Grayscale formula)
+                        let luma = (r * 0.299 + g * 0.587 + b * 0.114); 
 
                         switch (filterMode) {
                             case 'grayscale':
-                                data[i] = data[i + 1] = data[i + 2] = avg;
+                                data[i] = data[i + 1] = data[i + 2] = luma;
                                 break;
                             case 'high-contrast':
-                                // تباين عالي (Thresholding)
-                                avg = (r * 0.299 + g * 0.587 + b * 0.114); // Luma
-                                const threshold = 180;
-                                const val = avg > threshold ? 255 : 0;
+                                // تباين عالي: تحويل لـ Grayscale ثم تطبيق Threshold
+                                const threshold = 160; // قيمة أقل لزيادة التباين
+                                const val = luma > threshold ? 255 : 0;
                                 data[i] = data[i + 1] = data[i + 2] = val;
                                 break;
                             case 'cs-light':
                                 // ماسح ضوئي خفيف: تباين خفيف + إضاءة
-                                avg = (r * 0.299 + g * 0.587 + b * 0.114);
-                                avg = Math.min(255, avg * 1.1 + 10); 
-                                data[i] = data[i + 1] = data[i + 2] = avg;
+                                luma = Math.min(255, luma * 1.05 + 20); // إضاءة خفيفة
+                                data[i] = data[i + 1] = data[i + 2] = luma;
                                 break;
                             case 'cs-dark':
                                 // ماسح ضوئي داكن: تباين عالي + تغميق خفيف
-                                avg = (r * 0.299 + g * 0.587 + b * 0.114);
-                                avg = Math.min(255, avg * 1.2 - 30); 
-                                data[i] = data[i + 1] = data[i + 2] = avg;
+                                luma = Math.min(255, luma * 1.15 - 10); // زيادة التباين قليلاً
+                                data[i] = data[i + 1] = data[i + 2] = luma;
                                 break;
                             case 'blue-text':
                                 // نص أزرق (Grayscale + Blue Tint)
-                                avg = (r + g + b) / 3;
-                                data[i] = avg * 0.9; // Red
-                                data[i + 1] = avg * 0.9; // Green
-                                data[i + 2] = avg * 1.2; // Blue
+                                data[i] = luma * 0.9; // Red
+                                data[i + 1] = luma * 0.9; // Green
+                                data[i + 2] = luma * 1.1; // Blue
                                 break;
                             case 'sepia':
                                 // لون السيبيا
@@ -803,16 +800,15 @@
                                 break;
                             case 'vivid':
                                 // ألوان زاهية (زيادة التشبع والتباين)
-                                data[i] = Math.min(255, r * 1.2);
-                                data[i + 1] = Math.min(255, g * 1.2);
-                                data[i + 2] = Math.min(255, b * 1.2);
+                                data[i] = Math.min(255, r * 1.15);
+                                data[i + 1] = Math.min(255, g * 1.15);
+                                data[i + 2] = Math.min(255, b * 1.15);
                                 break;
                             case 'document-enhance':
-                                // تحسين المستند (Sharpening - محاكاة عبر زيادة التباين)
-                                avg = (r + g + b) / 3;
-                                data[i] = Math.min(255, Math.max(0, r * 1.3 - 50));
-                                data[i + 1] = Math.min(255, Math.max(0, g * 1.3 - 50));
-                                data[i + 2] = Math.min(255, Math.max(0, b * 1.3 - 50));
+                                // تحسين المستند (Sharpening Simulation)
+                                data[i] = Math.min(255, Math.max(0, r * 1.2 - 30));
+                                data[i + 1] = Math.min(255, Math.max(0, g * 1.2 - 30));
+                                data[i + 2] = Math.min(255, Math.max(0, b * 1.2 - 30));
                                 break;
                             case 'inverted':
                                 // معكوس
@@ -824,14 +820,15 @@
                     }
 
                     ctx.putImageData(imageData, 0, 0);
-                    resolve(canvas.toDataURL('image/jpeg', 0.95)); // جودة عالية بعد الفلتر
+                    // استخدام جودة عالية جداً لـ JPEG بعد الفلتر
+                    resolve(canvas.toDataURL('image/jpeg', 0.98)); 
                 };
                 img.src = imageURI;
             });
         }
         
         // =================================================================
-        // 1. وظيفة ضغط ملف PDF عبر API (الاتصال بخادم حقيقي)
+        // 1. وظيفة ضغط ملف PDF عبر API (الاتصال بخادم حقيقي) - مُحسَّنة للمحاكاة
         // =================================================================
         /**
          * يرسل ملف PDF إلى خادم خارجي لضغطه.
@@ -843,26 +840,23 @@
             const url = PDF_COMPRESSION_API_ENDPOINT; 
             
             if (url === 'YOUR_REAL_PDF_COMPRESSION_API_ENDPOINT') {
-                 // محاكاة استجابة الخادم لبيئة الاختبار
+                 // ** محاكاة استجابة الخادم لبيئة الاختبار (لضمان نجاح المعاينة والتنزيل) **
                  console.warn("API Endpoint is placeholder. Simulating successful compression.");
                  await new Promise(resolve => setTimeout(resolve, 3000)); // تأخير 3 ثواني
                  
-                 // محاكاة تقليل الحجم بنسبة 70%
-                 const simulatedCompressedSize = pdfFile.size * 0.30;
-                 const compressedBlob = new Blob([new ArrayBuffer(simulatedCompressedSize)], { type: 'application/pdf' });
-                 compressedBlob.size = simulatedCompressedSize; // تعيين الحجم المحاكي
+                 // يتم إرجاع الملف الأصلي لضمان نجاح المعاينة/التنزيل
+                 // ويتم استخدام الحجم المُقدَّر فقط للعرض في التفاصيل
+                 const compressedBlob = pdfFile; 
+                 compressedBlob.simulatedSize = pdfFile.size * 0.30; 
                  return compressedBlob;
             }
 
             const formData = new FormData();
             formData.append('file', pdfFile, pdfFile.name);
-            // قد تحتاج إلى إضافة مفتاح API بطريقة مختلفة حسب الخدمة (مثل Header أو Query Param)
-            // هنا نفترض أنه يمكن إرساله كـ Query Param أو في الـ Header
             
             const response = await fetch(`${url}?apiKey=${PDF_COMPRESSION_API_KEY}`, {
                 method: 'POST',
                 body: formData,
-                // قد تحتاج إلى إضافة Headers أخرى مثل 'Accept': 'application/pdf'
             });
 
             if (!response.ok) {
@@ -881,11 +875,11 @@
         const handleFiles = async (event) => {
             const selectedFiles = Array.from(event.target.files);
             
+            // لا يتم إعادة تعيين وضع الماسح الضوئي هنا (keepDb=true)
             await resetStateVariables(true); 
             previewContainer.innerHTML = ''; 
             progressBarContainer.style.display = 'none'; // إخفاء شريط التقدم عند التحميل
-            scannerModeContainer.classList.remove('disabled'); // تفعيل وضع الماسح الضوئي للصور
-
+            
             if (selectedFiles.length === 0) {
                 convertBtn.disabled = true;
                 toggleConvertButtonVisibility(false); 
@@ -975,7 +969,7 @@
         fileInputPDF.addEventListener('change', handleFiles);
 
         // =================================================================
-        // 3. دالة التحويل لـ PDF (تستدعي من IndexedDB) - مُحسَّن للتنظيف بعد كل صورة
+        // 3. دالة التحويل لـ PDF (تستدعي من IndexedDB)
         // =================================================================
         convertBtn.addEventListener('click', async () => {
             if (fileKeysArray.length === 0 && !uploadedPdfFile) return;
@@ -986,6 +980,10 @@
             progressBarContainer.style.display = 'none'; 
             progressBar.style.width = '0%';
             progressBar.textContent = '';
+            
+            // إزالة أي رسائل خطأ سابقة
+            const errorMessage = document.querySelector('#finalActions + .progress-indicator');
+            if(errorMessage) errorMessage.remove();
             
             let currentErrorMessage = null; 
 
@@ -1000,7 +998,8 @@
                     convertBtn.textContent = 'تم الضغط والتجهيز بنجاح! 🚀';
 
                     const currentFilename = pdfNameInput.value.trim() || uploadedPdfFile.name.replace(/\.pdf$/i, '');
-                    const compressedSize = generatedPDFBlob.size; 
+                    // استخدام الحجم الفعلي أو الحجم المُقدَّر من المحاكاة
+                    const compressedSize = compressedBlob.simulatedSize || generatedPDFBlob.size; 
 
                     pdfDetails.classList.add('compressed-simulated');
                     pdfDetails.innerHTML = `
@@ -1258,13 +1257,18 @@
             if (!keepDb) {
                  // ** الأهم: مسح قاعدة البيانات عند البدء من جديد **
                  await clearDatabase();
+                 compressCheck.checked = true;
+                 compressCheck.disabled = false;
+                 compressToggleContainer.classList.remove('disabled');
+                 scannerModeSelect.value = 'original'; // إعادة تعيين وضع الماسح الضوئي هنا فقط
+                 scannerModeContainer.classList.remove('disabled');
+            } else {
+                // عند اختيار ملفات جديدة، لا يتم إعادة تعيين وضع الماسح الضوئي
+                compressCheck.checked = true;
+                compressCheck.disabled = false;
+                compressToggleContainer.classList.remove('disabled');
+                scannerModeContainer.classList.remove('disabled');
             }
-
-            compressCheck.checked = true;
-            compressCheck.disabled = false;
-            compressToggleContainer.classList.remove('disabled');
-            scannerModeSelect.value = 'original';
-            scannerModeContainer.classList.remove('disabled');
 
             fileInputGallery.value = null;
             fileInputCamera.value = null;
