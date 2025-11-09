@@ -2181,7 +2181,8 @@
                 await updateTypingStatus(false); // [تعديل] إزالة حالة الكتابة عند الخروج
             }
             await signOut(auth); // تسجيل الخروج
-            // [إصلاح 1] بعد تسجيل الخروج بنجاح، يتم استدعاء onAuthStateChanged الذي بدوره يستدعي initializeAppState(null)
+            // [إصلاح 1] إعادة تحميل الصفحة لضمان عرض صفحة الترحيب
+            window.location.reload(); 
         } 
         catch (error) { console.error("Sign out error", error); } 
         finally { showLoading(false); }
@@ -2430,7 +2431,8 @@
                 messagesEl.scrollTop += scrollDiff;
             }
 
-            if (newMessagesAdded || messagesModified) { 
+            // [تعديل] التمرير التلقائي فقط عند التحميل الأولي أو إضافة رسالة جديدة
+            if (newMessagesAdded) { 
                 if (isInitialMessagesLoad || !isScrolledUp) {
                     scrollToBottom();
                 }
@@ -5176,13 +5178,34 @@
     async function sendMessage(event) {
         event.preventDefault(); // [تعديل] منع سلوك الإرسال الافتراضي
 
+
+
+
+
+
+
+
         if (currentUserProfile.isMuted) {
             showToast("لا يمكنك الإرسال، لقد تم تقييد حسابك.");
             return;
         }
 
+
+
+
+
+
+
+
         const msgInput = document.getElementById('msgInput');
         const text = msgInput.value.trim();
+
+
+
+
+
+
+
 
         if (text && currentUserProfile) {
             const originalText = msgInput.value; 
@@ -5206,6 +5229,13 @@
                 createdAt: Timestamp.now(),
             };
 
+
+
+
+
+
+
+
             // إضافة بيانات الرد إن وجدت
             if (replyingToMessage) {
                 messageData.replyToId = replyingToMessage.id;
@@ -5214,7 +5244,21 @@
                 clearReplyState(); // مسح حالة الرد بعد الإرسال
             }
 
+
+
+
+
+
+
+
             let messageSentSuccessfully = false;
+
+
+
+
+
+
+
 
             try { 
                 // 1. محاولة إرسال الرسالة
@@ -5230,7 +5274,14 @@
                     document.querySelector('#replyQuoteContainerWrapper').style.display = 'block'; 
                 }
             }
-            
+
+
+
+
+
+
+
+
             // [تعديل] إزالة حالة الكتابة بعد الإرسال
             updateTypingStatus(false);
         }
