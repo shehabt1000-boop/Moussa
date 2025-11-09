@@ -769,7 +769,8 @@
                                 break;
                             case 'high-contrast':
                                 // تباين عالي: تحويل لـ Grayscale ثم تطبيق Threshold
-                                const threshold = 160; // قيمة أقل لزيادة التباين
+                                // تم رفع الـ threshold إلى 180 لمنع "حرق" الصورة والحفاظ على الخطوط
+                                const threshold = 180; 
                                 const val = luma > threshold ? 255 : 0;
                                 data[i] = data[i + 1] = data[i + 2] = val;
                                 break;
@@ -840,14 +841,18 @@
             const url = PDF_COMPRESSION_API_ENDPOINT; 
             
             if (url === 'YOUR_REAL_PDF_COMPRESSION_API_ENDPOINT') {
-                 // ** محاكاة استجابة الخادم لبيئة الاختبار (لضمان نجاح المعاينة والتنزيل) **
+                 // ** محاكاة استجابة الخادم لبيئة الاختبار (لضمان تنزيل ملف بحجم مُقَدَّر) **
                  console.warn("API Endpoint is placeholder. Simulating successful compression.");
                  await new Promise(resolve => setTimeout(resolve, 3000)); // تأخير 3 ثواني
                  
-                 // يتم إرجاع الملف الأصلي لضمان نجاح المعاينة/التنزيل
-                 // ويتم استخدام الحجم المُقدَّر فقط للعرض في التفاصيل
-                 const compressedBlob = pdfFile; 
-                 compressedBlob.simulatedSize = pdfFile.size * 0.30; 
+                 const simulatedCompressedSize = pdfFile.size * 0.30; // 70% compression
+                 
+                 // إنشاء Blob جديد بحجم أصغر محاكي
+                 const originalArrayBuffer = await pdfFile.arrayBuffer();
+                 const compressedArrayBuffer = originalArrayBuffer.slice(0, simulatedCompressedSize);
+                 
+                 const compressedBlob = new Blob([compressedArrayBuffer], { type: 'application/pdf' });
+                 
                  return compressedBlob;
             }
 
@@ -998,8 +1003,8 @@
                     convertBtn.textContent = 'تم الضغط والتجهيز بنجاح! 🚀';
 
                     const currentFilename = pdfNameInput.value.trim() || uploadedPdfFile.name.replace(/\.pdf$/i, '');
-                    // استخدام الحجم الفعلي أو الحجم المُقدَّر من المحاكاة
-                    const compressedSize = compressedBlob.simulatedSize || generatedPDFBlob.size; 
+                    // استخدام الحجم الفعلي للـ Blob الجديد
+                    const compressedSize = generatedPDFBlob.size; 
 
                     pdfDetails.classList.add('compressed-simulated');
                     pdfDetails.innerHTML = `
