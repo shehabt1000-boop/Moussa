@@ -144,7 +144,7 @@
     .nav-btn.active { background: rgba(255,255,255,0.08); }
     /* حاوية الصفحات المتغيرة */
     .chat-content { 
-        flex: 1; 
+        flex: 1; /* [تعديل] تأخذ المساحة المتبقية */
         display: flex; 
         flex-direction: column; 
         min-height: 0; 
@@ -175,8 +175,8 @@
     .messages {
       flex: 1; 
       padding: 8px 6px; 
-      /* [تعديل] تقليل الحشو السفلي لتقليل المسافة */
-      padding-bottom: 45px; 
+      /* [تعديل] إلغاء الحشو السفلي لضمان سلاسة التمرير */
+      padding-bottom: 8px; 
       overflow-y: auto; 
       display: flex; flex-direction: column;
       gap: 5px; 
@@ -2064,22 +2064,7 @@
     async function initializeAppState(user) {
         detachAllListeners(); // إيقاف أي مراقبات سابقة
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // إذا لم يكن هناك مستخدم (تم تسجيل الخروج)
+        // [إصلاح 1] إذا لم يكن هناك مستخدم (تم تسجيل الخروج)
         if (!user) {
             currentUserProfile = null;
             headerEl.style.display = "none";
@@ -2091,77 +2076,17 @@
             return;
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // إذا كان هناك مستخدم
         showLoading(true);
         try {
             const userDocRef = doc(usersCollection, user.uid);
             const userDoc = await getDoc(userDocRef);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             if (userDoc.exists()) {
                 // المستخدم موجود ولديه بروفايل
                 currentUserProfile = { id: user.uid, ...userDoc.data() };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 updateUserPresence(true); 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                 document.addEventListener("visibilitychange", () => {
                     if (!auth.currentUser) return;
@@ -2169,40 +2094,9 @@
                     updateUserPresence(isOnline);
                 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 buildPageCache(); // بناء حاويات الصفحات
                 attachDataListeners(user.uid); // بدء مراقبة البيانات
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                // [تم التعديل] سيتم تطبيق الإعدادات بعد جلب الإعدادات العامة في attachDataListeners
                 updateHeaderUI(currentUserProfile); // تحديث الهيدر
                 headerEl.style.display = "flex";
                 navEl.style.display = "flex";
@@ -2287,6 +2181,7 @@
                 await updateTypingStatus(false); // [تعديل] إزالة حالة الكتابة عند الخروج
             }
             await signOut(auth); // تسجيل الخروج
+            // [إصلاح 1] بعد تسجيل الخروج بنجاح، يتم استدعاء onAuthStateChanged الذي بدوره يستدعي initializeAppState(null)
         } 
         catch (error) { console.error("Sign out error", error); } 
         finally { showLoading(false); }
@@ -2547,7 +2442,8 @@
             
             // [جديد] تحديث حالة القراءة
             if (pageCache.chat && pageCache.chat.classList.contains('active')) {
-                updateReadReceipts(messagesEl, allMessages);
+                // [تعديل] إزالة تحديث القراءة عند التمرير
+                // updateReadReceipts(messagesEl, allMessages); 
             }
         }, (error) => {
             console.error("Messages listener failed:", error);
@@ -2559,49 +2455,37 @@
         dataListeners.push(unsubscribeProfile, unsubscribeGlobalSettings, unsubscribeUsers, unsubscribeTyping, unsubscribeMessages);
     };
     
-    // [جديد] دالة تحديث حالة القراءة (Read Receipts)
-    function updateReadReceipts(messagesEl, allMessages) {
-        if (!currentUserProfile || !messagesEl || allMessages.length === 0) return;
+    // [جديد] دالة تحديث حالة القراءة (Read Receipts) - تم تبسيطها
+    function updateReadReceiptsOnChatOpen(allMessages) {
+        if (!currentUserProfile || allMessages.length === 0) return;
         
-        // 1. تحديد آخر رسالة مرئية (آخر رسالة في الشات)
-        const visibleMessages = Array.from(messagesEl.querySelectorAll('.message-row')).filter(row => {
-            const rect = row.getBoundingClientRect();
-            // الرسالة مرئية إذا كان الجزء العلوي منها داخل منطقة العرض
-            return rect.top >= 0 && rect.top <= messagesEl.clientHeight; 
-        });
-        
-        if (visibleMessages.length === 0) return;
-        
-        // 2. تحديد آخر رسالة مرئية (الأكثر حداثة)
-        const lastVisibleMessageRow = visibleMessages[visibleMessages.length - 1];
-        const lastVisibleMessageId = lastVisibleMessageRow.dataset.msgId;
-        
-        // 3. البحث عن الرسالة في القائمة المحلية
-        const lastVisibleMessage = allMessages.find(m => m.id === lastVisibleMessageId);
-        
-        if (!lastVisibleMessage) return;
-        
-        // 4. التحقق: هل الرسالة ليست مرسلة من المستخدم الحالي؟ وهل لم يقرأها بعد؟
-        const isNotOwnMessage = lastVisibleMessage.senderId !== currentUserProfile.id;
-        const isNotRead = !lastVisibleMessage.readBy || !lastVisibleMessage.readBy.includes(currentUserProfile.id);
-        
-        // 5. تحديث Firestore إذا كانت الرسالة جديدة وغير مقروءة
-        if (isNotOwnMessage && isNotRead && lastVisibleMessage.id !== lastReadMessageId) {
-            const messageRef = doc(messagesCollection, lastVisibleMessage.id);
-            updateDoc(messageRef, {
-                readBy: arrayUnion(currentUserProfile.id)
-            }).then(() => {
-                lastReadMessageId = lastVisibleMessage.id; // تحديث آخر رسالة تم وضع علامة قراءة عليها
-            }).catch(e => console.warn("Failed to update read receipt:", e));
+        const userId = currentUserProfile.id;
+        const messagesToUpdate = [];
+
+        // نختار آخر 10 رسائل غير مرسلة من المستخدم الحالي ولم يقرأها
+        for (let i = allMessages.length - 1; i >= 0 && messagesToUpdate.length < 10; i--) {
+            const msg = allMessages[i];
+            const isNotOwnMessage = msg.senderId !== userId;
+            const isNotRead = !msg.readBy || !msg.readBy.includes(userId);
+            
+            if (isNotOwnMessage && isNotRead) {
+                messagesToUpdate.push(msg);
+            }
+        }
+
+        if (messagesToUpdate.length > 0) {
+            const batch = writeBatch(db);
+            messagesToUpdate.forEach(msg => {
+                const messageRef = doc(messagesCollection, msg.id);
+                batch.update(messageRef, {
+                    readBy: arrayUnion(userId)
+                });
+            });
+            batch.commit().catch(e => console.warn("Failed to batch update read receipts:", e));
         }
     }
-    // [جديد] ربط دالة تحديث القراءة بحدث التمرير
-    window.addEventListener('scroll', () => {
-        if (pageCache.chat && pageCache.chat.classList.contains('active')) {
-            const messagesEl = pageCache.chat.querySelector('.messages');
-            if (messagesEl) updateReadReceipts(messagesEl, allMessages);
-        }
-    }, true); // استخدام capture phase لضمان التقاط حدث التمرير في حاوية الرسائل
+    // [تعديل] إزالة ربط التمرير
+    // window.addEventListener('scroll', ...); 
 
     /* --- دالة بناء حاويات الصفحات (الدردشة، الأعضاء...) --- */
     function buildPageCache() {
@@ -2647,6 +2531,8 @@
         // [تعديل] إظهار/إخفاء شريط الإدخال
         if (pageName === 'chat') {
             messageForm.style.display = 'flex';
+            // [إصلاح 2] تحديث القراءة عند فتح الشات
+            updateReadReceiptsOnChatOpen(allMessages);
         } else {
             messageForm.style.display = 'none';
         }
@@ -2851,6 +2737,7 @@
         readByList.innerHTML = '';
         readByModal.classList.add('active');
         
+        // [تعديل] يجب أن تكون readBy موجودة في بيانات الرسالة
         const readBy = msgData.readBy || [];
         
         if (readBy.length === 0) {
@@ -5287,36 +5174,15 @@
 
     /* --- دالة إرسال الرسالة --- */
     async function sendMessage(event) {
-        event.preventDefault();
-
-
-
-
-
-
-
+        event.preventDefault(); // [تعديل] منع سلوك الإرسال الافتراضي
 
         if (currentUserProfile.isMuted) {
             showToast("لا يمكنك الإرسال، لقد تم تقييد حسابك.");
             return;
         }
 
-
-
-
-
-
-
-
         const msgInput = document.getElementById('msgInput');
         const text = msgInput.value.trim();
-
-
-
-
-
-
-
 
         if (text && currentUserProfile) {
             const originalText = msgInput.value; 
@@ -5326,6 +5192,13 @@
             
             msgInput.value = ''; // <--- مسح حقل الإدخال فوراً
 
+            // [إصلاح 1] إعادة التركيز باستخدام requestAnimationFrame لضمان السلاسة
+            if (wasFocused) {
+                 requestAnimationFrame(() => {
+                    msgInput.focus(); 
+                 });
+            }
+            
             // بيانات الرسالة الأساسية
             const messageData = { 
                 text, 
@@ -5333,36 +5206,15 @@
                 createdAt: Timestamp.now(),
             };
 
-
-
-
-
-
-
-
             // إضافة بيانات الرد إن وجدت
             if (replyingToMessage) {
                 messageData.replyToId = replyingToMessage.id;
-                messageData.replyToName = replyingToMessage.name; // [تصحيح إملائي]
+                messageData.replyToName = replyingToMessage.name; 
                 messageData.replyToText = replyingToMessage.text;
                 clearReplyState(); // مسح حالة الرد بعد الإرسال
             }
 
-
-
-
-
-
-
-
             let messageSentSuccessfully = false;
-
-
-
-
-
-
-
 
             try { 
                 // 1. محاولة إرسال الرسالة
@@ -5377,20 +5229,6 @@
                     replyingToMessage = { id: messageData.replyToId, name: messageData.replyToName, text: messageData.replyToText };
                     document.querySelector('#replyQuoteContainerWrapper').style.display = 'block'; 
                 }
-            }
-
-
-
-
-
-
-
-
-            // [إصلاح 1] إعادة التركيز باستخدام requestAnimationFrame لضمان السلاسة
-            if (wasFocused) {
-                 requestAnimationFrame(() => {
-                    msgInput.focus(); 
-                 });
             }
             
             // [تعديل] إزالة حالة الكتابة بعد الإرسال
@@ -5620,55 +5458,9 @@
     };
 
 
-    /* --- [تعديل] حل مشكلة قفز لوحة المفاتيح الافتراضية (iOS/Android) --- */
-    const chatContainer = document.querySelector('.chat-container');
-    let initialViewportHeight = window.innerHeight;
-    let isKeyboardVisible = false;
-
-    function handleResize() {
-        // نتجاهل التعديل على شاشات الكمبيوتر
-        if (window.innerWidth >= 600) return; 
-        
-        const currentViewportHeight = window.innerHeight;
-        const keyboardHeight = initialViewportHeight - currentViewportHeight;
-
-        // تحديد ما إذا كانت لوحة المفاتيح ظاهرة (عتبة 100 بكسل)
-        if (keyboardHeight > 100) { 
-            // لوحة المفاتيح ظاهرة
-            if (!isKeyboardVisible) {
-                // قم بتعيين ارتفاع الحاوية ليتناسب مع المساحة المتبقية
-                chatContainer.style.height = `${currentViewportHeight}px`;
-                isKeyboardVisible = true;
-            }
-        } else {
-            // لوحة المفاتيح مخفية
-            if (isKeyboardVisible) {
-                // أعد الارتفاع إلى 100dvh
-                chatContainer.style.height = '100dvh';
-                isKeyboardVisible = false;
-            }
-        }
-        
-        // [إضافة مهمة] التأكد من التمرير لأسفل عند ظهور الكيبورد
-        if (isKeyboardVisible && pageCache.chat && pageCache.chat.classList.contains('active')) {
-            const messagesEl = pageCache.chat.querySelector('.messages');
-            if (messagesEl) {
-                // تأخير بسيط لضمان انتهاء المتصفح من إعادة الترتيب
-                setTimeout(() => {
-                    messagesEl.scrollTop = messagesEl.scrollHeight;
-                }, 50); 
-            }
-        }
-    }
-
-    // ربط الدالة بحدث تغيير حجم النافذة (الذي يحدث عند ظهور/اختفاء لوحة المفاتيح)
-    window.addEventListener('resize', handleResize);
-
-    // عند تحميل التطبيق لأول مرة، نأخذ الارتفاع الأولي
-    window.addEventListener('load', () => {
-        initialViewportHeight = window.innerHeight;
-    });
-    /* --- نهاية حل مشكلة قفز لوحة المفاتيح الافتراضية --- */
+    /* --- [تعديل] إلغاء معالجة تغيير حجم الشاشة (حل جذري لمشكلة الكيبورد) --- */
+    // تم إزالة دوال handleResize وربطها بـ window.addEventListener('resize')
+    // وتم إلغاء تأثيرها في CSS
     
     // [إصلاح 2] ربط زر الإغلاق في مودال القراءة
     readByModalClose.onclick = () => readByModal.classList.remove('active');
