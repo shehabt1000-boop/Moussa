@@ -175,6 +175,8 @@
     .messages {
       flex: 1; 
       padding: 8px 6px; 
+      /* [تعديل] إضافة حشو سفلي لتعويض ارتفاع شريط الإدخال */
+      padding-bottom: 55px; 
       overflow-y: auto; 
       display: flex; flex-direction: column;
       gap: 5px; 
@@ -335,6 +337,7 @@
       position: relative; 
       z-index: 10; 
       flex-shrink: 0; 
+      min-height: 50px; /* [تعديل] لضمان ارتفاع ثابت تقريباً */
     }
     /* حاوية اقتباس الرد فوق حقل الإدخال */
     .reply-quote-container-wrapper {
@@ -947,8 +950,8 @@
                 background: rgba(255,255,255,0.15);
             }
             .member-item-wrapper:hover {
-                transition: none; /* [تعديل] إلغاء الرسوم المتحركة */
-                transform: none; /* [تعديل] إلغاء الرسوم المتحركة */
+                transition: none; 
+                transform: none; 
             }
         }
     }
@@ -5252,11 +5255,11 @@
 
         if (text && currentUserProfile) {
             const originalText = msgInput.value; 
-            msgInput.value = ''; // <--- [إصلاح المشكلة 1] مسح حقل الإدخال فوراً
             
-            // [إصلاح 3] حفظ التركيز قبل الإرسال
+            // [إصلاح 2] حفظ التركيز قبل الإرسال
             const wasFocused = (document.activeElement === msgInput);
-
+            
+            msgInput.value = ''; // <--- مسح حقل الإدخال فوراً
 
             // بيانات الرسالة الأساسية
             const messageData = { 
@@ -5318,14 +5321,12 @@
 
 
 
-            // 3. إذا نجح الإرسال، نحاول تحديث حالة الكتابة (في كتلة try/catch منفصلة لتجنب مشكلة "فشل الإرسال")
-            if (messageSentSuccessfully) {
-                // لا يوجد تحديث لحالة الكتابة
-            }
-            
-            // [إصلاح 3] إعادة التركيز فقط إذا كان الحقل مركّزاً قبل الإرسال
+            // [إصلاح 2] إعادة التركيز فقط إذا كان الحقل مركّزاً قبل الإرسال
+            // [إصلاح 2] استخدام setTimeout لضمان أن المتصفح قد انتهى من معالجة إرسال النموذج
             if (wasFocused) {
-                msgInput.focus(); 
+                 setTimeout(() => {
+                    msgInput.focus(); 
+                 }, 0);
             }
         }
     }
