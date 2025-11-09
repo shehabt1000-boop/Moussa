@@ -1335,6 +1335,7 @@
     let typingUsers = {}; // [تعديل] لتخزين حالة الكتابة للجميع
     let currentMessageToReact = null; // [جديد] لتخزين الرسالة التي يتم التفاعل عليها
     let lastReadMessageId = null; // [جديد] لتتبع آخر رسالة تمت قراءتها
+    let allMessages = []; // [جديد] لتخزين الرسائل محلياً لتسهيل تحديد آخر رسالة غير مقروءة
 
 
 
@@ -1439,7 +1440,7 @@
     // [جديد] عناصر مودال من قرأ رسالتي
     const readByModal = document.getElementById('readByModal');
     const readByList = document.getElementById('readByList');
-    const readByModalClose = document.getElementById('readByModalClose');
+    const readByModalClose = document.getElementById('readByModalClose'); // [تعديل] تم جلب الزر هنا
 
 
 
@@ -1582,7 +1583,7 @@
 
 
 
-    /* --- إصلاح 2: استبدال دالة "عشوائي" بدالة "التالي" --- */
+    /* --- إصلاح 2: عدادات الصور الرمزية المتسلسلة --- */
     const getNextAvatar = (gender = 'male') => {
         if (gender === 'male') {
             const avatar = maleAvatars[maleAvatarIndex];
@@ -1807,7 +1808,7 @@
     let typingTimeout;
     async function updateTypingStatus(isTyping) {
         if (!auth.currentUser || !currentUserProfile) return;
-        const userId = auth.currentUser.uid;
+        const userId = currentUserProfile.id;
         const typingField = FieldPath.of(userId);
 
 
@@ -2454,7 +2455,7 @@
         // 5. مراقبة الرسائل الجديدة
         let isInitialMessagesLoad = true;
         const messagesQuery = query(messagesCollection, orderBy("createdAt"), limitToLast(50));
-        let allMessages = []; // [جديد] لتخزين الرسائل محلياً لتسهيل تحديد آخر رسالة غير مقروءة
+        
 
         const unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
             const messagesEl = pageCache.chat.querySelector('.messages');
@@ -3336,7 +3337,22 @@
     function showMessageActionModal(msgData) {
         const isOwnMessage = msgData.senderId === currentUserProfile.id;
         const isAdmin = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // [جديد] إظهار زر "من قرأ رسالتي" فقط للرسائل المرسلة من المستخدم الحالي
         messageActionReadBy.style.display = isOwnMessage ? 'block' : 'none';
 
@@ -5316,7 +5332,7 @@
                 text, 
                 senderId: currentUserProfile.id, 
                 createdAt: Timestamp.now(),
-                readBy: [currentUserProfile.id] // [جديد] إضافة المرسل كأول قارئ
+                // [تعديل] إزالة readBy: [currentUserProfile.id] من الإرسال
             };
 
 
@@ -5329,7 +5345,7 @@
             // إضافة بيانات الرد إن وجدت
             if (replyingToMessage) {
                 messageData.replyToId = replyingToMessage.id;
-                messageData.replyToName = replyingToingToMessage.name;
+                messageData.replyToName = replyingToMessage.name; // [تصحيح إملائي]
                 messageData.replyToText = replyingToMessage.text;
                 clearReplyState(); // مسح حالة الرد بعد الإرسال
             }
@@ -5377,7 +5393,7 @@
             if (wasFocused) {
                  setTimeout(() => {
                     msgInput.focus(); 
-                 }, 0);
+                 }, 50); // [تعديل] زيادة التأخير إلى 50ms
             }
             
             // [تعديل] إزالة حالة الكتابة بعد الإرسال
@@ -5656,6 +5672,9 @@
         initialViewportHeight = window.innerHeight;
     });
     /* --- نهاية حل مشكلة قفز لوحة المفاتيح الافتراضية --- */
+    
+    // [إصلاح 2] ربط زر الإغلاق في مودال القراءة
+    readByModalClose.onclick = () => readByModal.classList.remove('active');
   </script>
 
 
