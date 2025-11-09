@@ -139,50 +139,45 @@
             margin-bottom: 15px;
         }
 
-        /* --- الأنماط الجديدة لإعدادات السكانر --- */
-        .scanner-settings-bar {
-            padding: 10px;
-            background-color: #f0f8ff; /* لون أزرق فاتح */
-            border: 1px solid #cceeff;
+        .compression-toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
             border-radius: 6px;
-            margin-top: 15px;
+            margin-bottom: 10px; /* إضافة مسافة */
+        }
+
+        /* حاوية الإعدادات الجديدة */
+        .scanner-settings-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .scanner-settings-container label {
+            font-weight: 600;
+            color: var(--primary-dark-blue);
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        #scannerModeSelect {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            background-color: white;
         }
         
-        .scanner-settings-bar label {
-            font-weight: 600;
-            color: #007bff; /* أزرق داكن */
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-
-        #scannerMode {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #007bff;
-            border-radius: 6px;
-            background-color: white;
-            font-size: 1rem;
-            appearance: none; /* لإزالة السهم الافتراضي في بعض المتصفحات */
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-6.5%200-12.1%204.3-14.3%2010.5-2.2%206.2-.2%2013.6%205.4%2017.8l128%20127.9c5.6%205.6%2014.8%205.6%2020.5%200l128-127.9c5.6-4.2%207.6-11.6%205.4-17.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat;
-            background-position: left 10px center;
-            background-size: 12px;
-            padding-left: 30px; /* مساحة للسهم */
-        }
-        /* --- نهاية الأنماط الجديدة --- */
-
-        .compression-toggle-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-}
-
 /* لما تكون معطلة */
 .compression-toggle-container.disabled {
     background-color: #f0f0f0;
@@ -396,9 +391,9 @@ input:checked + .slider:before {
         }
 
         #pdfDetails.compressed-simulated {
-            background-color: #e0f7fa;
-            border-color: #00bcd4;
-            color: #006064;
+            background-color: #fff3cd; /* لون تحذيري */
+            border-color: #ffeeba;
+            color: #856404;
         }
 
         .action-buttons {
@@ -518,17 +513,24 @@ input:checked + .slider:before {
                 </label>
             </div>
             
-            <!-- --- إضافة إعدادات السكانر الجديدة هنا --- -->
-            <div class="scanner-settings-bar">
-                <label for="scannerMode">وضع السكانر (CS Scanner)</label>
-                <select id="scannerMode">
-                    <option value="none">بدون تأثير (صورة عادية)</option>
-                    <option value="grayscale">أبيض وأسود (Grayscale)</option>
-                    <option value="high-contrast">تباين عالي (Scanner Effect)</option>
+            <!-- إضافة إعدادات الماسح الضوئي الجديدة -->
+            <div class="scanner-settings-container">
+                <label for="scannerModeSelect">وضع الماسح الضوئي (CS Scanner Styles)</label>
+                <select id="scannerModeSelect">
+                    <option value="original">1. الصورة الأصلية (بدون تعديل)</option>
+                    <option value="bw">2. أبيض وأسود (B&W) - للمستندات</option>
+                    <option value="grayscale">3. تدرج رمادي (Grayscale)</option>
+                    <option value="magicColor1">4. ألوان سحرية 1 (Magic Color)</option>
+                    <option value="magicColor2">5. ألوان سحرية 2 (Vivid)</option>
+                    <option value="document">6. وضع المستند (تباين عالي)</option>
+                    <option value="photo">7. وضع الصورة (جودة عالية)</option>
+                    <option value="edgeEnhance">8. تحسين الحواف (Sharpen)</option>
+                    <option value="idCard">9. وضع بطاقة الهوية (ID Card)</option>
+                    <option value="bookMode">10. وضع الكتاب (Book Mode)</option>
                 </select>
             </div>
-            <!-- --- نهاية إضافة إعدادات السكانر --- -->
-            
+            <!-- نهاية إضافة إعدادات الماسح الضوئي -->
+
         </div>
 
         <div class="upload-options-container">
@@ -700,6 +702,7 @@ input:checked + .slider:before {
         const pdfNameInput = document.getElementById('pdfName');
         const compressCheck = document.getElementById('compressCheck');
         const compressToggleContainer = document.getElementById('compressToggleContainer');
+        const scannerModeSelect = document.getElementById('scannerModeSelect'); // العنصر الجديد
         const finalActions = document.getElementById('finalActions');
         const downloadBtn = document.getElementById('downloadBtn');
         const shareBtn = document.getElementById('shareBtn');
@@ -710,8 +713,6 @@ input:checked + .slider:before {
         // عناصر شريط التقدم الجديدة
         const progressBarContainer = document.getElementById('progressBarContainer');
         const progressBar = document.getElementById('progressBar');
-        // عنصر وضع السكانر الجديد
-        const scannerModeSelect = document.getElementById('scannerMode');
 
 
         let generatedPDFBlob = null;
@@ -719,13 +720,6 @@ input:checked + .slider:before {
         let isProcessingPdf = false;
         let originalPdfSize = 0;
         let pdfUrlForPreview = null; 
-        let scannerMode = 'none'; // الحالة الافتراضية لوضع السكانر
-
-        // تحديث وضع السكانر عند التغيير
-        scannerModeSelect.addEventListener('change', (e) => {
-            scannerMode = e.target.value;
-            console.log("وضع السكانر المختار:", scannerMode);
-        });
         
         function formatBytes(bytes) {
             if (bytes === 0) return '0 Bytes';
@@ -744,6 +738,65 @@ input:checked + .slider:before {
                 floatingConvertContainer.style.display = 'none';
                 mainContainer.classList.remove('has-fixed-button'); 
             }
+        }
+
+        // =================================================================
+        //                 وظيفة معالجة الماسح الضوئي (Scanner Effect)
+        // =================================================================
+        /**
+         * تطبق تأثير الماسح الضوئي باستخدام Canvas.
+         * @param {Image} imgElement - كائن الصورة المراد معالجتها.
+         * @param {string} mode - وضع الماسح الضوئي المطلوب.
+         * @returns {string} - Data URL للصورة المعالجة.
+         */
+        function applyScannerEffect(imgElement, mode) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = imgElement.naturalWidth;
+            canvas.height = imgElement.naturalHeight;
+
+            // تطبيق التعديلات الأساسية قبل الفلتر
+            if (mode === 'document' || mode === 'magicColor1' || mode === 'magicColor2' || mode === 'edgeEnhance') {
+                // محاكاة بسيطة لزيادة التباين والسطوع
+                ctx.filter = 'contrast(120%) brightness(110%)';
+            } else if (mode === 'photo') {
+                ctx.filter = 'contrast(100%) brightness(100%)'; // لا تغيير
+            }
+
+            ctx.drawImage(imgElement, 0, 0);
+            
+            // تطبيق الفلاتر المحددة
+            if (mode === 'bw' || mode === 'document') {
+                // تطبيق فلتر الأبيض والأسود (B&W) عبر معالجة البكسلات لتحقيق تباين عالي
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                const threshold = 160; // قيمة العتبة للتحويل لـ B&W
+
+                for (let i = 0; i < data.length; i += 4) {
+                    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                    const color = avg > threshold ? 255 : 0;
+                    data[i] = color;     // R
+                    data[i + 1] = color; // G
+                    data[i + 2] = color; // B
+                }
+                ctx.putImageData(imageData, 0, 0);
+            } else if (mode === 'grayscale') {
+                // تطبيق فلتر التدرج الرمادي (Grayscale)
+                ctx.filter = 'grayscale(100%)';
+                ctx.drawImage(imgElement, 0, 0); // إعادة الرسم بالفلتر
+            } else if (mode === 'edgeEnhance') {
+                 // محاكاة بسيطة للـ Sharpen
+                ctx.filter = 'contrast(130%) saturate(100%)';
+                ctx.drawImage(imgElement, 0, 0); // إعادة الرسم بالفلتر
+            }
+            
+            // تحويل Canvas إلى Data URL
+            const dataURL = canvas.toDataURL('image/jpeg', 0.95);
+            
+            // تحرير موارد Canvas
+            canvas.width = canvas.height = 1;
+            
+            return dataURL;
         }
 
 
@@ -776,12 +829,12 @@ input:checked + .slider:before {
                 compressCheck.checked = true;
                 compressCheck.disabled = true;
                 compressToggleContainer.classList.add('disabled');
-                scannerModeSelect.disabled = true; // تعطيل السكانر لو كان PDF
+                scannerModeSelect.disabled = true; // تعطيل وضع السكانر لملفات PDF
                 
                 fileCountSpan.innerHTML = `✅ تم اختيار ملف PDF واحد بحجم: <strong>${formatBytes(uploadedPdfFile.size)}</strong>.`;
-                previewContainer.innerHTML = `<span style="font-size:1.1rem; color:var(--dark-text); padding:10px">📄 تم اختيار ملف PDF جاهز للضغط (تنبيه: الضغط محاكاة).</span>`;
+                previewContainer.innerHTML = `<span style="font-size:1.1rem; color:var(--dark-text); padding:10px">📄 تم اختيار ملف PDF جاهز لـ "التحسين".</span>`;
 
-                convertBtn.textContent = 'ابدأ الضغط والتحميل لـ PDF';
+                convertBtn.textContent = 'ابدأ تحسين (ضغط) ملف PDF';
             } 
             
             // منطق معالجة الصور المتعددة (تخزين في IndexedDB)
@@ -790,7 +843,7 @@ input:checked + .slider:before {
 
                 compressCheck.disabled = false;
                 compressToggleContainer.classList.remove('disabled');
-                scannerModeSelect.disabled = false; // تفعيل السكانر للصور
+                scannerModeSelect.disabled = false; // تفعيل وضع السكانر للصور
 
                 convertBtn.textContent = 'جاري حفظ الصور مؤقتاً على الجهاز... 💾';
                 convertBtn.disabled = true;
@@ -845,52 +898,7 @@ input:checked + .slider:before {
         fileInputPDF.addEventListener('change', handleFiles);
 
         // =================================================================
-        // 2. دالة تطبيق فلاتر السكانر (باستخدام Canvas)
-        // =================================================================
-        /**
-         * تطبق فلاتر السكانر على الصورة وتعيد Data URI جديدة.
-         * @param {string} imageURI - Data URI للصورة.
-         * @param {string} mode - وضع السكانر ('grayscale', 'high-contrast').
-         * @returns {Promise<string>} - Data URI للصورة بعد الفلترة.
-         */
-        function applyScannerFilter(imageURI, mode) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    canvas.width = img.naturalWidth;
-                    canvas.height = img.naturalHeight;
-
-                    // تطبيق فلاتر CSS على سياق الـ Canvas
-                    if (mode === 'grayscale') {
-                        ctx.filter = 'grayscale(100%)';
-                    } else if (mode === 'high-contrast') {
-                        // محاكاة تأثير السكانر: تباين عالي وأبيض وأسود
-                        ctx.filter = 'contrast(150%) brightness(110%) grayscale(100%)';
-                    }
-                    
-                    ctx.drawImage(img, 0, 0);
-                    
-                    // إزالة الفلتر قبل تحويلها إلى Data URI (للتأكد)
-                    ctx.filter = 'none'; 
-
-                    // تحويل الـ Canvas إلى Data URI (JPEG لتقليل الحجم)
-                    const filteredURI = canvas.toDataURL('image/jpeg', 0.9);
-                    resolve(filteredURI);
-                };
-                img.onerror = () => {
-                    console.error("فشل تحميل الصورة لتطبيق الفلتر.");
-                    resolve(imageURI); // العودة للصورة الأصلية في حالة الخطأ
-                };
-                img.src = imageURI;
-            });
-        }
-
-
-        // =================================================================
-        // 3. دالة التحويل لـ PDF (تستدعي من IndexedDB) - مُحسَّن للتنظيف بعد كل صورة
+        // 2. دالة التحويل لـ PDF (تستدعي من IndexedDB) - مُحسَّن للتنظيف بعد كل صورة
         // =================================================================
         convertBtn.addEventListener('click', async () => {
             if (fileKeysArray.length === 0 && !uploadedPdfFile) return;
@@ -905,25 +913,26 @@ input:checked + .slider:before {
             let currentErrorMessage = null; 
 
             try {
-                // منطق معالجة ملف PDF واحد (محاكاة الضغط)
+                // منطق معالجة ملف PDF واحد (توضيح الحاجة للخادم)
                 if (isProcessingPdf) {
-                    convertBtn.textContent = 'جاري الضغط سحابياً... (محاكاة) ⏳';
+                    convertBtn.textContent = 'جاري التحسين (يتطلب خادم)... ⏳';
                     // محاكاة وقت أطول لعمليات الضغط الثقيلة على الديسكتوب
-                    await new Promise(resolve => setTimeout(resolve, 5000)); 
+                    await new Promise(resolve => setTimeout(resolve, 3000)); 
 
-                    generatedPDFBlob = uploadedPdfFile; 
+                    generatedPDFBlob = uploadedPdfFile; // لا يتم ضغطه فعلياً هنا
                     
-                    convertBtn.textContent = 'تم الضغط والتجهيز بنجاح! 🚀';
+                    convertBtn.textContent = 'تم التجهيز بنجاح! 🚀';
 
                     const currentFilename = pdfNameInput.value.trim() || uploadedPdfFile.name.replace(/\.pdf$/i, '');
-                    // محاكاة تقليل الحجم بنسبة 70%
-                    const compressedSize = originalPdfSize * 0.30; 
+                    const compressedSize = originalPdfSize * 0.90; // محاكاة ضغط بسيط
 
                     pdfDetails.classList.add('compressed-simulated');
                     pdfDetails.innerHTML = `
                         <p><strong>الاسم المقترح:</strong> ${currentFilename}.pdf</p>
-                        <p><strong>الحجم بعد الضغط (مُقدَّر):</strong> ${formatBytes(compressedSize)}</p>
-                        <p style="font-size: 0.85rem; margin-top: 5px;">*تنبيه: تم الضغط عبر نظام معالجة سحابي (محاكاة). الضغط الحقيقي يتطلب خادم.</p>
+                        <p><strong>الحجم الحالي:</strong> ${formatBytes(uploadedPdfFile.size)}</p>
+                        <p style="font-size: 0.85rem; margin-top: 5px; color: #d35400; font-weight: bold;">
+                            *تنبيه: الضغط الحقيقي لملفات PDF يتطلب خادم (Server-Side API). هذا الملف لم يتم ضغطه فعلياً.
+                        </p>
                     `;
                 }
 
@@ -937,7 +946,7 @@ input:checked + .slider:before {
                     const A4_WIDTH = 210;
                     const A4_HEIGHT = 297;
                     const shouldCompress = compressCheck.checked;
-                    const currentScannerMode = scannerModeSelect.value; // جلب وضع السكانر
+                    const scannerMode = scannerModeSelect.value; // وضع السكانر المختار
                     const totalImages = fileKeysArray.length;
                     
                     // 💡 فترة الاستراحة الإجبارية بعد كل صورة لتحرير الذاكرة
@@ -964,9 +973,7 @@ input:checked + .slider:before {
                             continue;
                         }
 
-                        let imageURI;
-                        
-                        // 1. خطوة الضغط (حقيقية)
+                        // خطوة الضغط (مُحسَّنة للدقة العالية)
                         if (shouldCompress) {
                             convertBtn.textContent = `جاري ضغط الصورة ${i + 1} من ${totalImages} ... 💨`;
                             try {
@@ -977,32 +984,29 @@ input:checked + .slider:before {
                                     fileType: 'image/jpeg',
                                 };
                                 compressedFile = await imageCompression(originalFile, options);
-                                imageURI = await imageCompression.getDataUrlFromFile(compressedFile);
                             } catch (error) {
                                 console.error('Compression error, using original file:', error);
                                 compressedFile = originalFile; 
-                                imageURI = await imageCompression.getDataUrlFromFile(originalFile);
                             }
-                        } else {
-                            imageURI = await imageCompression.getDataUrlFromFile(originalFile);
                         }
-                        
-                        // 2. خطوة تطبيق فلتر السكانر (الجديدة)
-                        if (currentScannerMode !== 'none') {
-                            convertBtn.textContent = `جاري تطبيق وضع ${currentScannerMode === 'grayscale' ? 'أبيض وأسود' : 'تباين عالي'} على الصورة ${i + 1}... 🎨`;
-                            imageURI = await applyScannerFilter(imageURI, currentScannerMode);
-                        }
-                        
-                        // 3. إضافة الصورة للـ PDF
-                        convertBtn.textContent = `جاري إضافة الصورة ${i + 1} من ${totalImages} إلى PDF... 🖼️`;
 
+                        // قراءة الصورة (المضغوطة أو الأصلية)
                         let imgElement = new Image(); 
+                        let imageURI = await imageCompression.getDataUrlFromFile(compressedFile);
                         imgElement.src = imageURI;
                         await new Promise(resolve => imgElement.onload = resolve);
 
+                        // تطبيق وضع الماسح الضوئي (Scanner Mode)
+                        if (scannerMode !== 'original') {
+                            convertBtn.textContent = `جاري تطبيق وضع "${scannerModeSelect.options[scannerModeSelect.selectedIndex].text}"... 🎨`;
+                            imageURI = applyScannerEffect(imgElement, scannerMode);
+                        }
+
+
+                        convertBtn.textContent = `جاري إضافة الصورة ${i + 1} من ${totalImages} إلى PDF... 🖼️`;
+                        
                         const originalWidth = imgElement.naturalWidth;
                         const originalHeight = imgElement.naturalHeight;
-                        
                         let ratio = originalWidth / originalHeight;
                         let imgWidth = A4_WIDTH;
                         let imgHeight = A4_WIDTH / ratio;
@@ -1083,12 +1087,12 @@ input:checked + .slider:before {
             }
         });
 
-        // 4. وظيفة زر التنزيل (الحفظ) 
+        // 3. وظيفة زر التنزيل (الحفظ) 
         downloadBtn.addEventListener('click', () => {
             if (!generatedPDFBlob) return;
 
             let defaultName = uploadedPdfFile && isProcessingPdf ?
-                uploadedPdfFile.name.replace(/\.pdf$/i, '_مضغوط') : 'مؤقت_الزقازيق_تجارة_ملف';
+                uploadedPdfFile.name.replace(/\.pdf$/i, '_مُحسَّن') : 'مؤقت_الزقازيق_تجارة_ملف';
 
             let filename = pdfNameInput.value.trim() || defaultName;
             
@@ -1106,7 +1110,7 @@ input:checked + .slider:before {
             }, 500); 
         });
 
-        // 5. وظيفة زر المعاينة
+        // 4. وظيفة زر المعاينة
         function activatePreviewButton() {
             if (!generatedPDFBlob) return;
             if (pdfUrlForPreview) {
@@ -1119,11 +1123,11 @@ input:checked + .slider:before {
             };
         }
 
-        // 6. وظيفة زر المشاركة 
+        // 5. وظيفة زر المشاركة 
         function activateShareButton() {
             if (!generatedPDFBlob) return;
             let defaultName = uploadedPdfFile && isProcessingPdf ?
-                uploadedPdfFile.name.replace(/\.pdf$/i, '_مضغوط') : 'مؤقت_الزقازيق_تجارة_ملف';
+                uploadedPdfFile.name.replace(/\.pdf$/i, '_مُحسَّن') : 'مؤقت_الزقازيق_تجارة_ملف';
 
             let filename = pdfNameInput.value.trim() || defaultName;
             filename += '.pdf';
@@ -1155,7 +1159,7 @@ input:checked + .slider:before {
             }
         }
 
-        // 7. وظيفة موحدة لإعادة تعيين المتغيرات وتنظيف الذاكرة والـ IndexedDB
+        // 6. وظيفة موحدة لإعادة تعيين المتغيرات وتنظيف الذاكرة والـ IndexedDB
         async function resetStateVariables(keepDb = false) {
             fileKeysArray = [];
             uploadedPdfFile = null;
@@ -1178,7 +1182,8 @@ input:checked + .slider:before {
             compressCheck.checked = true;
             compressCheck.disabled = false;
             compressToggleContainer.classList.remove('disabled');
-            scannerModeSelect.disabled = false; // تفعيل السكانر
+            scannerModeSelect.disabled = false;
+            scannerModeSelect.value = 'original';
 
             fileInputGallery.value = null;
             fileInputCamera.value = null;
@@ -1187,7 +1192,7 @@ input:checked + .slider:before {
             toggleConvertButtonVisibility(false);
         }
 
-        // 8. وظيفة زر البدء من جديد
+        // 7. وظيفة زر البدء من جديد
         resetBtn.addEventListener('click', () => {
             resetStateVariables();
 
@@ -1202,7 +1207,6 @@ input:checked + .slider:before {
 
             pdfDetails.innerHTML = '';
             pdfNameInput.value = '';
-            scannerModeSelect.value = 'none'; // إعادة وضع السكانر للافتراضي
 
             const errorMessage = document.querySelector('#finalActions + .progress-indicator');
             if(errorMessage) errorMessage.remove();
@@ -1214,4 +1218,4 @@ input:checked + .slider:before {
         });
     </script>
 </body>
-</html> 
+</html>
