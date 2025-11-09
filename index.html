@@ -423,9 +423,24 @@
 
 
 
-    /* === [ملغي] مؤشر الكتابة === */
+    /* === [جديد] مؤشر الكتابة === */
     .typing-indicator {
-        display: none !important; /* [تعديل] إلغاء ميزة يكتب الآن */
+        position: absolute; 
+        bottom: 100%; /* [تعديل] وضعه فوق شريط الإدخال */
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 10px;
+        color: var(--text-dark);
+        padding: 2px 0;
+        background: rgba(255, 255, 255, 0.8);
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        z-index: 1;
+        display: none; /* مخفي افتراضياً */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     /* === نهاية مؤشر الكتابة === */
 
@@ -452,7 +467,7 @@
     /* --- تعديل: تصغير بطاقة العضو --- */
     .member-item-wrapper {
       padding: 1px; background-image: var(--main-bg-gradient); border-radius: 12px; 
-      transition: none; /* [تعديل] إلغاء الرسوم المتحركة */
+      transition: none; 
       display: flex;
     }
     .member-item {
@@ -882,6 +897,46 @@
     .emoji-item:hover {
         background-color: rgba(0,0,0,0.1);
     }
+    
+    /* [جديد] مودال من قرأ رسالتي */
+    #readByModal .modal-content {
+        width: 90%;
+        max-width: 350px;
+        padding: 10px;
+        text-align: right;
+    }
+    .read-by-list {
+        max-height: 200px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding: 5px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+    }
+    .read-by-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .read-by-item:last-child {
+        border-bottom: none;
+    }
+    .read-by-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .read-by-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+    /* [نهاية مودال من قرأ رسالتي] */
 
 
 
@@ -936,7 +991,7 @@
         }
         
         .messages {
-            padding-bottom: 8px; 
+            padding-bottom: 8px; /* [تعديل] العودة للحشو الأصلي في وضع الكمبيوتر */
         }
         
         .reply-quote-container-wrapper, .typing-indicator {
@@ -993,7 +1048,7 @@
                 <button type="button" class="reply-quote-close" id="clearReplyBtn">✖</button>
             </div>
         </div>
-        <!-- <div id="typingIndicator" class="typing-indicator"></div> [ملغي] -->
+        <div id="typingIndicator" class="typing-indicator"></div> <!-- [تعديل] إعادة إضافة مؤشر الكتابة -->
         <button type="button" class="emoji-btn" id="openEmojiPicker">😀</button>
         <input class="msg-input" id="msgInput" type="text" placeholder="اكتب رسالتك..." autocomplete="off" />
         <button class="send-btn" type="submit" title="إرسال">➤</button>
@@ -1082,6 +1137,7 @@
                 <button id="messageActionEdit" class="settings-btn-themed" style="background: var(--primary-dark);">✏️ تعديل الرسالة</button>
                 <button id="messageActionReply" class="settings-btn-themed" style="background: var(--accent-color);">↩️ رد على الرسالة</button>
                 <button id="messageActionReact" class="settings-btn-themed" style="background: #f39c12;">😀 تفاعل على الرسالة</button>
+                <button id="messageActionReadBy" class="settings-btn-themed" style="background: #3498db;">👀 من قرأ رسالتي؟</button> <!-- [جديد] -->
                 <button id="messageActionCopy" class="settings-btn-themed" style="background: #3498db;">📋 نسخ الرسالة</button>
                 <button id="messageActionForward" class="settings-btn-themed" style="background: #f39c12;">➡️ إعادة توجيه</button>
                 <button id="messageActionDelete" class="settings-btn-themed" style="background: var(--danger-color);">🗑️ حذف الرسالة</button>
@@ -1137,15 +1193,8 @@
         </div>
     </div>
     <!-- === نهاية نافذة التفاعلات === -->
-
-
-
-
-
-
-
-
-    <!-- === [جديد] نافذة اختيار الإيموجي (مودال) === -->
+    
+    <!-- [جديد] مودال اختيار الإيموجي -->
     <div id="emojiPickerModal" class="modal-overlay">
         <div class="modal-content">
             <h3 class="modal-title">اختر إيموجي</h3>
@@ -1158,6 +1207,20 @@
         </div>
     </div>
     <!-- === نهاية نافذة اختيار الإيموجي === -->
+    
+    <!-- [جديد] مودال من قرأ رسالتي -->
+    <div id="readByModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="modal-title">قراء الرسالة</h3>
+            <div id="readByList" class="read-by-list">
+                <!-- سيتم ملؤها بواسطة JavaScript -->
+            </div>
+            <div class="modal-buttons" style="margin-top: 10px;">
+                <button id="readByModalClose" class="form-btn-cancel">إغلاق</button>
+            </div>
+        </div>
+    </div>
+    <!-- [نهاية مودال من قرأ رسالتي] -->
 
 
 
@@ -1195,7 +1258,7 @@
     // --- استيراد مكتبات Firebase ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, updateDoc, query, Timestamp, addDoc, orderBy, deleteDoc, getDocs, writeBatch, where, limitToLast, FieldPath, FieldValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, updateDoc, query, Timestamp, addDoc, orderBy, deleteDoc, getDocs, writeBatch, where, limitToLast, FieldPath, FieldValue, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
 
@@ -1244,8 +1307,8 @@
     const usersCollection = collection(db, `public/data/users`);
     const messagesCollection = collection(db, `public/data/messages`);
     const globalSettingsDoc = doc(db, `public/data/global_config/settings`);
-    // [ملغي] مرجع حالة الكتابة
-    // const typingStatusDoc = doc(db, 'public/data/typing_status', 'status'); 
+    // [تعديل] مرجع حالة الكتابة
+    const typingStatusDoc = doc(db, 'public/data/typing_status', 'status'); 
 
 
 
@@ -1269,8 +1332,9 @@
     let pageCache = {}; // تخزين الصفحات (الدردشة، الأعضاء...) في الذاكرة
     let dataListeners = []; // مصفوفة لتخزين "مراقبي البيانات" لإيقافهم عند الخروج
     let replyingToMessage = null; // لتخزين بيانات الرسالة التي يتم الرد عليها
-    // let typingUsers = {}; // [ملغي] لتخزين حالة الكتابة للجميع
+    let typingUsers = {}; // [تعديل] لتخزين حالة الكتابة للجميع
     let currentMessageToReact = null; // [جديد] لتخزين الرسالة التي يتم التفاعل عليها
+    let lastReadMessageId = null; // [جديد] لتتبع آخر رسالة تمت قراءتها
 
 
 
@@ -1336,6 +1400,7 @@
     const messageActionEdit = document.getElementById('messageActionEdit');
     const messageActionReply = document.getElementById('messageActionReply');
     const messageActionReact = document.getElementById('messageActionReact'); 
+    const messageActionReadBy = document.getElementById('messageActionReadBy'); // [جديد]
     const messageActionCopy = document.getElementById('messageActionCopy');
     const messageActionForward = document.getElementById('messageActionForward');
     const messageActionDelete = document.getElementById('messageActionDelete');
@@ -1370,6 +1435,11 @@
     const emojiPickerModal = document.getElementById('emojiPickerModal');
     const emojiGrid = document.getElementById('emojiGrid');
     const emojiPickerModalClose = document.getElementById('emojiPickerModalClose');
+    
+    // [جديد] عناصر مودال من قرأ رسالتي
+    const readByModal = document.getElementById('readByModal');
+    const readByList = document.getElementById('readByList');
+    const readByModalClose = document.getElementById('readByModalClose');
 
 
 
@@ -1733,13 +1803,45 @@
 
 
 
-    // [ملغي] دالة تحديث حالة الكتابة
-    /*
+    // [تعديل] دالة تحديث حالة الكتابة (مع Debounce)
     let typingTimeout;
     async function updateTypingStatus(isTyping) {
-        // تم إلغاء هذه الدالة بناءً على طلب المستخدم
+        if (!auth.currentUser || !currentUserProfile) return;
+        const userId = auth.currentUser.uid;
+        const typingField = FieldPath.of(userId);
+
+
+
+
+
+
+
+
+        clearTimeout(typingTimeout);
+
+
+
+
+
+
+
+
+        if (isTyping) {
+            // 1. تحديث الحالة فوراً
+            await updateDoc(typingStatusDoc, {
+                [typingField]: Timestamp.now()
+            });
+            // 2. تعيين مؤقت لإزالة الحالة بعد 3 ثوانٍ من التوقف عن الكتابة
+            typingTimeout = setTimeout(() => {
+                updateTypingStatus(false);
+            }, 3000);
+        } else {
+            // 3. إزالة الحالة من Firestore
+            await updateDoc(typingStatusDoc, {
+                [typingField]: FieldValue.delete()
+            }).catch(e => console.warn("Failed to delete typing status:", e));
+        }
     }
-    */
 
 
 
@@ -1940,7 +2042,7 @@
     function detachAllListeners() {
         dataListeners.forEach(unsubscribe => unsubscribe());
         dataListeners = [];
-        // clearTimeout(typingTimeout); // [ملغي]
+        clearTimeout(typingTimeout); // [تعديل] مسح مؤقت الكتابة
     }
 
 
@@ -2182,7 +2284,7 @@
         try { 
             if (auth.currentUser) { 
                 await updateUserPresence(false);
-                // await updateTypingStatus(false); // [ملغي]
+                await updateTypingStatus(false); // [تعديل] إزالة حالة الكتابة عند الخروج
             }
             await signOut(auth); // تسجيل الخروج
         } 
@@ -2301,12 +2403,38 @@
 
 
 
-        // [ملغي] 4. مراقبة حالة الكتابة للجميع
-        /*
+        // [تعديل] 4. مراقبة حالة الكتابة للجميع
         const unsubscribeTyping = onSnapshot(typingStatusDoc, (doc) => {
-            // تم إلغاء هذه الدالة بناءً على طلب المستخدم
+            const data = doc.data() || {};
+            const now = Timestamp.now().toMillis();
+            typingUsers = {};
+
+
+
+
+
+
+
+
+            for (const userId in data) {
+                // تجاهل المستخدم الحالي
+                if (userId === currentUserProfile.id) continue; 
+
+
+
+
+
+
+
+
+                const timestamp = data[userId].toMillis();
+                // اعتبار المستخدم يكتب إذا كان آخر تحديث له أقل من 5 ثوانٍ
+                if (now - timestamp < 5000) { 
+                    typingUsers[userId] = usersCache[userId]?.name || 'عضو مجهول';
+                }
+            }
+            updateTypingIndicator();
         });
-        */
 
 
 
@@ -2326,68 +2454,19 @@
         // 5. مراقبة الرسائل الجديدة
         let isInitialMessagesLoad = true;
         const messagesQuery = query(messagesCollection, orderBy("createdAt"), limitToLast(50));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        let allMessages = []; // [جديد] لتخزين الرسائل محلياً لتسهيل تحديد آخر رسالة غير مقروءة
 
         const unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
             const messagesEl = pageCache.chat.querySelector('.messages');
             if (!messagesEl) return; 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            
+            allMessages = []; // تحديث قائمة الرسائل المحلية
 
             const welcome = messagesEl.querySelector('.welcome-message');
             const isScrolledUp = messagesEl.scrollHeight - messagesEl.clientHeight > messagesEl.scrollTop + 150;
 
-
-
-
-
-
-
-
             // [إصلاح 1] حفظ ارتفاع التمرير قبل التحديث
             const scrollHeightBefore = messagesEl.scrollHeight;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             if (!snapshot.empty && !messagesEl.querySelector('.load-more-btn')) {
                  const loadMoreContainer = document.createElement('div');
@@ -2400,67 +2479,29 @@
                  }, 2000);
             }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             if (snapshot.empty && welcome) {
                 welcome.innerHTML = `<h3>لا توجد رسائل بعد</h3><p>ابدأ الدردشة الآن!</p>`;
             } else if (welcome) {
                 welcome.remove();
             }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             let newMessagesAdded = false;
             let messagesModified = false;
-            let messagesRemoved = false; // [إصلاح 1] لتتبع الحذف
+            let messagesRemoved = false; 
+            
+            snapshot.docs.forEach(doc => allMessages.push({ id: doc.id, ...doc.data() })); // ملء القائمة المحلية
+
             snapshot.docChanges().forEach((change) => {
                 const msgData = { id: change.doc.id, ...change.doc.data() };
                 const msgEl = messagesEl.querySelector(`[data-msg-id="${msgData.id}"]`);
 
-
-
-
-
-
-
-
                 if (change.type === "added" && !msgEl) {
                     const newMsgEl = createMessageElement(msgData);
                     if (newMsgEl) {
-                        // [الإصلاح 2] إذا كانت الرسالة المضافة هي أول رسالة في الـ Snapshot 
-                        // (وهذا يحدث عندما يتم سحب رسالة قديمة لتعويض رسالة محذوفة)
                         if (change.newIndex === 0 && messagesEl.querySelector('.message-row')) {
-                            // نقوم بإدراجها قبل أول رسالة موجودة (الأقدم)
                             const firstMessageRow = messagesEl.querySelector('.message-row');
                             messagesEl.insertBefore(newMsgEl, firstMessageRow);
                         } else {
-                            // وإلا، فهي رسالة جديدة حقيقية، نقوم بإلحاقها في الأسفل
                             messagesEl.appendChild(newMsgEl); 
                             newMessagesAdded = true;
                         }
@@ -2471,29 +2512,14 @@
                     const updatedMsgEl = createMessageElement(msgData);
                     if (updatedMsgEl) {
                         msgEl.replaceWith(updatedMsgEl);
-                        messagesModified = true; // وضع علامة التعديل
+                        messagesModified = true; 
                     }
                 }
                 if (change.type === "removed" && msgEl) {
                     msgEl.remove();
-                    messagesRemoved = true; // [إصلاح 1]
+                    messagesRemoved = true; 
                 }
             });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             // دالة التمرير لأسفل
             const scrollToBottom = () => {
@@ -2502,38 +2528,14 @@
                 }, 0);
             };
 
-
-
-
-
-
-
-
             // [إصلاح 1] تعديل منطق التمرير
             if (messagesRemoved) {
-                // إذا تم حذف رسالة، يتم تعويضها برسالة قديمة (الـ 51).
-                // نقوم بتعديل التمرير للحفاظ على موضع الرؤية.
                 const scrollHeightAfter = messagesEl.scrollHeight;
                 const scrollDiff = scrollHeightAfter - scrollHeightBefore;
                 messagesEl.scrollTop += scrollDiff;
             }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            if (newMessagesAdded || messagesModified) { // التمرير التلقائي عند التعديل أيضاً
+            if (newMessagesAdded || messagesModified) { 
                 if (isInitialMessagesLoad || !isScrolledUp) {
                     scrollToBottom();
                 }
@@ -2541,61 +2543,65 @@
                 scrollToBottom();
             }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             isInitialMessagesLoad = false; 
+            
+            // [جديد] تحديث حالة القراءة
+            if (pageCache.chat && pageCache.chat.classList.contains('active')) {
+                updateReadReceipts(messagesEl, allMessages);
+            }
         }, (error) => {
             console.error("Messages listener failed:", error);
             showToast("خطأ في تحديث الرسائل.");
         });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // إضافة كل المراقبات للمصفوفة لإيقافها لاحقاً
-        // تم إزالة unsubscribeTyping
-        dataListeners.push(unsubscribeProfile, unsubscribeGlobalSettings, unsubscribeUsers, unsubscribeMessages);
+        dataListeners.push(unsubscribeProfile, unsubscribeGlobalSettings, unsubscribeUsers, unsubscribeTyping, unsubscribeMessages);
     };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    // [جديد] دالة تحديث حالة القراءة (Read Receipts)
+    function updateReadReceipts(messagesEl, allMessages) {
+        if (!currentUserProfile || !messagesEl || allMessages.length === 0) return;
+        
+        // 1. تحديد آخر رسالة مرئية (آخر رسالة في الشات)
+        const visibleMessages = Array.from(messagesEl.querySelectorAll('.message-row')).filter(row => {
+            const rect = row.getBoundingClientRect();
+            // الرسالة مرئية إذا كان الجزء العلوي منها داخل منطقة العرض
+            return rect.top >= 0 && rect.top <= messagesEl.clientHeight; 
+        });
+        
+        if (visibleMessages.length === 0) return;
+        
+        // 2. تحديد آخر رسالة مرئية (الأكثر حداثة)
+        const lastVisibleMessageRow = visibleMessages[visibleMessages.length - 1];
+        const lastVisibleMessageId = lastVisibleMessageRow.dataset.msgId;
+        
+        // 3. البحث عن الرسالة في القائمة المحلية
+        const lastVisibleMessage = allMessages.find(m => m.id === lastVisibleMessageId);
+        
+        if (!lastVisibleMessage) return;
+        
+        // 4. التحقق: هل الرسالة ليست مرسلة من المستخدم الحالي؟ وهل لم يقرأها بعد؟
+        const isNotOwnMessage = lastVisibleMessage.senderId !== currentUserProfile.id;
+        const isNotRead = !lastVisibleMessage.readBy || !lastVisibleMessage.readBy.includes(currentUserProfile.id);
+        
+        // 5. تحديث Firestore إذا كانت الرسالة جديدة وغير مقروءة
+        if (isNotOwnMessage && isNotRead && lastVisibleMessage.id !== lastReadMessageId) {
+            const messageRef = doc(messagesCollection, lastVisibleMessage.id);
+            updateDoc(messageRef, {
+                readBy: arrayUnion(currentUserProfile.id)
+            }).then(() => {
+                lastReadMessageId = lastVisibleMessage.id; // تحديث آخر رسالة تم وضع علامة قراءة عليها
+            }).catch(e => console.warn("Failed to update read receipt:", e));
+        }
+    }
+    // [جديد] ربط دالة تحديث القراءة بحدث التمرير
+    window.addEventListener('scroll', () => {
+        if (pageCache.chat && pageCache.chat.classList.contains('active')) {
+            const messagesEl = pageCache.chat.querySelector('.messages');
+            if (messagesEl) updateReadReceipts(messagesEl, allMessages);
+        }
+    }, true); // استخدام capture phase لضمان التقاط حدث التمرير في حاوية الرسائل
 
     /* --- دالة بناء حاويات الصفحات (الدردشة، الأعضاء...) --- */
     function buildPageCache() {
@@ -2702,7 +2708,7 @@
         // [تعديل] ربط الأوامر بشريط الإدخال الثابت
         messageForm.addEventListener('submit', sendMessage);
         clearReplyBtn.addEventListener('click', clearReplyState);
-        // msgInput.addEventListener('input', () => updateTypingStatus(true)); // [ملغي]
+        msgInput.addEventListener('input', () => updateTypingStatus(true)); // [تعديل] إعادة ربط مؤشر الكتابة
         openEmojiPicker.addEventListener('click', showEmojiPickerModal); 
         
         return page;
@@ -2715,12 +2721,34 @@
 
 
 
-    // [ملغي] دالة تحديث مؤشر الكتابة
-    /*
+    // [تعديل] دالة تحديث مؤشر الكتابة
     function updateTypingIndicator() {
-        // تم إلغاء هذه الدالة بناءً على طلب المستخدم
+        if (!pageCache.chat) return;
+        const indicator = document.querySelector('#typingIndicator'); 
+        const typingNames = Object.values(typingUsers);
+
+
+
+
+
+
+
+
+        if (typingNames.length === 0) {
+            indicator.style.display = 'none';
+        } else {
+            let text;
+            if (typingNames.length === 1) {
+                text = `${typingNames[0]} يكتب الآن...`;
+            } else if (typingNames.length === 2) {
+                text = `${typingNames[0]} و ${typingNames[1]} يكتبان الآن...`;
+            } else {
+                text = `${typingNames[0]} و ${typingNames.length - 1} آخرون يكتبون الآن...`;
+            }
+            indicator.textContent = text;
+            indicator.style.display = 'block';
+        }
     }
-    */
 
 
 
@@ -2809,13 +2837,42 @@
                 msgInput.value += emoji;
                 msgInput.focus();
                 emojiPickerModal.classList.remove('active');
-                // updateTypingStatus(true); // [ملغي]
+                updateTypingStatus(true); // [تعديل]
             };
             emojiGrid.appendChild(span);
         });
         
         emojiPickerModalClose.onclick = () => emojiPickerModal.classList.remove('active');
         emojiPickerModal.classList.add('active');
+    }
+    
+    // [جديد] دالة عرض مودال من قرأ رسالتي
+    async function showReadByModal(msgData) {
+        readByList.innerHTML = '';
+        readByModal.classList.add('active');
+        
+        const readBy = msgData.readBy || [];
+        
+        if (readBy.length === 0) {
+            readByList.innerHTML = `<div style="text-align: center; color: #777; padding: 10px;">لم يقرأ الرسالة أحد بعد.</div>`;
+            return;
+        }
+        
+        // إنشاء بطاقات الأعضاء
+        readBy.forEach(userId => {
+            const user = usersCache[userId];
+            if (user) {
+                const item = document.createElement('div');
+                item.className = 'read-by-item';
+                item.innerHTML = `
+                    <img class="read-by-avatar" src="${user.avatar}" alt="${user.name}" />
+                    <span class="read-by-name">${user.name}</span>
+                `;
+                readByList.appendChild(item);
+            }
+        });
+        
+        readByModalClose.onclick = () => readByModal.classList.remove('active');
     }
 
 
@@ -3279,20 +3336,9 @@
     function showMessageActionModal(msgData) {
         const isOwnMessage = msgData.senderId === currentUserProfile.id;
         const isAdmin = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
+        // [جديد] إظهار زر "من قرأ رسالتي" فقط للرسائل المرسلة من المستخدم الحالي
+        messageActionReadBy.style.display = isOwnMessage ? 'block' : 'none';
 
 
         // إظهار/إخفاء الأزرار بناءً على الصلاحيات
@@ -3339,6 +3385,10 @@
         messageActionEdit.onclick = () => startEdit(msgData);
         messageActionReply.onclick = () => startReply(msgData);
         messageActionReact.onclick = () => showReactionModal(msgData); 
+        messageActionReadBy.onclick = () => { // [جديد] ربط زر من قرأ رسالتي
+            messageActionModal.classList.remove('active');
+            showReadByModal(msgData);
+        };
         messageActionCopy.onclick = () => handleCopyMessage(msgData);
         messageActionForward.onclick = () => startForward(msgData);
         messageActionDelete.onclick = () => handleDeleteMessage(msgData.id);
@@ -5265,7 +5315,8 @@
             const messageData = { 
                 text, 
                 senderId: currentUserProfile.id, 
-                createdAt: Timestamp.now() 
+                createdAt: Timestamp.now(),
+                readBy: [currentUserProfile.id] // [جديد] إضافة المرسل كأول قارئ
             };
 
 
@@ -5278,7 +5329,7 @@
             // إضافة بيانات الرد إن وجدت
             if (replyingToMessage) {
                 messageData.replyToId = replyingToMessage.id;
-                messageData.replyToName = replyingToMessage.name;
+                messageData.replyToName = replyingToingToMessage.name;
                 messageData.replyToText = replyingToMessage.text;
                 clearReplyState(); // مسح حالة الرد بعد الإرسال
             }
@@ -5328,6 +5379,9 @@
                     msgInput.focus(); 
                  }, 0);
             }
+            
+            // [تعديل] إزالة حالة الكتابة بعد الإرسال
+            updateTypingStatus(false);
         }
     }
 
