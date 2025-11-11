@@ -2,372 +2,290 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>السوق وياك | عقارات الشرقية</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #10b981; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        :root { --primary: #10b981; --dark: #0f172a; }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background-color: #f8fafc; 
+            -webkit-tap-highlight-color: transparent;
+            padding-bottom: 90px; /* Space for bottom nav */
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .card-aspect { aspect-ratio: 4/3; }
+        
+        /* Animations */
+        @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .animate-scale-up { animation: scaleUp 0.2s ease-out forwards; }
+        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #e2e8f0; }
     </style>
 </head>
-<body class="text-slate-800 bg-slate-50">
+<body class="text-slate-800">
 
-    <!-- شاشة تحميل (مع زر خروج للطوارئ) -->
-    <div id="global-loader" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-700">
-        <div class="loader w-12 h-12 border-4 mb-4"></div>
-        <h2 class="font-bold text-emerald-800 text-lg mb-2">جاري الاتصال بالسوق...</h2>
-        <p id="loader-status" class="text-xs text-gray-400">يرجى الانتظار لحظات</p>
-        <!-- زر طوارئ يظهر لو طول التحميل -->
-        <button onclick="document.getElementById('global-loader').remove()" id="force-close-btn" class="hidden mt-6 text-red-500 text-sm underline cursor-pointer">
-            اضغط هنا للدخول الإجباري (تخطي التحميل)
-        </button>
-    </div>
-
-    <!-- الهيدر (Navbar) -->
-    <nav class="fixed w-full z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-2 cursor-pointer select-none" id="site-logo">
-                <div class="bg-emerald-600 p-2 rounded-xl text-white shadow-lg shadow-emerald-200">
-                    <i data-lucide="home" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-extrabold text-slate-800">السوق <span class="text-emerald-600">وياك</span></h1>
-                    <p class="text-[10px] text-slate-400 font-bold">عقارات الشرقية</p>
-                </div>
-            </div>
-            <button onclick="window.toggleAddModal()" class="bg-slate-900 text-white px-4 py-2.5 rounded-full hover:bg-emerald-600 transition shadow-lg flex items-center gap-2 font-bold text-sm">
-                <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                <span class="hidden md:inline">أضف عقارك</span>
-                <span class="md:hidden">إضافة</span>
-            </button>
+    <!-- 1. Header -->
+    <header class="fixed top-0 w-full z-40 bg-white/90 backdrop-blur border-b border-slate-200 h-16 flex items-center justify-between px-4 shadow-sm">
+        <div class="flex items-center gap-2" id="logo-trigger">
+            <div class="bg-slate-900 text-white p-1.5 rounded-lg"><i data-lucide="building-2" class="w-6 h-6"></i></div>
+            <h1 class="font-bold text-lg text-slate-900">السوق <span class="text-emerald-600">وياك</span></h1>
         </div>
-    </nav>
+        <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-red-50 text-red-500 p-2 rounded-full"><i data-lucide="shield" class="w-5 h-5"></i></button>
+    </header>
 
-    <!-- المحتوى الرئيسي -->
-    <main class="pt-28 pb-20 container mx-auto px-4 min-h-screen">
-        <div class="flex justify-center mb-8 sticky top-24 z-30">
-            <div class="bg-white p-1.5 rounded-xl shadow-md border border-gray-100 flex w-full max-w-md md:w-auto">
-                <button onclick="window.filterListings('all')" id="btn-all" class="flex-1 md:flex-none px-6 py-2 rounded-lg font-bold text-sm transition bg-emerald-600 text-white shadow">الكل</button>
-                <button onclick="window.filterListings('sale')" id="btn-sale" class="flex-1 md:flex-none px-6 py-2 rounded-lg font-bold text-sm transition text-slate-500 hover:bg-gray-50">بيع</button>
-                <button onclick="window.filterListings('rent')" id="btn-rent" class="flex-1 md:flex-none px-6 py-2 rounded-lg font-bold text-sm transition text-slate-500 hover:bg-gray-50">إيجار</button>
-            </div>
+    <!-- 2. Main Content -->
+    <main class="pt-24 container mx-auto px-4 max-w-6xl">
+        <!-- Filter Chips -->
+        <div class="flex justify-center gap-3 mb-8 overflow-x-auto py-2 no-scrollbar">
+            <button onclick="filter('all')" id="chip-all" class="px-6 py-2 rounded-full bg-slate-900 text-white text-sm font-bold shadow-lg transform scale-105 transition">الكل</button>
+            <button onclick="filter('sale')" id="chip-sale" class="px-6 py-2 rounded-full bg-white border text-slate-600 text-sm font-bold hover:bg-slate-50 transition">بيع</button>
+            <button onclick="filter('rent')" id="chip-rent" class="px-6 py-2 rounded-full bg-white border text-slate-600 text-sm font-bold hover:bg-slate-50 transition">إيجار</button>
         </div>
 
-        <!-- منطقة عرض الأخطاء -->
-        <div id="error-banner" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <strong class="font-bold">تنبيه:</strong>
-            <span class="block sm:inline" id="error-msg"></span>
-        </div>
-
-        <div id="listings-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        
-        <div id="no-data" class="hidden flex-col items-center justify-center py-20 text-gray-400">
-            <div class="bg-gray-100 p-6 rounded-full mb-4"><i data-lucide="search-x" class="w-10 h-10 opacity-50"></i></div>
-            <p class="font-medium">لا توجد عقارات متاحة حالياً</p>
-        </div>
+        <!-- Grid -->
+        <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
+        <div id="grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="empty-state" class="hidden text-center py-20"><div class="bg-slate-100 p-4 rounded-full inline-block mb-2"><i data-lucide="inbox" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 font-bold">لا توجد عقارات حالياً</p></div>
     </main>
 
-    <!-- الفوتر -->
-    <footer class="bg-slate-900 text-white py-10 rounded-t-[2rem] mt-10 text-center">
-        <h3 class="text-xl font-bold mb-6 text-emerald-400">تواصل معنا</h3>
-        <div class="flex flex-wrap justify-center gap-6 mb-8">
-            <a href="https://wa.me/201206244875" target="_blank" class="bg-white/10 hover:bg-emerald-600 px-6 py-3 rounded-full flex items-center gap-2 transition"><i data-lucide="message-circle" class="w-5 h-5"></i> 01206244875</a>
-            <a href="https://www.facebook.com/share/17WdF9DX9x/" target="_blank" class="bg-white/10 hover:bg-blue-600 px-6 py-3 rounded-full flex items-center gap-2 transition"><i data-lucide="facebook" class="w-5 h-5"></i> فيسبوك</a>
-        </div>
-        <p class="text-slate-500 text-xs">© 2025 السوق وياك</p>
-    </footer>
+    <!-- 3. Mobile Bottom Nav -->
+    <nav class="fixed bottom-0 w-full glass-nav h-20 z-40 flex justify-around items-center text-[10px] font-bold text-slate-400 md:hidden pb-2">
+        <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="flex flex-col items-center gap-1 p-2 text-emerald-600"><i data-lucide="home" class="w-6 h-6"></i><span>الرئيسية</span></button>
+        <button onclick="toggleAddModal()" class="flex flex-col items-center -mt-8"><div class="w-14 h-14 bg-slate-900 rounded-full text-white flex items-center justify-center shadow-xl active:scale-90 transition"><i data-lucide="plus" class="w-7 h-7"></i></div><span class="mt-1 text-slate-600">إضافة</span></button>
+        <button onclick="toggleChat()" class="flex flex-col items-center gap-1 p-2 hover:text-slate-800"><i data-lucide="message-circle" class="w-6 h-6"></i><span>الدعم</span></button>
+    </nav>
 
-    <!-- الأزرار العائمة -->
-    <div class="fixed bottom-6 left-6 z-50 flex flex-col gap-4 items-center">
-        <button onclick="window.toggleChat()" id="fab-user" class="bg-emerald-600 text-white p-4 rounded-full shadow-2xl hover:bg-emerald-700 transition-all hover:scale-110 relative group">
-            <span class="absolute top-0 right-0 flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span></span>
-            <i data-lucide="headset" class="w-7 h-7"></i>
-        </button>
-        <button onclick="window.toggleAdminPanel()" id="fab-admin" class="hidden bg-blue-600 text-white p-4 rounded-full shadow-2xl border-4 border-white hover:scale-110 transition"><i data-lucide="shield-alert" class="w-6 h-6"></i></button>
+    <!-- Desktop Floating Buttons -->
+    <div class="hidden md:flex flex-col gap-3 fixed bottom-8 left-8 z-40">
+        <button onclick="toggleAddModal()" class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-xl font-bold hover:bg-emerald-600 transition flex items-center gap-2"><i data-lucide="plus" class="w-5 h-5"></i> أضف عقار</button>
+        <button onclick="toggleChat()" class="bg-emerald-600 text-white p-4 rounded-full shadow-xl hover:scale-110 transition self-end"><i data-lucide="headset" class="w-6 h-6"></i></button>
     </div>
 
-    <!-- نوافذ (Modals) -->
-    <div id="add-listing-modal" class="hidden fixed inset-0 bg-black/80 z-50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl">
-            <button onclick="window.toggleAddModal()" class="absolute top-4 left-4 bg-gray-100 rounded-full p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
-            <h2 class="text-xl font-bold text-slate-800 text-center mb-6">إضافة عقار جديد</h2>
-            <form onsubmit="event.preventDefault(); window.submitListing();" class="space-y-4">
-                <input id="p-title" type="text" class="w-full border bg-gray-50 rounded-xl px-4 py-3 focus:border-emerald-500 outline-none" placeholder="عنوان الإعلان" required>
-                <div class="grid grid-cols-2 gap-3">
-                    <input id="p-price" type="number" class="w-full border bg-gray-50 rounded-xl px-4 py-3 outline-none" placeholder="السعر (ج.م)" required>
-                    <select id="p-type" class="w-full border bg-gray-50 rounded-xl px-4 py-3 outline-none"><option value="sale">بيع</option><option value="rent">إيجار</option></select>
-                </div>
-                <input id="p-loc" type="text" class="w-full border bg-gray-50 rounded-xl px-4 py-3 outline-none" placeholder="العنوان" required>
-                <input id="p-phone" type="tel" class="w-full border bg-gray-50 rounded-xl px-4 py-3 outline-none" placeholder="رقم الموبايل" required>
-                <textarea id="p-desc" rows="3" class="w-full border bg-gray-50 rounded-xl px-4 py-3 outline-none" placeholder="التفاصيل..." required></textarea>
-                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:bg-emerald-50 relative">
-                    <input type="file" accept="image/*" onchange="window.handleImageUpload(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
-                    <div id="upload-placeholder"><i data-lucide="image-plus" class="w-8 h-8 mx-auto text-gray-400 mb-2"></i><span class="text-xs font-bold text-gray-500">اضغط لرفع صورة</span></div>
-                    <img id="preview-img" class="hidden w-full h-40 object-cover rounded-lg mx-auto">
-                </div>
-                <button type="submit" id="btn-submit" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold hover:bg-emerald-600 transition">نشر الإعلان</button>
-            </form>
-        </div>
-    </div>
+    <!-- ================= MODALS (Popups in Center) ================= -->
 
-    <!-- شات -->
-    <div id="chat-window" class="hidden fixed bottom-24 left-6 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col z-50 h-[450px]">
-        <div class="bg-emerald-600 p-4 text-white flex justify-between items-center shadow-md">
-            <div class="flex items-center gap-3"><div class="bg-white/20 p-2 rounded-full"><i data-lucide="bot" class="w-5 h-5"></i></div><div><p class="font-bold text-sm">الدعم الفني</p><p class="text-[10px]">متصل الآن</p></div></div>
-            <button onclick="window.toggleChat()"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-slate-50 space-y-4 text-sm"></div>
-        <div class="p-3 bg-white border-t flex gap-2 items-center">
-            <input type="text" id="chat-input" placeholder="اكتب رسالتك..." class="flex-1 bg-gray-100 border-0 rounded-xl px-4 py-3 text-sm outline-none">
-            <button onclick="window.sendUserMessage()" class="bg-emerald-600 text-white p-3 rounded-xl hover:bg-emerald-700"><i data-lucide="send" class="w-4 h-4"></i></button>
-        </div>
-    </div>
-
-    <!-- لوحة الأدمن -->
-    <div id="admin-panel" class="hidden fixed inset-0 bg-slate-900/95 z-50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-5xl h-[85vh] rounded-2xl flex overflow-hidden shadow-2xl">
-            <div class="w-1/3 bg-gray-50 border-l flex flex-col">
-                <div class="p-4 border-b bg-white font-bold flex justify-between items-center"><span>العملاء</span><button onclick="window.loadAdminChats()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button></div>
-                <div id="admin-chat-list" class="flex-1 overflow-y-auto p-2 space-y-2"></div>
+    <!-- 1. Add Listing Modal (CENTERED POPUP) -->
+    <div id="add-modal" class="hidden fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-scale-up flex flex-col max-h-[90vh]">
+            <div class="p-4 border-b flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-800">إضافة عقار جديد</h3>
+                <button onclick="toggleAddModal()" class="bg-white p-2 rounded-full hover:bg-red-50 hover:text-red-500 transition shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="w-2/3 bg-white flex flex-col relative">
-                <button onclick="window.toggleAdminPanel()" class="absolute top-4 left-4 p-2 bg-gray-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
-                <div id="admin-chat-view" class="hidden flex flex-col h-full">
-                    <div class="h-16 border-b flex items-center justify-between px-6 bg-blue-50/50"><span id="admin-chat-header" class="font-bold text-blue-900 text-lg"></span><button onclick="window.kickUser()" class="bg-red-100 text-red-600 px-4 py-1.5 rounded-lg text-xs font-bold">إنهاء المحادثة</button></div>
-                    <div id="admin-messages" class="flex-1 p-6 overflow-y-auto bg-slate-50 space-y-3 text-sm"></div>
-                    <div class="p-4 border-t flex gap-3 bg-white"><input id="admin-input" class="flex-1 border rounded-xl px-4 py-3 outline-none" placeholder="الرد..."><button onclick="window.adminSendMessage()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">إرسال</button></div>
+            
+            <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                <!-- Image Upload -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2">صور العقار (حد أقصى 3)</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <label class="aspect-square border-2 border-dashed border-emerald-200 bg-emerald-50/50 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-emerald-100 transition text-emerald-600">
+                            <input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="hidden">
+                            <i data-lucide="camera" class="w-6 h-6"></i>
+                        </label>
+                        <div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar"></div>
+                    </div>
                 </div>
-                <div id="admin-empty" class="flex-1 flex flex-col items-center justify-center text-gray-300"><i data-lucide="message-square-dashed" class="w-20 h-20 mb-4 opacity-50"></i><p>اختر محادثة</p></div>
+
+                <input id="in-title" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-emerald-500 outline-none" placeholder="العنوان (مثال: شقة للبيع)">
+                <div class="flex gap-3">
+                    <input id="in-price" type="number" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-emerald-500 outline-none" placeholder="السعر">
+                    <select id="in-type" class="w-28 bg-slate-50 border border-slate-200 rounded-xl px-2 py-3 text-sm font-bold outline-none">
+                        <option value="sale">بيع</option>
+                        <option value="rent">إيجار</option>
+                    </select>
+                </div>
+                <input id="in-loc" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-emerald-500 outline-none" placeholder="الموقع">
+                <input id="in-phone" type="tel" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-emerald-500 outline-none" placeholder="رقم الهاتف">
+                <textarea id="in-desc" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-emerald-500 outline-none" placeholder="التفاصيل..."></textarea>
+            </div>
+
+            <div class="p-4 border-t bg-slate-50">
+                <button onclick="submitListing()" id="btn-publish" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg hover:bg-emerald-600 transition">نشر الإعلان</button>
             </div>
         </div>
     </div>
 
+    <!-- 2. Support Chat Modal (CENTERED POPUP) -->
+    <div id="chat-modal" class="hidden fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+        <div class="bg-white w-full max-w-sm h-[600px] max-h-[85vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-scale-up">
+            <!-- Header -->
+            <div class="bg-emerald-600 p-4 text-white flex justify-between items-center shadow-md">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2 rounded-full"><i data-lucide="bot" class="w-6 h-6"></i></div>
+                    <div>
+                        <h4 class="font-bold text-sm">الدعم الفني</h4>
+                        <div class="flex items-center gap-1 opacity-90"><span class="w-2 h-2 bg-green-400 rounded-full border border-emerald-600"></span> <span class="text-[10px]">متاح الآن</span></div>
+                    </div>
+                </div>
+                <button onclick="toggleChat()" class="hover:bg-white/20 p-1.5 rounded-full transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <!-- Messages -->
+            <div id="chat-box" class="flex-1 bg-slate-100 p-4 overflow-y-auto space-y-3 text-sm bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+
+            <!-- Input -->
+            <div class="p-3 bg-white border-t flex items-center gap-2">
+                <input id="chat-msg" type="text" class="flex-1 bg-slate-50 border border-slate-200 rounded-full px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="اكتب رسالة...">
+                <button onclick="sendMsg()" class="w-10 h-10 bg-emerald-600 rounded-full text-white flex items-center justify-center shadow hover:scale-105 transition"><i data-lucide="send" class="w-4 h-4"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Lightbox -->
+    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[100] flex items-center justify-center" onclick="this.classList.add('hidden')">
+        <img id="lightbox-img" src="" class="max-w-full max-h-screen object-contain p-2">
+        <button class="absolute top-6 right-6 text-white bg-white/10 p-2 rounded-full"><i data-lucide="x" class="w-6 h-6"></i></button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="hidden fixed inset-0 bg-slate-900 z-[90] flex flex-col text-white">
+        <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800">
+            <h2 class="font-bold">لوحة التحكم</h2>
+            <div class="flex gap-4"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-5 h-5"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-6 h-6"></i></button></div>
+        </div>
+        <div class="flex-1 flex overflow-hidden">
+            <div class="w-1/3 border-l border-slate-700 bg-slate-800 overflow-y-auto p-2" id="admin-users-list"></div>
+            <div class="w-2/3 flex flex-col bg-slate-900 relative">
+                <div id="admin-chat-header" class="h-12 border-b border-slate-700 flex items-center justify-between px-4 text-sm font-bold bg-slate-800/50"><span>اختر محادثة</span><button onclick="kickUser()" class="hidden text-xs bg-red-600 px-3 py-1 rounded">إنهاء</button></div>
+                <div id="admin-msg-area" class="flex-1 p-4 overflow-y-auto space-y-2 text-sm"></div>
+                <div class="p-3 border-t border-slate-700 flex gap-2"><input id="admin-input" class="flex-1 bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-blue-600 px-4 py-2 rounded font-bold">إرسال</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logic -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC7zHuH8LK-yQAKG-Nm7dh31fXtVLxuCLM",
             authDomain: "sharqia-81030.firebaseapp.com",
-            databaseURL: "https://sharqia-81030-default-rtdb.firebaseio.com",
             projectId: "sharqia-81030",
             storageBucket: "sharqia-81030.firebasestorage.app",
             messagingSenderId: "581888625195",
             appId: "1:581888625195:web:1667ba1e439e8e6c1fb86e"
         };
 
-        // --- منطق الأمان (Safety Logic) ---
-        // مؤقت: لو مرت 8 ثواني ومفتحش، نظهر زر الطوارئ
-        setTimeout(() => {
-            const loaderBtn = document.getElementById('force-close-btn');
-            const loaderMsg = document.getElementById('loader-status');
-            if(document.getElementById('global-loader')) {
-                loaderBtn.classList.remove('hidden');
-                loaderMsg.innerText = "يبدو أن هناك مشكلة في الاتصال أو الإعدادات...";
-                loaderMsg.style.color = "red";
-            }
-        }, 8000);
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        let state = { user: null, listings: [], chatId: null, chatStep: 0, tempName: '', adminActiveChatId: null, uploadedBase64: null, isAdmin: false };
+        let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false };
 
-        // تسجيل الدخول
-        signInAnonymously(auth)
-            .then(() => console.log("Signed In"))
-            .catch((error) => {
-                console.error("Auth Error:", error);
-                document.getElementById('global-loader').remove(); // إزالة اللودر عند الخطأ لنرى الرسالة
-                showError("فشل تسجيل الدخول: تأكد من تفعيل Anonymous Auth في لوحة التحكم.");
-            });
+        signInAnonymously(auth);
+        onAuthStateChanged(auth, (u) => { if(u) { state.user = u; document.getElementById('loader').classList.add('hidden'); loadListings(); checkUserChat(); } });
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                state.user = user;
-                // إزالة اللودر بنجاح
-                const loader = document.getElementById('global-loader');
-                if(loader) loader.remove();
-                initApp();
-            }
-        });
-
-        function showError(msg) {
-            const banner = document.getElementById('error-banner');
-            document.getElementById('error-msg').innerText = msg;
-            banner.classList.remove('hidden');
-        }
-
-        function initApp() {
-            loadListings();
-            checkExistingChat();
-            document.getElementById('site-logo').addEventListener('click', () => {
-                if(prompt("كود المدير:") === '1532') {
-                    state.isAdmin = true;
-                    document.getElementById('fab-admin').classList.remove('hidden');
-                    document.getElementById('fab-user').classList.add('hidden');
-                    window.filterListings('all');
-                    alert("تم تفعيل وضع المدير");
-                }
-            });
-        }
-
-        // --- العقارات ---
-        function loadListings() {
-            const q = query(collection(db, "listings"));
-            onSnapshot(q, (snapshot) => {
-                state.listings = [];
-                snapshot.forEach(doc => state.listings.push({ id: doc.id, ...doc.data() }));
-                state.listings.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-                window.filterListings('all');
-            }, (error) => {
-                console.error("Firestore Error:", error);
-                if(error.code === 'permission-denied') showError("خطأ: لا تملك صلاحية القراءة. تأكد من Security Rules.");
-            });
-        }
-
-        window.filterListings = (type) => {
-            const grid = document.getElementById('listings-grid');
-            grid.innerHTML = '';
-            
-            const buttons = { all: document.getElementById('btn-all'), sale: document.getElementById('btn-sale'), rent: document.getElementById('btn-rent') };
-            Object.keys(buttons).forEach(k => buttons[k].className = k === type ? "flex-1 md:flex-none px-6 py-2 rounded-lg font-bold text-sm transition bg-emerald-600 text-white shadow" : "flex-1 md:flex-none px-6 py-2 rounded-lg font-bold text-sm transition text-slate-500 hover:bg-gray-50");
-
-            let filtered = type === 'all' ? state.listings : state.listings.filter(i => i.type === type);
-            if (filtered.length === 0) {
-                document.getElementById('no-data').classList.remove('hidden');
-                document.getElementById('no-data').classList.add('flex');
-            } else {
-                document.getElementById('no-data').classList.add('hidden');
-                document.getElementById('no-data').classList.remove('flex');
-                filtered.forEach(item => {
-                    const adminBtn = state.isAdmin ? `<button onclick="window.deleteItem('${item.id}')" class="absolute top-3 right-3 bg-white text-red-500 p-2 rounded-full shadow z-10"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : '';
-                    const card = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl transition-all relative group overflow-hidden">
-                        ${adminBtn}
-                        <div class="h-52 bg-gray-100 relative"><img src="${item.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"><span class="absolute bottom-3 right-3 ${item.type === 'sale' ? 'bg-emerald-600' : 'bg-blue-600'} text-white px-4 py-1 rounded-lg font-bold text-xs shadow-lg">${item.type === 'sale' ? 'للبيع' : 'للإيجار'}</span></div>
-                        <div class="p-5"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-lg truncate flex-1">${item.title}</h3><span class="text-emerald-700 font-black text-lg">${Number(item.price).toLocaleString()} ج.م</span></div><div class="flex items-center text-slate-500 text-xs mb-4 gap-1"><i data-lucide="map-pin" class="w-3 h-3 text-emerald-500"></i> <span>${item.location}</span></div><p class="text-gray-500 text-sm mb-6 line-clamp-2 h-10">${item.desc}</p><div class="pt-4 border-t border-gray-100 flex gap-3"><a href="https://wa.me/20${item.phone}" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold text-sm shadow-lg"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a></div></div></div>`;
-                    grid.innerHTML += card;
-                });
-                lucide.createIcons();
-            }
-        };
-
-        // --- رفع الصور ---
-        window.handleImageUpload = (input) => {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = () => {
-                        const cvs = document.createElement('canvas');
-                        const ctx = cvs.getContext('2d');
-                        const scale = 800 / img.width;
-                        cvs.width = 800; cvs.height = img.height * scale;
-                        ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
-                        state.uploadedBase64 = cvs.toDataURL('image/jpeg', 0.6);
-                        document.getElementById('preview-img').src = state.uploadedBase64;
-                        document.getElementById('preview-img').classList.remove('hidden');
-                        document.getElementById('upload-placeholder').classList.add('hidden');
-                    }
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        };
-
-        window.submitListing = async () => {
-            try {
-                if (!state.uploadedBase64) throw new Error("مطلوب صورة");
-                document.getElementById('btn-submit').innerText = 'جاري النشر...';
-                await addDoc(collection(db, "listings"), {
-                    title: document.getElementById('p-title').value, price: Number(document.getElementById('p-price').value),
-                    type: document.getElementById('p-type').value, location: document.getElementById('p-loc').value,
-                    desc: document.getElementById('p-desc').value, phone: document.getElementById('p-phone').value,
-                    image: state.uploadedBase64, createdAt: serverTimestamp(), authorId: state.user.uid
-                });
-                alert("تم النشر!"); window.toggleAddModal(); location.reload();
-            } catch (e) { alert("خطأ: " + e.message); document.getElementById('btn-submit').innerText = 'نشر الإعلان'; }
-        };
-        window.deleteItem = async (id) => { if(confirm("حذف؟")) await deleteDoc(doc(db, "listings", id)); };
-
-        // --- الشات ---
+        // UI Toggles
+        window.toggleAddModal = () => { document.getElementById('add-modal').classList.toggle('hidden'); state.images=[]; document.getElementById('preview-area').innerHTML=''; };
+        
+        // --- Fixed Chat Toggle (Prevents duplicate welcome) ---
         window.toggleChat = () => {
-            const w = document.getElementById('chat-window'); w.classList.toggle('hidden');
-            if (!w.classList.contains('hidden') && !state.chatId && state.chatStep === 0) appendChatMsg('bot', 'مرحباً! ما هو الاسم الكريم؟');
-        };
-        window.sendUserMessage = async () => {
-            const txt = document.getElementById('chat-input').value.trim();
-            if (!txt) return;
-            document.getElementById('chat-input').value = '';
-            if (!state.chatId) {
-                appendChatMsg('user', txt);
-                if (state.chatStep === 0) { state.tempName = txt; state.chatStep = 1; setTimeout(() => appendChatMsg('bot', `أهلاً ${state.tempName}، كيف أساعدك؟`), 500); }
-                else if (state.chatStep === 1) {
-                    state.chatStep = 2; setTimeout(() => appendChatMsg('bot', 'جاري تحويلك للدعم...'), 500);
-                    const ref = await addDoc(collection(db, "chats"), { userId: state.user.uid, userName: state.tempName, lastMsg: txt, status: 'waiting', messages: [{ s: 'bot', t: `العميل: ${state.tempName}`, d: new Date().toISOString() }, { s: 'user', t: txt, d: new Date().toISOString() }], createdAt: serverTimestamp() });
-                    state.chatId = ref.id; listenToChatUpdates(state.chatId);
-                }
-            } else {
-                const ref = doc(db, "chats", state.chatId);
-                const snap = await getDocs(query(collection(db, "chats"), where('__name__', '==', state.chatId)));
-                if(!snap.empty) { const msgs = snap.docs[0].data().messages || []; msgs.push({s:'user', t:txt, d:new Date().toISOString()}); await updateDoc(ref, { messages: msgs, lastMsg: txt, status: 'waiting' }); }
+            const c = document.getElementById('chat-modal');
+            c.classList.toggle('hidden');
+            // Only send welcome if chat is opening, no ID exists, step is 0, AND welcome hasn't been sent yet
+            if(!c.classList.contains('hidden') && !state.chatId && state.chatStep === 0 && !state.welcomeSent) {
+                state.welcomeSent = true; // Flag to prevent duplication
+                setTimeout(() => botMsg('مرحباً بك في السوق وياك 👋<br>أنا المساعد الذكي. ما هو اسمك الكريم؟'), 300);
             }
         };
-        function checkExistingChat() {
-            onSnapshot(query(collection(db, "chats"), where('userId', '==', state.user.uid), where('status', '!=', 'closed')), (snap) => {
-                if(!snap.empty) { state.chatId = snap.docs[0].id; state.chatStep = 2; listenToChatUpdates(state.chatId); }
-            });
-        }
-        function listenToChatUpdates(id) {
-            onSnapshot(doc(db, "chats", id), (snap) => {
-                if(snap.exists()) {
-                    const d = snap.data(); document.getElementById('chat-messages').innerHTML = '';
-                    d.messages.forEach(m => { if(!m.t.startsWith('العميل:')) appendChatMsg(m.s, m.t); });
-                    if(d.status === 'closed') { appendChatMsg('bot', 'تم إنهاء المحادثة.'); document.getElementById('chat-input').disabled = true; }
+
+        window.toggleAdminPanel = () => { document.getElementById('admin-panel').classList.toggle('hidden'); if(!document.getElementById('admin-panel').classList.contains('hidden')) refreshAdmin(); };
+
+        // Image Upload
+        window.handleUpload = async (input) => {
+            if(input.files.length + state.images.length > 3) return alert('الحد الأقصى 3 صور');
+            for(let file of input.files) {
+                const comp = await compress(file);
+                state.images.push(comp);
+                document.getElementById('preview-area').innerHTML += `<img src="${comp}" class="w-14 h-14 rounded-lg object-cover border border-emerald-200 shrink-0">`;
+            }
+        };
+        function compress(file) {
+            return new Promise(res => {
+                const r = new FileReader(); r.readAsDataURL(file);
+                r.onload = e => {
+                    const i = new Image(); i.src = e.target.result;
+                    i.onload = () => { const c = document.createElement('canvas'); const ctx = c.getContext('2d'); const s = 800/i.width; c.width=800; c.height=i.height*s; ctx.drawImage(i,0,0,c.width,c.height); res(c.toDataURL('image/jpeg',0.7)); }
                 }
             });
         }
-        function appendChatMsg(s, t) {
-            const d = document.createElement('div'); d.className = `flex ${s === 'user' ? 'justify-start' : 'justify-end'}`;
-            d.innerHTML = `<div class="${s === 'user' ? 'bg-emerald-100' : (s==='bot'?'bg-gray-100':'bg-blue-600 text-white')} py-2 px-4 rounded-2xl max-w-[85%] text-sm mb-2 shadow-sm">${t}</div>`;
-            document.getElementById('chat-messages').appendChild(d); document.getElementById('chat-messages').scrollTop = 9999;
+
+        // Listings
+        function loadListings() {
+            onSnapshot(query(collection(db, "listings")), (snap) => {
+                state.listings = []; snap.forEach(d => state.listings.push({id:d.id, ...d.data()}));
+                state.listings.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+                filter('all');
+            });
         }
-
-        // --- الأدمن ---
-        window.toggleAdminPanel = () => { document.getElementById('admin-panel').classList.toggle('hidden'); if(!document.getElementById('admin-panel').classList.contains('hidden')) window.loadAdminChats(); };
-        window.loadAdminChats = () => {
-            onSnapshot(query(collection(db, "chats"), where('status', '!=', 'closed')), (snap) => {
-                const list = document.getElementById('admin-chat-list'); list.innerHTML = '';
-                snap.forEach(d => {
-                    const data = d.data();
-                    list.innerHTML += `<div onclick="window.openAdminChat('${d.id}', '${data.userName}')" class="p-3 rounded border cursor-pointer mb-2 hover:bg-gray-50 ${state.adminActiveChatId===d.id?'border-emerald-500 bg-emerald-50':''}"><div class="font-bold text-sm flex justify-between"><span>${data.userName}</span><span class="w-2 h-2 rounded-full ${data.status==='waiting'?'bg-red-500':'bg-gray-300'}"></span></div><div class="text-xs truncate text-gray-500">${data.lastMsg}</div></div>`;
-                });
+        window.filter = (type) => {
+            ['all','sale','rent'].forEach(t => document.getElementById(`chip-${t}`).className = t===type ? "px-6 py-2 rounded-full bg-slate-900 text-white text-sm font-bold shadow-lg transform scale-105 transition" : "px-6 py-2 rounded-full bg-white border text-slate-600 text-sm font-bold hover:bg-slate-50 transition");
+            const data = type === 'all' ? state.listings : state.listings.filter(x => x.type === type);
+            const cont = document.getElementById('grid-container'); cont.innerHTML = '';
+            if(!data.length) { document.getElementById('empty-state').classList.remove('hidden'); } 
+            else {
+                document.getElementById('empty-state').classList.add('hidden');
+                data.forEach(item => cont.innerHTML += createCard(item));
+            }
+            lucide.createIcons();
+        };
+        function createCard(item) {
+            const imgs = Array.isArray(item.images)?item.images:[item.image];
+            const slider = imgs.map(src=>`<img src="${src}" class="w-full h-full object-cover shrink-0 cursor-pointer" onclick="openLightbox('${src}')">`).join('');
+            const dots = imgs.length>1?`<div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-10 pointer-events-none">${imgs.map(()=>`<div class="w-1.5 h-1.5 rounded-full bg-white/80 shadow"></div>`).join('')}</div>`:'';
+            const admin = state.isAdmin?`<div class="absolute top-3 right-3 z-20 flex gap-2"><button onclick="del('${item.id}')" class="bg-white text-red-500 p-1.5 rounded-full shadow"><i data-lucide="trash-2" class="w-4 h-4"></i></button><button onclick="pin('${item.id}',${item.isPinned})" class="bg-white ${item.isPinned?'text-amber-500':'text-gray-400'} p-1.5 rounded-full shadow"><i data-lucide="star" class="w-4 h-4 ${item.isPinned?'fill-current':''}"></i></button></div>`:'';
+            return `<div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-xl transition-all flex flex-col group">
+                <div class="relative w-full card-aspect bg-slate-200 overflow-hidden">${admin}<div class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth">${slider}</div>${dots}<span class="absolute bottom-3 right-3 ${item.type==='sale'?'bg-emerald-600':'bg-blue-600'} text-white px-3 py-1 rounded-lg text-[10px] font-bold shadow-lg pointer-events-none">${item.type==='sale'?'بيع':'إيجار'}</span></div>
+                <div class="p-4 flex-1 flex flex-col"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-slate-900 line-clamp-1">${item.title}</h3><span class="font-black text-emerald-600 whitespace-nowrap">${Number(item.price).toLocaleString()}</span></div><div class="flex items-center gap-1 text-xs text-slate-400 mb-4"><i data-lucide="map-pin" class="w-3 h-3"></i>${item.location}</div><div class="mt-auto flex gap-2 pt-3 border-t border-slate-50"><a href="https://wa.me/20${item.phone}" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl flex justify-center items-center gap-2 text-xs font-bold transition"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a><a href="tel:${item.phone}" class="bg-slate-50 text-slate-600 p-2 rounded-xl border border-slate-100"><i data-lucide="phone" class="w-4 h-4"></i></a></div></div></div>`;
+        }
+        window.openLightbox=(src)=>{document.getElementById('lightbox-img').src=src;document.getElementById('lightbox').classList.remove('hidden')};
+        window.del=async(id)=>{if(confirm('حذف؟'))await deleteDoc(doc(db,"listings",id))};
+        window.pin=async(id,s)=>{await updateDoc(doc(db,"listings",id),{isPinned:!s})};
+        window.submitListing = async () => {
+            if(!state.images.length) return alert('مطلوب صورة');
+            document.getElementById('btn-publish').innerText = "...";
+            await addDoc(collection(db,"listings"), {
+                title:document.getElementById('in-title').value, price:Number(document.getElementById('in-price').value),
+                type:document.getElementById('in-type').value, location:document.getElementById('in-loc').value, phone:document.getElementById('in-phone').value,
+                desc:document.getElementById('in-desc').value, images:state.images, image:state.images[0], isPinned:false, createdAt:serverTimestamp(), authorId:state.user.uid
             });
+            alert('تم!'); window.toggleAddModal(); location.reload();
         };
-        window.openAdminChat = (id, name) => {
-            state.adminActiveChatId = id; document.getElementById('admin-empty').classList.add('hidden'); document.getElementById('admin-chat-view').classList.remove('hidden'); document.getElementById('admin-chat-header').innerText = name;
-            onSnapshot(doc(db, "chats", id), (snap) => {
-                const box = document.getElementById('admin-messages'); box.innerHTML = '';
-                snap.data().messages.forEach(m => box.innerHTML += `<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-xl text-sm ${m.s==='support'?'bg-blue-600 text-white':'bg-gray-100'}">${m.t}</span></div>`);
-                box.scrollTop = 9999;
-            });
-        };
-        window.adminSendMessage = async () => {
-            const txt = document.getElementById('admin-input').value.trim(); if(!txt||!state.adminActiveChatId) return; document.getElementById('admin-input').value='';
-            const snap = await getDocs(query(collection(db, "chats"), where('__name__', '==', state.adminActiveChatId)));
-            if(!snap.empty) { const msgs = snap.docs[0].data().messages||[]; msgs.push({s:'support', t:txt, d:new Date().toISOString()}); await updateDoc(doc(db,"chats",state.adminActiveChatId), {messages:msgs, status:'active'}); }
-        };
-        window.kickUser = async () => { if(confirm("إنهاء؟")) { await updateDoc(doc(db, "chats", state.adminActiveChatId), {status:'closed'}); state.adminActiveChatId=null; document.getElementById('admin-chat-view').classList.add('hidden'); document.getElementById('admin-empty').classList.remove('hidden'); }};
 
-        window.toggleAddModal = () => document.getElementById('add-listing-modal').classList.toggle('hidden');
+        // Chat
+        window.sendMsg = async () => {
+            const t = document.getElementById('chat-msg').value.trim(); if(!t) return; document.getElementById('chat-msg').value='';
+            userMsg(t);
+            if(!state.chatId) {
+                if(state.chatStep===0) { state.tempName=t; state.chatStep=1; setTimeout(()=>botMsg(`أهلاً ${t}، كيف نساعدك؟`),500); }
+                else if(state.chatStep===1) {
+                    state.chatStep=2; setTimeout(()=>botMsg('جاري التوصيل بالدعم...'),500);
+                    const r=await addDoc(collection(db,"chats"),{userId:state.user.uid, userName:state.tempName, lastMsg:t, status:'waiting', messages:[{s:'bot',t:`الاسم: ${state.tempName}`,d:new Date()},{s:'user',t,d:new Date()}], createdAt:serverTimestamp()});
+                    state.chatId=r.id; listenChat(r.id);
+                }
+            } else {
+                const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));
+                if(!s.empty){const m=s.docs[0].data().messages; m.push({s:'user',t,d:new Date()}); await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'});}
+            }
+        };
+        function listenChat(id) { onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data(); document.getElementById('chat-box').innerHTML=''; d.messages.forEach(m=>{if(!m.t.startsWith('الاسم:')){if(m.s==='user')userMsg(m.t);else botMsg(m.t)}}); if(d.status==='closed'){botMsg('تم إنهاء المحادثة');document.getElementById('chat-msg').disabled=true}}}) }
+        function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-emerald-100 text-emerald-900 px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-sm max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
+        function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white text-slate-700 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-sm max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
+
+        // Admin
+        document.getElementById('logo-trigger').addEventListener('click',()=>{if(prompt('Code:')==='1532'){state.isAdmin=true;document.getElementById('btn-admin-top').classList.remove('hidden');filter('all');alert('Admin Mode')}});
+        window.refreshAdmin=()=>{onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{const l=document.getElementById('admin-users-list');l.innerHTML='';s.forEach(d=>{const dt=d.data();l.innerHTML+=`<div onclick="loadAdmin('${d.id}','${dt.userName}')" class="p-3 mb-2 bg-slate-700 rounded cursor-pointer border border-slate-600 hover:bg-slate-600"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-slate-400 truncate mt-1">${dt.lastMsg}</div></div>`})})};
+        window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" class="text-xs bg-red-600 px-2 py-1 rounded text-white">إنهاء</button>`;onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-blue-600 text-white':'bg-slate-700 text-white'}">${m.t}</span></div>`});b.scrollTop=9999})};
+        window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
+        window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML=''}};
+
         lucide.createIcons();
     </script>
 </body>
