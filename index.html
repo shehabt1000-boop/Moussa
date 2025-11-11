@@ -3,1320 +3,427 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تجارة الزقازيق | PDF محول صور</title>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+    <title>السوق وياك | عقارات وخدمات بالشرقية</title>
+    
+    <!-- استدعاء Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- استدعاء خط 'Cairo' -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- أيقونات Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* الأنماط (Styles) تبقى كما هي */
-        :root {
-            --primary-dark-blue: #0056b3;
-            --accent-orange: #ff9800;
-            --btn-color: #4a148c;
-            --preview-color: #17a2b8;
-            --light-bg: #f8f8f8;
-            --dark-text: #333;
-            --reset-bg: #c8e6c9;
-            --reset-text: #1b5e20;
-            --progress-bar-color: #ff9800;
-            --shadow-color: rgba(0, 0, 0, 0.25);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Arial', 'Tahoma', sans-serif;
-            background-color: #f0f0f5;
-            margin: 0;
-            padding: 0;
-            text-align: right;
-            line-height: 1.6;
-        }
-
-        /* =============================== */
-/* الشريط العلوي الجامعي بلون الأزرق × الذهبي */
-.top-bar {
-    background: linear-gradient(90deg, #00264d, #004c99, #b8860b);
-    color: white;
-    padding: 25px 20px 15px 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    position: relative;
-    border-bottom: 3px solid rgba(255,255,255,0.2);
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-}
-
-/* =============================== */
-/* العنوان الرئيسي (بنفس الخط والحجم الأصلي) */
-.top-bar h1 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-/* =============================== */
-/* نص "تصميم شهاب طارق" (بنفس الشكل الأصلي) */
-.designer-credit-container {
-    position: absolute;
-    top: 0px;
-    right: 10px;
-    direction: ltr;
-    text-align: right;
-    z-index: 10;
-}
-
-.designer-credit {
-    font-size: 0.50rem;
-    opacity: 1;
-    color: #FFFFFF;
-    display: block;
-    white-space: nowrap;
-    font-weight: bold;
-    text-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
-}
-
-/* =============================== */
-/* الشاشات الكبيرة */
-@media (min-width: 600px) {
-    .top-bar {
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 15px 50px;
-    }
-
-    .top-bar h1 {
-        font-size: 1.6rem;
-    }
-
-    .designer-credit-container {
-        position: absolute;
-        top: 5px;
-        right: 10px;
-    }
-}
-
-        .container {
-            max-width: 850px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
         }
         
-        .container.has-fixed-button {
-            padding-bottom: 90px; 
-        }
-
-        .name-settings-bar {
-            padding: 15px 0;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 25px;
-        }
-
-        .name-settings-bar label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: var(--primary-dark-blue);
-        }
-
-        #pdfName {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 1rem;
-            margin-bottom: 15px;
-        }
-
-        .compression-toggle-container, .scanner-mode-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 10px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            margin-bottom: 10px; /* مسافة بين الإعدادات */
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
         }
         
-        .compression-toggle-container.disabled, .scanner-mode-container.disabled {
-            background-color: #f0f0f0;
-            opacity: 1;
-            cursor: default;
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* النص */
-        .compression-label, .scanner-label {
-            flex: 1;
-            font-weight: 600;
-            color: var(--primary-dark-blue);
-            cursor: default;
-            font-size: 0.78rem;
-            line-height: 1.3;
-            margin: 0;
+        .gradient-text {
+            background: linear-gradient(to right, #16a34a, #0ea5e9); /* تم تغيير الألوان لتناسب العقارات (أخضر وأزرق) */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
-        /* قائمة أوضاع الماسح الضوئي */
-        #scannerMode {
-            padding: 6px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            color: var(--dark-text);
-            background-color: white;
-            flex-shrink: 0;
-            min-width: 150px;
+        /* تأثير زر الشات العائم */
+        .floating-chat {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            animation: bounce 2s infinite;
         }
-
-        /* الزر */
-        .switch {
-            position: relative;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 46px;
-            height: 24px;
-            flex-shrink: 0;
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
-
-        /* الجزء الداخلي */
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .3s;
-            border-radius: 20px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            border-radius: 50%;
-            transition: .3s;
-        }
-
-        input:checked + .slider {
-            background-color: var(--btn-color);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(22px);
-        }
-
-        /* نحذف الكود اللي كان بيخليهم تحت بعض في الموبايل */
-        .compression-toggle-container.disabled input:checked+.slider,
-        .compression-toggle-container.disabled .slider {
-            background-color: #ccc;
-            cursor: default;
-        }
-
-        .compression-toggle-container.disabled input:checked+.slider:before,
-        .compression-toggle-container.disabled .slider:before {
-            background-color: #e0e0e0;
-            cursor: default;
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(25px);
-        }
-
-        .slider.round {
-            border-radius: 34px;
-        }
-
-        .slider.round:before {
-            border-radius: 50%;
-        }
-
-        .upload-options-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            padding: 20px 0;
-            border-radius: 10px;
-            background-color: var(--light-bg);
-            border: 2px dashed #ccc;
-        }
-
-        .upload-option-btn {
-            flex-grow: 1;
-            min-width: 120px;
-            max-width: 180px;
-            padding: 15px 10px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            text-align: center;
-        }
-
-        .upload-option-btn span {
-            display: block;
-            font-size: 1.5rem;
-            margin-bottom: 5px;
-        }
-
-        #galleryBtn {
-            background: linear-gradient(45deg, #007bff, #00aaff);
-        }
-
-        #cameraBtn {
-            background: linear-gradient(45deg, #28a745, #4caf50);
-        }
-        
-        #pdfBtn {
-            background: linear-gradient(45deg, #dc3545, #ff6b6b);
-        }
-
-        .hidden-input {
-            display: none !important;
-        }
-
-        #fileCount {
-            font-weight: bold;
-            color: var(--btn-color);
-            margin: 20px 0 10px 0;
-            display: block;
-            text-align: center;
-            padding: 5px 0;
-            border-top: 1px solid #eee;
-        }
-
-        #preview {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        #preview img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        .floating-actions-container {
-            margin-top: 20px; 
-            padding-bottom: 20px;
-        }
-
-        @media (max-width: 600px) {
-            .floating-actions-container {
-                position: fixed; 
-                bottom: 0;
-                left: 0;
-                right: 0;
-                width: 100%;
-                background-color: #ffffff; 
-                padding: 10px 20px;
-                margin: 0;
-                box-shadow: 0 -4px 10px var(--shadow-color);
-                z-index: 100;
-                display: none; 
-                transition: opacity 0.3s;
-            }
-        }
-
-        .download-share-area {
-            display: none;
-            margin-top: 25px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-
-        .download-share-area.visible {
-            display: block;
-        }
-
-        #pdfDetails {
-            background-color: #e6ffe6;
-            border: 1px solid #b3ffb3;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 0.95rem;
-            color: #007f00;
-        }
-
-        #pdfDetails.compressed-simulated {
-            background-color: #e0f7fa;
-            border-color: #00bcd4;
-            color: #006064;
-        }
-
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        @media (min-width: 600px) {
-            .action-buttons {
-                flex-direction: row;
-                flex-wrap: wrap;
-            }
-        }
-
-        .action-buttons button {
-            flex-grow: 1;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: bold;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
-        .action-buttons button:not(#resetBtn) {
-            min-width: 30%;
-        }
-
-        #convertBtn {
-            background-color: var(--btn-color);
-            color: white;
-            width: 100%; 
-        }
-
-        #downloadBtn {
-            background-color: var(--primary-dark-blue);
-            color: white;
-        }
-
-        #shareBtn {
-            background-color: var(--accent-orange);
-            color: white;
-        }
-
-        #previewPDFBtn {
-            background-color: var(--preview-color);
-            color: white;
-        }
-
-        #previewPDFBtn:hover {
-            background-color: #138496;
-            transform: translateY(-2px);
-        }
-
-        .progress-indicator {
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 6px;
-            text-align: center;
-            font-weight: bold;
-        }
-        
-        /* شريط التقدم الجديد */
-        #progressBarContainer {
-            width: 100%;
-            height: 25px;
-            background-color: #eee;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-top: 15px;
-            margin-bottom: 10px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-            display: none; /* إخفاء مبدئياً */
-        }
-        
-        #progressBar {
-            height: 100%;
-            width: 0%;
-            background-color: var(--progress-bar-color);
-            transition: width 0.3s ease-in-out;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            line-height: 25px;
-            font-size: 0.8rem;
-        }
-        
     </style>
 </head>
+<body class="bg-slate-50 text-slate-800">
 
-<body>
-    <div class="top-bar">
-        <div class="designer-credit-container">
-            <span class="designer-credit">تصميم شهاب طارق</span>
-            <span class="designer-credit">01206244875</span>
+    <!-- شريط التنقل (Navbar) -->
+    <nav class="fixed w-full z-50 bg-white/95 backdrop-blur-md shadow-sm transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- الشعار -->
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white text-xl font-bold">
+                        <i class="fa-solid fa-shop"></i>
+                    </div>
+                    <span class="font-bold text-2xl text-slate-800">السوق <span class="text-green-600">وياك</span></span>
+                </div>
+
+                <!-- روابط القائمة -->
+                <div class="hidden md:flex items-center space-x-8 space-x-reverse">
+                    <a href="#home" class="text-slate-600 hover:text-green-600 font-medium transition">الرئيسية</a>
+                    <a href="#real-estate" class="text-slate-600 hover:text-green-600 font-medium transition">عقارات</a>
+                    <a href="#services" class="text-slate-600 hover:text-green-600 font-medium transition">خدماتنا</a>
+                    <a href="#support" class="text-slate-600 hover:text-green-600 font-medium transition">الدعم الفني</a>
+                </div>
+
+                <!-- زر اتصل بنا -->
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="tel:01206244875" class="text-slate-600 font-bold hover:text-green-600 dir-ltr">
+                        <i class="fa-solid fa-phone"></i> 01206244875
+                    </a>
+                    <a href="#contact" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-full font-bold transition shadow-lg shadow-green-500/30">
+                        أضف إعلانك
+                    </a>
+                </div>
+
+                <!-- زر القائمة للموبايل -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-slate-600 hover:text-green-600 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-        <h1>تحويل الصور الى  PDF وضغط الملفات</h1>
-        <span>خدمات طلاب كلية التجارة جامعة الزقازيق</span>
-    </div>
 
-    <div class="container" id="mainContainer">
-        <div class="name-settings-bar">
-           <label for="pdfName">اكتب اسم الملف هنا</label>
-<input type="text" id="pdfName" placeholder="" value="">
+        <!-- قائمة الموبايل -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full shadow-xl">
+            <div class="px-4 pt-2 pb-4 space-y-1">
+                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-green-600 hover:bg-green-50">الرئيسية</a>
+                <a href="#real-estate" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-green-600 hover:bg-green-50">عقارات</a>
+                <a href="#services" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-green-600 hover:bg-green-50">خدماتنا</a>
+                <a href="#support" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-green-600 hover:bg-green-50">شات الدعم</a>
+                <a href="tel:01206244875" class="block mt-4 text-center border-2 border-green-600 text-green-600 px-3 py-3 rounded-lg font-bold hover:bg-green-50">اتصل الآن</a>
+            </div>
+        </div>
+    </nav>
 
-            <div class="compression-toggle-container" id="compressToggleContainer">
-                <span class="compression-label">ضغط الملف وتقليل حجمه (موصى به)</span>
-                <label class="switch">
-                    <input type="checkbox" id="compressCheck" checked>
-                    <span class="slider round"></span>
-                </label>
+    <!-- القسم الرئيسي (Hero Section) -->
+    <section id="home" class="relative pt-32 pb-20 lg:pt-40 overflow-hidden bg-white">
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-green-50/50 rounded-bl-[100px] -z-10"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center gap-12">
+            <!-- النص -->
+            <div class="lg:w-1/2 text-center lg:text-right fade-in-up">
+                <div class="inline-block px-4 py-1.5 rounded-full bg-green-100 text-green-700 text-sm font-bold mb-6 border border-green-200">
+                    🏠 كل اللي تحتاجه في الزقازيق
+                </div>
+                <h1 class="text-4xl lg:text-6xl font-black text-slate-900 leading-tight mb-6">
+                    السوق وياك.. <br>
+                    <span class="gradient-text">بيتك وخدمتك عندنا</span>
+                </h1>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    أكبر منصة للعقارات والخدمات في محافظة الشرقية. سواء بتدور على شقة، محل، أو عايز تعرض عقارك، إحنا بنوصلك بالمشتري مباشرة وبدون تعقيد.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                    <a href="#real-estate" class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition shadow-xl shadow-green-500/20 flex items-center justify-center gap-2">
+                        تصفح العقارات <i class="fa-solid fa-search mt-1"></i>
+                    </a>
+                    <a href="#support" class="bg-white hover:bg-gray-50 text-slate-700 border-2 border-slate-200 px-8 py-4 rounded-xl font-bold text-lg transition flex items-center justify-center gap-2">
+                        <i class="fa-regular fa-comments text-green-600"></i> كلم الدعم
+                    </a>
+                </div>
+            </div>
+
+            <!-- الصورة -->
+            <div class="lg:w-1/2 relative mt-10 lg:mt-0">
+                <img src="https://placehold.co/600x450/16a34a/ffffff?text=عقارات+الشرقية" alt="Real Estate Zagazig" class="relative rounded-3xl shadow-2xl w-full object-cover transform rotate-1 hover:rotate-0 transition duration-500 border-4 border-white">
+                
+                <!-- بطاقة عائمة -->
+                <div class="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 text-xl">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-bold">عقارات متاحة</p>
+                        <p class="text-xl font-bold text-slate-800">+150 شقة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم العقارات (Real Estate Section) -->
+    <section id="real-estate" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <h2 class="text-green-600 font-bold text-sm tracking-wide uppercase mb-2">أحدث العروض</h2>
+                    <h3 class="text-3xl font-black text-slate-900">عقارات مميزة في الزقازيق</h3>
+                </div>
+                <a href="#" class="hidden md:inline-block text-green-600 font-bold hover:text-green-800 transition">عرض الكل <i class="fa-solid fa-arrow-left mr-1"></i></a>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- عقار 1 -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 group">
+                    <div class="relative">
+                        <img src="https://placehold.co/400x250/e2e8f0/1e293b?text=شقة+حي+الزهور" class="w-full h-56 object-cover group-hover:scale-105 transition duration-500">
+                        <span class="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">للبيع</span>
+                        <span class="absolute bottom-4 left-4 bg-black/50 text-white text-sm px-3 py-1 rounded-md backdrop-blur-sm"><i class="fa-solid fa-camera"></i> 5 صور</span>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-bold text-slate-900 mb-2">شقة سوبر لوكس - حي الزهور</h4>
+                        <p class="text-slate-500 text-sm mb-4"><i class="fa-solid fa-location-dot text-green-500 ml-1"></i> الزقازيق، خلف المحافظة</p>
+                        
+                        <div class="flex justify-between border-y border-slate-100 py-3 mb-4 text-sm text-slate-600">
+                            <span><i class="fa-solid fa-bed ml-1"></i> 3 غرف</span>
+                            <span><i class="fa-solid fa-bath ml-1"></i> 2 حمام</span>
+                            <span><i class="fa-solid fa-ruler-combined ml-1"></i> 150 م²</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-green-600">2.5 مليون <span class="text-sm text-slate-400 font-normal">ج.م</span></span>
+                            <button class="w-10 h-10 rounded-full bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-phone"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- عقار 2 -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 group">
+                    <div class="relative">
+                        <img src="https://placehold.co/400x250/e2e8f0/1e293b?text=محل+للايجار" class="w-full h-56 object-cover group-hover:scale-105 transition duration-500">
+                        <span class="absolute top-4 right-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">للإيجار</span>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-bold text-slate-900 mb-2">محل تجاري موقع متميز</h4>
+                        <p class="text-slate-500 text-sm mb-4"><i class="fa-solid fa-location-dot text-green-500 ml-1"></i> القومية، شارع طلبة عويضة</p>
+                        
+                        <div class="flex justify-between border-y border-slate-100 py-3 mb-4 text-sm text-slate-600">
+                            <span><i class="fa-solid fa-shop ml-1"></i> تجاري</span>
+                            <span><i class="fa-solid fa-stairs ml-1"></i> دور أرضي</span>
+                            <span><i class="fa-solid fa-ruler-combined ml-1"></i> 40 م²</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-green-600">15,000 <span class="text-sm text-slate-400 font-normal">ج.م/شهر</span></span>
+                            <button class="w-10 h-10 rounded-full bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-phone"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- عقار 3 -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 group">
+                    <div class="relative">
+                        <img src="https://placehold.co/400x250/e2e8f0/1e293b?text=شقة+تشطيب+كامل" class="w-full h-56 object-cover group-hover:scale-105 transition duration-500">
+                        <span class="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">للبيع</span>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-bold text-slate-900 mb-2">شقة أهالي تشطيب عرايس</h4>
+                        <p class="text-slate-500 text-sm mb-4"><i class="fa-solid fa-location-dot text-green-500 ml-1"></i> منطقة الغشام</p>
+                        
+                        <div class="flex justify-between border-y border-slate-100 py-3 mb-4 text-sm text-slate-600">
+                            <span><i class="fa-solid fa-bed ml-1"></i> 4 غرف</span>
+                            <span><i class="fa-solid fa-bath ml-1"></i> 3 حمام</span>
+                            <span><i class="fa-solid fa-ruler-combined ml-1"></i> 200 م²</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-green-600">3.8 مليون <span class="text-sm text-slate-400 font-normal">ج.م</span></span>
+                            <button class="w-10 h-10 rounded-full bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-phone"></i></button>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <!-- إضافة وضع الماسح الضوئي (Scanner Mode) -->
-            <div class="scanner-mode-container" id="scannerModeContainer">
-                <span class="scanner-label">وضع الماسح الضوئي (CS Scanner)</span>
-                <select id="scannerMode">
-                    <option value="original">الأصلية (بدون فلتر)</option>
-                    <option value="grayscale">أبيض وأسود (Grayscale)</option>
-                    <option value="high-contrast">تباين عالي للمستندات</option>
-                    <option value="cs-light">ماسح ضوئي خفيف (CS Light)</option>
-                    <option value="cs-dark">ماسح ضوئي داكن (CS Dark)</option>
-                    <option value="blue-text">نص أزرق (Blue Pen)</option>
-                    <option value="sepia">لون السيبيا (Sepia Tone)</option>
-                    <option value="vivid">ألوان زاهية (Vivid Color)</option>
-                    <option value="document-enhance">تحسين المستند (Sharpen)</option>
-                    <option value="inverted">معكوس (Inverted)</option>
-                </select>
+            <div class="mt-10 text-center md:hidden">
+                <a href="#" class="bg-white border border-slate-300 text-slate-700 px-6 py-3 rounded-xl font-bold w-full block shadow-sm">عرض كل العقارات</a>
             </div>
-            <!-- نهاية إضافة وضع الماسح الضوئي -->
+        </div>
+    </section>
+
+    <!-- قسم خدماتنا (Features) -->
+    <section id="services" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 text-center mb-16">
+            <h2 class="text-3xl font-black text-slate-900 mb-4">ليه تختار "السوق وياك"؟</h2>
+            <p class="text-slate-600">إحنا مش بس موقع، إحنا وسيطك الأمين في الشرقية</p>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center text-green-600 text-3xl mx-auto mb-6">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">بدون رسوم اشتراك</h3>
+                <p class="text-slate-500">الموقع مجاني تماماً للعملاء. ادفع فقط لما تبيع أو تشتري عن طريقنا.</p>
+            </div>
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-3xl mx-auto mb-6">
+                    <i class="fa-solid fa-check-double"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">معاينة حقيقية</h3>
+                <p class="text-slate-500">بننزل معاك ونعاين العقار على أرض الواقع في أي مكان في الزقازيق.</p>
+            </div>
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 text-3xl mx-auto mb-6">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">دعم فني مباشر</h3>
+                <p class="text-slate-500">فريق كامل جاهز للرد على استفساراتك عن طريق الشات أو التليفون.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الدعم والشات (Support Section) -->
+    <section id="support" class="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <!-- خلفية زخرفية -->
+        <div class="absolute top-0 left-0 w-full h-full opacity-10">
+            <i class="fa-regular fa-comments absolute text-[15rem] -top-20 -left-20 rotate-12"></i>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center gap-12">
+            <div class="md:w-1/2">
+                <h2 class="text-green-400 font-bold mb-2 uppercase tracking-wider">تواصل معنا</h2>
+                <h3 class="text-4xl font-black mb-6">محتاج مساعدة؟ كلم الدعم فوراً</h3>
+                <p class="text-slate-300 text-lg mb-8 leading-relaxed">
+                    عندك استفسار بخصوص عقار؟ عايز تعرض شقتك؟ فريق الدعم الفني متاح للرد عليك لحظياً. إحنا موجودين عشان نخدمك.
+                </p>
+                
+                <div class="space-y-4">
+                    <!-- حالة الشات -->
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex items-center gap-4">
+                        <div class="relative">
+                            <img src="https://placehold.co/60x60/16a34a/ffffff?text=CS" class="w-12 h-12 rounded-full border-2 border-green-500">
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-slate-800 rounded-full"></span>
+                        </div>
+                        <div>
+                            <p class="font-bold">فريق خدمة العملاء</p>
+                            <p class="text-xs text-green-400">متاح الآن • يرد عادة في دقيقة</p>
+                        </div>
+                        <button onclick="alert('سيتم فتح نافذة الشات الآن...')" class="mr-auto bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition">
+                            ابدأ المحادثة
+                        </button>
+                    </div>
+                    
+                    <div class="flex gap-4 mt-6">
+                        <a href="tel:01206244875" class="flex-1 bg-white text-slate-900 py-3 rounded-xl text-center font-bold hover:bg-gray-100 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-phone"></i> اتصال هاتفي
+                        </a>
+                        <a href="https://wa.me/201206244875" target="_blank" class="flex-1 bg-[#25D366] text-white py-3 rounded-xl text-center font-bold hover:bg-[#20b859] transition flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-xl"></i> واتساب
+                        </a>
+                    </div>
+                </div>
+            </div>
             
-        </div>
-
-        <div class="upload-options-container">
-            <button class="upload-option-btn" id="galleryBtn">
-                <span>🖼️</span>
-                معرض الصور
-            </button>
-            <button class="upload-option-btn" id="cameraBtn">
-                <span>📸</span>
-                الكاميرا
-            </button>
-            <button class="upload-option-btn" id="pdfBtn">
-                <span>📄</span>
-                مستند PDF
-            </button>
-        </div>
-
-        <input type="file" id="fileInputGallery" accept="image/jpeg, image/png" multiple class="hidden-input">
-        <input type="file" id="fileInputCamera" accept="image/jpeg, image/png" capture="camera" class="hidden-input">
-        <input type="file" id="fileInputPDF" accept="application/pdf" class="hidden-input">
-
-        <div id="fileCount" class="progress-indicator">لم يتم اختيار أي ملفات</div>
-        
-        <!-- الحاوية وشريط التقدم -->
-        <div id="progressBarContainer">
-            <div id="progressBar"></div>
-        </div>
-
-        <div id="preview"></div>
-        
-        <div class="floating-actions-container" id="floatingConvertContainer">
-            <button id="convertBtn" disabled>ابدأ التحويل لـ PDF</button>
-        </div>
-
-        <div class="download-share-area" id="finalActions">
-            <p style="color: var(--btn-color); font-weight: bold; text-align: center;">✅ تم تجهيز الملف بنجاح اختر الإجراء:</p>
-            <div id="pdfDetails"></div>
-            <div class="action-buttons">
-                <button id="previewPDFBtn">معاينة الملف</button>
-                <button id="downloadBtn">تنزيل (حفظ) الملف</button>
-                <button id="shareBtn" disabled>مشاركة الملف مباشرة</button>
-                <button id="resetBtn">↩️ البدء من جديد</button>
+            <!-- نموذج محاكاة الشات -->
+            <div class="md:w-1/2 w-full">
+                <div class="bg-white text-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-200 h-[400px] flex flex-col">
+                    <div class="bg-green-600 p-4 text-white flex justify-between items-center">
+                        <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-headset"></i> الدعم المباشر</span>
+                        <span class="text-xs bg-green-700 px-2 py-1 rounded">متصل</span>
+                    </div>
+                    <div class="flex-1 p-4 overflow-y-auto bg-slate-50 space-y-4">
+                        <!-- رسالة النظام -->
+                        <div class="flex items-start gap-2">
+                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs font-bold">S</div>
+                            <div class="bg-white p-3 rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-sm border border-slate-100 text-sm max-w-[80%]">
+                                أهلاً بك في "السوق وياك". كيف يمكننا مساعدتك اليوم في البحث عن عقارك؟
+                            </div>
+                        </div>
+                         <!-- رسالة العميل -->
+                         <div class="flex items-start gap-2 flex-row-reverse">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">أنا</div>
+                            <div class="bg-green-100 p-3 rounded-tl-xl rounded-bl-xl rounded-br-xl shadow-sm text-sm max-w-[80%]">
+                                لو سمحت كنت محتاج شقة إيجار في القومية.
+                            </div>
+                        </div>
+                        <!-- رسالة النظام -->
+                        <div class="flex items-start gap-2">
+                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs font-bold">S</div>
+                            <div class="bg-white p-3 rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-sm border border-slate-100 text-sm max-w-[80%]">
+                                متاح لدينا 3 وحدات مميزة في القومية حالياً. هل تحب أبعتلك التفاصيل والصور؟
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3 border-t border-slate-100 bg-white">
+                        <div class="flex gap-2">
+                            <input type="text" placeholder="اكتب رسالتك هنا..." class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-green-500">
+                            <button class="bg-green-600 text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-green-700 transition"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <!-- زر شات عائم -->
+    <a href="#support" class="floating-chat bg-green-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-green-700 transition duration-300 border-2 border-white">
+        <i class="fa-solid fa-comment-dots text-2xl"></i>
+    </a>
+
+    <!-- الفوتر (Footer) -->
+    <footer class="bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-3 gap-8 mb-8">
+                <div class="col-span-1">
+                    <div class="flex items-center gap-2 mb-4 text-white">
+                        <i class="fa-solid fa-shop text-green-500 text-xl"></i>
+                        <span class="font-bold text-2xl">السوق <span class="text-green-500">وياك</span></span>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        دليلك الأول للعقارات في محافظة الشرقية. بيع واشتري وأجر بأمان وبدون مصاريف خفية.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-4">روابط سريعة</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#home" class="hover:text-green-400 transition">الرئيسية</a></li>
+                        <li><a href="#real-estate" class="hover:text-green-400 transition">شقق للبيع</a></li>
+                        <li><a href="#real-estate" class="hover:text-green-400 transition">محلات تجارية</a></li>
+                        <li><a href="#support" class="hover:text-green-400 transition">تواصل مع الدعم</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-4">بيانات التواصل</h4>
+                    <ul class="space-y-4 text-sm">
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-location-dot text-green-500 mt-1"></i>
+                            <span>الزقازيق، محافظة الشرقية، مصر</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-phone text-green-500"></i>
+                            <span class="dir-ltr">01206244875</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-brands fa-whatsapp text-green-500 text-lg"></i>
+                            <span>متاح واتساب طوال اليوم</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
+                &copy; 2025 جميع الحقوق محفوظة لموقع "السوق وياك".
+            </div>
+        </div>
+    </footer>
 
     <script>
-        // =================================================================
-        //                 IndexedDB Setup (ذاكرة التخزين الدائمة)
-        // =================================================================
-        const DB_NAME = 'ZagazigCommerceConverterDB';
-        const DB_VERSION = 1;
-        const STORE_NAME = 'ImagesToProcess';
-        let dbInstance = null;
-        let fileKeysArray = []; 
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
 
-        /**
-         * يفتح قاعدة البيانات أو ينشئها.
-         */
-        function openDatabase() {
-            return new Promise((resolve, reject) => {
-                if (dbInstance) {
-                    return resolve(dbInstance);
-                }
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
 
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains(STORE_NAME)) {
-                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-                    }
-                };
-
-                request.onsuccess = (event) => {
-                    dbInstance = event.target.result;
-                    resolve(dbInstance);
-                };
-
-                request.onerror = (event) => {
-                    console.error("خطأ في فتح قاعدة البيانات:", event.target.error);
-                    reject("خطأ في قاعدة البيانات المحلية.");
-                };
-            });
-        }
-
-        /**
-         * يحفظ كائن ملف (Blob) في IndexedDB
-         */
-        async function saveFileToDB(file) {
-            const db = await openDatabase();
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
-            const id = Date.now().toString() + Math.random().toString(36).substring(2, 9); 
-
-            return new Promise((resolve, reject) => {
-                const request = store.add({ id: id, data: file });
-                request.onsuccess = () => resolve(id);
-                request.onerror = (event) => reject(event.target.error);
-            });
-        }
-
-        /**
-         * يسترجع كائن ملف (Blob) من IndexedDB
-         */
-        async function getFileFromDB(key) {
-            const db = await openDatabase();
-            const transaction = db.transaction([STORE_NAME], 'readonly');
-            const store = transaction.objectStore(STORE_NAME);
-
-            return new Promise((resolve, reject) => {
-                const request = store.get(key);
-                request.onsuccess = () => resolve(request.result ? request.result.data : null);
-                request.onerror = (event) => reject(event.target.error);
-            });
-        }
-
-        /**
-         * يمسح ملفاً واحداً من IndexedDB
-         */
-        async function deleteFileFromDB(key) {
-            const db = await openDatabase();
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
-            
-            return new Promise((resolve, reject) => {
-                const request = store.delete(key);
-                request.onsuccess = () => resolve();
-                request.onerror = (event) => reject(event.target.error);
-            });
-        }
-
-        /**
-         * يمسح كل شيء في مساحة تخزين IndexedDB
-         */
-        async function clearDatabase() {
-            if (!dbInstance) {
-                try {
-                    dbInstance = await openDatabase();
-                } catch(e) {
-                    console.error("Couldn't open DB to clear:", e);
-                    return;
-                }
-            }
-            const transaction = dbInstance.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
-            
-            return new Promise((resolve, reject) => {
-                const request = store.clear();
-                request.onsuccess = () => resolve();
-                request.onerror = (event) => reject(event.target.error);
-            });
-        }
-
-        // =================================================================
-        //                 UI Elements and Global State
-        // =================================================================
-        const fileInputGallery = document.getElementById('fileInputGallery');
-        const fileInputCamera = document.getElementById('fileInputCamera');
-        const fileInputPDF = document.getElementById('fileInputPDF');
-        
-        document.getElementById('galleryBtn').onclick = () => fileInputGallery.click();
-        document.getElementById('cameraBtn').onclick = () => fileInputCamera.click();
-        document.getElementById('pdfBtn').onclick = () => fileInputPDF.click();
-        
-        const convertBtn = document.getElementById('convertBtn');
-        const floatingConvertContainer = document.getElementById('floatingConvertContainer'); 
-        const mainContainer = document.getElementById('mainContainer'); 
-        const resetBtn = document.getElementById('resetBtn');
-        const pdfNameInput = document.getElementById('pdfName');
-        const compressCheck = document.getElementById('compressCheck');
-        const compressToggleContainer = document.getElementById('compressToggleContainer');
-        const scannerModeSelect = document.getElementById('scannerMode'); // العنصر الجديد
-        const scannerModeContainer = document.getElementById('scannerModeContainer'); // العنصر الجديد
-        const finalActions = document.getElementById('finalActions');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const shareBtn = document.getElementById('shareBtn');
-        const previewPDFBtn = document.getElementById('previewPDFBtn');
-        const pdfDetails = document.getElementById('pdfDetails');
-        const previewContainer = document.getElementById('preview');
-        const fileCountSpan = document.getElementById('fileCount');
-        // عناصر شريط التقدم الجديدة
-        const progressBarContainer = document.getElementById('progressBarContainer');
-        const progressBar = document.getElementById('progressBar');
-
-
-        let generatedPDFBlob = null;
-        let uploadedPdfFile = null;
-        let isProcessingPdf = false;
-        let originalPdfSize = 0;
-        let pdfUrlForPreview = null; 
-        
-        // مفتاح API لضغط ملفات PDF
-        const PDF_COMPRESSION_API_KEY = 'project_public_9da12ac1cdc907e3a11e680d8dbe2a5_d0JnG84120c623f8acdc839405899cda4c632';
-        // رابط API الوهمي (يجب استبداله بالرابط الحقيقي للخدمة التي تستخدم المفتاح أعلاه)
-        const PDF_COMPRESSION_API_ENDPOINT = 'YOUR_REAL_PDF_COMPRESSION_API_ENDPOINT'; 
-
-        function formatBytes(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const dm = 2;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        }
-
-        function toggleConvertButtonVisibility(isVisible) {
-            if (isVisible) {
-                floatingConvertContainer.style.display = 'block';
-                mainContainer.classList.add('has-fixed-button'); 
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 10) {
+                navbar.classList.add('shadow-md');
             } else {
-                floatingConvertContainer.style.display = 'none';
-                mainContainer.classList.remove('has-fixed-button'); 
-            }
-        }
-        
-        // =================================================================
-        // 0. وظائف فلاتر الماسح الضوئي (Canvas Image Filters) - مُحسَّنة
-        // =================================================================
-        /**
-         * تطبق فلتر محدد على صورة باستخدام Canvas.
-         * @param {string} imageURI - Data URL للصورة.
-         * @param {string} filterMode - اسم الفلتر المراد تطبيقه.
-         * @returns {Promise<string>} - Data URL للصورة بعد تطبيق الفلتر.
-         */
-        function applyScannerFilter(imageURI, filterMode) {
-            return new Promise(resolve => {
-                if (filterMode === 'original') {
-                    return resolve(imageURI);
-                }
-
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const data = imageData.data;
-
-                    for (let i = 0; i < data.length; i += 4) {
-                        const r = data[i];
-                        const g = data[i + 1];
-                        const b = data[i + 2];
-                        // Luma (Grayscale formula)
-                        let luma = (r * 0.299 + g * 0.587 + b * 0.114); 
-
-                        switch (filterMode) {
-                            case 'grayscale':
-                                data[i] = data[i + 1] = data[i + 2] = luma;
-                                break;
-                            case 'high-contrast':
-                                // تباين عالي: تحويل لـ Grayscale ثم تطبيق Threshold
-                                // تم رفع الـ threshold إلى 180 لمنع "حرق" الصورة والحفاظ على الخطوط
-                                const threshold = 180; 
-                                const val = luma > threshold ? 255 : 0;
-                                data[i] = data[i + 1] = data[i + 2] = val;
-                                break;
-                            case 'cs-light':
-                                // ماسح ضوئي خفيف: تباين خفيف + إضاءة
-                                luma = Math.min(255, luma * 1.05 + 20); // إضاءة خفيفة
-                                data[i] = data[i + 1] = data[i + 2] = luma;
-                                break;
-                            case 'cs-dark':
-                                // ماسح ضوئي داكن: تباين عالي + تغميق خفيف
-                                luma = Math.min(255, luma * 1.15 - 10); // زيادة التباين قليلاً
-                                data[i] = data[i + 1] = data[i + 2] = luma;
-                                break;
-                            case 'blue-text':
-                                // نص أزرق (Grayscale + Blue Tint)
-                                data[i] = luma * 0.9; // Red
-                                data[i + 1] = luma * 0.9; // Green
-                                data[i + 2] = luma * 1.1; // Blue
-                                break;
-                            case 'sepia':
-                                // لون السيبيا
-                                const newR = (r * 0.393) + (g * 0.769) + (b * 0.189);
-                                const newG = (r * 0.349) + (g * 0.686) + (b * 0.168);
-                                const newB = (r * 0.272) + (g * 0.534) + (b * 0.131);
-                                data[i] = Math.min(255, newR);
-                                data[i + 1] = Math.min(255, newG);
-                                data[i + 2] = Math.min(255, newB);
-                                break;
-                            case 'vivid':
-                                // ألوان زاهية (زيادة التشبع والتباين)
-                                data[i] = Math.min(255, r * 1.15);
-                                data[i + 1] = Math.min(255, g * 1.15);
-                                data[i + 2] = Math.min(255, b * 1.15);
-                                break;
-                            case 'document-enhance':
-                                // تحسين المستند (Sharpening Simulation)
-                                data[i] = Math.min(255, Math.max(0, r * 1.2 - 30));
-                                data[i + 1] = Math.min(255, Math.max(0, g * 1.2 - 30));
-                                data[i + 2] = Math.min(255, Math.max(0, b * 1.2 - 30));
-                                break;
-                            case 'inverted':
-                                // معكوس
-                                data[i] = 255 - r;
-                                data[i + 1] = 255 - g;
-                                data[i + 2] = 255 - b;
-                                break;
-                        }
-                    }
-
-                    ctx.putImageData(imageData, 0, 0);
-                    // استخدام جودة عالية جداً لـ JPEG بعد الفلتر
-                    resolve(canvas.toDataURL('image/jpeg', 0.98)); 
-                };
-                img.src = imageURI;
-            });
-        }
-        
-        // =================================================================
-        // 1. وظيفة ضغط ملف PDF عبر API (الاتصال بخادم حقيقي) - مُحسَّنة للمحاكاة
-        // =================================================================
-        /**
-         * يرسل ملف PDF إلى خادم خارجي لضغطه.
-         * @param {File} pdfFile - ملف PDF المراد ضغطه.
-         * @returns {Promise<Blob>} - ملف PDF المضغوط (Blob).
-         */
-        async function compressPdfViaApi(pdfFile) {
-            // ** تنبيه: يجب استبدال هذا الرابط بالرابط الحقيقي لخدمة ضغط PDF التي تستخدم مفتاح API **
-            const url = PDF_COMPRESSION_API_ENDPOINT; 
-            
-            if (url === 'YOUR_REAL_PDF_COMPRESSION_API_ENDPOINT') {
-                 // ** محاكاة استجابة الخادم لبيئة الاختبار **
-                 console.warn("API Endpoint is placeholder. Simulating successful compression.");
-                 await new Promise(resolve => setTimeout(resolve, 3000)); // تأخير 3 ثواني
-                 
-                 const simulatedCompressedSize = pdfFile.size * 0.30; // 70% compression
-                 
-                 // يتم إرجاع الملف الأصلي لضمان نجاح المعاينة/التنزيل
-                 // ويتم استخدام الحجم المُقدَّر فقط للعرض في التفاصيل
-                 // ** تم تغيير هذا الجزء لضمان أن الملف الذي يتم تنزيله صالح 100% **
-                 
-                 // قراءة الملف الأصلي
-                 const originalArrayBuffer = await pdfFile.arrayBuffer();
-                 
-                 // إنشاء Blob جديد بحجم أصغر محاكي (لجعل حجم التنزيل يطابق الحجم المُقدَّر)
-                 // يتم اقتطاع جزء من الـ ArrayBuffer الأصلي (هذا يجعل الملف غير صالح للقراءة في الواقع)
-                 // ** الحل الأفضل هو إرجاع الملف الأصلي وإضافة خاصية الحجم المُقدَّر للعرض فقط **
-                 
-                 // نعود للحل الأضمن: إرجاع الملف الأصلي وإضافة خاصية الحجم المُقدَّر للعرض فقط
-                 const compressedBlob = pdfFile;
-                 compressedBlob.simulatedSize = simulatedCompressedSize; // إضافة خاصية الحجم المُقدَّر
-                 
-                 return compressedBlob;
-            }
-
-            const formData = new FormData();
-            formData.append('file', pdfFile, pdfFile.name);
-            
-            const response = await fetch(`${url}?apiKey=${PDF_COMPRESSION_API_KEY}`, {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`API Error: ${response.status} - ${errorText}`);
-            }
-
-            // يجب أن يعيد الخادم ملف PDF (Blob)
-            return response.blob();
-        }
-
-
-        // =================================================================
-        // 2. وظيفة موحدة لمعالجة الملفات المرفوعة (تستخدم IndexedDB)
-        // =================================================================
-        const handleFiles = async (event) => {
-            const selectedFiles = Array.from(event.target.files);
-            
-            // لا يتم إعادة تعيين وضع الماسح الضوئي هنا (keepDb=true)
-            await resetStateVariables(true); 
-            previewContainer.innerHTML = ''; 
-            progressBarContainer.style.display = 'none'; // إخفاء شريط التقدم عند التحميل
-            
-            if (selectedFiles.length === 0) {
-                convertBtn.disabled = true;
-                toggleConvertButtonVisibility(false); 
-                fileCountSpan.textContent = 'لم يتم اختيار أي ملفات';
-                return;
-            }
-
-            const firstFile = selectedFiles[0];
-            const isImageUpload = selectedFiles.every(f => f.type.startsWith('image/'));
-            
-            // منطق معالجة ملف PDF واحد 
-            if (selectedFiles.length === 1 && firstFile.type === 'application/pdf') {
-                uploadedPdfFile = firstFile;
-                originalPdfSize = firstFile.size;
-                isProcessingPdf = true;
-
-                // تعطيل إعدادات الصور
-                compressCheck.checked = true;
-                compressCheck.disabled = true;
-                compressToggleContainer.classList.add('disabled');
-                scannerModeContainer.classList.add('disabled');
-                
-                fileCountSpan.innerHTML = `✅ تم اختيار ملف PDF واحد بحجم: <strong>${formatBytes(uploadedPdfFile.size)}</strong>.`;
-                previewContainer.innerHTML = `<span style="font-size:1.1rem; color:var(--dark-text); padding:10px">📄 تم اختيار ملف PDF جاهز للضغط.</span>`;
-
-                convertBtn.textContent = 'ابدأ الضغط والتحميل لـ PDF';
-            } 
-            
-            // منطق معالجة الصور المتعددة (تخزين في IndexedDB)
-            else if (isImageUpload) {
-                isProcessingPdf = false;
-
-                compressCheck.disabled = false;
-                compressToggleContainer.classList.remove('disabled');
-                scannerModeContainer.classList.remove('disabled');
-
-                convertBtn.textContent = 'جاري حفظ الصور مؤقتاً على الجهاز... 💾';
-                convertBtn.disabled = true;
-                
-                const savingPromises = selectedFiles.map((file, index) => {
-                    return saveFileToDB(file).then(id => {
-                        fileKeysArray.push(id);
-                        fileCountSpan.innerHTML = `جاري حفظ الصورة ${index + 1} من ${selectedFiles.length} (${formatBytes(file.size)}). يرجى الانتظار...`;
-                        
-                        // عرض معاينة لأول 10 صور فقط
-                        if (index < 10) {
-                            const img = document.createElement('img');
-                            img.src = URL.createObjectURL(file);
-                            previewContainer.appendChild(img);
-                            
-                            img.onload = () => {
-                                URL.revokeObjectURL(img.src);
-                            };
-                        } else if (index === 10) {
-                             const moreText = document.createElement('span');
-                             moreText.textContent = `... والمزيد من ${selectedFiles.length - 10} صورة`;
-                             moreText.style.color = '#777';
-                             moreText.style.padding = '5px';
-                             previewContainer.appendChild(moreText);
-                        }
-                    });
-                });
-
-                await Promise.all(savingPromises);
-                
-                fileCountSpan.innerHTML = `✅ تم تخزين ${fileKeysArray.length} صورة بنجاح في ذاكرة الجهاز المؤقتة. اضغط "ابدأ التحويل"`;
-                convertBtn.textContent = 'ابدأ التحويل لـ PDF';
-                
-                window.scrollTo({
-                    top: document.body.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }
-            
-            if (uploadedPdfFile || fileKeysArray.length > 0) {
-                convertBtn.disabled = false;
-                toggleConvertButtonVisibility(true); 
-            } else {
-                convertBtn.disabled = true;
-                toggleConvertButtonVisibility(false); 
-                fileCountSpan.textContent = 'لم يتم اختيار أي ملفات';
-            }
-        };
-
-        fileInputGallery.addEventListener('change', handleFiles);
-        fileInputCamera.addEventListener('change', handleFiles);
-        fileInputPDF.addEventListener('change', handleFiles);
-
-        // =================================================================
-        // 3. دالة التحويل لـ PDF (تستدعي من IndexedDB)
-        // =================================================================
-        convertBtn.addEventListener('click', async () => {
-            if (fileKeysArray.length === 0 && !uploadedPdfFile) return;
-
-            convertBtn.disabled = true;
-            finalActions.classList.remove('visible');
-            generatedPDFBlob = null; 
-            progressBarContainer.style.display = 'none'; 
-            progressBar.style.width = '0%';
-            progressBar.textContent = '';
-            
-            // إزالة أي رسائل خطأ سابقة
-            const errorMessage = document.querySelector('#finalActions + .progress-indicator');
-            if(errorMessage) errorMessage.remove();
-            
-            let currentErrorMessage = null; 
-
-            try {
-                // منطق معالجة ملف PDF واحد (ضغط حقيقي عبر API)
-                if (isProcessingPdf) {
-                    convertBtn.textContent = 'جاري الاتصال بخادم الضغط السحابي... 🌐';
-                    
-                    const compressedBlob = await compressPdfViaApi(uploadedPdfFile);
-                    generatedPDFBlob = compressedBlob; 
-                    
-                    convertBtn.textContent = 'تم الضغط والتجهيز بنجاح! 🚀';
-
-                    const currentFilename = pdfNameInput.value.trim() || uploadedPdfFile.name.replace(/\.pdf$/i, '');
-                    
-                    // استخدام الحجم الفعلي للـ Blob الجديد (سواء كان مضغوطاً من API أو الملف الأصلي في المحاكاة)
-                    const compressedSize = generatedPDFBlob.size; 
-                    // إذا كان في وضع المحاكاة، نستخدم الحجم المُقدَّر للعرض فقط
-                    const displaySize = compressedBlob.simulatedSize ? compressedBlob.simulatedSize : compressedSize;
-
-
-                    pdfDetails.classList.add('compressed-simulated');
-                    pdfDetails.innerHTML = `
-                        <p><strong>الاسم المقترح:</strong> ${currentFilename}.pdf</p>
-                        <p><strong>الحجم الأصلي:</strong> ${formatBytes(originalPdfSize)}</p>
-                        <p><strong>الحجم بعد الضغط:</strong> ${formatBytes(displaySize)}</p>
-                        <p style="font-size: 0.85rem; margin-top: 5px;">*تم الضغط عبر نظام معالجة سحابي باستخدام API.</p>
-                    `;
-                }
-
-                // منطق تحويل الصور المُحسَّن (من IndexedDB)
-                else if (fileKeysArray.length > 0) {
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF({
-                        unit: 'mm',
-                        format: 'a4'
-                    });
-                    const A4_WIDTH = 210;
-                    const A4_HEIGHT = 297;
-                    const shouldCompress = compressCheck.checked;
-                    const selectedScannerMode = scannerModeSelect.value; // وضع الماسح الضوئي
-                    const totalImages = fileKeysArray.length;
-                    
-                    // 💡 فترة الاستراحة الإجبارية بعد كل صورة لتحرير الذاكرة
-                    const INTER_IMAGE_PAUSE_MS = 30; 
-
-                    // إظهار شريط التقدم قبل البدء بالعملية
-                    progressBarContainer.style.display = 'block'; 
-
-                    // حلقة المعالجة التسلسلية
-                    for (let i = 0; i < totalImages; i++) {
-                        const key = fileKeysArray[i];
-                        
-                        // تحديث شريط التقدم
-                        const progress = Math.round((i / totalImages) * 100);
-                        progressBar.style.width = `${progress}%`;
-                        progressBar.textContent = ` ${progress}% - جاري معالجة الصورة ${i + 1} من ${totalImages}`;
-                        convertBtn.textContent = `جاري استرجاع الصورة ${i + 1} من ${totalImages} من القرص... 🔄`;
-
-                        let originalFile = await getFileFromDB(key);
-                        let compressedFile = originalFile;
-
-                        if (!originalFile) {
-                            console.warn(`Skipping missing file with key: ${key}`);
-                            continue;
-                        }
-
-                        let imageURI;
-                        
-                        // خطوة الضغط (مُحسَّنة للدقة العالية)
-                        if (shouldCompress) {
-                            convertBtn.textContent = `جاري ضغط الصورة ${i + 1} من ${totalImages} (لضمان دقة عالية)... 💨`;
-                            try {
-                                const options = {
-                                    maxSizeMB: 0.7, // رفع الجودة إلى 0.7MB
-                                    maxWidthOrHeight: 4000, // رفع الدقة إلى 4000 بكسل
-                                    useWebWorker: true, 
-                                    fileType: 'image/jpeg',
-                                };
-                                compressedFile = await imageCompression(originalFile, options);
-                                imageURI = await imageCompression.getDataUrlFromFile(compressedFile);
-                            } catch (error) {
-                                console.error('Compression error, using original file:', error);
-                                compressedFile = originalFile; 
-                                imageURI = await imageCompression.getDataUrlFromFile(originalFile);
-                            }
-                        } else {
-                            imageURI = await imageCompression.getDataUrlFromFile(originalFile);
-                        }
-                        
-                        // خطوة تطبيق فلتر الماسح الضوئي
-                        if (selectedScannerMode !== 'original') {
-                            convertBtn.textContent = `جاري تطبيق فلتر الماسح الضوئي: ${selectedScannerMode}... 🎨`;
-                            imageURI = await applyScannerFilter(imageURI, selectedScannerMode);
-                        }
-
-
-                        convertBtn.textContent = `جاري إضافة الصورة ${i + 1} من ${totalImages} إلى PDF... 🖼️`;
-                        
-                        // قراءة الصورة النهائية لتحديد الأبعاد
-                        let imgElement = new Image(); 
-                        imgElement.src = imageURI;
-                        await new Promise(resolve => imgElement.onload = resolve);
-
-                        const originalWidth = imgElement.naturalWidth;
-                        const originalHeight = imgElement.naturalHeight;
-                        
-                        let ratio = originalWidth / originalHeight;
-                        let imgWidth = A4_WIDTH;
-                        let imgHeight = A4_WIDTH / ratio;
-                        if (imgHeight > A4_HEIGHT) {
-                            imgHeight = A4_HEIGHT;
-                            imgWidth = A4_HEIGHT * ratio;
-                        }
-
-                        const x = (A4_WIDTH - imgWidth) / 2;
-                        const y = (A4_HEIGHT - imgHeight) / 2;
-
-                        if (i > 0) {
-                            doc.addPage();
-                        }
-                        
-                        // إضافة الصورة للـ PDF
-                        doc.addImage(imageURI, 'JPEG', x, y, imgWidth, imgHeight);
-
-                        // 💡 الخطوة الحاسمة لتحرير الذاكرة: مسح المتغيرات ومسحها من التخزين المؤقت
-                        imgElement = null; 
-                        originalFile = null; 
-                        compressedFile = null;
-                        await deleteFileFromDB(key); // مسح الصورة من التخزين المؤقت فوراً
-                        
-                        // إجبار المتصفح على منح فرصة لتنظيف الذاكرة
-                        await new Promise(resolve => setTimeout(resolve, INTER_IMAGE_PAUSE_MS));
-                    }
-                    
-                    // تحديث شريط التقدم للانتهاء
-                    progressBar.style.width = '100%';
-                    progressBar.textContent = '100% - اكتمل التحويل!';
-                    fileKeysArray = []; 
-
-                    // حفظ المستند النهائي
-                    const pdfBlob = doc.output('blob');
-                    generatedPDFBlob = pdfBlob;
-
-                    convertBtn.textContent = '✅ اكتمل التحويل محليًا وبسرعة فائقة! 🥳';
-                    
-                    // عرض التفاصيل النهائية
-                    const currentFilename = pdfNameInput.value.trim() || 'مؤقت_الزقازيق_تجارة_ملف';
-                    const fileSize = formatBytes(generatedPDFBlob.size);
-
-                    pdfDetails.classList.remove('compressed-simulated');
-                    pdfDetails.innerHTML = `
-                        <p><strong>الاسم المقترح:</strong> ${currentFilename}.pdf</p>
-                        <p><strong>الحجم المقدر:</strong> ${fileSize}</p>
-                        <p style="font-size: 0.85rem; margin-top: 5px;">*تم التحويل بكفاءة عالية جداً وبأقصى درجات الحذر لضمان عدم انهيار الذاكرة.</p>
-                    `;
-                }
-
-            } catch (error) {
-                console.error('An unexpected error occurred during conversion:', error);
-                
-                // إظهار رسالة خطأ موجهة
-                const errorText = `❌ فشل التحويل! (قد يكون السبب حجم صورة ضخم جداً، أو فشل اتصال API). 
-                    يرجى محاولة تفعيل خيار الضغط، أو تقسيم الملفات على دفعتين.`;
-                convertBtn.textContent = errorText;
-                
-                currentErrorMessage = document.createElement('div');
-                currentErrorMessage.className = 'progress-indicator';
-                currentErrorMessage.style.backgroundColor = '#f8d7da';
-                currentErrorMessage.style.borderColor = '#f5c6cb';
-                currentErrorMessage.style.color = '#721c24';
-                currentErrorMessage.textContent = errorText;
-                finalActions.before(currentErrorMessage);
-            } finally {
-                convertBtn.disabled = false;
-                toggleConvertButtonVisibility(false); 
-                progressBarContainer.style.display = 'none'; // إخفاء شريط التقدم
-
-                resetBtn.style.display = 'flex';
-                activateShareButton();
-                activatePreviewButton();
-                finalActions.classList.add('visible');
-                
-                finalActions.scrollIntoView({ behavior: 'smooth' });
+                navbar.classList.remove('shadow-md');
             }
         });
 
-        // 4. وظيفة زر التنزيل (الحفظ) 
-        downloadBtn.addEventListener('click', () => {
-            if (!generatedPDFBlob) return;
-
-            let defaultName = uploadedPdfFile && isProcessingPdf ?
-                uploadedPdfFile.name.replace(/\.pdf$/i, '_مضغوط') : 'مؤقت_الزقازيق_تجارة_ملف';
-
-            let filename = pdfNameInput.value.trim() || defaultName;
-            
-            filename += '.pdf';
-
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(generatedPDFBlob);
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            setTimeout(() => {
-                resetBtn.click();
-            }, 500); 
-        });
-
-        // 5. وظيفة زر المعاينة
-        function activatePreviewButton() {
-            if (!generatedPDFBlob) return;
-            if (pdfUrlForPreview) {
-                 URL.revokeObjectURL(pdfUrlForPreview);
-            }
-
-            pdfUrlForPreview = URL.createObjectURL(generatedPDFBlob);
-            previewPDFBtn.onclick = () => {
-                window.open(pdfUrlForPreview, '_blank');
-            };
-        }
-
-        // 6. وظيفة زر المشاركة 
-        function activateShareButton() {
-            if (!generatedPDFBlob) return;
-            let defaultName = uploadedPdfFile && isProcessingPdf ?
-                uploadedPdfFile.name.replace(/\.pdf$/i, '_مضغوط') : 'مؤقت_الزقازيق_تجارة_ملف';
-
-            let filename = pdfNameInput.value.trim() || defaultName;
-            filename += '.pdf';
-            
-            if (navigator.share) {
-                shareBtn.disabled = false;
-                shareBtn.textContent = 'مشاركة الملف مباشرة';
-                shareBtn.style.backgroundColor = 'var(--accent-orange)';
-
-                shareBtn.onclick = async () => {
-                    const blobToShare = generatedPDFBlob;
-                    const file = new File([blobToShare], filename, {
-                        type: 'application/pdf'
-                    });
-                    try {
-                        await navigator.share({
-                            files: [file],
-                            title: filename,
-                            text: 'ملف PDF هام من محول تجارة الزقازيق',
-                        });
-                    } catch (error) {
-                        console.error('خطأ في المشاركة:', error);
-                    }
-                };
-            } else {
-                shareBtn.disabled = true;
-                shareBtn.textContent = 'المشاركة غير متاحة هنا (قم بالتنزيل يدوياً)';
-                shareBtn.style.backgroundColor = '#ccc';
-            }
-        }
-
-        // 7. وظيفة موحدة لإعادة تعيين المتغيرات وتنظيف الذاكرة والـ IndexedDB
-        async function resetStateVariables(keepDb = false) {
-            fileKeysArray = [];
-            uploadedPdfFile = null;
-            isProcessingPdf = false;
-            originalPdfSize = 0;
-
-            if (generatedPDFBlob) {
-                generatedPDFBlob = null;
-            }
-            if (pdfUrlForPreview) {
-                URL.revokeObjectURL(pdfUrlForPreview);
-                pdfUrlForPreview = null;
-            }
-            
-            if (!keepDb) {
-                 // ** الأهم: مسح قاعدة البيانات عند البدء من جديد **
-                 await clearDatabase();
-                 compressCheck.checked = true;
-                 compressCheck.disabled = false;
-                 compressToggleContainer.classList.remove('disabled');
-                 scannerModeSelect.value = 'original'; // إعادة تعيين وضع الماسح الضوئي هنا فقط
-                 scannerModeContainer.classList.remove('disabled');
-            } else {
-                // عند اختيار ملفات جديدة، لا يتم إعادة تعيين وضع الماسح الضوئي
-                compressCheck.checked = true;
-                compressCheck.disabled = false;
-                compressToggleContainer.classList.remove('disabled');
-                scannerModeContainer.classList.remove('disabled');
-            }
-
-            fileInputGallery.value = null;
-            fileInputCamera.value = null;
-            fileInputPDF.value = null;
-            
-            toggleConvertButtonVisibility(false);
-        }
-
-        // 8. وظيفة زر البدء من جديد
-        resetBtn.addEventListener('click', () => {
-            resetStateVariables();
-
-            fileCountSpan.textContent = 'لم يتم اختيار أي ملفات';
-            previewContainer.innerHTML = '';
-            finalActions.classList.remove('visible');
-            resetBtn.style.display = 'none';
-            progressBarContainer.style.display = 'none'; // إخفاء شريط التقدم
-
-            convertBtn.disabled = true;
-            convertBtn.textContent = 'ابدأ التحويل لـ PDF';
-
-            pdfDetails.innerHTML = '';
-            pdfNameInput.value = '';
-
-            const errorMessage = document.querySelector('#finalActions + .progress-indicator');
-            if(errorMessage) errorMessage.remove();
-
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
             });
         });
     </script>
