@@ -5,427 +5,694 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>السوق وياك | عقارات وخدمات بالشرقية</title>
     
-    <!-- استدعاء Tailwind CSS -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- استدعاء خط 'Cairo' -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     
-    <!-- أيقونات Font Awesome -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body {
-            font-family: 'Cairo', sans-serif;
-            scroll-behavior: smooth;
-        }
+        body { font-family: 'Cairo', sans-serif; scroll-behavior: smooth; }
         
-        .fade-in-up {
-            animation: fadeInUp 0.8s ease-out;
-        }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* أنيميشن بسيط */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .gradient-text {
-            background: linear-gradient(to right, #16a34a, #0ea5e9); /* تم تغيير الألوان لتناسب العقارات (أخضر وأزرق) */
+            background: linear-gradient(to right, #16a34a, #0ea5e9);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
-        /* تأثير زر الشات العائم */
-        .floating-chat {
+
+        /* زر الشات العائم */
+        .chat-widget {
             position: fixed;
             bottom: 20px;
             left: 20px;
-            z-index: 100;
-            animation: bounce 2s infinite;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s;
         }
+        .chat-widget:hover { transform: scale(1.05); }
+        .chat-bubble {
+            width: 60px;
+            height: 60px;
+            background: #16a34a;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
+            animation: bounce 2s infinite;
+            border: 2px solid white;
+        }
+        .chat-text {
+            background: #1e293b;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        /* نافذة الشات */
+        .chat-window {
+            position: fixed;
+            bottom: 100px;
+            left: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 51;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e2e8f0;
+            transform-origin: bottom left;
+            transition: all 0.3s;
+        }
+        .chat-hidden { transform: scale(0); opacity: 0; pointer-events: none; }
+
+        /* رسائل الشات */
+        .msg { max-width: 80%; padding: 8px 12px; border-radius: 12px; margin-bottom: 8px; font-size: 14px; word-break: break-word; }
+        .msg-me { background: #16a34a; color: white; align-self: flex-end; border-bottom-left-radius: 2px; }
+        .msg-other { background: #f1f5f9; color: #334155; align-self: flex-start; border-bottom-right-radius: 2px; }
+
+        /* لوحة تحكم الأدمن */
+        .admin-panel {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .admin-content {
+            width: 90%;
+            height: 90%;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
 
-    <!-- شريط التنقل (Navbar) -->
-    <nav class="fixed w-full z-50 bg-white/95 backdrop-blur-md shadow-sm transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Navbar -->
+    <nav class="fixed w-full z-40 bg-white/95 backdrop-blur-md shadow-sm transition-all" id="navbar">
+        <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center h-20">
-                <!-- الشعار -->
-                <div class="flex-shrink-0 flex items-center gap-2">
+                <!-- Logo (Secret Admin Trigger) -->
+                <div class="flex items-center gap-2 cursor-pointer select-none" id="admin-trigger" title="اضغط هنا للدخول كمسؤول">
                     <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white text-xl font-bold">
                         <i class="fa-solid fa-shop"></i>
                     </div>
                     <span class="font-bold text-2xl text-slate-800">السوق <span class="text-green-600">وياك</span></span>
                 </div>
 
-                <!-- روابط القائمة -->
-                <div class="hidden md:flex items-center space-x-8 space-x-reverse">
-                    <a href="#home" class="text-slate-600 hover:text-green-600 font-medium transition">الرئيسية</a>
-                    <a href="#real-estate" class="text-slate-600 hover:text-green-600 font-medium transition">عقارات</a>
-                    <a href="#services" class="text-slate-600 hover:text-green-600 font-medium transition">خدماتنا</a>
-                    <a href="#support" class="text-slate-600 hover:text-green-600 font-medium transition">الدعم الفني</a>
-                </div>
-
-                <!-- زر اتصل بنا -->
-                <div class="hidden md:flex items-center gap-3">
-                    <a href="tel:01206244875" class="text-slate-600 font-bold hover:text-green-600 dir-ltr">
-                        <i class="fa-solid fa-phone"></i> 01206244875
-                    </a>
-                    <a href="#contact" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-full font-bold transition shadow-lg shadow-green-500/30">
-                        أضف إعلانك
-                    </a>
-                </div>
-
-                <!-- زر القائمة للموبايل -->
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-btn" class="text-slate-600 hover:text-green-600 focus:outline-none">
-                        <i class="fa-solid fa-bars text-2xl"></i>
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="#home" class="hover:text-green-600 font-medium">الرئيسية</a>
+                    <a href="#real-estate" class="hover:text-green-600 font-medium">عقارات</a>
+                    <a href="tel:01206244875" class="font-bold dir-ltr"><i class="fa-solid fa-phone text-green-600"></i> 01206244875</a>
+                    <button onclick="openAdModal()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-full font-bold shadow-lg transition">
+                        <i class="fa-solid fa-plus ml-1"></i> أضف إعلانك
                     </button>
                 </div>
             </div>
         </div>
-
-        <!-- قائمة الموبايل -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full shadow-xl">
-            <div class="px-4 pt-2 pb-4 space-y-1">
-                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-green-600 hover:bg-green-50">الرئيسية</a>
-                <a href="#real-estate" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-green-600 hover:bg-green-50">عقارات</a>
-                <a href="#services" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-green-600 hover:bg-green-50">خدماتنا</a>
-                <a href="#support" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-green-600 hover:bg-green-50">شات الدعم</a>
-                <a href="tel:01206244875" class="block mt-4 text-center border-2 border-green-600 text-green-600 px-3 py-3 rounded-lg font-bold hover:bg-green-50">اتصل الآن</a>
-            </div>
-        </div>
     </nav>
 
-    <!-- القسم الرئيسي (Hero Section) -->
-    <section id="home" class="relative pt-32 pb-20 lg:pt-40 overflow-hidden bg-white">
-        <div class="absolute top-0 right-0 w-1/2 h-full bg-green-50/50 rounded-bl-[100px] -z-10"></div>
+    <!-- Dynamic Hero Section -->
+    <section id="home" class="relative pt-32 pb-12 bg-white overflow-hidden min-h-[600px] flex items-center">
+        <div class="absolute top-0 right-0 w-2/3 h-full bg-green-50/80 rounded-bl-[200px] -z-10"></div>
         
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center gap-12">
-            <!-- النص -->
-            <div class="lg:w-1/2 text-center lg:text-right fade-in-up">
-                <div class="inline-block px-4 py-1.5 rounded-full bg-green-100 text-green-700 text-sm font-bold mb-6 border border-green-200">
-                    🏠 كل اللي تحتاجه في الزقازيق
-                </div>
-                <h1 class="text-4xl lg:text-6xl font-black text-slate-900 leading-tight mb-6">
-                    السوق وياك.. <br>
-                    <span class="gradient-text">بيتك وخدمتك عندنا</span>
+        <div class="max-w-7xl mx-auto px-4 w-full flex flex-col lg:flex-row items-center gap-10" id="hero-content">
+            <!-- سيتم تعبئة هذا القسم تلقائياً بأحدث إعلان -->
+            <div class="lg:w-1/2 text-center lg:text-right">
+                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold mb-4 inline-block">
+                    ✨ مرحباً بك في السوق وياك
+                </span>
+                <h1 class="text-4xl lg:text-6xl font-black mb-6 leading-tight">
+                    بيع واشتري في <br><span class="gradient-text">الشرقية</span> بأمان
                 </h1>
-                <p class="text-lg text-slate-600 mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                    أكبر منصة للعقارات والخدمات في محافظة الشرقية. سواء بتدور على شقة، محل، أو عايز تعرض عقارك، إحنا بنوصلك بالمشتري مباشرة وبدون تعقيد.
+                <p class="text-lg text-slate-600 mb-8">
+                    انتظر قليلاً.. جاري تحميل أحدث الفرص العقارية لك...
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                    <a href="#real-estate" class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition shadow-xl shadow-green-500/20 flex items-center justify-center gap-2">
-                        تصفح العقارات <i class="fa-solid fa-search mt-1"></i>
-                    </a>
-                    <a href="#support" class="bg-white hover:bg-gray-50 text-slate-700 border-2 border-slate-200 px-8 py-4 rounded-xl font-bold text-lg transition flex items-center justify-center gap-2">
-                        <i class="fa-regular fa-comments text-green-600"></i> كلم الدعم
-                    </a>
-                </div>
+                <div class="loader w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto lg:mx-0"></div>
             </div>
-
-            <!-- الصورة -->
-            <div class="lg:w-1/2 relative mt-10 lg:mt-0">
-                <img src="https://placehold.co/600x450/16a34a/ffffff?text=عقارات+الشرقية" alt="Real Estate Zagazig" class="relative rounded-3xl shadow-2xl w-full object-cover transform rotate-1 hover:rotate-0 transition duration-500 border-4 border-white">
-                
-                <!-- بطاقة عائمة -->
-                <div class="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 text-xl">
-                        <i class="fa-solid fa-key"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs text-slate-500 font-bold">عقارات متاحة</p>
-                        <p class="text-xl font-bold text-slate-800">+150 شقة</p>
-                    </div>
-                </div>
+            <div class="lg:w-1/2">
+                <div class="bg-slate-200 w-full h-[400px] rounded-3xl animate-pulse"></div>
             </div>
         </div>
     </section>
 
-    <!-- قسم العقارات (Real Estate Section) -->
-    <section id="real-estate" class="py-24 bg-slate-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-end mb-12">
-                <div>
-                    <h2 class="text-green-600 font-bold text-sm tracking-wide uppercase mb-2">أحدث العروض</h2>
-                    <h3 class="text-3xl font-black text-slate-900">عقارات مميزة في الزقازيق</h3>
-                </div>
-                <a href="#" class="hidden md:inline-block text-green-600 font-bold hover:text-green-800 transition">عرض الكل <i class="fa-solid fa-arrow-left mr-1"></i></a>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- عقار 1 -->
-                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 group">
-                    <div class="relative">
-                        <img src="https://placehold.co/400x250/e2e8f0/1e293b?text=شقة+حي+الزهور" class="w-full h-56 object-cover group-hover:scale-105 transition duration-500">
-                        <span class="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">للبيع</span>
-                        <span class="absolute bottom-4 left-4 bg-black/50 text-white text-sm px-3 py-1 rounded-md backdrop-blur-sm"><i class="fa-solid fa-camera"></i> 5 صور</span>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="text-xl font-bold text-slate-900 mb-2">شقة سوبر لوكس - حي الزهور</h4>
-                        <p class="text-slate-500 text-sm mb-4"><i class="fa-solid fa-location-dot text-green-500 ml-1"></i> الزقازيق، خلف المحافظة</p>
-                        
-                        <div class="flex justify-between border-y border-slate-100 py-3 mb-4 text-sm text-slate-600">
-                            <span><i class="fa-solid fa-bed ml-1"></i> 3 غرف</span>
-                            <span><i class="fa-solid fa-bath ml-1"></i> 2 حمام</span>
-                            <span><i class="fa-solid fa-ruler-combined ml-1"></i> 150 م²</span>
-                        </div>
-                        
-                        <div class="flex justify-between items-center">
-                            <span class="text-2xl font-bold text-green-600">2.5 مليون <span class="text-sm text-slate-400 font-normal">ج.م</span></span>
-                            <button class="w-10 h-10 rounded-full bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-phone"></i></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- عقار 2 -->
-                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 group">
-                    <div class="relative">
-                        <img src="https://placehold.co/400x250/e2e8f0/1e293b?text=محل+للايجار" class="w-full h-56 object-cover group-hover:scale-105 transition duration-500">
-                        <span class="absolute top-4 right-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">للإيجار</span>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="text-xl font-bold text-slate-900 mb-2">محل تجاري موقع متميز</h4>
-                        <p class="text-slate-500 text-sm mb-4"><i class="fa-solid fa-location-dot text-green-500 ml-1"></i> القومية، شارع طلبة عويضة</p>
-                        
-                        <div class="flex justify-between border-y border-slate-100 py-3 mb-4 text-sm text-slate-600">
-                            <span><i class="fa-solid fa-shop ml-1"></i> تجاري</span>
-                            <span><i class="fa-solid fa-stairs ml-1"></i> دور أرضي</span>
-                            <span><i class="fa-solid fa-ruler-combined ml-1"></i> 40 م²</span>
-                        </div>
-                        
-                        <div class="flex justify-between items-center">
-                            <span class="text-2xl font-bold text-green-600">15,000 <span class="text-sm text-slate-400 font-normal">ج.م/شهر</span></span>
-                            <button class="w-10 h-10 rounded-full bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-phone"></i></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- عقار 3 -->
-                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 group">
-                    <div class="relative">
-                        <img src="https://placehold.co/400x250/e2e8f0/1e293b?text=شقة+تشطيب+كامل" class="w-full h-56 object-cover group-hover:scale-105 transition duration-500">
-                        <span class="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">للبيع</span>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="text-xl font-bold text-slate-900 mb-2">شقة أهالي تشطيب عرايس</h4>
-                        <p class="text-slate-500 text-sm mb-4"><i class="fa-solid fa-location-dot text-green-500 ml-1"></i> منطقة الغشام</p>
-                        
-                        <div class="flex justify-between border-y border-slate-100 py-3 mb-4 text-sm text-slate-600">
-                            <span><i class="fa-solid fa-bed ml-1"></i> 4 غرف</span>
-                            <span><i class="fa-solid fa-bath ml-1"></i> 3 حمام</span>
-                            <span><i class="fa-solid fa-ruler-combined ml-1"></i> 200 م²</span>
-                        </div>
-                        
-                        <div class="flex justify-between items-center">
-                            <span class="text-2xl font-bold text-green-600">3.8 مليون <span class="text-sm text-slate-400 font-normal">ج.م</span></span>
-                            <button class="w-10 h-10 rounded-full bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-phone"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Real Estate Grid -->
+    <section id="real-estate" class="py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-3xl font-black text-slate-900 mb-10 border-r-4 border-green-600 pr-4">أحدث العروض العقارية</h2>
             
-            <div class="mt-10 text-center md:hidden">
-                <a href="#" class="bg-white border border-slate-300 text-slate-700 px-6 py-3 rounded-xl font-bold w-full block shadow-sm">عرض كل العقارات</a>
+            <div id="properties-grid" class="grid md:grid-cols-3 gap-8">
+                <!-- Cards will be injected here -->
             </div>
         </div>
     </section>
 
-    <!-- قسم خدماتنا (Features) -->
-    <section id="services" class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4 text-center mb-16">
-            <h2 class="text-3xl font-black text-slate-900 mb-4">ليه تختار "السوق وياك"؟</h2>
-            <p class="text-slate-600">إحنا مش بس موقع، إحنا وسيطك الأمين في الشرقية</p>
-        </div>
-        
-        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
-            <div class="text-center p-6">
-                <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center text-green-600 text-3xl mx-auto mb-6">
-                    <i class="fa-solid fa-hand-holding-dollar"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-3">بدون رسوم اشتراك</h3>
-                <p class="text-slate-500">الموقع مجاني تماماً للعملاء. ادفع فقط لما تبيع أو تشتري عن طريقنا.</p>
-            </div>
-            <div class="text-center p-6">
-                <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-3xl mx-auto mb-6">
-                    <i class="fa-solid fa-check-double"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-3">معاينة حقيقية</h3>
-                <p class="text-slate-500">بننزل معاك ونعاين العقار على أرض الواقع في أي مكان في الزقازيق.</p>
-            </div>
-            <div class="text-center p-6">
-                <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 text-3xl mx-auto mb-6">
-                    <i class="fa-solid fa-headset"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-3">دعم فني مباشر</h3>
-                <p class="text-slate-500">فريق كامل جاهز للرد على استفساراتك عن طريق الشات أو التليفون.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- قسم الدعم والشات (Support Section) -->
-    <section id="support" class="py-24 bg-slate-900 text-white relative overflow-hidden">
-        <!-- خلفية زخرفية -->
-        <div class="absolute top-0 left-0 w-full h-full opacity-10">
-            <i class="fa-regular fa-comments absolute text-[15rem] -top-20 -left-20 rotate-12"></i>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center gap-12">
-            <div class="md:w-1/2">
-                <h2 class="text-green-400 font-bold mb-2 uppercase tracking-wider">تواصل معنا</h2>
-                <h3 class="text-4xl font-black mb-6">محتاج مساعدة؟ كلم الدعم فوراً</h3>
-                <p class="text-slate-300 text-lg mb-8 leading-relaxed">
-                    عندك استفسار بخصوص عقار؟ عايز تعرض شقتك؟ فريق الدعم الفني متاح للرد عليك لحظياً. إحنا موجودين عشان نخدمك.
-                </p>
-                
-                <div class="space-y-4">
-                    <!-- حالة الشات -->
-                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex items-center gap-4">
-                        <div class="relative">
-                            <img src="https://placehold.co/60x60/16a34a/ffffff?text=CS" class="w-12 h-12 rounded-full border-2 border-green-500">
-                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-slate-800 rounded-full"></span>
-                        </div>
-                        <div>
-                            <p class="font-bold">فريق خدمة العملاء</p>
-                            <p class="text-xs text-green-400">متاح الآن • يرد عادة في دقيقة</p>
-                        </div>
-                        <button onclick="alert('سيتم فتح نافذة الشات الآن...')" class="mr-auto bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition">
-                            ابدأ المحادثة
-                        </button>
-                    </div>
-                    
-                    <div class="flex gap-4 mt-6">
-                        <a href="tel:01206244875" class="flex-1 bg-white text-slate-900 py-3 rounded-xl text-center font-bold hover:bg-gray-100 transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-phone"></i> اتصال هاتفي
-                        </a>
-                        <a href="https://wa.me/201206244875" target="_blank" class="flex-1 bg-[#25D366] text-white py-3 rounded-xl text-center font-bold hover:bg-[#20b859] transition flex items-center justify-center gap-2">
-                            <i class="fa-brands fa-whatsapp text-xl"></i> واتساب
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- نموذج محاكاة الشات -->
-            <div class="md:w-1/2 w-full">
-                <div class="bg-white text-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-200 h-[400px] flex flex-col">
-                    <div class="bg-green-600 p-4 text-white flex justify-between items-center">
-                        <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-headset"></i> الدعم المباشر</span>
-                        <span class="text-xs bg-green-700 px-2 py-1 rounded">متصل</span>
-                    </div>
-                    <div class="flex-1 p-4 overflow-y-auto bg-slate-50 space-y-4">
-                        <!-- رسالة النظام -->
-                        <div class="flex items-start gap-2">
-                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs font-bold">S</div>
-                            <div class="bg-white p-3 rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-sm border border-slate-100 text-sm max-w-[80%]">
-                                أهلاً بك في "السوق وياك". كيف يمكننا مساعدتك اليوم في البحث عن عقارك؟
-                            </div>
-                        </div>
-                         <!-- رسالة العميل -->
-                         <div class="flex items-start gap-2 flex-row-reverse">
-                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">أنا</div>
-                            <div class="bg-green-100 p-3 rounded-tl-xl rounded-bl-xl rounded-br-xl shadow-sm text-sm max-w-[80%]">
-                                لو سمحت كنت محتاج شقة إيجار في القومية.
-                            </div>
-                        </div>
-                        <!-- رسالة النظام -->
-                        <div class="flex items-start gap-2">
-                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs font-bold">S</div>
-                            <div class="bg-white p-3 rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-sm border border-slate-100 text-sm max-w-[80%]">
-                                متاح لدينا 3 وحدات مميزة في القومية حالياً. هل تحب أبعتلك التفاصيل والصور؟
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-3 border-t border-slate-100 bg-white">
-                        <div class="flex gap-2">
-                            <input type="text" placeholder="اكتب رسالتك هنا..." class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-green-500">
-                            <button class="bg-green-600 text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-green-700 transition"><i class="fa-solid fa-paper-plane"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- زر شات عائم -->
-    <a href="#support" class="floating-chat bg-green-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-green-700 transition duration-300 border-2 border-white">
-        <i class="fa-solid fa-comment-dots text-2xl"></i>
-    </a>
-
-    <!-- الفوتر (Footer) -->
+    <!-- Footer -->
     <footer class="bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid md:grid-cols-3 gap-8 mb-8">
-                <div class="col-span-1">
-                    <div class="flex items-center gap-2 mb-4 text-white">
-                        <i class="fa-solid fa-shop text-green-500 text-xl"></i>
-                        <span class="font-bold text-2xl">السوق <span class="text-green-500">وياك</span></span>
-                    </div>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        دليلك الأول للعقارات في محافظة الشرقية. بيع واشتري وأجر بأمان وبدون مصاريف خفية.
-                    </p>
-                </div>
-                
-                <div>
-                    <h4 class="text-white font-bold mb-4">روابط سريعة</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#home" class="hover:text-green-400 transition">الرئيسية</a></li>
-                        <li><a href="#real-estate" class="hover:text-green-400 transition">شقق للبيع</a></li>
-                        <li><a href="#real-estate" class="hover:text-green-400 transition">محلات تجارية</a></li>
-                        <li><a href="#support" class="hover:text-green-400 transition">تواصل مع الدعم</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="text-white font-bold mb-4">بيانات التواصل</h4>
-                    <ul class="space-y-4 text-sm">
-                        <li class="flex items-start gap-3">
-                            <i class="fa-solid fa-location-dot text-green-500 mt-1"></i>
-                            <span>الزقازيق، محافظة الشرقية، مصر</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <i class="fa-solid fa-phone text-green-500"></i>
-                            <span class="dir-ltr">01206244875</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <i class="fa-brands fa-whatsapp text-green-500 text-lg"></i>
-                            <span>متاح واتساب طوال اليوم</span>
-                        </li>
-                    </ul>
-                </div>
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+            <div>
+                <h3 class="text-white font-bold text-xl mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-shop text-green-500"></i> السوق وياك
+                </h3>
+                <p class="text-sm leading-relaxed">
+                    المنصة الأولى في الشرقية لبيع وشراء العقارات والخدمات. نوفر لك الأمان والسرعة في التواصل.
+                </p>
             </div>
-            <div class="border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
-                &copy; 2025 جميع الحقوق محفوظة لموقع "السوق وياك".
+            <div>
+                <h3 class="text-white font-bold text-lg mb-4">روابط هامة</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#home" class="hover:text-green-400">الرئيسية</a></li>
+                    <li><a href="#real-estate" class="hover:text-green-400">العقارات</a></li>
+                    <li><button onclick="toggleChat()" class="hover:text-green-400">تواصل مع الدعم</button></li>
+                </ul>
             </div>
+            <div>
+                <h3 class="text-white font-bold text-lg mb-4">بيانات التواصل</h3>
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-center gap-3">
+                        <i class="fa-solid fa-location-dot text-green-500"></i>
+                        الزقازيق، الشرقية، مصر
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fa-solid fa-phone text-green-500"></i>
+                        <span class="dir-ltr">01206244875</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fa-brands fa-whatsapp text-green-500 text-lg"></i>
+                        تواصل معنا واتساب
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center mt-8 pt-8 border-t border-slate-800 text-xs">
+            جميع الحقوق محفوظة &copy; 2025 السوق وياك
         </div>
     </footer>
 
-    <script>
-        const mobileBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
+    <!-- Add Property Modal -->
+    <div id="ad-modal" class="fixed inset-0 bg-black/70 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">إضافة إعلان جديد</h3>
+                <button onclick="closeAdModal()" class="text-red-500 hover:bg-red-50 p-2 rounded-full"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <form id="ad-form" class="space-y-3">
+                <input type="text" id="ad-title" placeholder="عنوان الإعلان (مثال: شقة للبيع)" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" required>
+                <div class="flex gap-2">
+                    <input type="number" id="ad-price" placeholder="السعر (ج.م)" class="w-full border p-3 rounded-lg outline-none" required>
+                    <select id="ad-type" class="border p-3 rounded-lg outline-none bg-white">
+                        <option value="بيع">بيع</option>
+                        <option value="إيجار">إيجار</option>
+                    </select>
+                </div>
+                <input type="text" id="ad-location" placeholder="المكان (مثال: القومية)" class="w-full border p-3 rounded-lg outline-none" required>
+                
+                <div class="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center cursor-pointer hover:bg-green-50 transition relative">
+                    <input type="file" id="ad-image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required onchange="previewImage(this)">
+                    <div id="img-preview-container">
+                        <i class="fa-solid fa-cloud-upload-alt text-3xl text-slate-400 mb-2"></i>
+                        <p class="text-sm text-slate-500">اضغط لرفع صورة العقار</p>
+                        <p class="text-xs text-green-600 mt-1 font-bold">سيتم ضغط الصورة تلقائياً</p>
+                    </div>
+                </div>
 
-        mobileBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+                <button type="submit" id="ad-submit-btn" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition shadow-lg">
+                    نشر الإعلان
+                </button>
+            </form>
+        </div>
+    </div>
 
-        window.addEventListener('scroll', () => {
-            const navbar = document.getElementById('navbar');
-            if (window.scrollY > 10) {
-                navbar.classList.add('shadow-md');
-            } else {
-                navbar.classList.remove('shadow-md');
+    <!-- Chat Widget -->
+    <div class="chat-widget" onclick="toggleChat()">
+        <div class="chat-bubble">
+            <i class="fa-solid fa-headset"></i>
+        </div>
+        <div class="chat-text">الدعم الفني</div>
+    </div>
+
+    <!-- Client Chat Window -->
+    <div class="chat-window chat-hidden" id="client-chat-window">
+        <div class="bg-green-600 p-4 text-white flex justify-between items-center rounded-t-xl shadow-md">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-white text-green-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-user-shield"></i></div>
+                <div>
+                    <h4 class="font-bold text-sm">خدمة العملاء</h4>
+                    <p class="text-[10px] opacity-90">نرد عادة خلال دقائق</p>
+                </div>
+            </div>
+            <button onclick="toggleChat()" class="hover:bg-green-700 p-1 rounded"><i class="fa-solid fa-chevron-down"></i></button>
+        </div>
+        <div id="client-msgs" class="flex-1 bg-slate-50 p-4 overflow-y-auto flex flex-col">
+            <div class="text-center text-xs text-slate-400 my-2">مرحباً بك في شات الدعم</div>
+        </div>
+        <form id="client-chat-form" class="p-3 bg-white border-t flex gap-2 rounded-b-xl">
+            <input type="text" id="client-input" placeholder="اكتب استفسارك..." class="flex-1 bg-slate-100 border-0 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-green-500" autocomplete="off">
+            <button type="submit" class="bg-green-600 text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-green-700"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+    </div>
+
+    <!-- Admin Dashboard (Hidden) -->
+    <div id="admin-dashboard" class="admin-panel hidden">
+        <div class="admin-content">
+            <!-- Sidebar: User List -->
+            <div class="w-1/3 bg-slate-900 text-white border-l border-slate-700 flex flex-col">
+                <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800">
+                    <h3 class="font-bold"><i class="fa-solid fa-users-gear ml-2"></i>المحادثات النشطة</h3>
+                    <button onclick="closeAdmin()" class="text-red-400 hover:text-red-200 text-sm"><i class="fa-solid fa-power-off"></i> خروج</button>
+                </div>
+                <div id="admin-users-list" class="flex-1 overflow-y-auto p-2 space-y-2">
+                    <!-- User items injected here -->
+                </div>
+            </div>
+            
+            <!-- Main: Chat Area -->
+            <div class="w-2/3 bg-slate-50 flex flex-col relative">
+                <div id="admin-chat-header" class="p-4 bg-white shadow-sm border-b flex justify-between items-center hidden">
+                    <div>
+                        <h3 class="font-bold text-slate-800" id="current-chat-user">اسم العميل</h3>
+                        <span class="text-xs text-green-600">متصل</span>
+                    </div>
+                    <button onclick="endCurrentChat()" class="bg-red-100 text-red-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-red-200 border border-red-200">
+                        <i class="fa-solid fa-check"></i> إنهاء المحادثة
+                    </button>
+                </div>
+                
+                <div id="admin-msgs-area" class="flex-1 p-4 overflow-y-auto flex flex-col">
+                    <div class="h-full flex flex-col items-center justify-center text-slate-400">
+                        <i class="fa-regular fa-comments text-6xl mb-4"></i>
+                        <p>اختر محادثة من القائمة للبدء</p>
+                    </div>
+                </div>
+
+                <form id="admin-chat-form" class="p-4 bg-white border-t hidden">
+                    <div class="flex gap-2">
+                        <input type="text" id="admin-input" placeholder="الرد كدعم فني..." class="flex-1 border rounded-lg px-4 py-3 outline-none focus:border-blue-500">
+                        <button type="submit" class="bg-blue-600 text-white px-6 rounded-lg font-bold hover:bg-blue-700">إرسال</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase & Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, deleteDoc, doc, setDoc, limit, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBnFVN-3U4NlLljUbVHHh4vQB9Mmp7RE5A",
+            authDomain: "zagazig-commerce.firebaseapp.com",
+            databaseURL: "https://zagazig-commerce-default-rtdb.firebaseio.com",
+            projectId: "zagazig-commerce",
+            storageBucket: "zagazig-commerce.firebasestorage.app",
+            messagingSenderId: "783055989739",
+            appId: "1:783055989739:web:d906f9381cb3daac2447ae"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+        let isAdminMode = false;
+        let activeAdminChatId = null; // The userId the admin is currently talking to
+
+        // 1. Authentication
+        signInAnonymously(auth).catch(console.error);
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                console.log("User ID:", user.uid);
+                initApp();
             }
         });
 
-        document.querySelectorAll('#mobile-menu a').forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenu.classList.add('hidden');
+        function initApp() {
+            listenToHero();
+            listenToProperties();
+            initClientChat();
+        }
+
+        // 2. Image Compression & Upload Logic
+        window.previewImage = function(input) {
+            const file = input.files[0];
+            if (file) {
+                const container = document.getElementById('img-preview-container');
+                container.innerHTML = `<p class='text-green-600'>تم اختيار: ${file.name}</p>`;
+            }
+        }
+
+        // Compress Image Function (Canvas)
+        const compressImage = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        // Compress to JPEG 70% quality
+                        resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    }
+                    img.onerror = reject;
+                }
+                reader.onerror = reject;
             });
+        }
+
+        // 3. Property Management
+        window.openAdModal = () => document.getElementById('ad-modal').classList.remove('hidden');
+        window.closeAdModal = () => document.getElementById('ad-modal').classList.add('hidden');
+
+        document.getElementById('ad-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('ad-submit-btn');
+            btn.innerText = "جاري المعالجة...";
+            btn.disabled = true;
+
+            try {
+                const fileInput = document.getElementById('ad-image');
+                if(fileInput.files.length === 0) throw new Error("Please select an image");
+                
+                // Compress!
+                const base64Img = await compressImage(fileInput.files[0]);
+
+                await addDoc(collection(db, "properties"), {
+                    title: document.getElementById('ad-title').value,
+                    price: Number(document.getElementById('ad-price').value),
+                    type: document.getElementById('ad-type').value,
+                    location: document.getElementById('ad-location').value,
+                    image: base64Img,
+                    createdAt: serverTimestamp(),
+                    userId: currentUser.uid
+                });
+
+                closeAdModal();
+                document.getElementById('ad-form').reset();
+                document.getElementById('img-preview-container').innerHTML = `<i class="fa-solid fa-cloud-upload-alt text-3xl text-slate-400 mb-2"></i><p class="text-sm text-slate-500">اضغط لرفع صورة العقار</p>`;
+                alert("تم نشر الإعلان بنجاح!");
+            } catch (err) {
+                alert("حدث خطأ: " + err.message);
+            } finally {
+                btn.innerText = "نشر الإعلان";
+                btn.disabled = false;
+            }
         });
+
+        // 4. Dynamic Hero Section
+        function listenToHero() {
+            const q = query(collection(db, "properties"), orderBy("createdAt", "desc"), limit(1));
+            onSnapshot(q, (snapshot) => {
+                const heroDiv = document.getElementById('hero-content');
+                if (!snapshot.empty) {
+                    const data = snapshot.docs[0].data();
+                    heroDiv.innerHTML = `
+                        <div class="lg:w-1/2 text-center lg:text-right fade-in">
+                            <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold mb-4 inline-block animate-pulse">
+                                🔥 أحدث إعلان وصل الآن
+                            </span>
+                            <h1 class="text-3xl lg:text-5xl font-black mb-4 leading-tight text-slate-900">
+                                ${data.title}
+                            </h1>
+                            <div class="flex flex-wrap gap-4 justify-center lg:justify-start mb-6 text-lg">
+                                <span class="font-bold text-green-600"><i class="fa-solid fa-tag ml-1"></i> ${data.price.toLocaleString()} ج.م</span>
+                                <span class="text-slate-500"><i class="fa-solid fa-location-dot ml-1"></i> ${data.location}</span>
+                            </div>
+                            <a href="#real-estate" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 transition inline-flex items-center gap-2">
+                                التفاصيل <i class="fa-solid fa-arrow-down"></i>
+                            </a>
+                        </div>
+                        <div class="lg:w-1/2 fade-in">
+                            <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white h-[350px] lg:h-[450px] w-full">
+                                <img src="${data.image}" class="absolute inset-0 w-full h-full object-cover hover:scale-105 transition duration-700">
+                                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/70 to-transparent p-6 text-white">
+                                    <p class="font-bold text-xl">لل${data.type}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Default Hero if no data
+                    heroDiv.innerHTML = `
+                         <div class="lg:w-1/2 text-center lg:text-right">
+                            <h1 class="text-4xl font-black mb-4">السوق وياك</h1>
+                            <p>لا توجد إعلانات حالياً. كن أول من يضيف!</p>
+                            <button onclick="openAdModal()" class="bg-green-600 text-white px-6 py-2 rounded mt-4 font-bold">أضف إعلان</button>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // 5. Listen to Properties & Delete Feature
+        function listenToProperties() {
+            const q = query(collection(db, "properties"), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const grid = document.getElementById('properties-grid');
+                grid.innerHTML = '';
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    // Admin Delete Button logic
+                    const deleteBtn = isAdminMode 
+                        ? `<button onclick="deleteProperty('${docSnap.id}')" class="absolute top-2 left-2 bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center shadow hover:bg-red-700 z-10"><i class="fa-solid fa-trash"></i></button>` 
+                        : '';
+
+                    const card = `
+                        <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 group relative fade-in">
+                            ${deleteBtn}
+                            <div class="h-56 overflow-hidden relative">
+                                <img src="${data.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                <span class="absolute top-4 right-4 ${data.type === 'بيع' ? 'bg-blue-600' : 'bg-orange-500'} text-white text-xs font-bold px-3 py-1 rounded-full shadow">لل${data.type}</span>
+                            </div>
+                            <div class="p-5">
+                                <h4 class="text-lg font-bold text-slate-900 mb-2 truncate">${data.title}</h4>
+                                <p class="text-slate-500 text-sm mb-3"><i class="fa-solid fa-location-dot text-green-500 ml-1"></i> ${data.location}</p>
+                                <div class="flex justify-between items-center pt-3 border-t border-slate-100">
+                                    <span class="text-lg font-bold text-green-600">${data.price.toLocaleString()} <span class="text-xs text-slate-400">ج.م</span></span>
+                                    <a href="tel:01206244875" class="w-9 h-9 rounded-full bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-phone"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    grid.innerHTML += card;
+                });
+            });
+        }
+        
+        // Expose delete function globally
+        window.deleteProperty = async (id) => {
+            if(confirm("هل أنت متأكد من حذف هذا الإعلان نهائياً؟")) {
+                await deleteDoc(doc(db, "properties", id));
+            }
+        };
+
+        // 6. Client Side Chat
+        window.toggleChat = () => document.getElementById('client-chat-window').classList.toggle('chat-hidden');
+        
+        function initClientChat() {
+            const msgsDiv = document.getElementById('client-msgs');
+            // Listen to MY chat document messages
+            const chatRef = collection(db, `chats/${currentUser.uid}/messages`);
+            const q = query(chatRef, orderBy("createdAt", "asc"));
+
+            onSnapshot(q, (snapshot) => {
+                msgsDiv.innerHTML = '';
+                snapshot.forEach(d => {
+                    const data = d.data();
+                    const isMe = data.senderRole === 'client';
+                    msgsDiv.innerHTML += `<div class="msg ${isMe ? 'msg-me' : 'msg-other'}">${data.text}</div>`;
+                });
+                msgsDiv.scrollTop = msgsDiv.scrollHeight;
+            });
+
+            document.getElementById('client-chat-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const inp = document.getElementById('client-input');
+                const txt = inp.value.trim();
+                if(!txt) return;
+
+                // 1. Create/Update Chat Session Info
+                await setDoc(doc(db, "chats", currentUser.uid), {
+                    lastMessage: txt,
+                    lastMessageTime: serverTimestamp(),
+                    status: 'open',
+                    userId: currentUser.uid
+                }, { merge: true });
+
+                // 2. Add Message
+                await addDoc(collection(db, `chats/${currentUser.uid}/messages`), {
+                    text: txt,
+                    senderRole: 'client',
+                    createdAt: serverTimestamp()
+                });
+                inp.value = '';
+            });
+        }
+
+        // ------------------ ADMIN LOGIC ------------------
+
+        // Trigger Admin Mode
+        document.getElementById('admin-trigger').addEventListener('click', () => {
+            const pin = prompt("أدخل كود المسؤول:");
+            if (pin === "1532") {
+                enableAdminMode();
+            }
+        });
+
+        function enableAdminMode() {
+            isAdminMode = true;
+            alert("مرحباً بك يا مدير! تم تفعيل وضع الدعم الفني.");
+            
+            // Show Admin Dashboard
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            // Enable Delete Buttons on properties
+            listenToProperties(); // Reloads grid with delete buttons
+            
+            initAdminChatSystem();
+        }
+
+        window.closeAdmin = () => {
+            isAdminMode = false;
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            listenToProperties(); // Remove delete buttons
+        };
+
+        function initAdminChatSystem() {
+            // Listen to ALL open chats
+            const q = query(collection(db, "chats"), orderBy("lastMessageTime", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                const list = document.getElementById('admin-users-list');
+                list.innerHTML = '';
+                
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.status === 'closed') return; // Don't show closed chats
+
+                    const isActive = activeAdminChatId === docSnap.id;
+                    const item = document.createElement('div');
+                    item.className = `p-3 border-b border-slate-700 cursor-pointer hover:bg-slate-700 ${isActive ? 'bg-slate-700 border-l-4 border-green-500' : ''}`;
+                    item.innerHTML = `
+                        <div class="flex justify-between mb-1">
+                            <span class="font-bold text-sm">عميل #${docSnap.id.slice(0,5)}</span>
+                            <span class="text-[10px] text-slate-400">الآن</span>
+                        </div>
+                        <p class="text-xs text-slate-400 truncate">${data.lastMessage}</p>
+                    `;
+                    item.onclick = () => openAdminChat(docSnap.id);
+                    list.appendChild(item);
+                });
+            });
+        }
+
+        window.openAdminChat = (userId) => {
+            activeAdminChatId = userId;
+            document.getElementById('current-chat-user').innerText = `عميل #${userId.slice(0,5)}`;
+            document.getElementById('admin-chat-header').classList.remove('hidden');
+            document.getElementById('admin-chat-form').classList.remove('hidden');
+            
+            // Re-render list to show active state
+            // (In a React app this is auto, here we rely on the snapshot update or manual class toggle, 
+            // for simplicity we'll let the snapshot update handle it eventually or just leave as is)
+
+            const msgsArea = document.getElementById('admin-msgs-area');
+            // Listen to messages of THIS user
+            const q = query(collection(db, `chats/${userId}/messages`), orderBy("createdAt", "asc"));
+            
+            onSnapshot(q, (snapshot) => {
+                msgsArea.innerHTML = '';
+                snapshot.forEach(d => {
+                    const data = d.data();
+                    const isSupport = data.senderRole === 'support';
+                    // In admin view: Support msg is "Me", Client msg is "Other"
+                    msgsArea.innerHTML += `
+                        <div class="msg ${isSupport ? 'bg-blue-600 text-white self-end rounded-bl-sm' : 'bg-slate-200 text-slate-800 self-start rounded-br-sm'}">
+                            ${data.text}
+                        </div>
+                    `;
+                });
+                msgsArea.scrollTop = msgsArea.scrollHeight;
+            });
+        };
+
+        // Admin Send Message
+        document.getElementById('admin-chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!activeAdminChatId) return;
+            
+            const inp = document.getElementById('admin-input');
+            const txt = inp.value.trim();
+            if(!txt) return;
+
+            await addDoc(collection(db, `chats/${activeAdminChatId}/messages`), {
+                text: txt,
+                senderRole: 'support', // Role is support
+                createdAt: serverTimestamp()
+            });
+
+            // Update last message in chat doc
+            await updateDoc(doc(db, "chats", activeAdminChatId), {
+                lastMessage: "الدعم: " + txt,
+                lastMessageTime: serverTimestamp()
+            });
+
+            inp.value = '';
+        });
+
+        // End Chat
+        window.endCurrentChat = async () => {
+            if(!activeAdminChatId) return;
+            if(confirm("هل تريد إنهاء هذه المحادثة؟ ستختفي من القائمة.")) {
+                await updateDoc(doc(db, "chats", activeAdminChatId), {
+                    status: 'closed'
+                });
+                activeAdminChatId = null;
+                document.getElementById('admin-msgs-area').innerHTML = `<div class="h-full flex items-center justify-center text-slate-400">تم إنهاء المحادثة</div>`;
+                document.getElementById('admin-chat-header').classList.add('hidden');
+                document.getElementById('admin-chat-form').classList.add('hidden');
+            }
+        };
+
     </script>
 </body>
 </html>
