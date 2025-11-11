@@ -13,147 +13,193 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        :root { --primary: #10b981; --dark: #0f172a; }
         body { 
             font-family: 'Cairo', sans-serif; 
             background-color: #f8fafc; 
             -webkit-tap-highlight-color: transparent;
-            padding-bottom: 90px; /* Space for bottom nav */
+            padding-bottom: 90px;
+            overflow-x: hidden;
         }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .card-aspect { aspect-ratio: 4/3; }
         
-        /* Animations */
-        @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .animate-scale-up { animation: scaleUp 0.2s ease-out forwards; }
-        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #e2e8f0; }
+        /* Transitions */
+        .fast-trans { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .gpu-accelerated { transform: translateZ(0); backface-visibility: hidden; will-change: transform, opacity; }
+
+        @keyframes snapIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .animate-snap { animation: snapIn 0.15s ease-out forwards; }
+        
+        @keyframes slideUpFast { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slide-up { animation: slideUpFast 0.2s ease-out forwards; }
+
+        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border-top: 1px solid #e2e8f0; }
+        
+        /* Lightbox Navigation Buttons */
+        .lb-btn {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50%;
+            padding: 10px;
+            transition: all 0.2s;
+        }
+        .lb-btn:active { background: rgba(255, 255, 255, 0.3); transform: scale(0.95); }
     </style>
 </head>
-<body class="text-slate-800">
+<body class="text-slate-800 select-none">
 
-    <!-- 1. Header -->
-    <header class="fixed top-0 w-full z-40 bg-white/90 backdrop-blur border-b border-slate-200 h-16 flex items-center justify-between px-4 shadow-sm">
-        <div class="flex items-center gap-2" id="logo-trigger">
-            <div class="bg-slate-900 text-white p-1.5 rounded-lg"><i data-lucide="building-2" class="w-6 h-6"></i></div>
-            <h1 class="font-bold text-lg text-slate-900">السوق <span class="text-emerald-600">وياك</span></h1>
+    <!-- 1. الهيدر -->
+    <header class="fixed top-0 w-full z-40 bg-white/95 backdrop-blur border-b border-slate-200 h-14 flex items-center justify-between px-4 shadow-sm fast-trans gpu-accelerated">
+        <div class="flex items-center gap-2 cursor-pointer" id="logo-trigger">
+            <div class="bg-slate-900 text-white p-1 rounded-lg"><i data-lucide="building-2" class="w-5 h-5"></i></div>
+            <h1 class="font-bold text-base text-slate-900">السوق <span class="text-emerald-600">وياك</span></h1>
         </div>
-        <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-red-50 text-red-500 p-2 rounded-full"><i data-lucide="shield" class="w-5 h-5"></i></button>
+        <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-red-50 text-red-500 p-1.5 rounded-full hover:bg-red-100 fast-trans"><i data-lucide="shield" class="w-4 h-4"></i></button>
     </header>
 
-    <!-- 2. Main Content -->
-    <main class="pt-24 container mx-auto px-4 max-w-6xl">
-        <!-- Filter Chips -->
-        <div class="flex justify-center gap-3 mb-8 overflow-x-auto py-2 no-scrollbar">
-            <button onclick="filter('all')" id="chip-all" class="px-6 py-2 rounded-full bg-slate-900 text-white text-sm font-bold shadow-lg transform scale-105 transition">الكل</button>
-            <button onclick="filter('sale')" id="chip-sale" class="px-6 py-2 rounded-full bg-white border text-slate-600 text-sm font-bold hover:bg-slate-50 transition">بيع</button>
-            <button onclick="filter('rent')" id="chip-rent" class="px-6 py-2 rounded-full bg-white border text-slate-600 text-sm font-bold hover:bg-slate-50 transition">إيجار</button>
+    <!-- 2. المحتوى الرئيسي -->
+    <main class="pt-20 container mx-auto px-2 max-w-6xl min-h-screen">
+        
+        <!-- الفلتر -->
+        <div class="flex justify-center gap-2 mb-4 overflow-x-auto py-2 no-scrollbar gpu-accelerated">
+            <button onclick="filter('all')" id="chip-all" class="px-5 py-1.5 rounded-full bg-slate-900 text-white text-xs font-bold shadow-lg transform active:scale-95 fast-trans whitespace-nowrap">الكل</button>
+            <button onclick="filter('sale')" id="chip-sale" class="px-5 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 active:scale-95 fast-trans whitespace-nowrap">بيع</button>
+            <button onclick="filter('rent')" id="chip-rent" class="px-5 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 active:scale-95 fast-trans whitespace-nowrap">إيجار</button>
         </div>
 
-        <!-- Grid -->
-        <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
-        <div id="grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        <div id="empty-state" class="hidden text-center py-20"><div class="bg-slate-100 p-4 rounded-full inline-block mb-2"><i data-lucide="inbox" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 font-bold">لا توجد عقارات حالياً</p></div>
+        <!-- اللودر -->
+        <div id="loader" class="flex flex-col items-center justify-center py-32">
+            <div class="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-2"></div>
+            <p class="text-xs text-slate-400 font-bold">جاري التحميل...</p>
+        </div>
+
+        <!-- شبكة العرض -->
+        <div id="grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pb-10"></div>
+
+        <div id="empty-state" class="hidden text-center py-20 opacity-60">
+            <div class="bg-slate-100 p-4 rounded-full inline-block mb-2"><i data-lucide="inbox" class="w-8 h-8 text-slate-400"></i></div>
+            <p class="text-slate-500 font-bold text-sm">لا توجد عقارات حالياً</p>
+        </div>
     </main>
 
-    <!-- 3. Mobile Bottom Nav -->
-    <nav class="fixed bottom-0 w-full glass-nav h-20 z-40 flex justify-around items-center text-[10px] font-bold text-slate-400 md:hidden pb-2">
-        <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="flex flex-col items-center gap-1 p-2 text-emerald-600"><i data-lucide="home" class="w-6 h-6"></i><span>الرئيسية</span></button>
-        <button onclick="toggleAddModal()" class="flex flex-col items-center -mt-8"><div class="w-14 h-14 bg-slate-900 rounded-full text-white flex items-center justify-center shadow-xl active:scale-90 transition"><i data-lucide="plus" class="w-7 h-7"></i></div><span class="mt-1 text-slate-600">إضافة</span></button>
-        <button onclick="toggleChat()" class="flex flex-col items-center gap-1 p-2 hover:text-slate-800"><i data-lucide="message-circle" class="w-6 h-6"></i><span>الدعم</span></button>
+    <!-- 3. البار السفلي -->
+    <nav class="fixed bottom-0 w-full glass-nav h-16 z-40 flex justify-around items-center text-[10px] font-bold text-slate-400 md:hidden shadow-inner gpu-accelerated">
+        <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="flex flex-col items-center gap-1 p-2 active:text-emerald-600 fast-trans">
+            <i data-lucide="home" class="w-5 h-5"></i><span>الرئيسية</span>
+        </button>
+        
+        <button onclick="toggleAddModal()" class="flex flex-col items-center -mt-6 active:scale-90 fast-trans">
+            <div class="w-12 h-12 bg-slate-900 rounded-full text-white flex items-center justify-center shadow-xl ring-4 ring-[#f8fafc]">
+                <i data-lucide="plus" class="w-6 h-6"></i>
+            </div>
+            <span class="mt-1 text-slate-600">إضافة</span>
+        </button>
+
+        <button onclick="toggleChat()" class="flex flex-col items-center gap-1 p-2 active:text-slate-800 fast-trans">
+            <i data-lucide="message-circle" class="w-5 h-5"></i><span>الدعم</span>
+        </button>
     </nav>
 
-    <!-- Desktop Floating Buttons -->
+    <!-- أزرار سطح المكتب -->
     <div class="hidden md:flex flex-col gap-3 fixed bottom-8 left-8 z-40">
-        <button onclick="toggleAddModal()" class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-xl font-bold hover:bg-emerald-600 transition flex items-center gap-2"><i data-lucide="plus" class="w-5 h-5"></i> أضف عقار</button>
-        <button onclick="toggleChat()" class="bg-emerald-600 text-white p-4 rounded-full shadow-xl hover:scale-110 transition self-end"><i data-lucide="headset" class="w-6 h-6"></i></button>
+        <button onclick="toggleAddModal()" class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-xl font-bold hover:bg-emerald-600 fast-trans flex items-center gap-2">
+            <i data-lucide="plus" class="w-5 h-5"></i> أضف عقار
+        </button>
+        <button onclick="toggleChat()" class="bg-emerald-600 text-white p-4 rounded-full shadow-xl hover:scale-110 fast-trans self-end">
+            <i data-lucide="headset" class="w-6 h-6"></i>
+        </button>
     </div>
 
-    <!-- ================= MODALS (Popups in Center) ================= -->
+    <!-- ================= MODALS ================= -->
 
-    <!-- 1. Add Listing Modal (CENTERED POPUP) -->
-    <div id="add-modal" class="hidden fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-scale-up flex flex-col max-h-[90vh]">
-            <div class="p-4 border-b flex justify-between items-center bg-slate-50">
-                <h3 class="font-bold text-slate-800">إضافة عقار جديد</h3>
-                <button onclick="toggleAddModal()" class="bg-white p-2 rounded-full hover:bg-red-50 hover:text-red-500 transition shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <!-- Add Modal -->
+    <div id="add-modal" class="hidden fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 fast-trans">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-snap gpu-accelerated">
+            <div class="p-3 border-b flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">إضافة عقار جديد</h3>
+                <button onclick="toggleAddModal()" class="bg-white p-1.5 rounded-full hover:text-red-500 border border-gray-200 fast-trans"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
-            
-            <div class="flex-1 overflow-y-auto p-5 space-y-4">
-                <!-- Image Upload -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2">صور العقار (حد أقصى 3)</label>
-                    <div class="grid grid-cols-4 gap-2">
-                        <label class="aspect-square border-2 border-dashed border-emerald-200 bg-emerald-50/50 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-emerald-100 transition text-emerald-600">
-                            <input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="hidden">
-                            <i data-lucide="camera" class="w-6 h-6"></i>
-                        </label>
-                        <div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar"></div>
-                    </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-white">
+                <div class="grid grid-cols-4 gap-2">
+                    <label class="aspect-square border-2 border-dashed border-emerald-200 bg-emerald-50/50 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-emerald-100 fast-trans text-emerald-600 relative overflow-hidden">
+                        <input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10 cursor-pointer">
+                        <i data-lucide="camera" class="w-5 h-5 mb-1"></i>
+                        <span class="text-[9px] font-bold">صور</span>
+                    </label>
+                    <div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar"></div>
                 </div>
-
-                <input id="in-title" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-emerald-500 outline-none" placeholder="العنوان (مثال: شقة للبيع)">
-                <div class="flex gap-3">
-                    <input id="in-price" type="number" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-emerald-500 outline-none" placeholder="السعر">
-                    <select id="in-type" class="w-28 bg-slate-50 border border-slate-200 rounded-xl px-2 py-3 text-sm font-bold outline-none">
-                        <option value="sale">بيع</option>
-                        <option value="rent">إيجار</option>
-                    </select>
+                <input id="in-title" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold focus:border-emerald-500 outline-none fast-trans" placeholder="عنوان الإعلان">
+                <div class="flex gap-2">
+                    <input id="in-price" type="number" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold focus:border-emerald-500 outline-none fast-trans" placeholder="السعر">
+                    <select id="in-type" class="w-20 bg-slate-50 border border-slate-200 rounded-xl px-1 py-2.5 text-xs font-bold focus:border-emerald-500 outline-none fast-trans"><option value="sale">بيع</option><option value="rent">إيجار</option></select>
                 </div>
-                <input id="in-loc" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-emerald-500 outline-none" placeholder="الموقع">
-                <input id="in-phone" type="tel" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-emerald-500 outline-none" placeholder="رقم الهاتف">
-                <textarea id="in-desc" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-emerald-500 outline-none" placeholder="التفاصيل..."></textarea>
+                <input id="in-loc" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold focus:border-emerald-500 outline-none fast-trans" placeholder="الموقع">
+                <input id="in-phone" type="tel" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold focus:border-emerald-500 outline-none fast-trans" placeholder="رقم الهاتف">
+                <textarea id="in-desc" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold focus:border-emerald-500 outline-none fast-trans" placeholder="التفاصيل..."></textarea>
             </div>
-
-            <div class="p-4 border-t bg-slate-50">
-                <button onclick="submitListing()" id="btn-publish" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg hover:bg-emerald-600 transition">نشر الإعلان</button>
+            <div class="p-3 border-t bg-slate-50">
+                <button onclick="submitListing()" id="btn-publish" class="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold text-sm shadow-lg hover:bg-emerald-600 active:scale-95 fast-trans">نشر الإعلان</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. Support Chat Modal (CENTERED POPUP) -->
-    <div id="chat-modal" class="hidden fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-        <div class="bg-white w-full max-w-sm h-[600px] max-h-[85vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-scale-up">
-            <!-- Header -->
-            <div class="bg-emerald-600 p-4 text-white flex justify-between items-center shadow-md">
-                <div class="flex items-center gap-3">
-                    <div class="bg-white/20 p-2 rounded-full"><i data-lucide="bot" class="w-6 h-6"></i></div>
-                    <div>
-                        <h4 class="font-bold text-sm">الدعم الفني</h4>
-                        <div class="flex items-center gap-1 opacity-90"><span class="w-2 h-2 bg-green-400 rounded-full border border-emerald-600"></span> <span class="text-[10px]">متاح الآن</span></div>
-                    </div>
+    <!-- Chat Modal -->
+    <div id="chat-modal" class="hidden fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 fast-trans">
+        <div class="bg-white w-full max-w-sm h-[500px] max-h-[80vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-snap gpu-accelerated">
+            <div class="bg-emerald-600 p-3 text-white flex justify-between items-center shadow-md">
+                <div class="flex items-center gap-2">
+                    <div class="bg-white/20 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5"></i></div>
+                    <div><h4 class="font-bold text-xs">الدعم الفني</h4><div class="flex items-center gap-1 opacity-90"><span class="w-1.5 h-1.5 bg-green-400 rounded-full border border-emerald-600"></span> <span class="text-[9px]">متصل</span></div></div>
                 </div>
-                <button onclick="toggleChat()" class="hover:bg-white/20 p-1.5 rounded-full transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+                <button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full fast-trans"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            
-            <!-- Messages -->
-            <div id="chat-box" class="flex-1 bg-slate-100 p-4 overflow-y-auto space-y-3 text-sm bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-
-            <!-- Input -->
-            <div class="p-3 bg-white border-t flex items-center gap-2">
-                <input id="chat-msg" type="text" class="flex-1 bg-slate-50 border border-slate-200 rounded-full px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="اكتب رسالة...">
-                <button onclick="sendMsg()" class="w-10 h-10 bg-emerald-600 rounded-full text-white flex items-center justify-center shadow hover:scale-105 transition"><i data-lucide="send" class="w-4 h-4"></i></button>
+            <div id="chat-box" class="flex-1 bg-[#e5ded8] p-3 overflow-y-auto space-y-2 text-xs" style="background-image: url('https://www.transparenttextures.com/patterns/subtle-white-feathers.png');"></div>
+            <div class="p-2 bg-white border-t flex items-center gap-2">
+                <input id="chat-msg" type="text" class="flex-1 bg-slate-100 border-0 rounded-full px-4 py-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500 fast-trans" placeholder="اكتب رسالة...">
+                <button onclick="sendMsg()" class="w-8 h-8 bg-emerald-600 rounded-full text-white flex items-center justify-center shadow hover:scale-105 fast-trans"><i data-lucide="send" class="w-3.5 h-3.5"></i></button>
             </div>
         </div>
     </div>
 
-    <!-- Image Lightbox -->
-    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[100] flex items-center justify-center" onclick="this.classList.add('hidden')">
-        <img id="lightbox-img" src="" class="max-w-full max-h-screen object-contain p-2">
-        <button class="absolute top-6 right-6 text-white bg-white/10 p-2 rounded-full"><i data-lucide="x" class="w-6 h-6"></i></button>
+    <!-- Advanced Lightbox (Gallery) -->
+    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center fast-trans select-none">
+        
+        <!-- Close Button -->
+        <button onclick="closeLightbox()" class="absolute top-4 left-4 lb-btn z-20 hover:bg-red-500/20">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+
+        <!-- Main Image Area -->
+        <div class="relative w-full h-full flex items-center justify-center">
+            <button onclick="lbNav(-1)" id="lb-prev" class="absolute right-2 md:right-8 lb-btn z-10"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
+            
+            <img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain animate-snap shadow-2xl rounded-md">
+            
+            <button onclick="lbNav(1)" id="lb-next" class="absolute left-2 md:left-8 lb-btn z-10"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
+        </div>
+
+        <!-- Counter -->
+        <div class="absolute bottom-8 bg-white/10 backdrop-blur-md px-4 py-1 rounded-full text-white text-xs font-bold border border-white/20">
+            <span id="lb-counter">1 / 1</span>
+        </div>
     </div>
 
     <!-- Admin Panel -->
-    <div id="admin-panel" class="hidden fixed inset-0 bg-slate-900 z-[90] flex flex-col text-white">
-        <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800">
-            <h2 class="font-bold">لوحة التحكم</h2>
-            <div class="flex gap-4"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-5 h-5"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-6 h-6"></i></button></div>
+    <div id="admin-panel" class="hidden fixed inset-0 bg-slate-900 z-[90] flex flex-col text-white fast-trans">
+        <div class="p-3 border-b border-slate-700 flex justify-between items-center bg-slate-800 shadow-md">
+            <h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-emerald-400"></i> لوحة التحكم</h2>
+            <div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div>
         </div>
         <div class="flex-1 flex overflow-hidden">
             <div class="w-1/3 border-l border-slate-700 bg-slate-800 overflow-y-auto p-2" id="admin-users-list"></div>
             <div class="w-2/3 flex flex-col bg-slate-900 relative">
-                <div id="admin-chat-header" class="h-12 border-b border-slate-700 flex items-center justify-between px-4 text-sm font-bold bg-slate-800/50"><span>اختر محادثة</span><button onclick="kickUser()" class="hidden text-xs bg-red-600 px-3 py-1 rounded">إنهاء</button></div>
-                <div id="admin-msg-area" class="flex-1 p-4 overflow-y-auto space-y-2 text-sm"></div>
-                <div class="p-3 border-t border-slate-700 flex gap-2"><input id="admin-input" class="flex-1 bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-blue-600 px-4 py-2 rounded font-bold">إرسال</button></div>
+                <div id="admin-chat-header" class="h-10 border-b border-slate-700 flex items-center justify-between px-3 text-xs font-bold bg-slate-800/50"><span>اختر محادثة</span><button onclick="kickUser()" class="hidden text-[10px] bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-white fast-trans">إنهاء</button></div>
+                <div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div>
+                <div class="p-2 border-t border-slate-700 flex gap-2 bg-slate-800"><input id="admin-input" class="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-blue-600 hover:bg-blue-500 px-4 py-1.5 rounded-lg text-xs font-bold fast-trans">إرسال</button></div>
             </div>
         </div>
     </div>
@@ -178,33 +224,26 @@
         const auth = getAuth(app);
 
         let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false };
+        let lbState = { images: [], idx: 0 }; // Lightbox State
 
         signInAnonymously(auth);
         onAuthStateChanged(auth, (u) => { if(u) { state.user = u; document.getElementById('loader').classList.add('hidden'); loadListings(); checkUserChat(); } });
 
-        // UI Toggles
-        window.toggleAddModal = () => { document.getElementById('add-modal').classList.toggle('hidden'); state.images=[]; document.getElementById('preview-area').innerHTML=''; };
-        
-        // --- Fixed Chat Toggle (Prevents duplicate welcome) ---
+        window.toggleAddModal = () => { document.getElementById('add-modal').classList.toggle('hidden'); state.images = []; document.getElementById('preview-area').innerHTML = ''; };
         window.toggleChat = () => {
-            const c = document.getElementById('chat-modal');
-            c.classList.toggle('hidden');
-            // Only send welcome if chat is opening, no ID exists, step is 0, AND welcome hasn't been sent yet
+            const c = document.getElementById('chat-modal'); c.classList.toggle('hidden');
             if(!c.classList.contains('hidden') && !state.chatId && state.chatStep === 0 && !state.welcomeSent) {
-                state.welcomeSent = true; // Flag to prevent duplication
-                setTimeout(() => botMsg('مرحباً بك في السوق وياك 👋<br>أنا المساعد الذكي. ما هو اسمك الكريم؟'), 300);
+                state.welcomeSent = true; setTimeout(() => botMsg('مرحباً بك في السوق وياك 👋<br>أنا المساعد الذكي. ما هو اسمك الكريم؟'), 200);
             }
         };
-
         window.toggleAdminPanel = () => { document.getElementById('admin-panel').classList.toggle('hidden'); if(!document.getElementById('admin-panel').classList.contains('hidden')) refreshAdmin(); };
 
-        // Image Upload
         window.handleUpload = async (input) => {
             if(input.files.length + state.images.length > 3) return alert('الحد الأقصى 3 صور');
             for(let file of input.files) {
                 const comp = await compress(file);
                 state.images.push(comp);
-                document.getElementById('preview-area').innerHTML += `<img src="${comp}" class="w-14 h-14 rounded-lg object-cover border border-emerald-200 shrink-0">`;
+                document.getElementById('preview-area').innerHTML += `<img src="${comp}" class="w-12 h-12 rounded object-cover border border-emerald-200 shrink-0 shadow-sm animate-snap">`;
             }
         };
         function compress(file) {
@@ -212,79 +251,148 @@
                 const r = new FileReader(); r.readAsDataURL(file);
                 r.onload = e => {
                     const i = new Image(); i.src = e.target.result;
-                    i.onload = () => { const c = document.createElement('canvas'); const ctx = c.getContext('2d'); const s = 800/i.width; c.width=800; c.height=i.height*s; ctx.drawImage(i,0,0,c.width,c.height); res(c.toDataURL('image/jpeg',0.7)); }
+                    i.onload = () => { const c = document.createElement('canvas'); const ctx = c.getContext('2d'); const s = 800/i.width; c.width=800; c.height=i.height*s; ctx.drawImage(i,0,0,c.width,c.height); res(c.toDataURL('image/jpeg', 0.7)); }
                 }
             });
         }
 
-        // Listings
         function loadListings() {
             onSnapshot(query(collection(db, "listings")), (snap) => {
                 state.listings = []; snap.forEach(d => state.listings.push({id:d.id, ...d.data()}));
-                state.listings.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+                state.listings.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
                 filter('all');
             });
         }
+
         window.filter = (type) => {
-            ['all','sale','rent'].forEach(t => document.getElementById(`chip-${t}`).className = t===type ? "px-6 py-2 rounded-full bg-slate-900 text-white text-sm font-bold shadow-lg transform scale-105 transition" : "px-6 py-2 rounded-full bg-white border text-slate-600 text-sm font-bold hover:bg-slate-50 transition");
+            ['all','sale','rent'].forEach(t => {
+                const btn = document.getElementById(`chip-${t}`);
+                if(t === type) btn.className = "px-5 py-1.5 rounded-full bg-slate-900 text-white text-xs font-bold shadow-lg transform scale-105 fast-trans whitespace-nowrap";
+                else btn.className = "px-5 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 active:scale-95 fast-trans whitespace-nowrap";
+            });
             const data = type === 'all' ? state.listings : state.listings.filter(x => x.type === type);
             const cont = document.getElementById('grid-container'); cont.innerHTML = '';
-            if(!data.length) { document.getElementById('empty-state').classList.remove('hidden'); } 
+            if(!data.length) document.getElementById('empty-state').classList.remove('hidden'); 
             else {
                 document.getElementById('empty-state').classList.add('hidden');
                 data.forEach(item => cont.innerHTML += createCard(item));
             }
             lucide.createIcons();
         };
+
         function createCard(item) {
-            const imgs = Array.isArray(item.images)?item.images:[item.image];
-            const slider = imgs.map(src=>`<img src="${src}" class="w-full h-full object-cover shrink-0 cursor-pointer" onclick="openLightbox('${src}')">`).join('');
-            const dots = imgs.length>1?`<div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-10 pointer-events-none">${imgs.map(()=>`<div class="w-1.5 h-1.5 rounded-full bg-white/80 shadow"></div>`).join('')}</div>`:'';
-            const admin = state.isAdmin?`<div class="absolute top-3 right-3 z-20 flex gap-2"><button onclick="del('${item.id}')" class="bg-white text-red-500 p-1.5 rounded-full shadow"><i data-lucide="trash-2" class="w-4 h-4"></i></button><button onclick="pin('${item.id}',${item.isPinned})" class="bg-white ${item.isPinned?'text-amber-500':'text-gray-400'} p-1.5 rounded-full shadow"><i data-lucide="star" class="w-4 h-4 ${item.isPinned?'fill-current':''}"></i></button></div>`:'';
-            return `<div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-xl transition-all flex flex-col group">
-                <div class="relative w-full card-aspect bg-slate-200 overflow-hidden">${admin}<div class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth">${slider}</div>${dots}<span class="absolute bottom-3 right-3 ${item.type==='sale'?'bg-emerald-600':'bg-blue-600'} text-white px-3 py-1 rounded-lg text-[10px] font-bold shadow-lg pointer-events-none">${item.type==='sale'?'بيع':'إيجار'}</span></div>
-                <div class="p-4 flex-1 flex flex-col"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-slate-900 line-clamp-1">${item.title}</h3><span class="font-black text-emerald-600 whitespace-nowrap">${Number(item.price).toLocaleString()}</span></div><div class="flex items-center gap-1 text-xs text-slate-400 mb-4"><i data-lucide="map-pin" class="w-3 h-3"></i>${item.location}</div><div class="mt-auto flex gap-2 pt-3 border-t border-slate-50"><a href="https://wa.me/20${item.phone}" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl flex justify-center items-center gap-2 text-xs font-bold transition"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a><a href="tel:${item.phone}" class="bg-slate-50 text-slate-600 p-2 rounded-xl border border-slate-100"><i data-lucide="phone" class="w-4 h-4"></i></a></div></div></div>`;
+            const imgs = Array.isArray(item.images) ? item.images : [item.image];
+            const hasMultiple = imgs.length > 1;
+            
+            // Count Indicator (e.g., 1/3)
+            const counterBadge = hasMultiple ? 
+                `<div class="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[9px] px-2 py-0.5 rounded-full z-10 font-bold border border-white/20 flex items-center gap-1">
+                    <i data-lucide="images" class="w-3 h-3"></i> ${imgs.length}
+                 </div>` : '';
+
+            // Admin controls
+            const admin = state.isAdmin ? `<div class="absolute top-2 left-2 z-20 flex gap-1"><button onclick="del('${item.id}')" class="bg-white text-red-500 p-1 rounded-full shadow hover:scale-110 fast-trans"><i data-lucide="trash-2" class="w-3 h-3"></i></button><button onclick="pin('${item.id}', ${item.isPinned})" class="bg-white ${item.isPinned ? 'text-yellow-500' : 'text-gray-400'} p-1 rounded-full shadow hover:scale-110 fast-trans"><i data-lucide="star" class="w-3 h-3 ${item.isPinned ? 'fill-yellow-500' : ''}"></i></button></div>` : '';
+
+            // We use the first image as thumbnail, but pass ID to open gallery
+            return `
+            <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-black hover:shadow-xl fast-trans flex flex-col group animate-slide-up gpu-accelerated">
+                <div class="relative w-full card-aspect bg-slate-200 overflow-hidden group-hover:brightness-95 fast-trans cursor-pointer" onclick="openGallery('${item.id}', 0)">
+                    ${admin}
+                    <img src="${imgs[0]}" class="w-full h-full object-cover">
+                    ${counterBadge}
+                    <span class="absolute top-2 right-2 ${item.type === 'sale' ? 'bg-emerald-600' : 'bg-blue-600'} text-white px-2 py-0.5 rounded text-[9px] font-bold shadow z-10">${item.type === 'sale' ? 'بيع' : 'إيجار'}</span>
+                </div>
+                <div class="p-2 flex-1 flex flex-col">
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="font-bold text-slate-900 text-xs line-clamp-1">${item.title}</h3>
+                        <span class="font-black text-emerald-600 text-xs whitespace-nowrap">${Number(item.price).toLocaleString()} جنيه</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-[10px] text-slate-400 mb-2">
+                        <i data-lucide="map-pin" class="w-3 h-3 text-emerald-500"></i> ${item.location}
+                    </div>
+                    <div class="mt-auto flex gap-1 pt-2 border-t border-slate-100">
+                        <a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-emerald-600 text-white py-1.5 rounded-lg flex justify-center items-center gap-1 text-[10px] font-bold fast-trans shadow-sm active:scale-95"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a>
+                        <a href="tel:${item.phone}" onclick="event.stopPropagation()" class="bg-slate-100 text-slate-600 p-1.5 rounded-lg hover:bg-slate-200 fast-trans active:scale-95"><i data-lucide="phone" class="w-3 h-3"></i></a>
+                    </div>
+                </div>
+            </div>`;
         }
-        window.openLightbox=(src)=>{document.getElementById('lightbox-img').src=src;document.getElementById('lightbox').classList.remove('hidden')};
-        window.del=async(id)=>{if(confirm('حذف؟'))await deleteDoc(doc(db,"listings",id))};
-        window.pin=async(id,s)=>{await updateDoc(doc(db,"listings",id),{isPinned:!s})};
+
+        // --- Lightbox Gallery Logic ---
+        window.openGallery = (id, startIdx) => {
+            const item = state.listings.find(i => i.id === id);
+            if(!item) return;
+            lbState.images = Array.isArray(item.images) ? item.images : [item.image];
+            lbState.idx = startIdx;
+            updateLightbox();
+            document.getElementById('lightbox').classList.remove('hidden');
+        };
+
+        window.closeLightbox = () => document.getElementById('lightbox').classList.add('hidden');
+
+        window.lbNav = (dir) => {
+            const len = lbState.images.length;
+            lbState.idx = (lbState.idx + dir + len) % len; // Loop around
+            updateLightbox();
+        };
+
+        function updateLightbox() {
+            const img = document.getElementById('lightbox-img');
+            const counter = document.getElementById('lb-counter');
+            const prev = document.getElementById('lb-prev');
+            const next = document.getElementById('lb-next');
+
+            img.src = lbState.images[lbState.idx];
+            counter.innerText = `${lbState.idx + 1} / ${lbState.images.length}`;
+
+            // Show/Hide arrows based on count
+            if(lbState.images.length > 1) {
+                prev.classList.remove('hidden');
+                next.classList.remove('hidden');
+            } else {
+                prev.classList.add('hidden');
+                next.classList.add('hidden');
+            }
+        }
+
         window.submitListing = async () => {
             if(!state.images.length) return alert('مطلوب صورة');
             document.getElementById('btn-publish').innerText = "...";
-            await addDoc(collection(db,"listings"), {
-                title:document.getElementById('in-title').value, price:Number(document.getElementById('in-price').value),
-                type:document.getElementById('in-type').value, location:document.getElementById('in-loc').value, phone:document.getElementById('in-phone').value,
-                desc:document.getElementById('in-desc').value, images:state.images, image:state.images[0], isPinned:false, createdAt:serverTimestamp(), authorId:state.user.uid
+            await addDoc(collection(db, "listings"), {
+                title: document.getElementById('in-title').value, price: Number(document.getElementById('in-price').value),
+                type: document.getElementById('in-type').value, location: document.getElementById('in-loc').value,
+                phone: document.getElementById('in-phone').value, desc: document.getElementById('in-desc').value,
+                images: state.images, image: state.images[0], isPinned: false, createdAt: serverTimestamp(), authorId: state.user.uid
             });
-            alert('تم!'); window.toggleAddModal(); location.reload();
+            alert('تم النشر!'); window.toggleAddModal(); location.reload();
         };
+        window.del = async(id) => { if(confirm('حذف؟')) await deleteDoc(doc(db, "listings", id)); };
+        window.pin = async(id, s) => { await updateDoc(doc(db, "listings", id), {isPinned: !s}); };
 
-        // Chat
         window.sendMsg = async () => {
-            const t = document.getElementById('chat-msg').value.trim(); if(!t) return; document.getElementById('chat-msg').value='';
-            userMsg(t);
+            const t = document.getElementById('chat-msg').value.trim(); if(!t) return; document.getElementById('chat-msg').value = ''; userMsg(t);
             if(!state.chatId) {
-                if(state.chatStep===0) { state.tempName=t; state.chatStep=1; setTimeout(()=>botMsg(`أهلاً ${t}، كيف نساعدك؟`),500); }
-                else if(state.chatStep===1) {
-                    state.chatStep=2; setTimeout(()=>botMsg('جاري التوصيل بالدعم...'),500);
-                    const r=await addDoc(collection(db,"chats"),{userId:state.user.uid, userName:state.tempName, lastMsg:t, status:'waiting', messages:[{s:'bot',t:`الاسم: ${state.tempName}`,d:new Date()},{s:'user',t,d:new Date()}], createdAt:serverTimestamp()});
-                    state.chatId=r.id; listenChat(r.id);
+                if(state.chatStep === 0) { state.tempName = t; state.chatStep = 1; setTimeout(() => botMsg(`أهلاً ${t}، كيف نساعدك؟`), 300); }
+                else if(state.chatStep === 1) {
+                    state.chatStep = 2; setTimeout(() => botMsg('جاري توصيلك بالدعم...'), 300);
+                    const r = await addDoc(collection(db, "chats"), {userId: state.user.uid, userName: state.tempName, lastMsg: t, status: 'waiting', messages: [{s:'bot', t:`الاسم: ${state.tempName}`, d:new Date()},{s:'user', t:t, d:new Date()}], createdAt: serverTimestamp()});
+                    state.chatId = r.id; listenChat(r.id);
                 }
             } else {
-                const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));
-                if(!s.empty){const m=s.docs[0].data().messages; m.push({s:'user',t,d:new Date()}); await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'});}
+                const s = await getDocs(query(collection(db, "chats"), where('__name__', '==', state.chatId)));
+                if(!s.empty) { const m = s.docs[0].data().messages; m.push({s:'user', t:t, d:new Date()}); await updateDoc(doc(db, "chats", state.chatId), { messages: m, lastMsg: t, status: 'waiting' }); }
             }
         };
-        function listenChat(id) { onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data(); document.getElementById('chat-box').innerHTML=''; d.messages.forEach(m=>{if(!m.t.startsWith('الاسم:')){if(m.s==='user')userMsg(m.t);else botMsg(m.t)}}); if(d.status==='closed'){botMsg('تم إنهاء المحادثة');document.getElementById('chat-msg').disabled=true}}}) }
-        function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-emerald-100 text-emerald-900 px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-sm max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
-        function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white text-slate-700 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-sm max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
+        function listenChat(id) { onSnapshot(doc(db, "chats", id), s => { if(s.exists()) { const d = s.data(); document.getElementById('chat-box').innerHTML = ''; d.messages.forEach(m => { if(!m.t.startsWith('الاسم:')) { if(m.s === 'user') userMsg(m.t); else botMsg(m.t); } }); if(d.status === 'closed') { botMsg('تم إنهاء المحادثة.'); document.getElementById('chat-msg').disabled = true; } } }); }
+        function checkUserChat() { onSnapshot(query(collection(db,"chats"), where('userId','==',state.user.uid), where('status','!=','closed')), s => { if(!s.empty) { state.chatId = s.docs[0].id; state.chatStep = 2; listenChat(state.chatId); } }); }
+        function userMsg(t) { const d = document.createElement('div'); d.className = "flex justify-start animate-slide-up"; d.innerHTML = `<div class="bg-emerald-100 text-emerald-900 px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">${t}</div>`; document.getElementById('chat-box').appendChild(d); document.getElementById('chat-box').scrollTop = 9999; }
+        function botMsg(t) { const d = document.createElement('div'); d.className = "flex justify-end animate-slide-up"; d.innerHTML = `<div class="bg-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%]">${t}</div>`; document.getElementById('chat-box').appendChild(d); document.getElementById('chat-box').scrollTop = 9999; }
 
-        // Admin
-        document.getElementById('logo-trigger').addEventListener('click',()=>{if(prompt('Code:')==='1532'){state.isAdmin=true;document.getElementById('btn-admin-top').classList.remove('hidden');filter('all');alert('Admin Mode')}});
-        window.refreshAdmin=()=>{onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{const l=document.getElementById('admin-users-list');l.innerHTML='';s.forEach(d=>{const dt=d.data();l.innerHTML+=`<div onclick="loadAdmin('${d.id}','${dt.userName}')" class="p-3 mb-2 bg-slate-700 rounded cursor-pointer border border-slate-600 hover:bg-slate-600"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-slate-400 truncate mt-1">${dt.lastMsg}</div></div>`})})};
-        window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" class="text-xs bg-red-600 px-2 py-1 rounded text-white">إنهاء</button>`;onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-blue-600 text-white':'bg-slate-700 text-white'}">${m.t}</span></div>`});b.scrollTop=9999})};
-        window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
-        window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML=''}};
+        document.getElementById('logo-trigger').addEventListener('click', () => { if(prompt('كود الإدارة:') === '1532') { state.isAdmin = true; document.getElementById('btn-admin-top').classList.remove('hidden'); filter('all'); alert('تم تفعيل وضع المدير'); } });
+        window.refreshAdmin = () => { onSnapshot(query(collection(db, "chats"), where('status', '!=', 'closed')), s => { const l = document.getElementById('admin-users-list'); l.innerHTML = ''; s.forEach(d => { const dt = d.data(); l.innerHTML += `<div onclick="loadAdmin('${d.id}','${dt.userName}')" class="p-3 mb-2 bg-slate-700 rounded-xl cursor-pointer border border-slate-600 hover:bg-slate-600 fast-trans"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status === 'waiting' ? '<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>' : ''}</div><div class="text-[10px] text-slate-400 truncate mt-1">${dt.lastMsg}</div></div>`; }); }); };
+        window.loadAdmin = (id, n) => { state.activeAdminChat = id; document.getElementById('admin-chat-header').innerHTML = `<span>${n}</span><button onclick="kickUser()" class="hidden text-xs bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-white fast-trans">إنهاء</button>`; onSnapshot(doc(db, "chats", id), s => { const b = document.getElementById('admin-msg-area'); b.innerHTML = ''; s.data().messages.forEach(m => { b.innerHTML += `<div class="${m.s === 'support' ? 'text-left' : 'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s === 'support' ? 'bg-blue-600 text-white' : 'bg-slate-700 text-white'} shadow-sm animate-slide-up">${m.t}</span></div>`; }); b.scrollTop = 9999; }); };
+        window.sendAdminMsg = async () => { const t = document.getElementById('admin-input').value; if(!t || !state.activeAdminChat) return; document.getElementById('admin-input').value = ''; const s = await getDocs(query(collection(db, "chats"), where('__name__', '==', state.activeAdminChat))); const m = s.docs[0].data().messages; m.push({s:'support', t:t, d:new Date()}); await updateDoc(doc(db, "chats", state.activeAdminChat), { messages: m, status: 'active' }); };
+        window.kickUser = async () => { if(confirm("إنهاء؟")) { await updateDoc(doc(db, "chats", state.activeAdminChat), { status: 'closed' }); document.getElementById('admin-msg-area').innerHTML = ''; } };
 
         lucide.createIcons();
     </script>
