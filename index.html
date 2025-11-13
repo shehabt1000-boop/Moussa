@@ -58,29 +58,69 @@
         .add-modal-content { padding: 10px; }
         .add-modal-footer { padding: 10px; }
 
-        /* Search Bar Enhancement */
-        .search-input-enhanced {
-            border: 3px solid #0f172a !important; /* Navy border */
-            border-radius: 1rem !important; /* More rounded */
-            padding-right: 3.5rem !important; /* Space for icon */
+        /* Floating Search Bar */
+        .floating-search-bar {
+            position: fixed;
+            top: 80px; /* Below header */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            width: calc(100% - 32px); /* Full width minus padding */
+            max-width: 600px;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 3px solid #0f172a;
+            border-radius: 1rem;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s;
         }
-        .dark .search-input-enhanced {
-            border-color: #10b981 !important; /* Primary border in dark mode */
+        .dark .floating-search-bar {
+            background-color: rgba(15, 23, 42, 0.95);
+            border-color: #10b981;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
-        .search-icon-enhanced {
-            right: 1rem; /* Move icon slightly */
-            color: #0f172a; /* Navy icon color */
+        .floating-search-bar input {
+            border: none !important;
+            background-color: transparent !important;
+            padding: 0.5rem 0.5rem 0.5rem 3rem !important; /* Space for icon */
+            font-weight: 700;
         }
-        .dark .search-icon-enhanced {
-            color: #10b981; /* Primary icon color */
+        .floating-search-bar .search-icon {
+            right: 0.75rem;
+            color: #0f172a;
+        }
+        .dark .floating-search-bar .search-icon {
+            color: #10b981;
         }
 
-        /* Category Card Enhancement */
-        .cat-card-img {
-            width: 100%;
-            height: 80px; /* Fixed height for image */
-            object-fit: cover;
-            border-radius: 0.5rem;
+        /* Category Card Enhancement (SVG Icon) */
+        .cat-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s;
+            height: 100%;
+        }
+        .dark .cat-card {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+        .cat-card:hover {
+            border-color: #10b981;
+            transform: translateY(-2px);
+        }
+        .cat-card svg {
+            width: 40px;
+            height: 40px;
+            color: #10b981;
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -112,17 +152,18 @@
     </header>
 
 
-    <!-- Main Content -->
-    <main class="pt-24 container mx-auto px-2 max-w-6xl min-h-screen">
-        
-        <!-- Search Bar for Categories (Enhanced) -->
-        <div class="sticky top-16 z-30 bg-slate-50 dark:bg-navy pb-2 pt-1 space-y-3 transition-colors">
-            <div class="relative">
-                <input type="text" id="search-input" oninput="handleCategorySearch()" placeholder="ابحث عن قسم..." class="w-full form-input pl-10 search-input-enhanced shadow-md">
-                <i data-lucide="search" class="absolute top-1/2 -translate-y-1/2 w-6 h-6 search-icon-enhanced"></i>
-            </div>
+    <!-- Floating Search Bar -->
+    <div class="floating-search-bar">
+        <div class="relative">
+            <input type="text" id="search-input" oninput="handleCategorySearch()" placeholder="ابحث في الأقسام الرئيسية..." class="w-full form-input pl-10">
+            <i data-lucide="search" class="absolute top-1/2 -translate-y-1/2 w-6 h-6 search-icon"></i>
         </div>
+    </div>
 
+
+    <!-- Main Content -->
+    <main class="pt-40 container mx-auto px-2 max-w-6xl min-h-screen"> <!-- Increased padding-top -->
+        
         <!-- Category Cards Grid (3-columns) -->
         <div id="category-cards-grid" class="grid grid-cols-3 gap-3 pb-10 mt-2">
             <!-- سيتم ملء بطاقات الأقسام هنا بالكود -->
@@ -181,7 +222,7 @@
                 <div class="form-group">
                     <label class="form-label">مواصفات إضافية:</label>
                     <div class="flex flex-wrap gap-1">
-                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label>
+                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي/براند"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي/براند</div></label>
                         <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="قابل للتفاوض"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">قابل للتفاوض</div></label>
                         <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل متاح"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل متاح</div></label>
                     </div>
@@ -225,6 +266,11 @@
                     <input type="text" id="cat-search-input" oninput="handleCatSearch()" placeholder="ابحث في هذا القسم..." class="w-full form-input pl-10 search-input-enhanced shadow-md">
                     <i data-lucide="search" class="absolute top-1/2 -translate-y-1/2 w-6 h-6 search-icon-enhanced"></i>
                 </div>
+
+                <!-- Sub-Category Filter Bar -->
+                <div id="sub-category-filter" class="flex justify-start gap-2 overflow-x-auto py-1 no-scrollbar">
+                    <!-- Sub-categories will be injected here -->
+                </div>
             </div>
 
             <!-- Products Grid -->
@@ -257,43 +303,65 @@
 
         const firebaseConfig = { apiKey: "AIzaSyC7zHuH8LK-yQAKG-Nm7dh31fXtVLxuCLM", authDomain: "sharqia-81030.firebaseapp.com", projectId: "sharqia-81030", storageBucket: "sharqia-81030.firebasestorage.app", messagingSenderId: "581888625195", appId: "1:581888625195:web:1667ba1e439e8e6c1fb86e" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app); const auth = getAuth(app);
-        let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentItem: null };
+        let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentSubFilter: 'الكل', currentItem: null };
 
 
-        // UPDATED: 100 Categories for Egypt (Clothes, Cars, Real Estate, Mobiles, etc.)
+        // UPDATED: 100 Categories (Simplified Names)
         const CATEGORIES = [
             // الملابس والأزياء (30)
-            "رجالي كاجوال", "رجالي كلاسيك", "رجالي رياضي", "رجالي داخلي", "حريمي كاجوال", "حريمي سهرة", "حريمي رياضي", "حريمي لانجري", "أطفال أولادي", "أطفال بناتي",
-            "أحذية رجالي كاجوال", "أحذية رجالي كلاسيك", "أحذية رجالي رياضي", "أحذية حريمي كعب", "أحذية حريمي فلات", "أحذية حريمي رياضي", "أحذية أطفال", "ساعات رجالي", "ساعات حريمي", "نظارات شمسية",
-            "نظارات طبية", "حقائب يد حريمي", "شنط سفر وظهر", "محافظ وأحزمة", "عطور رجالي", "عطور حريمي", "مكياج", "عناية بالبشرة", "عناية بالشعر", "مجوهرات وفضيات",
+            "ملابس رجالي", "ملابس حريمي", "ملابس أطفال", "أحذية رجالي", "أحذية حريمي", "أحذية أطفال", "ساعات", "نظارات", "حقائب وشنط", "محافظ وأحزمة",
+            "عطور وبخور", "مكياج وتجميل", "عناية بالبشرة", "عناية بالشعر", "مجوهرات وذهب", "فضيات وإكسسوارات", "ملابس رياضية", "ملابس مقاسات خاصة", "ملابس حمل", "ملابس داخلية",
+            "لانجري ونوم", "ملابس سباحة", "أقمشة وخياطة", "يونيفورم", "جوارب وقبعات", "ملابس مستعملة", "أزياء تنكرية", "إكسسوارات أزياء", "ملابس تقليدية", "أزياء زفاف وسهرة",
             // العقارات (15)
-            "شقق للبيع", "شقق للإيجار", "فيلات للبيع", "فيلات للإيجار", "أراضي للبيع", "محلات تجارية للبيع", "محلات تجارية للإيجار", "مكاتب إدارية للبيع", "مكاتب إدارية للإيجار", "مصانع ومخازن",
-            "شاليهات ومصايف للبيع", "شاليهات ومصايف للإيجار", "عقارات في العاصمة الإدارية", "عقارات في الساحل الشمالي", "عقارات أخرى",
+            "شقق للبيع", "شقق للإيجار", "فيلات للبيع", "فيلات للإيجار", "أراضي ومزارع", "محلات تجارية", "مكاتب إدارية", "مصانع ومخازن", "شاليهات ومصايف", "عقارات العاصمة الإدارية",
+            "عقارات الساحل الشمالي", "عقارات الإسكندرية", "عقارات الجيزة", "عقارات القاهرة", "عقارات أخرى",
             // السيارات والمركبات (15)
-            "سيارات سيدان للبيع", "سيارات هاتشباك للبيع", "سيارات دفع رباعي للبيع", "سيارات نقل للبيع", "دراجات نارية", "دراجات هوائية", "قطع غيار سيارات", "إكسسوارات سيارات", "إطارات وبطاريات", "تأجير سيارات",
-            "قوارب ويخوت", "مركبات ثقيلة", "سيارات كلاسيكية", "سيارات مستعملة (كسر زيرو)", "سيارات جديدة (زيرو)",
+            "سيارات سيدان", "سيارات دفع رباعي", "سيارات نقل", "دراجات نارية", "دراجات هوائية", "قطع غيار سيارات", "إكسسوارات سيارات", "إطارات وبطاريات", "تأجير سيارات", "قوارب ويخوت",
+            "مركبات ثقيلة", "سيارات كلاسيكية", "سيارات كسر زيرو", "سيارات جديدة", "سيارات مستعملة",
             // الإلكترونيات والموبايلات (15)
-            "موبايلات جديدة", "موبايلات مستعملة", "تابلت وآيباد", "لابتوب وكمبيوتر", "شاشات وتلفزيونات", "كاميرات ومعدات تصوير", "سماعات وإكسسوارات صوت", "ساعات ذكية", "أجهزة منزلية كبيرة", "أجهزة منزلية صغيرة",
-            "أجهزة ألعاب (بلايستيشن/إكس بوكس)", "راوترات وشبكات", "طابعات وماسحات ضوئية", "قطع غيار إلكترونيات", "إكسسوارات موبايل",
+            "موبايلات", "تابلت وآيباد", "لابتوب وكمبيوتر", "شاشات وتلفزيونات", "كاميرات ومعدات تصوير", "سماعات وصوتيات", "ساعات ذكية", "أجهزة منزلية كبيرة", "أجهزة منزلية صغيرة", "أجهزة ألعاب",
+            "راوترات وشبكات", "طابعات وماسحات", "قطع غيار إلكترونيات", "إكسسوارات موبايل", "أجهزة مكتبية",
             // خدمات ومنوعات (25)
-            "وظائف وخدمات", "هدايا ومنتجات يدوية", "مستلزمات أطفال ومواليد", "مستلزمات حيوانات أليفة", "أدوات رياضية", "أدوات مطبخ", "أثاث منزلي", "ديكور وإضاءة", "أدوات ومعدات بناء", "مستلزمات زراعية",
-            "كتب ومجلات", "آلات موسيقية", "معدات طبية", "معدات صالونات تجميل", "خدمات تعليمية", "خدمات صيانة", "خدمات تصميم", "خدمات تسويق", "خدمات شحن وتوصيل", "تذاكر وعروض سياحية",
-            "مواد غذائية", "مشروبات وعصائر", "تخفيضات عامة", "مستلزمات أخرى", "تبرعات ومساعدات"
+            "وظائف وخدمات", "هدايا ومنتجات يدوية", "مستلزمات مواليد", "مستلزمات حيوانات", "أدوات رياضية", "أدوات مطبخ", "أثاث منزلي", "ديكور وإضاءة", "أدوات بناء", "مستلزمات زراعية",
+            "كتب ومجلات", "آلات موسيقية", "معدات طبية", "معدات تجميل", "خدمات تعليمية", "خدمات صيانة", "خدمات تصميم", "خدمات تسويق", "خدمات شحن", "تذاكر وعروض",
+            "مواد غذائية", "مشروبات وعصائر", "تخفيضات عامة", "مستلزمات أخرى", "تبرعات"
         ];
         
-        // Dynamic Fields Logic
-        const REAL_ESTATE_CATS = ["شقق للبيع", "شقق للإيجار", "فيلات للبيع", "فيلات للإيجار", "أراضي للبيع", "محلات تجارية للبيع", "محلات تجارية للإيجار", "مكاتب إدارية للبيع", "مكاتب إدارية للإيجار", "مصانع ومخازن", "شاليهات ومصايف للبيع", "شاليهات ومصايف للإيجار", "عقارات في العاصمة الإدارية", "عقارات في الساحل الشمالي", "عقارات أخرى"];
-        const CAR_CATS = ["سيارات سيدان للبيع", "سيارات هاتشباك للبيع", "سيارات دفع رباعي للبيع", "سيارات نقل للبيع", "سيارات كلاسيكية", "سيارات مستعملة (كسر زيرو)", "سيارات جديدة (زيرو)"];
-        const MOBILE_CATS = ["موبايلات جديدة", "موبايلات مستعملة"];
-        const CLOTHES_SIZE_CATS = ["رجالي كاجوال", "رجالي كلاسيك", "رجالي رياضي", "رجالي داخلي", "حريمي كاجوال", "حريمي سهرة", "حريمي رياضي", "حريمي لانجري", "أطفال أولادي", "أطفال بناتي"];
-        const SHOES_SIZE_CATS = ["أحذية رجالي كاجوال", "أحذية رجالي كلاسيك", "أحذية رجالي رياضي", "أحذية حريمي كعب", "أحذية حريمي فلات", "أحذية حريمي رياضي", "أحذية أطفال"];
-        const CONDITION_CATS = ["رجالي كاجوال", "حريمي كاجوال", "ساعات رجالي", "موبايلات مستعملة", "سيارات مستعملة (كسر زيرو)"];
+        // UPDATED: Sub-Categories & Dynamic Fields Logic
+        const SUB_CATEGORIES = {
+            "ملابس رجالي": ["تيشرتات", "قمصان", "بناطيل", "جاكيتات", "بدل"],
+            "ملابس حريمي": ["بلوزات", "جيبات", "فساتين", "عبايات", "كاردينجان"],
+            "أحذية رجالي": ["كاجوال", "كلاسيك", "رياضي", "صنادل"],
+            "أحذية حريمي": ["كعب عالي", "فلات", "رياضي", "صنادل"],
+            "موبايلات": ["سامسونج", "آيفون", "شاومي", "أوبو", "هواوي"],
+            "لابتوب وكمبيوتر": ["لابتوب", "كمبيوتر مكتبي", "شاشات كمبيوتر", "إكسسوارات"],
+            "شقق للبيع": ["جديدة", "قديمة", "تشطيب فاخر"],
+            "شقق للإيجار": ["مفروش", "غير مفروش", "إيجار يومي"],
+            "سيارات سيدان": ["مرسيدس", "بي إم دبليو", "تويوتا", "هيونداي", "شيفروليه"],
+            "سيارات دفع رباعي": ["جيب", "لاند كروزر", "كيا سبورتاج"],
+        };
 
-        // NEW: Placeholder for 8K-like images (You MUST replace these with your actual image URLs)
-        const getCatIconUrl = (category) => {
-            const base = "https://via.placeholder.com/150x80?text=";
-            const color = Math.floor(Math.random()*16777215).toString(16);
-            return `${base}${encodeURIComponent(category.split(' ')[0])}&bg=${color}`;
+        const CONDITION_CATS = ["شقق للبيع", "شقق للإيجار", "فيلات للبيع", "فيلات للإيجار", "محلات تجارية", "مكاتب إدارية", "مصانع ومخازن", "شاليهات ومصايف", "سيارات سيدان", "سيارات دفع رباعي", "سيارات نقل", "سيارات كسر زيرو", "سيارات مستعملة", "موبايلات", "تابلت وآيباد", "لابتوب وكمبيوتر", "ساعات", "نظارات", "كاميرات ومعدات تصوير", "ساعات ذكية", "أجهزة منزلية كبيرة", "أجهزة منزلية صغيرة", "أجهزة ألعاب"];
+        const REAL_ESTATE_CATS = ["شقق للبيع", "شقق للإيجار", "فيلات للبيع", "فيلات للإيجار", "محلات تجارية", "مكاتب إدارية", "مصانع ومخازن", "شاليهات ومصايف"];
+        const CAR_CATS = ["سيارات سيدان", "سيارات دفع رباعي", "سيارات نقل", "سيارات كسر زيرو", "سيارات مستعملة", "سيارات جديدة"];
+        const MOBILE_LAPTOP_CATS = ["موبايلات", "تابلت وآيباد", "لابتوب وكمبيوتر"];
+        const SIZE_CATS = ["ملابس رجالي", "ملابس حريمي", "ملابس أطفال", "أحذية رجالي", "أحذية حريمي", "أحذية أطفال"];
+        
+        // NEW: Embedded SVG Icons (Best alternative for "real" compressed images)
+        const getCatIconSVG = (category) => {
+            const icons = {
+                "ملابس رجالي": "t-shirt", "ملابس حريمي": "shirt", "ملابس أطفال": "baby", "أحذية رجالي": "shoe", "أحذية حريمي": "footprints", "أحذية أطفال": "boot", "ساعات": "watch", "نظارات": "glasses", "حقائب وشنط": "baggage-claim", "محافظ وأحزمة": "wallet",
+                "عطور وبخور": "droplet", "مكياج وتجميل": "sparkles", "عناية بالبشرة": "sun", "عناية بالشعر": "scissors", "مجوهرات وذهب": "gem", "فضيات وإكسسوارات": "ring", "ملابس رياضية": "dumbbell", "ملابس مقاسات خاصة": "maximize", "ملابس حمل": "pregnant-woman", "ملابس داخلية": "box",
+                "لانجري ونوم": "moon", "ملابس سباحة": "waves", "أقمشة وخياطة": "spool", "يونيفورم": "user-cog", "جوارب وقبعات": "hard-hat", "ملابس مستعملة": "recycle", "أزياء تنكرية": "mask", "إكسسوارات أزياء": "bowtie", "ملابس تقليدية": "tent", "أزياء زفاف وسهرة": "dress",
+                "شقق للبيع": "home", "شقق للإيجار": "key", "فيلات للبيع": "building", "فيلات للإيجار": "building-2", "أراضي ومزارع": "map", "محلات تجارية": "store", "مكاتب إدارية": "briefcase", "مصانع ومخازن": "factory", "شاليهات ومصايف": "beach", "عقارات العاصمة الإدارية": "landmark",
+                "عقارات الساحل الشمالي": "ship", "عقارات الإسكندرية": "anchor", "عقارات الجيزة": "pyramid", "عقارات القاهرة": "city", "عقارات أخرى": "map-pin", "سيارات سيدان": "car", "سيارات دفع رباعي": "truck", "سيارات نقل": "bus", "دراجات نارية": "motorcycle", "دراجات هوائية": "bike",
+                "قطع غيار سيارات": "wrench", "إكسسوارات سيارات": "car-taxi", "إطارات وبطاريات": "battery-charging", "تأجير سيارات": "calendar", "قوارب ويخوت": "sailboat", "مركبات ثقيلة": "tractor", "سيارات كلاسيكية": "gavel", "سيارات كسر زيرو": "gauge", "سيارات جديدة": "sparkles", "سيارات مستعملة": "refresh-cw",
+                "موبايلات": "smartphone", "تابلت وآيباد": "tablet", "لابتوب وكمبيوتر": "laptop", "شاشات وتلفزيونات": "monitor", "كاميرات ومعدات تصوير": "camera", "سماعات وصوتيات": "headphones", "ساعات ذكية": "watch-check", "أجهزة منزلية كبيرة": "fridge", "أجهزة منزلية صغيرة": "blender", "أجهزة ألعاب": "gamepad",
+                "راوترات وشبكات": "router", "طابعات وماسحات": "printer", "قطع غيار إلكترونيات": "circuit-board", "إكسسوارات موبايل": "plug", "أجهزة مكتبية": "clipboard", "وظائف وخدمات": "users", "هدايا ومنتجات يدوية": "gift", "مستلزمات مواليد": "stroller", "مستلزمات حيوانات": "paw-print", "أدوات رياضية": "medal",
+                "أدوات مطبخ": "chef-hat", "أثاث منزلي": "couch", "ديكور وإضاءة": "lightbulb", "أدوات بناء": "hammer", "مستلزمات زراعية": "leaf", "كتب ومجلات": "book", "آلات موسيقية": "guitar", "معدات طبية": "stethoscope", "معدات تجميل": "spray-can", "خدمات تعليمية": "graduation-cap",
+                "خدمات صيانة": "tool", "خدمات تصميم": "pen-tool", "خدمات تسويق": "megaphone", "خدمات شحن": "package", "تذاكر وعروض": "ticket", "مواد غذائية": "apple", "مشروبات وعصائر": "coffee", "تخفيضات عامة": "tag", "مستلزمات أخرى": "more-horizontal", "تبرعات": "hand-heart"
+            };
+            return `<i data-lucide="${icons[category] || 'package'}"></i>`;
         };
 
 
@@ -301,16 +369,14 @@
         onAuthStateChanged(auth, (u) => { if(u) { state.user=u; document.getElementById('loader').classList.add('hidden'); loadListings(); checkUserChat(); initFavs(); checkAdminStatus(); initCats(); } });
 
 
-        // MODIFIED: initCats now renders the 3-column category cards
         function initCats() {
             const sel = document.getElementById('in-cat');
             CATEGORIES.forEach(c => {
                 const opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt);
             });
-            handleCategorySearch(); // Initial render of category cards
+            handleCategorySearch();
         }
         
-        // NEW: Handle search on the main page (filters category cards)
         window.handleCategorySearch = () => {
             const q = normalizeText(document.getElementById('search-input').value);
             const cont = document.getElementById('category-cards-grid');
@@ -323,11 +389,11 @@
             } else {
                 document.getElementById('empty-state').classList.add('hidden');
                 filteredCategories.forEach(c => {
-                    const imgUrl = getCatIconUrl(c);
+                    const svgIcon = getCatIconSVG(c);
                     cont.innerHTML += `
-                        <button onclick="openCategoryView('${c}')" class="flex flex-col items-center justify-start p-2 bg-white dark:bg-slate-800 rounded-xl shadow-md border-2 border-slate-200 dark:border-slate-700 hover:border-primary transition active:scale-95 group overflow-hidden">
-                            <img src="${imgUrl}" alt="${c}" class="cat-card-img">
-                            <span class="mt-2 text-[10px] font-bold text-slate-800 dark:text-slate-200 text-center">${c}</span>
+                        <button onclick="openCategoryView('${c}')" class="cat-card active:scale-[0.98] transform">
+                            ${svgIcon}
+                            <span class="text-[10px] font-bold text-slate-800 dark:text-slate-200 text-center">${c}</span>
                         </button>
                     `;
                 });
@@ -339,18 +405,18 @@
         window.updateFormFields = () => {
             const cat = document.getElementById('in-cat').value;
             const dynamicFields = document.getElementById('dynamic-fields');
-            dynamicFields.innerHTML = ''; // Clear existing fields
+            dynamicFields.innerHTML = '';
 
             // 1. Real Estate Fields (Sale/Rent)
             if (REAL_ESTATE_CATS.includes(cat)) {
-                const type = cat.includes('للبيع') ? 'بيع' : (cat.includes('للإيجار') ? 'إيجار' : 'بيع/إيجار');
+                const isRent = cat.includes('للإيجار');
                 dynamicFields.innerHTML += `
                     <div class="col-span-2">
                         <label class="form-label text-primary">نوع العرض</label>
                         <select id="in-re-type" class="form-input">
-                            <option value="sale" ${type === 'بيع' ? 'selected' : ''}>بيع</option>
-                            <option value="rent" ${type === 'إيجار' ? 'selected' : ''}>إيجار شهري</option>
-                            <option value="yearly-rent">إيجار سنوي</option>
+                            <option value="sale" ${!isRent ? 'selected' : ''}>بيع</option>
+                            <option value="rent_monthly" ${isRent ? 'selected' : ''}>إيجار شهري</option>
+                            <option value="rent_yearly">إيجار سنوي</option>
                         </select>
                     </div>
                     <div class="flex-1"><label class="form-label">المساحة (م²)</label><input id="in-re-area" type="number" class="form-input" placeholder="000"></div>
@@ -367,25 +433,104 @@
                 `;
             }
 
-            // 3. Mobile Fields (Storage/Battery)
-            if (MOBILE_CATS.includes(cat)) {
+            // 3. Mobile/Laptop Fields (RAM/Storage/Battery)
+            if (MOBILE_LAPTOP_CATS.includes(cat)) {
                 dynamicFields.innerHTML += `
-                    <div class="flex-1"><label class="form-label text-primary">الذاكرة</label><input id="in-mobile-storage" class="form-input" placeholder="مثال: 128GB"></div>
-                    <div class="flex-1"><label class="form-label">حالة البطارية</label><input id="in-mobile-battery" class="form-input" placeholder="مثال: 95%"></div>
+                    <div class="flex-1"><label class="form-label text-primary">الذاكرة (RAM)</label><input id="in-tech-ram" class="form-input" placeholder="مثال: 8GB"></div>
+                    <div class="flex-1"><label class="form-label">المساحة (Storage)</label><input id="in-tech-storage" class="form-input" placeholder="مثال: 128GB"></div>
+                    ${cat.includes('موبايلات') ? `<div class="col-span-2"><label class="form-label">حالة البطارية</label><input id="in-mobile-battery" class="form-input" placeholder="مثال: 95%"></div>` : ''}
                 `;
             }
 
             // 4. Clothes/Shoes Size
-            if (CLOTHES_SIZE_CATS.includes(cat) || SHOES_SIZE_CATS.includes(cat)) {
+            if (SIZE_CATS.includes(cat)) {
                 dynamicFields.innerHTML += `<div class="col-span-2"><label class="form-label text-primary">المقاس / الحجم</label><input id="in-size" class="form-input" placeholder="مثال: XL, 42, 100ml"></div>`;
             }
 
-            // 5. General Condition (for items that don't have specific condition fields)
-            if (CONDITION_CATS.includes(cat) && !dynamicFields.querySelector('#in-car-condition')) {
+            // 5. General Condition (Only for items that can be used/second hand and don't have specific fields)
+            if (CONDITION_CATS.includes(cat) && !dynamicFields.querySelector('#in-car-condition') && !cat.includes('جديدة')) {
                 dynamicFields.innerHTML += `<div class="col-span-2"><label class="form-label text-primary">حالة المنتج</label><select id="in-condition" class="form-input"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>`;
             }
         }
 
+
+        // NEW: Filter Products by Sub-Category
+        window.filterSubCategory = (subCat) => {
+            state.currentSubFilter = subCat;
+            document.querySelectorAll('.sub-chip-btn').forEach(btn => {
+                btn.className = "px-3 py-1 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold whitespace-nowrap transition hover:border-primary hover:text-primary sub-chip-btn";
+            });
+            const activeBtn = document.getElementById(`sub-chip-${subCat.replace(/\s/g, '')}`);
+            if(activeBtn) activeBtn.className = "px-3 py-1 rounded-full bg-navy dark:bg-primary text-white text-[10px] font-bold shadow whitespace-nowrap transform scale-105 transition sub-chip-btn";
+            handleCatSearch();
+        }
+
+        window.openCategoryView = (category) => {
+            state.currentFilter = category;
+            state.currentSubFilter = 'الكل';
+            document.getElementById('cat-view-title').innerText = category;
+            document.getElementById('cat-search-input').value = '';
+            
+            // Populate Sub-Category Filter Bar
+            const subCont = document.getElementById('sub-category-filter');
+            subCont.innerHTML = '';
+            const subCats = SUB_CATEGORIES[category];
+            if (subCats) {
+                subCont.innerHTML += `<button onclick="filterSubCategory('الكل')" id="sub-chip-الكل" class="px-3 py-1 rounded-full bg-navy dark:bg-primary text-white text-[10px] font-bold shadow whitespace-nowrap transform scale-105 transition sub-chip-btn">الكل</button>`;
+                subCats.forEach(sc => {
+                    subCont.innerHTML += `<button onclick="filterSubCategory('${sc}')" id="sub-chip-${sc.replace(/\s/g, '')}" class="px-3 py-1 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold whitespace-nowrap transition hover:border-primary hover:text-primary sub-chip-btn">${sc}</button>`;
+                });
+            }
+
+            handleCatSearch();
+            toggleModal('category-products-modal');
+            lucide.createIcons();
+        };
+
+        window.handleCatSearch = () => { 
+            const q = normalizeText(document.getElementById('cat-search-input').value); 
+            const cont = document.getElementById('cat-products-grid'); 
+            cont.innerHTML = ''; 
+            
+            const isFavView = state.currentFilter.startsWith('fav');
+            let categoryToFilter = state.currentFilter;
+            if (state.currentFilter.startsWith('fav_')) {
+                categoryToFilter = state.currentFilter.substring(4);
+            }
+
+            const filtered = state.listings.filter(item => { 
+                let matchType = true; 
+                
+                if (isFavView) {
+                    matchType = state.favorites.includes(item.id);
+                    if (categoryToFilter !== 'الكل') {
+                        matchType = matchType && item.category === categoryToFilter;
+                    }
+                } else {
+                    matchType = item.category === categoryToFilter;
+                }
+                
+                // Sub-Category Filter
+                if (state.currentSubFilter !== 'الكل' && item.subCategory) {
+                    matchType = matchType && item.subCategory === state.currentSubFilter;
+                }
+
+                const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); 
+                return matchType && matchText; 
+            }); 
+            
+            if(!filtered.length) document.getElementById('cat-empty-state').classList.remove('hidden'); 
+            else { 
+                document.getElementById('cat-empty-state').classList.add('hidden'); 
+                filtered.forEach(item => cont.innerHTML += createCard(item)); 
+            } 
+            lucide.createIcons(); 
+        };
+
+        // Rest of the functions (loadListings, createCard, openDetails, etc.) remain the same for brevity, 
+        // but they are included in the full code above.
+        
+        // ... (rest of the functions)
 
         function checkAdminStatus() { if(localStorage.getItem('souq_admin') === 'true') { state.isAdmin = true; document.getElementById('btn-admin-top').classList.remove('hidden'); } }
         window.toggleDarkMode = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('souq_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); }
@@ -433,55 +578,6 @@
             }); 
         }
         
-        window.openCategoryView = (category) => {
-            state.currentFilter = category;
-            document.getElementById('cat-view-title').innerText = category;
-            document.getElementById('cat-search-input').value = '';
-            handleCatSearch();
-            toggleModal('category-products-modal');
-        };
-
-        window.closeCategoryView = () => {
-            state.currentFilter = 'all';
-            toggleModal('category-products-modal');
-        };
-
-        window.handleCatSearch = () => { 
-            const q = normalizeText(document.getElementById('cat-search-input').value); 
-            const cont = document.getElementById('cat-products-grid'); 
-            cont.innerHTML = ''; 
-            
-            const isFavView = state.currentFilter.startsWith('fav');
-            let categoryToFilter = state.currentFilter;
-            if (state.currentFilter.startsWith('fav_')) {
-                categoryToFilter = state.currentFilter.substring(4);
-            }
-
-            const filtered = state.listings.filter(item => { 
-                let matchType = true; 
-                
-                if (isFavView) {
-                    matchType = state.favorites.includes(item.id);
-                    if (categoryToFilter !== 'الكل') {
-                        matchType = matchType && item.category === categoryToFilter;
-                    }
-                } else {
-                    matchType = item.category === categoryToFilter;
-                }
-                
-                const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); 
-                return matchType && matchText; 
-            }); 
-            
-            if(!filtered.length) document.getElementById('cat-empty-state').classList.remove('hidden'); 
-            else { 
-                document.getElementById('cat-empty-state').classList.add('hidden'); 
-                filtered.forEach(item => cont.innerHTML += createCard(item)); 
-            } 
-            lucide.createIcons(); 
-        };
-
-
         function createCard(item) {
             const imgs = Array.isArray(item.images)?item.images:[item.image];
             const isFav = state.favorites.includes(item.id);
@@ -531,7 +627,6 @@
             document.getElementById('btn-publish').innerText='...';
             const cat = document.getElementById('in-cat').value;
             
-            // Gather dynamic fields data
             const dynamicData = {};
             if (REAL_ESTATE_CATS.includes(cat)) {
                 dynamicData.reType = document.getElementById('in-re-type').value;
@@ -543,14 +638,15 @@
                 dynamicData.carYear = document.getElementById('in-car-year').value;
                 dynamicData.carCondition = document.getElementById('in-car-condition').value;
             }
-            if (MOBILE_CATS.includes(cat)) {
-                dynamicData.mobileStorage = document.getElementById('in-mobile-storage').value;
-                dynamicData.mobileBattery = document.getElementById('in-mobile-battery').value;
+            if (MOBILE_LAPTOP_CATS.includes(cat)) {
+                dynamicData.techRam = document.getElementById('in-tech-ram').value;
+                dynamicData.techStorage = document.getElementById('in-tech-storage').value;
+                if (cat.includes('موبايلات')) dynamicData.mobileBattery = document.getElementById('in-mobile-battery').value;
             }
-            if (CLOTHES_SIZE_CATS.includes(cat) || SHOES_SIZE_CATS.includes(cat)) {
+            if (SIZE_CATS.includes(cat)) {
                 dynamicData.size = document.getElementById('in-size').value;
             }
-            if (CONDITION_CATS.includes(cat) && !dynamicData.carCondition) {
+            if (CONDITION_CATS.includes(cat) && !dynamicData.carCondition && !cat.includes('جديدة')) {
                 dynamicData.condition = document.getElementById('in-condition').value;
             }
 
@@ -571,7 +667,7 @@
                 isPinned:false,
                 createdAt:serverTimestamp(),
                 authorId:state.user.uid,
-                ...dynamicData // Merge dynamic fields
+                ...dynamicData
             });
             showToast('تم النشر');toggleModal('add-modal');location.reload()};
 
