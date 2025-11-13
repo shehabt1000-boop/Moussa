@@ -24,7 +24,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 
-
     <style>
         body { 
             font-family: 'Cairo', sans-serif; 
@@ -36,9 +35,12 @@
         .gpu { transform: translateZ(0); will-change: transform; }
         .select-none { user-select: none; }
         
+        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+        .skeleton { animation: shimmer 2s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
+        .dark .skeleton { background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%); }
+        
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
 
         .mobile-full-modal { position: fixed; inset: 0; z-index: 60; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
@@ -47,94 +49,24 @@
             .modal-overlay { position: fixed; inset: 0; z-index: 60; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
-        /* Form Styles (Reduced for less scrolling) */
-        .form-label { display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 0.1rem; }
+        @keyframes slideInDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        .toast { animation: slideInDown 0.3s ease-out forwards; }
+        .toast.hiding { animation: fadeOut 0.3s ease-in forwards; }
+
+        /* Form Styles */
+        .form-label { display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 0.25rem; }
         .dark .form-label { color: #cbd5e1; }
-        .form-input { width: 100%; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 600; color: #1e293b; outline: none; transition: all 0.2s; }
-        .form-input:focus { border-color: #10b981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
+        .form-input { width: 100%; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 0.75rem; padding: 0.7rem 1rem; font-size: 0.875rem; font-weight: 600; color: #1e293b; outline: none; transition: all 0.2s; }
+        .form-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
         .dark .form-input { background-color: #1e293b; border-color: #475569; color: white; }
         .dark .form-input:focus { border-color: #10b981; }
         .chip-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
-        .add-modal-content { padding: 10px; }
-        .add-modal-footer { padding: 10px; }
-
-        /* Floating Search Bar (Enhanced) */
-        .floating-search-bar {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 50;
-            width: calc(100% - 32px);
-            max-width: 600px;
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            border: 2px solid #0f172a; /* Black border */
-            border-radius: 0.75rem; /* Slightly smaller radius */
-            padding: 0.3rem 0.5rem; /* Reduced padding */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
-        }
-        .dark .floating-search-bar {
-            background-color: rgba(15, 23, 42, 0.95);
-            border-color: #10b981;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-        .floating-search-bar input {
-            border: none !important;
-            background-color: transparent !important;
-            padding: 0.5rem 0.5rem 0.5rem 2.5rem !important; /* Space for icon */
-            font-weight: 600; /* Slightly lighter font */
-            font-size: 0.875rem; /* Smaller font size */
-        }
-        .floating-search-bar .search-icon {
-            right: 0.5rem; /* Move icon slightly */
-            color: #0f172a; /* Black icon color */
-            width: 1.25rem; /* Smaller icon */
-            height: 1.25rem;
-        }
-        .dark .floating-search-bar .search-icon {
-            color: #10b981;
-        }
-
-        /* Category Card Enhancement (3-cols, Black Border, Black Icon) */
-        .cat-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 8px; /* Reduced padding */
-            background-color: white;
-            border-radius: 0.5rem; /* Reduced radius */
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border: 2px solid #0f172a; /* Black border */
-            transition: all 0.2s;
-            height: 100%;
-        }
-        .dark .cat-card {
-            background-color: #1e293b;
-            border-color: #334155;
-        }
-        .cat-card:hover {
-            border-color: #10b981;
-            transform: translateY(-1px);
-        }
-        .cat-card svg {
-            width: 30px; /* Smaller icon */
-            height: 30px;
-            color: #0f172a; /* Black icon color */
-            margin-bottom: 3px; /* Reduced margin */
-        }
-        .dark .cat-card svg {
-            color: #cbd5e1; /* Light icon in dark mode */
-        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none transition-colors duration-300">
 
-
     <div id="toast-container" class="fixed top-4 left-0 right-0 z-[100] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
-
 
     <!-- Header -->
     <header class="fixed top-0 w-full z-40 bg-white/90 dark:bg-navy/90 backdrop-blur border-b border-slate-200 dark:border-slate-700 h-16 flex items-center justify-between px-4 shadow-sm transition-colors">
@@ -157,30 +89,31 @@
         </div>
     </header>
 
-
-    <!-- Floating Search Bar -->
-    <div class="floating-search-bar">
-        <div class="relative">
-            <input type="text" id="search-input" oninput="handleCategorySearch()" placeholder="ابحث في الأقسام الرئيسية..." class="w-full form-input pl-10">
-            <i data-lucide="search" class="absolute top-1/2 -translate-y-1/2 search-icon"></i>
-        </div>
-    </div>
-
-
     <!-- Main Content -->
-    <main class="pt-40 container mx-auto px-2 max-w-6xl min-h-screen">
+    <main class="pt-24 container mx-auto px-2 max-w-6xl min-h-screen">
         
-        <!-- Category Cards Grid (3-columns) -->
-        <div id="category-cards-grid" class="grid grid-cols-3 gap-3 pb-10 mt-2">
-            <!-- سيتم ملء بطاقات الأقسام هنا بالكود -->
+        <!-- Search & Mega Filter -->
+        <div class="sticky top-16 z-30 bg-slate-50 dark:bg-navy pb-2 pt-1 space-y-3 transition-colors">
+            <div class="relative">
+                <!-- تم إضافة border-2 border-black هنا -->
+                <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث عن منتج..." class="w-full form-input pl-10 !border-2 !border-black dark:!border-slate-500 shadow-sm">
+                <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+            </div>
+            
+            <!-- Categories Scroll -->
+            <div class="flex justify-start gap-2 overflow-x-auto py-2 no-scrollbar" id="categories-container">
+                <button onclick="filter('all')" id="chip-all" class="px-5 py-1.5 rounded-full bg-navy dark:bg-primary text-white text-xs font-bold shadow whitespace-nowrap transition transform active:scale-95">الكل</button>
+                <!-- سيتم ملء الأقسام هنا بالكود -->
+            </div>
         </div>
 
+        <!-- Grid (تم التغيير إلى grid-cols-4 في كل الشاشات) -->
+        <div id="grid-container" class="grid grid-cols-4 gap-2 pb-10 mt-2"></div>
 
         <!-- States -->
         <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
-        <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="folder-open" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد أقسام مطابقة</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">عرض الكل</button></div>
+        <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد منتجات</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">عرض الكل</button></div>
     </main>
-
 
     <!-- Floating Dock -->
     <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-xl transform transition-all hover:scale-105">
@@ -189,114 +122,72 @@
         <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-6 h-6 group-hover:scale-110 transition"></i></button>
     </nav>
 
-
     <!-- ================= ADD MODAL ================= -->
     <div id="add-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0">
-                <h3 class="font-bold text-slate-800 dark:text-white text-base">إضافة منتج جديد</h3>
-                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1.5 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0">
+                <h3 class="font-bold text-slate-800 dark:text-white text-lg">إضافة منتج جديد</h3>
+                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-2 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
-            <div class="flex-1 overflow-y-auto add-modal-content space-y-3 bg-white dark:bg-darkbg">
+            <div class="flex-1 overflow-y-auto p-5 space-y-5 bg-white dark:bg-darkbg">
                 <div class="form-group">
                     <span class="form-label">صور المنتج (بحد أقصى 3)</span>
-                    <div class="grid grid-cols-4 gap-2">
-                        <label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group">
+                    <div class="grid grid-cols-4 gap-3">
+                        <label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group">
                             <input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10">
-                            <i data-lucide="camera" class="w-5 h-5 mb-0.5 group-hover:scale-110 transition"></i>
-                            <span class="text-[9px] font-bold">إضافة</span>
+                            <i data-lucide="camera" class="w-6 h-6 mb-1 group-hover:scale-110 transition"></i>
+                            <span class="text-[10px] font-bold">إضافة</span>
                         </label>
                         <div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div>
                     </div>
                 </div>
                 
-                <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input" placeholder="مثال: تيشرت قطن، شقة للإيجار..."></div>
+                <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input" placeholder="مثال: ساعة كاسيو، بنطلون جينز..."></div>
 
-
-                <div class="flex gap-2 form-group">
-                    <div class="flex-1"><label class="form-label">السعر (ج.م)</label><input id="in-price" type="number" class="form-input" placeholder="000"></div>
-                    <div class="w-1/2"><label class="form-label">القسم الرئيسي</label><select id="in-cat" onchange="updateFormFields()" class="form-input bg-gray-50"><!-- JS --></select></div>
-                </div>
-                
-                <!-- NEW: Sub-Category Field -->
-                <div id="sub-category-field" class="form-group hidden">
-                    <label class="form-label">النوع الفرعي</label>
-                    <select id="in-sub-cat" class="form-input bg-gray-50" onchange="updateFormFields()"><!-- JS --></select>
+                <div class="flex gap-3 form-group">
+                    <div class="flex-1"><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input" placeholder="ج.م"></div>
+                    <div class="w-1/2"><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input bg-gray-50"><!-- JS --></select></div>
                 </div>
 
-
-                <div id="dynamic-fields" class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group">
-                    <!-- Dynamic fields will be injected here -->
-                </div>
-
-
-                <div class="form-group">
-                    <label class="form-label">مواصفات إضافية:</label>
-                    <div class="flex flex-wrap gap-1">
-                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي/براند"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي/براند</div></label>
-                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="قابل للتفاوض"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">قابل للتفاوض</div></label>
-                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل متاح"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل متاح</div></label>
+                <div id="dynamic-fields" class="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 form-group">
+                    <div id="field-condition" class="hidden col-span-2">
+                        <label class="form-label text-primary">حالة المنتج</label>
+                        <select id="in-condition" class="form-input"><option value="new">جديد (New)</option><option value="used">مستعمل (Used)</option><option value="openbox">كسر زيرو</option></select>
+                    </div>
+                    <div id="field-size" class="col-span-2 hidden">
+                        <label class="form-label text-primary">المقاس / الحجم</label>
+                        <input id="in-size" class="form-input" placeholder="مثال: XL, 42, 100ml">
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label class="form-label">مواصفات إضافية:</label>
+                    <div class="flex flex-wrap gap-2">
+                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label>
+                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="هاي كوبي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label>
+                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label>
+                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label>
+                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="فاتورة"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">فاتورة</div></label>
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <label class="form-label">تمييز الإعلان:</label>
                     <div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                        <label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1.5 rounded-md text-xs font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label>
-                        <label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1.5 rounded-md text-xs font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label>
+                        <label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-2 rounded-md text-xs font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label>
+                        <label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-2 rounded-md text-xs font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label>
                     </div>
                 </div>
 
-
-                <div class="form-group"><label class="form-label">رقم التواصل (واتساب)</label><input id="in-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx"></div>
-                <div class="form-group"><label class="form-label">الوصف التفصيلي</label><textarea id="in-desc" rows="2" class="form-input" placeholder="اكتب التفاصيل الهامة..."></textarea></div>
+                <div class="form-group"><label class="form-label">رقم التواصل</label><input id="in-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx"></div>
+                <div class="form-group"><label class="form-label">الوصف</label><textarea id="in-desc" rows="3" class="form-input" placeholder="اكتب التفاصيل..."></textarea></div>
             </div>
-            <div class="add-modal-footer border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-4">
-                <button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-2.5 rounded-lg font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر المنتج</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- ================= CATEGORY PRODUCTS MODAL ================= -->
-    <div id="category-products-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <!-- Header -->
-            <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0">
-                <!-- زر العودة (سهم لليسار في RTL) -->
-                <button onclick="closeCategoryView()" class="bg-white dark:bg-slate-700 p-2 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="arrow-right" class="w-5 h-5"></i></button>
-                <h3 id="cat-view-title" class="font-bold text-slate-800 dark:text-white text-lg"></h3>
-                <!-- زر المفضلة -->
-                <button onclick="toggleFavViewFromCat()" class="p-2 rounded-full bg-red-50 dark:bg-slate-800 text-red-500 hover:bg-red-100 relative transition"><i data-lucide="heart" class="w-5 h-5"></i></button>
-            </div>
-            
-            <!-- Search Bar for Products (Enhanced) -->
-            <div class="sticky top-0 z-30 bg-slate-50 dark:bg-navy pb-2 pt-1 space-y-3 transition-colors px-4 shrink-0">
-                <div class="relative">
-                    <input type="text" id="cat-search-input" oninput="handleCatSearch()" placeholder="ابحث في هذا القسم..." class="w-full form-input pl-10 search-input-enhanced shadow-md">
-                    <i data-lucide="search" class="absolute top-1/2 -translate-y-1/2 w-6 h-6 search-icon-enhanced"></i>
-                </div>
-
-                <!-- Sub-Category Filter Bar -->
-                <div id="sub-category-filter" class="flex justify-start gap-2 overflow-x-auto py-1 no-scrollbar">
-                    <!-- Sub-categories will be injected here -->
-                </div>
-            </div>
-
-            <!-- Products Grid -->
-            <div class="flex-1 overflow-y-auto p-2 bg-white dark:bg-darkbg">
-                <!-- تم تعديل الشبكة لتكون 2 عمود في الهاتف و 4 في الشاشات الأكبر للمنتجات -->
-                <div id="cat-products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pb-10 mt-2">
-                    <!-- المنتجات ستظهر هنا -->
-                </div>
-                <!-- Empty State for Products -->
-                <div id="cat-empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد منتجات في هذا القسم</p></div>
+            <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-4">
+                <button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر المنتج</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
             </div>
         </div>
     </div>
-
 
     <!-- Details Modal -->
     <div id="details-modal" class="hidden modal-overlay"><div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700"><div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group"><button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button><button onclick="shareListing()" class="absolute top-3 right-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button><div id="details-slider" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth"></div><div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div><span id="d-time-badge" class="absolute top-3 right-12 bg-black/60 text-white px-2 py-1 rounded text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 z-10"></span><span id="d-type-badge" class="absolute bottom-3 right-3 text-white px-3 py-1 rounded-lg text-xs font-bold shadow backdrop-blur-sm"></span></div><div class="flex-1 overflow-y-auto p-5 bg-white dark:bg-darkbg"><div class="flex justify-between items-start mb-2"><h2 id="d-title" class="text-lg font-bold text-slate-900 dark:text-white leading-snug w-3/4"></h2><span id="d-price" class="text-primary font-black text-xl whitespace-nowrap"></span></div><div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700 font-bold"></span></div><div id="d-features" class="flex flex-wrap gap-2 mb-5"></div><div class="space-y-2"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 font-medium"></p></div></div><div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-3 shrink-0 pb-8 md:pb-4"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-3 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition"><i data-lucide="message-circle" class="w-5 h-5"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-3 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition"><i data-lucide="phone" class="w-5 h-5"></i> اتصال</a></div></div></div>
@@ -306,258 +197,83 @@
     <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center select-none"><button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button><div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div></div>
     <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[90] flex flex-col text-white"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] overflow-y-auto p-2" id="admin-users-list"></div><div class="w-2/3 flex flex-col bg-navy relative"><div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38]"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div><div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38]"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div></div></div></div>
 
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-
         const firebaseConfig = { apiKey: "AIzaSyC7zHuH8LK-yQAKG-Nm7dh31fXtVLxuCLM", authDomain: "sharqia-81030.firebaseapp.com", projectId: "sharqia-81030", storageBucket: "sharqia-81030.firebasestorage.app", messagingSenderId: "581888625195", appId: "1:581888625195:web:1667ba1e439e8e6c1fb86e" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app); const auth = getAuth(app);
-        let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentSubFilter: 'الكل', currentItem: null };
+        let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentItem: null };
 
-
-        // UPDATED: 100 Categories (Simplified Names)
-        const CATEGORIES = [
-            // الملابس والأزياء (30)
-            "ملابس رجالي", "ملابس حريمي", "ملابس أطفال", "أحذية رجالي", "أحذية حريمي", "أحذية أطفال", "ساعات", "نظارات", "حقائب وشنط", "محافظ وأحزمة",
-            "عطور وبخور", "مكياج وتجميل", "عناية بالبشرة", "عناية بالشعر", "مجوهرات وذهب", "فضيات وإكسسوارات", "ملابس رياضية", "ملابس مقاسات خاصة", "ملابس حمل", "ملابس داخلية",
-            "لانجري ونوم", "ملابس سباحة", "أقمشة وخياطة", "يونيفورم", "جوارب وقبعات", "ملابس مستعملة", "أزياء تنكرية", "إكسسوارات أزياء", "ملابس تقليدية", "أزياء زفاف وسهرة",
-            // العقارات (15)
-            "شقق للبيع", "شقق للإيجار", "فيلات للبيع", "فيلات للإيجار", "أراضي ومزارع", "محلات تجارية", "مكاتب إدارية", "مصانع ومخازن", "شاليهات ومصايف", "عقارات العاصمة الإدارية",
-            "عقارات الساحل الشمالي", "عقارات الإسكندرية", "عقارات الجيزة", "عقارات القاهرة", "عقارات أخرى",
-            // السيارات والمركبات (15)
-            "سيارات سيدان", "سيارات دفع رباعي", "سيارات نقل", "دراجات نارية", "دراجات هوائية", "قطع غيار سيارات", "إكسسوارات سيارات", "إطارات وبطاريات", "تأجير سيارات", "قوارب ويخوت",
-            "مركبات ثقيلة", "سيارات كلاسيكية", "سيارات كسر زيرو", "سيارات جديدة", "سيارات مستعملة",
-            // الإلكترونيات والموبايلات (15)
-            "موبايلات", "تابلت وآيباد", "لابتوب وكمبيوتر", "شاشات وتلفزيونات", "كاميرات ومعدات تصوير", "سماعات وصوتيات", "ساعات ذكية", "أجهزة منزلية كبيرة", "أجهزة منزلية صغيرة", "أجهزة ألعاب",
-            "راوترات وشبكات", "طابعات وماسحات", "قطع غيار إلكترونيات", "إكسسوارات موبايل", "أجهزة مكتبية",
-            // خدمات ومنوعات (25)
-            "وظائف وخدمات", "هدايا ومنتجات يدوية", "مستلزمات مواليد", "مستلزمات حيوانات", "أدوات رياضية", "أدوات مطبخ", "أثاث منزلي", "ديكور وإضاءة", "أدوات بناء", "مستلزمات زراعية",
-            "كتب ومجلات", "آلات موسيقية", "معدات طبية", "معدات تجميل", "خدمات تعليمية", "خدمات صيانة", "خدمات تصميم", "خدمات تسويق", "خدمات شحن", "تذاكر وعروض",
-            "مواد غذائية", "مشروبات وعصائر", "تخفيضات عامة", "مستلزمات أخرى", "تبرعات"
-        ];
-        
-        // UPDATED: Sub-Categories for Filtering
-        const SUB_CATEGORIES = {
-            "ملابس رجالي": ["تيشرت", "قميص", "بنطلون", "جاكيت", "بدلة", "بلوفر"],
-            "ملابس حريمي": ["بلوزة", "جيبة", "فستان", "عباية", "كارديجان", "طقم"],
-            "أحذية رجالي": ["كاجوال", "كلاسيك", "رياضي", "صندل", "بوت"],
-            "أحذية حريمي": ["كعب عالي", "فلات", "رياضي", "صندل", "بوت"],
-            "موبايلات": ["سامسونج", "آيفون", "شاومي", "أوبو", "هواوي", "أخرى"],
-            "لابتوب وكمبيوتر": ["لابتوب", "كمبيوتر مكتبي", "شاشة كمبيوتر", "إكسسوارات"],
-            "شقق للبيع": ["جديدة", "قديمة", "تشطيب فاخر", "نصف تشطيب"],
-            "شقق للإيجار": ["مفروش", "غير مفروش", "إيجار يومي", "إيجار شهري"],
-            "سيارات سيدان": ["مرسيدس", "بي إم دبليو", "تويوتا", "هيونداي", "شيفروليه", "أخرى"],
-            "سيارات دفع رباعي": ["جيب", "لاند كروزر", "كيا سبورتاج", "أخرى"],
-        };
-
-        // UPDATED: Dynamic Fields Logic
-        const CONDITION_CATS = ["شقق للبيع", "شقق للإيجار", "فيلات للبيع", "فيلات للإيجار", "محلات تجارية", "مكاتب إدارية", "مصانع ومخازن", "شاليهات ومصايف", "سيارات سيدان", "سيارات دفع رباعي", "سيارات نقل", "سيارات كسر زيرو", "سيارات مستعملة", "موبايلات", "تابلت وآيباد", "لابتوب وكمبيوتر", "ساعات", "نظارات", "كاميرات ومعدات تصوير", "ساعات ذكية", "أجهزة منزلية كبيرة", "أجهزة منزلية صغيرة", "أجهزة ألعاب"];
-        const REAL_ESTATE_CATS = ["شقق للبيع", "شقق للإيجار", "فيلات للبيع", "فيلات للإيجار", "محلات تجارية", "مكاتب إدارية", "مصانع ومخازن", "شاليهات ومصايف"];
-        const CAR_CATS = ["سيارات سيدان", "سيارات دفع رباعي", "سيارات نقل", "سيارات كسر زيرو", "سيارات مستعملة", "سيارات جديدة"];
-        const MOBILE_LAPTOP_CATS = ["موبايلات", "تابلت وآيباد", "لابتوب وكمبيوتر"];
-        const SIZE_CATS = ["ملابس رجالي", "ملابس حريمي", "ملابس أطفال", "أحذية رجالي", "أحذية حريمي", "أحذية أطفال"];
-        
-        // NEW: Embedded SVG Icons (Best alternative for "real" compressed images)
-        const getCatIconSVG = (category) => {
-            const icons = {
-                "ملابس رجالي": "t-shirt", "ملابس حريمي": "shirt", "ملابس أطفال": "baby", "أحذية رجالي": "shoe", "أحذية حريمي": "footprints", "أحذية أطفال": "boot", "ساعات": "watch", "نظارات": "glasses", "حقائب وشنط": "baggage-claim", "محافظ وأحزمة": "wallet",
-                "عطور وبخور": "droplet", "مكياج وتجميل": "sparkles", "عناية بالبشرة": "sun", "عناية بالشعر": "scissors", "مجوهرات وذهب": "gem", "فضيات وإكسسوارات": "ring", "ملابس رياضية": "dumbbell", "ملابس مقاسات خاصة": "maximize", "ملابس حمل": "pregnant-woman", "ملابس داخلية": "box",
-                "لانجري ونوم": "moon", "ملابس سباحة": "waves", "أقمشة وخياطة": "spool", "يونيفورم": "user-cog", "جوارب وقبعات": "hard-hat", "ملابس مستعملة": "recycle", "أزياء تنكرية": "mask", "إكسسوارات أزياء": "bowtie", "ملابس تقليدية": "tent", "أزياء زفاف وسهرة": "dress",
-                "شقق للبيع": "home", "شقق للإيجار": "key", "فيلات للبيع": "building", "فيلات للإيجار": "building-2", "أراضي ومزارع": "map", "محلات تجارية": "store", "مكاتب إدارية": "briefcase", "مصانع ومخازن": "factory", "شاليهات ومصايف": "beach", "عقارات العاصمة الإدارية": "landmark",
-                "عقارات الساحل الشمالي": "ship", "عقارات الإسكندرية": "anchor", "عقارات الجيزة": "pyramid", "عقارات القاهرة": "city", "عقارات أخرى": "map-pin", "سيارات سيدان": "car", "سيارات دفع رباعي": "truck", "سيارات نقل": "bus", "دراجات نارية": "motorcycle", "دراجات هوائية": "bike",
-                "قطع غيار سيارات": "wrench", "إكسسوارات سيارات": "car-taxi", "إطارات وبطاريات": "battery-charging", "تأجير سيارات": "calendar", "قوارب ويخوت": "sailboat", "مركبات ثقيلة": "tractor", "سيارات كلاسيكية": "gavel", "سيارات كسر زيرو": "gauge", "سيارات جديدة": "sparkles", "سيارات مستعملة": "refresh-cw",
-                "موبايلات": "smartphone", "تابلت وآيباد": "tablet", "لابتوب وكمبيوتر": "laptop", "شاشات وتلفزيونات": "monitor", "كاميرات ومعدات تصوير": "camera", "سماعات وصوتيات": "headphones", "ساعات ذكية": "watch-check", "أجهزة منزلية كبيرة": "fridge", "أجهزة منزلية صغيرة": "blender", "أجهزة ألعاب": "gamepad",
-                "راوترات وشبكات": "router", "طابعات وماسحات": "printer", "قطع غيار إلكترونيات": "circuit-board", "إكسسوارات موبايل": "plug", "أجهزة مكتبية": "clipboard", "وظائف وخدمات": "users", "هدايا ومنتجات يدوية": "gift", "مستلزمات مواليد": "stroller", "مستلزمات حيوانات": "paw-print", "أدوات رياضية": "medal",
-                "أدوات مطبخ": "chef-hat", "أثاث منزلي": "couch", "ديكور وإضاءة": "lightbulb", "أدوات بناء": "hammer", "مستلزمات زراعية": "leaf", "كتب ومجلات": "book", "آلات موسيقية": "guitar", "معدات طبية": "stethoscope", "معدات تجميل": "spray-can", "خدمات تعليمية": "graduation-cap",
-                "خدمات صيانة": "tool", "خدمات تصميم": "pen-tool", "خدمات تسويق": "megaphone", "خدمات شحن": "package", "تذاكر وعروض": "ticket", "مواد غذائية": "apple", "مشروبات وعصائر": "coffee", "تخفيضات عامة": "tag", "مستلزمات أخرى": "more-horizontal", "تبرعات": "hand-heart"
-            };
-            return `<i data-lucide="${icons[category] || 'package'}"></i>`;
-        };
-
+        // Categories
+        const CATEGORIES = ["ملابس رجالي", "ملابس حريمي", "ملابس أطفال", "أحذية رجالي", "أحذية حريمي", "أحذية أطفال", "ساعات رجالي", "ساعات حريمي", "نظارات شمسية", "نظارات طبية", "حقائب وشنط", "محافظ وأحزمة", "عطور رجالي", "عطور حريمي", "مكياج وتجميل", "عناية بالبشرة", "عناية بالشعر", "إكسسوارات شعر", "مجوهرات وذهب", "فضة", "ملابس رياضية", "عبايات", "فساتين", "بدل رجالي", "ملابس داخلية", "لانجري", "ملابس نوم", "ملابس سباحة", "شالات وإيشاربات", "قبعات وكابات", "جوارب", "ملابس مقاسات خاصة", "ملابس حمل", "أقمشة وخياطة", "يونيفورم", "هدايا", "ألعاب أطفال", "أخرى"];
+        const USED_CATS = ["ساعات رجالي", "ساعات حريمي", "نظارات شمسية", "أخرى"]; // Only these allow 'Used'
+        const SIZE_CATS = ["ملابس رجالي", "ملابس حريمي", "ملابس أطفال", "أحذية رجالي", "أحذية حريمي", "أحذية أطفال", "ملابس رياضية", "عبايات", "فساتين", "بدل رجالي", "ملابس داخلية", "لانجري", "ملابس نوم", "ملابس سباحة", "ملابس مقاسات خاصة", "ملابس حمل", "يونيفورم", "أحذية رياضية", "أحذية كلاسيك", "صنادل وشباشب", "بوت"];
 
         setPersistence(auth, browserLocalPersistence).then(()=>signInAnonymously(auth));
         onAuthStateChanged(auth, (u) => { if(u) { state.user=u; document.getElementById('loader').classList.add('hidden'); loadListings(); checkUserChat(); initFavs(); checkAdminStatus(); initCats(); } });
 
-
         function initCats() {
+            const cont = document.getElementById('categories-container');
             const sel = document.getElementById('in-cat');
             CATEGORIES.forEach(c => {
+                const btn = document.createElement('button'); btn.innerText = c; btn.id = `chip-${c.replace(/\s/g, '')}`;
+                btn.className = "px-4 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition hover:border-primary hover:text-primary chip-btn";
+                btn.onclick = () => filter(c); cont.appendChild(btn);
                 const opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt);
             });
-            handleCategorySearch();
         }
-        
-        window.handleCategorySearch = () => {
-            const q = normalizeText(document.getElementById('search-input').value);
-            const cont = document.getElementById('category-cards-grid');
-            cont.innerHTML = '';
-            
-            const filteredCategories = CATEGORIES.filter(c => normalizeText(c).includes(q));
-            
-            if(!filteredCategories.length) {
-                document.getElementById('empty-state').classList.remove('hidden');
-            } else {
-                document.getElementById('empty-state').classList.add('hidden');
-                filteredCategories.forEach(c => {
-                    const svgIcon = getCatIconSVG(c);
-                    cont.innerHTML += `
-                        <button onclick="openCategoryView('${c}')" class="cat-card active:scale-[0.98] transform">
-                            ${svgIcon}
-                            <span class="text-[10px] font-bold text-slate-800 dark:text-slate-200 text-center">${c}</span>
-                        </button>
-                    `;
-                });
-            }
-            lucide.createIcons();
-        }
-
 
         window.updateFormFields = () => {
             const cat = document.getElementById('in-cat').value;
-            const subCatField = document.getElementById('sub-category-field');
-            const subCatSelect = document.getElementById('in-sub-cat');
-            const dynamicFields = document.getElementById('dynamic-fields');
-            dynamicFields.innerHTML = '';
-            subCatField.classList.add('hidden');
-            subCatSelect.innerHTML = '';
-
-            // 1. Sub-Category Field (Type)
-            if (SUB_CATEGORIES[cat]) {
-                subCatField.classList.remove('hidden');
-                SUB_CATEGORIES[cat].forEach(sc => {
-                    const opt = document.createElement('option'); opt.value = sc; opt.innerText = sc; subCatSelect.appendChild(opt);
-                });
-            }
-
-            // 2. Real Estate Fields (Sale/Rent)
-            if (REAL_ESTATE_CATS.includes(cat)) {
-                const isRent = cat.includes('للإيجار');
-                dynamicFields.innerHTML += `
-                    <div class="col-span-2">
-                        <label class="form-label text-primary">نوع العرض</label>
-                        <select id="in-re-type" class="form-input">
-                            <option value="sale" ${!isRent ? 'selected' : ''}>بيع</option>
-                            <option value="rent_monthly" ${isRent ? 'selected' : ''}>إيجار شهري</option>
-                            <option value="rent_yearly">إيجار سنوي</option>
-                        </select>
-                    </div>
-                    <div class="flex-1"><label class="form-label">المساحة (م²)</label><input id="in-re-area" type="number" class="form-input" placeholder="000"></div>
-                    <div class="flex-1"><label class="form-label">عدد الغرف</label><input id="in-re-rooms" type="number" class="form-input" placeholder="مثال: 3"></div>
-                `;
-            }
-            
-            // 3. Car Fields (Model/Year/Condition)
-            if (CAR_CATS.includes(cat)) {
-                dynamicFields.innerHTML += `
-                    <div class="flex-1"><label class="form-label text-primary">الموديل</label><input id="in-car-model" class="form-input" placeholder="مثال: BMW X5"></div>
-                    <div class="flex-1"><label class="form-label">سنة الصنع</label><input id="in-car-year" type="number" class="form-input" placeholder="مثال: 2020"></div>
-                    <div class="col-span-2"><label class="form-label">حالة السيارة</label><select id="in-car-condition" class="form-input"><option value="new">جديدة (زيرو)</option><option value="used_like_new">كسر زيرو</option><option value="used">مستعملة</option></select></div>
-                `;
-            }
-
-            // 4. Mobile/Laptop Fields (RAM/Storage/Battery)
-            if (MOBILE_LAPTOP_CATS.includes(cat)) {
-                dynamicFields.innerHTML += `
-                    <div class="flex-1"><label class="form-label text-primary">الذاكرة (RAM)</label><input id="in-tech-ram" class="form-input" placeholder="مثال: 8GB"></div>
-                    <div class="flex-1"><label class="form-label">المساحة (Storage)</label><input id="in-tech-storage" class="form-input" placeholder="مثال: 128GB"></div>
-                    ${cat.includes('موبايلات') ? `<div class="col-span-2"><label class="form-label">حالة البطارية</label><input id="in-mobile-battery" class="form-input" placeholder="مثال: 95%"></div>` : ''}
-                `;
-            }
-
-            // 5. Clothes/Shoes Size
-            if (SIZE_CATS.includes(cat)) {
-                dynamicFields.innerHTML += `<div class="col-span-2"><label class="form-label text-primary">المقاس / الحجم</label><input id="in-size" class="form-input" placeholder="مثال: XL, 42, 100ml"></div>`;
-            }
-
-            // 6. General Condition (Only for items that can be used/second hand and don't have specific fields)
-            if (CONDITION_CATS.includes(cat) && !dynamicFields.querySelector('#in-car-condition') && !cat.includes('جديدة') && !cat.includes('للبيع')) {
-                dynamicFields.innerHTML += `<div class="col-span-2"><label class="form-label text-primary">حالة المنتج</label><select id="in-condition" class="form-input"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>`;
-            }
+            const condField = document.getElementById('field-condition');
+            const sizeField = document.getElementById('field-size');
+            const condInput = document.getElementById('in-condition');
+            if (USED_CATS.includes(cat)) { condField.classList.remove('hidden'); } else { condField.classList.add('hidden'); condInput.value = 'new'; }
+            if (SIZE_CATS.includes(cat)) { sizeField.classList.remove('hidden'); } else { sizeField.classList.add('hidden'); }
         }
 
+        function checkAdminStatus() { if(localStorage.getItem('souq_admin') === 'true') { state.isAdmin = true; document.getElementById('btn-admin-top').classList.remove('hidden'); } }
+        window.toggleDarkMode = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('souq_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); }
+        if(localStorage.getItem('souq_theme') === 'dark') document.documentElement.classList.add('dark');
+        window.showToast=(m,t='s')=>{const d=document.createElement('div');d.className=`toast fixed top-4 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 shadow-xl px-4 py-2 rounded-lg border border-${t==='e'?'red':'primary'}-500 flex items-center gap-2 text-xs font-bold z-[100] text-slate-800 dark:text-white`;d.innerHTML=`<i data-lucide="${t==='e'?'alert-circle':'check-circle'}" class="w-4 h-4 text-${t==='e'?'red':'primary'}-500"></i> ${m}`;document.getElementById('toast-container').appendChild(d);lucide.createIcons();setTimeout(()=>{d.classList.add('hiding');setTimeout(()=>d.remove(),300)},3000)};
 
-        // NEW: Filter Products by Sub-Category
-        window.filterSubCategory = (subCat) => {
-            state.currentSubFilter = subCat;
-            document.querySelectorAll('.sub-chip-btn').forEach(btn => {
-                btn.className = "px-3 py-1 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold whitespace-nowrap transition hover:border-primary hover:text-primary sub-chip-btn";
-            });
-            const activeBtn = document.getElementById(`sub-chip-${subCat.replace(/\s/g, '')}`);
-            if(activeBtn) activeBtn.className = "px-3 py-1 rounded-full bg-navy dark:bg-primary text-white text-[10px] font-bold shadow whitespace-nowrap transform scale-105 transition sub-chip-btn";
-            handleCatSearch();
-        }
+        function normalizeText(t) { return t.replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLowerCase(); }
+        function timeAgo(d) { if(!d) return 'جديد'; const s=Math.floor((new Date()-d.toDate())/1000); if(s<60)return 'الآن'; if(s<3600)return `منذ ${Math.floor(s/60)} د`; if(s<86400)return `منذ ${Math.floor(s/3600)} س`; return `منذ ${Math.floor(s/86400)} ي`; }
+        function showSkeletons() { const c=document.getElementById('grid-container'); c.innerHTML=''; for(let i=0;i<6;i++) c.innerHTML+=`<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-slate-200 dark:border-slate-700 h-full"><div class="h-32 skeleton"></div><div class="p-2 space-y-2"><div class="h-4 rounded skeleton w-3/4"></div><div class="h-3 rounded skeleton w-1/2"></div></div></div>`; }
+        function initFavs() { state.favorites = JSON.parse(localStorage.getItem('souq_favs') || '[]'); updateFavBadge(); }
+        window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); handleSearch(); };
+        function updateFavBadge() { const b = document.getElementById('fav-count'); if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); }
+        window.toggleFavView = () => { document.getElementById('search-input').value = ''; state.currentFilter = 'fav'; handleSearch(); showToast("المفضلة ❤️"); };
 
-        window.openCategoryView = (category) => {
-            state.currentFilter = category;
-            state.currentSubFilter = 'الكل';
-            document.getElementById('cat-view-title').innerText = category;
-            document.getElementById('cat-search-input').value = '';
-            
-            // Populate Sub-Category Filter Bar
-            const subCont = document.getElementById('sub-category-filter');
-            subCont.innerHTML = '';
-            const subCats = SUB_CATEGORIES[category];
-            if (subCats) {
-                subCont.innerHTML += `<button onclick="filterSubCategory('الكل')" id="sub-chip-الكل" class="px-3 py-1 rounded-full bg-navy dark:bg-primary text-white text-[10px] font-bold shadow whitespace-nowrap transform scale-105 transition sub-chip-btn">الكل</button>`;
-                subCats.forEach(sc => {
-                    subCont.innerHTML += `<button onclick="filterSubCategory('${sc}')" id="sub-chip-${sc.replace(/\s/g, '')}" class="px-3 py-1 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold whitespace-nowrap transition hover:border-primary hover:text-primary sub-chip-btn">${sc}</button>`;
-                });
-            } else {
-                subCont.innerHTML = ''; // Hide if no sub-categories
-            }
-
-            handleCatSearch();
-            toggleModal('category-products-modal');
-            lucide.createIcons();
-        };
-
-        window.closeCategoryView = () => {
-            state.currentFilter = 'all';
-            state.currentSubFilter = 'الكل';
-            toggleModal('category-products-modal');
-        };
-
-        window.handleCatSearch = () => { 
-            const q = normalizeText(document.getElementById('cat-search-input').value); 
-            const cont = document.getElementById('cat-products-grid'); 
+        function loadListings() { showSkeletons(); onSnapshot(query(collection(db, "listings")), (snap) => { state.listings = []; snap.forEach(d => state.listings.push({id:d.id, ...d.data()})); state.listings.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); handleSearch(); }); }
+        
+        window.handleSearch = () => { 
+            const q = normalizeText(document.getElementById('search-input').value); 
+            const cont = document.getElementById('grid-container'); 
             cont.innerHTML = ''; 
-            
-            const isFavView = state.currentFilter.startsWith('fav');
-            let categoryToFilter = state.currentFilter;
-            if (state.currentFilter.startsWith('fav_')) {
-                categoryToFilter = state.currentFilter.substring(4);
-            }
-
             const filtered = state.listings.filter(item => { 
                 let matchType = true; 
-                
-                if (isFavView) {
-                    matchType = state.favorites.includes(item.id);
-                    if (categoryToFilter !== 'الكل') {
-                        matchType = matchType && item.category === categoryToFilter;
-                    }
-                } else {
-                    matchType = item.category === categoryToFilter;
-                }
-                
-                // Sub-Category Filter
-                if (state.currentSubFilter !== 'الكل' && item.subCategory) {
-                    matchType = matchType && normalizeText(item.subCategory).includes(normalizeText(state.currentSubFilter));
-                }
-
+                if (state.currentFilter === 'fav') matchType = state.favorites.includes(item.id); 
+                else matchType = state.currentFilter === 'all' || item.category === state.currentFilter; 
                 const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); 
                 return matchType && matchText; 
             }); 
-            
-            if(!filtered.length) document.getElementById('cat-empty-state').classList.remove('hidden'); 
-            else { 
-                document.getElementById('cat-empty-state').classList.add('hidden'); 
-                filtered.forEach(item => cont.innerHTML += createCard(item)); 
-            } 
+            if(!filtered.length) document.getElementById('empty-state').classList.remove('hidden'); 
+            else { document.getElementById('empty-state').classList.add('hidden'); filtered.forEach(item => cont.innerHTML += createCard(item)); } 
             lucide.createIcons(); 
+        };
+
+        window.filter = (type) => { 
+            state.currentFilter = type; 
+            document.querySelectorAll('.chip-btn').forEach(btn => {
+                btn.className = "px-4 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition hover:border-primary hover:text-primary chip-btn";
+            });
+            const activeId = type === 'all' ? 'chip-all' : `chip-${type.replace(/\s/g, '')}`;
+            const activeBtn = document.getElementById(activeId);
+            if(activeBtn) activeBtn.className = "px-5 py-1.5 rounded-full bg-navy dark:bg-primary text-white text-xs font-bold shadow whitespace-nowrap transform scale-105 transition";
+            handleSearch(); 
         };
 
         function createCard(item) {
@@ -578,7 +294,6 @@
             return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-32 sm:h-40 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 ${showControls?'left-16':'left-1'} z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-4 h-4 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 hidden group-hover:block"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 hidden group-hover:block"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}">`).join('')}</div><span class="absolute top-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-2 py-0.5 rounded text-[9px] font-bold shadow z-10 flex items-center gap-1 truncate max-w-[70%]">${item.category}</span></div><div class="p-2 flex-1 flex flex-col"><div class="flex justify-between items-start mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-xs line-clamp-1">${item.title}</h3><span class="font-black text-primary text-xs whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[10px] text-slate-500 dark:text-slate-400 mb-2 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1.5 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-2 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1.5 rounded flex justify-center items-center gap-1 text-[10px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
         }
 
-
         window.openDetails = (id) => {
             const item = state.listings.find(i => i.id === id); if(!item) return;
             state.currentItem = item; document.getElementById('d-title').innerText = item.title; document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; document.getElementById('d-cat').innerText = item.category; document.getElementById('d-desc').innerText = item.desc;
@@ -598,68 +313,24 @@
         window.openLightbox = (src) => { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').classList.remove('hidden'); }
         window.closeLightbox = () => document.getElementById('lightbox').classList.add('hidden');
 
-
         function toggleModal(id) { const m=document.getElementById(id); m.classList.toggle('hidden'); if(!m.classList.contains('hidden')) document.body.style.overflow='hidden'; else document.body.style.overflow=''; return !m.classList.contains('hidden'); }
         window.toggleAddModal=()=>{if(toggleModal('add-modal')){state.images=[];document.getElementById('preview-area').innerHTML=''; updateFormFields();}};
-        window.handleUpload=async(input)=>{if(input.files.length+state.images.length>3)return showToast('مطلوب 3 صور فقط','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-12 h-12 rounded-lg object-cover border border-gray-200 shrink-0">`}};
-        function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
+        window.handleUpload=async(input)=>{if(input.files.length+state.images.length>3)return showToast('3 صور فقط','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0">`}}; function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
         
         window.submitListing=async()=>{
             if(!state.images.length)return showToast('مطلوب صورة','e');
             document.getElementById('btn-publish').innerText='...';
-            const cat = document.getElementById('in-cat').value;
-            
-            const dynamicData = {};
-            dynamicData.subCategory = document.getElementById('in-sub-cat')?.value || null;
-
-            if (REAL_ESTATE_CATS.includes(cat)) {
-                dynamicData.reType = document.getElementById('in-re-type').value;
-                dynamicData.reArea = document.getElementById('in-re-area').value;
-                dynamicData.reRooms = document.getElementById('in-re-rooms').value;
-            }
-            if (CAR_CATS.includes(cat)) {
-                dynamicData.carModel = document.getElementById('in-car-model').value;
-                dynamicData.carYear = document.getElementById('in-car-year').value;
-                dynamicData.carCondition = document.getElementById('in-car-condition').value;
-            }
-            if (MOBILE_LAPTOP_CATS.includes(cat)) {
-                dynamicData.techRam = document.getElementById('in-tech-ram').value;
-                dynamicData.techStorage = document.getElementById('in-tech-storage').value;
-                if (cat.includes('موبايلات')) dynamicData.mobileBattery = document.getElementById('in-mobile-battery').value;
-            }
-            if (SIZE_CATS.includes(cat)) {
-                dynamicData.size = document.getElementById('in-size').value;
-            }
-            if (CONDITION_CATS.includes(cat) && !dynamicData.carCondition && !cat.includes('جديدة') && !cat.includes('للبيع') && document.getElementById('in-condition')) {
-                dynamicData.condition = document.getElementById('in-condition').value;
-            }
-
             const bdg=document.querySelector('input[name="badge"]:checked').value;
+            const cond=document.getElementById('in-condition').value;
+            const cat=document.getElementById('in-cat').value;
+            const size=document.getElementById('in-size').value;
             const feats=[]; document.querySelectorAll('.chip-checkbox:checked').forEach(c=>feats.push(c.value));
-            
-            await addDoc(collection(db,"listings"),{
-                title:document.getElementById('in-title').value,
-                price:Number(document.getElementById('in-price').value),
-                category:cat,
-                phone:document.getElementById('in-phone').value,
-                desc:document.getElementById('in-desc').value,
-                features:feats,
-                images:state.images,
-                image:state.images[0],
-                badge:bdg,
-                status:'available',
-                isPinned:false,
-                createdAt:serverTimestamp(),
-                authorId:state.user.uid,
-                ...dynamicData
-            });
+            await addDoc(collection(db,"listings"),{title:document.getElementById('in-title').value,price:Number(document.getElementById('in-price').value),category:cat,condition:cond,size:size,phone:document.getElementById('in-phone').value,desc:document.getElementById('in-desc').value,features:feats,images:state.images,image:state.images[0],badge:bdg,status:'available',isPinned:false,createdAt:serverTimestamp(),authorId:state.user.uid});
             showToast('تم النشر');toggleModal('add-modal');location.reload()};
-
 
         window.del=async(e,id)=>{e.stopPropagation();if(confirm('حذف؟')){await deleteDoc(doc(db,"listings",id));showToast('تم الحذف')}};
         window.pin=async(e,id,s)=>{e.stopPropagation();await updateDoc(doc(db,"listings",id),{isPinned:!s});showToast(s?'تم إلغاء التثبيت':'تم التثبيت')};
         window.toggleStatus=async(e,id,currentStatus)=>{e.stopPropagation();let nextStatus=currentStatus==='available'?'sold':'available';await updateDoc(doc(db,"listings",id),{status:nextStatus});showToast(`الحالة: ${nextStatus==='available'?'متاح':'تم البيع'}`)};
-
 
         window.toggleChat=()=>{if(toggleModal('chat-modal')){if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){state.welcomeSent=true;setTimeout(()=>botMsg('مرحباً بك 👋<br>كيف نساعدك؟'),100)}}};
         window.sendMsg=async()=>{const t=document.getElementById('chat-msg').value.trim();if(!t)return;document.getElementById('chat-msg').value='';userMsg(t);if(!state.chatId){if(state.chatStep===0){state.tempName=t;state.chatStep=1;setTimeout(()=>botMsg(`أهلاً بك، ما استفسارك؟`),200)}else if(state.chatStep===1){state.chatStep=2;setTimeout(()=>botMsg('جاري التوصيل...'),200);const r=await addDoc(collection(db,"chats"),{userId:state.user.uid,userName:state.tempName,lastMsg:t,status:'waiting',messages:[{s:'bot',t:`الاسم: ${state.tempName}`,d:new Date()},{s:'user',t,d:new Date()}],createdAt:serverTimestamp()});state.chatId=r.id;listenChat(r.id)}}else{const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));if(!s.empty){const m=s.docs[0].data().messages;m.push({s:'user',t,d:new Date()});await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'})}}};
@@ -669,22 +340,17 @@
         function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
         
         window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
-        document.getElementById('logo-trigger').addEventListener('click',()=>{if(prompt('Code:')==='1532'){state.isAdmin=true;document.getElementById('btn-admin-top').classList.remove('hidden');handleCategorySearch();showToast('أدمن');}});
-        window.refreshAdmin=()=>{onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{const l=document.getElementById('admin-users-list');l.innerHTML='';s.forEach(d=>{const dt=d.data();l.innerHTML+=`<div onclick="loadAdmin('${d.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>`})});};
+        document.getElementById('logo-trigger').addEventListener('click',()=>{if(prompt('Code:')==='1532'){state.isAdmin=true;document.getElementById('btn-admin-top').classList.remove('hidden');filter('all');showToast('أدمن');}});
+        window.refreshAdmin=()=>{onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{const l=document.getElementById('admin-users-list');l.innerHTML='';s.forEach(d=>{const dt=d.data();l.innerHTML+=`<div onclick="loadAdmin('${d.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>`})})};
         window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'}">${m.t}</span></div>`});b.scrollTop=9999})};
         window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
         window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
-        
-        window.resetFilters=()=>{
-            document.getElementById('search-input').value = '';
-            handleCategorySearch();
-            if (!document.getElementById('category-products-modal').classList.contains('hidden')) {
-                closeCategoryView();
-            }
-        };
-
+        window.resetFilters=()=>{document.getElementById('search-input').value='';filter('all')};
 
         lucide.createIcons();
     </script>
 </body>
 </html>
+
+
+
