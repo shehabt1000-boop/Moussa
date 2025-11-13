@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>السوق وياك | عقارات الشرقية</title>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -12,35 +13,49 @@
             theme: { extend: { colors: { navy: '#0f172a', darkbg: '#1e293b' } } }
         }
     </script>
+    
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: 90px; overscroll-behavior-y: none; }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+            padding-bottom: 100px; /* زيادة المساحة عشان البار العائم */
+            overscroll-behavior-y: none;
+        }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .gpu { transform: translateZ(0); will-change: transform; }
         .select-none { user-select: none; }
+        
+        /* Animations */
         @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
         .skeleton { animation: shimmer 2s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
         .dark .skeleton { background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%); }
+        
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* Floating Dock Shadow */
+        .dock-shadow { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
+<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none transition-colors duration-300">
 
     <!-- Header -->
-    <header class="fixed top-0 w-full z-40 bg-white/90 dark:bg-navy/90 backdrop-blur border-b border-slate-200 dark:border-slate-700 h-16 flex items-center justify-between px-4 shadow-sm">
+    <header class="fixed top-0 w-full z-40 bg-white/90 dark:bg-navy/90 backdrop-blur border-b border-slate-200 dark:border-slate-700 h-16 flex items-center justify-between px-4 shadow-sm transition-colors">
         <div class="flex items-center gap-2" id="logo-trigger">
             <div class="bg-slate-900 dark:bg-emerald-600 text-white p-1.5 rounded"><i data-lucide="building-2" class="w-5 h-5"></i></div>
             <h1 class="font-bold text-base">السوق <span class="text-emerald-600 dark:text-emerald-400">وياك</span></h1>
         </div>
         
         <div class="flex gap-3 items-center">
-            <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 dark:hover:bg-slate-700">
+            <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
                 <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
             </button>
-            <button onclick="toggleFavView()" class="p-2 rounded-full bg-red-50 dark:bg-slate-800 text-red-500 hover:bg-red-100 dark:hover:bg-slate-700 relative">
+            <button onclick="toggleFavView()" class="p-2 rounded-full bg-red-50 dark:bg-slate-800 text-red-500 hover:bg-red-100 dark:hover:bg-slate-700 relative transition">
                 <i data-lucide="heart" class="w-5 h-5"></i><span id="fav-count" class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white dark:border-navy hidden"></span>
             </button>
             <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-5 h-5"></i></button>
@@ -50,117 +65,182 @@
     <!-- Main Content -->
     <main class="pt-24 container mx-auto px-2 max-w-5xl min-h-screen">
         
-        <div class="sticky top-16 z-30 bg-slate-50 dark:bg-navy pb-2 pt-1 space-y-3">
-            <div class="relative"><input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث بذكاء..." class="w-full bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-10 py-3 text-sm shadow-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white"><i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i></div>
+        <!-- Search & Filter -->
+        <div class="sticky top-16 z-30 bg-slate-50 dark:bg-navy pb-2 pt-1 space-y-3 transition-colors">
+            <div class="relative">
+                <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث بذكاء (مثال: شقه بالزهور)..." class="w-full bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-10 py-3 text-sm shadow-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white dark:placeholder-slate-400 transition">
+                <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+            </div>
             <div class="flex justify-start gap-2 overflow-x-auto py-1 no-scrollbar">
-                <button onclick="filter('all')" id="chip-all" class="px-5 py-1.5 rounded-full bg-slate-900 dark:bg-emerald-600 text-white text-xs font-bold shadow whitespace-nowrap transform active:scale-95">الكل</button>
-                <button onclick="filter('sale')" id="chip-sale" class="px-5 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap active:scale-95">بيع</button>
-                <button onclick="filter('rent')" id="chip-rent" class="px-5 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap active:scale-95">إيجار</button>
+                <button onclick="filter('all')" id="chip-all" class="px-5 py-1.5 rounded-full bg-slate-900 dark:bg-emerald-600 text-white text-xs font-bold shadow whitespace-nowrap transition transform active:scale-95">الكل</button>
+                <button onclick="filter('sale')" id="chip-sale" class="px-5 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition active:scale-95">بيع</button>
+                <button onclick="filter('rent')" id="chip-rent" class="px-5 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition active:scale-95">إيجار</button>
             </div>
         </div>
 
+        <!-- Grid -->
         <div id="grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pb-10 mt-2"></div>
+
+        <!-- States -->
         <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
         <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-700 p-4 rounded-full inline-block mb-2"><i data-lucide="search-x" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-emerald-600 dark:text-emerald-400 text-xs font-bold underline">عرض الكل</button></div>
     </main>
 
-    <!-- Bottom Nav -->
-    <nav class="fixed bottom-0 w-full bg-white dark:bg-darkbg border-t border-slate-200 dark:border-slate-700 h-16 z-40 flex justify-around items-center text-[10px] font-bold text-slate-500 dark:text-slate-400 md:hidden">
-        <button onclick="resetFilters(); window.scrollTo({top:0})" class="flex flex-col items-center gap-1 p-2 text-emerald-600 dark:text-emerald-400"><i data-lucide="home" class="w-5 h-5"></i><span>الرئيسية</span></button>
-        <button onclick="toggleAddModal()" class="flex flex-col items-center -mt-6"><div class="w-12 h-12 bg-slate-900 dark:bg-emerald-600 rounded-full text-white flex items-center justify-center shadow-lg ring-4 ring-slate-50 dark:ring-navy active:scale-90 transition"><i data-lucide="plus" class="w-6 h-6"></i></div><span class="mt-1">إضافة</span></button>
-        <button onclick="toggleChat()" class="flex flex-col items-center gap-1 p-2 relative"><div id="chat-badge" class="hidden absolute top-2 right-3 w-2 h-2 bg-red-500 rounded-full"></div><i data-lucide="message-circle" class="w-5 h-5"></i><span>الدعم</span></button>
+    <!-- The Floating Dock (البار العائم الجديد) -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 dock-shadow transform transition-all hover:scale-105">
+        <!-- Home -->
+        <button onclick="resetFilters(); window.scrollTo({top:0})" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group">
+            <i data-lucide="home" class="w-6 h-6 group-hover:scale-110 transition"></i>
+        </button>
+        
+        <!-- Add Button (Center Big) -->
+        <button onclick="toggleAddModal()" class="w-14 h-14 bg-slate-900 dark:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg transform -translate-y-6 border-4 border-[#f8fafc] dark:border-navy hover:scale-110 transition active:scale-90">
+            <i data-lucide="plus" class="w-7 h-7"></i>
+        </button>
+
+        <!-- Support -->
+        <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group relative">
+            <div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div>
+            <i data-lucide="message-circle" class="w-6 h-6 group-hover:scale-110 transition"></i>
+        </button>
     </nav>
 
-    <!-- Desktop Buttons -->
+    <!-- Desktop Buttons (Hidden as Floating Dock works for both) -->
     <div class="hidden md:flex flex-col gap-3 fixed bottom-8 left-8 z-40">
-        <button onclick="toggleAddModal()" class="bg-slate-900 dark:bg-emerald-600 text-white px-6 py-3 rounded-full shadow-lg font-bold hover:bg-slate-800 flex items-center gap-2"><i data-lucide="plus" class="w-5 h-5"></i> أضف عقار</button>
-        <button onclick="toggleChat()" class="bg-emerald-600 dark:bg-slate-700 text-white p-4 rounded-full shadow-lg hover:bg-emerald-700 self-end"><i data-lucide="headset" class="w-6 h-6"></i></button>
+        <!-- Can add extra desktop controls here if needed -->
     </div>
 
     <!-- ================= MODALS ================= -->
 
     <!-- Details Modal -->
     <div id="details-modal" class="hidden fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-darkbg w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-pop gpu relative">
+        <div class="bg-white dark:bg-darkbg w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-pop gpu relative transition-colors">
+            <!-- Slider -->
             <div class="relative h-64 bg-gray-200 dark:bg-slate-800 shrink-0 group">
                 <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
                 <button onclick="shareListing()" class="absolute top-3 right-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
+                
                 <div id="details-slider" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth"></div>
+                
                 <div id="details-arrows">
                     <button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
                     <button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                 </div>
+                
                 <span id="d-time-badge" class="absolute top-3 right-12 bg-black/60 text-white px-2 py-1 rounded text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 z-10"></span>
                 <span id="d-type-badge" class="absolute bottom-3 right-3 text-white px-3 py-1 rounded-lg text-xs font-bold shadow backdrop-blur-sm"></span>
             </div>
+
+            <!-- Content -->
             <div class="flex-1 overflow-y-auto p-5">
-                <div class="flex justify-between items-start mb-2"><h2 id="d-title" class="text-lg font-bold text-slate-900 dark:text-white leading-snug w-3/4 flex items-center gap-1"></h2><span id="d-price" class="text-emerald-700 dark:text-emerald-400 font-black text-xl whitespace-nowrap"></span></div>
-                <div class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700"><i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i> <span id="d-loc"></span></div>
+                <div class="flex justify-between items-start mb-2">
+                    <h2 id="d-title" class="text-lg font-bold text-slate-900 dark:text-white leading-snug w-3/4 flex items-center gap-1"></h2>
+                    <span id="d-price" class="text-emerald-700 dark:text-emerald-400 font-black text-xl whitespace-nowrap"></span>
+                </div>
+                
+                <div class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i> <span id="d-loc"></span>
+                </div>
+
+                <!-- Amenities Icons -->
                 <div id="d-amenities" class="flex flex-wrap gap-2 mb-5"></div>
-                <div class="space-y-2"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase">التفاصيل</h3><p id="d-desc" class="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700"></p></div>
+
+                <div class="space-y-2">
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">التفاصيل</h3>
+                    <p id="d-desc" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700"></p>
+                </div>
             </div>
+
+            <!-- Actions -->
             <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex flex-col gap-2 shrink-0">
-                <a id="d-map" href="#" target="_blank" class="hidden w-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold text-sm border border-blue-100 dark:border-blue-800"><i data-lucide="map" class="w-4 h-4"></i> عرض الموقع</a>
-                <div class="flex gap-3"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-3 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg"><i data-lucide="message-circle" class="w-5 h-5"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-slate-900 dark:bg-slate-700 text-white py-3 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg"><i data-lucide="phone" class="w-5 h-5"></i> اتصال</a></div>
+                <a id="d-map" href="#" target="_blank" class="hidden w-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold text-sm border border-blue-100 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition">
+                    <i data-lucide="map" class="w-4 h-4"></i> عرض الموقع على الخريطة
+                </a>
+                <div class="flex gap-3">
+                    <a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-3 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition"><i data-lucide="message-circle" class="w-5 h-5"></i> واتساب</a>
+                    <a id="d-call" href="#" class="flex-1 bg-slate-900 dark:bg-slate-700 text-white py-3 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition"><i data-lucide="phone" class="w-5 h-5"></i> اتصال</a>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Add Modal (Full Amenities) -->
+    <!-- Add Modal -->
     <div id="add-modal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-darkbg w-full max-w-md rounded-xl shadow-2xl flex flex-col max-h-[90vh] animate-pop">
-            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 rounded-t-xl"><h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة عقار</h3><button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1.5 rounded-full border border-slate-200 dark:border-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+        <div class="bg-white dark:bg-darkbg w-full max-w-md rounded-xl shadow-2xl flex flex-col max-h-[90vh] animate-pop transition-colors">
+            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 rounded-t-xl">
+                <h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة عقار</h3>
+                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1.5 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
             <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-white dark:bg-darkbg">
                 <div class="grid grid-cols-4 gap-2">
-                    <label class="aspect-square border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg flex flex-col items-center justify-center cursor-pointer relative overflow-hidden">
-                        <input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 text-emerald-600 dark:text-emerald-400 mb-1"></i><span class="text-[9px] font-bold text-emerald-700 dark:text-emerald-300">صور</span>
+                    <label class="aspect-square border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition text-emerald-600 dark:text-emerald-400 relative overflow-hidden">
+                        <input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10">
+                        <i data-lucide="camera" class="w-5 h-5 mb-1"></i>
+                        <span class="text-[9px] font-bold">صور</span>
                     </label>
                     <div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar"></div>
                 </div>
-                <input id="in-title" class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-3 py-2 text-sm font-bold outline-none" placeholder="عنوان الإعلان">
-                <div class="flex gap-2"><input id="in-price" type="number" class="flex-1 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-3 py-2 text-sm font-bold outline-none" placeholder="السعر"><select id="in-type" class="w-24 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-1 py-2 text-sm font-bold outline-none"><option value="sale">بيع</option><option value="rent">إيجار</option></select></div>
                 
-                <!-- Full Amenities -->
+                <input id="in-title" class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-3 py-2 text-sm font-bold outline-none focus:border-slate-900 dark:focus:border-emerald-500 transition" placeholder="عنوان الإعلان">
+                
+                <div class="flex gap-2">
+                    <input id="in-price" type="number" class="flex-1 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-3 py-2 text-sm font-bold outline-none focus:border-slate-900 dark:focus:border-emerald-500 transition" placeholder="السعر">
+                    <select id="in-type" class="w-24 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-1 py-2 text-sm font-bold outline-none focus:border-slate-900 dark:focus:border-emerald-500 transition"><option value="sale">بيع</option><option value="rent">إيجار</option></select>
+                </div>
+
+                <!-- Amenities -->
                 <div>
                     <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">المميزات:</label>
                     <div class="flex flex-wrap gap-2">
-                        <label class="amenity-opt"><input type="checkbox" class="amenity-check" value="غاز"> غاز</label>
-                        <label class="amenity-opt"><input type="checkbox" class="amenity-check" value="كهرباء"> كهرباء</label>
-                        <label class="amenity-opt"><input type="checkbox" class="amenity-check" value="مياه"> مياه</label>
-                        <label class="amenity-opt"><input type="checkbox" class="amenity-check" value="أسانسير"> أسانسير</label>
-                        <label class="amenity-opt"><input type="checkbox" class="amenity-check" value="واي فاي"> واي فاي</label>
-                        <label class="amenity-opt"><input type="checkbox" class="amenity-check" value="حمام سباحة"> حمام سباحة</label>
-                        <label class="amenity-opt"><input type="checkbox" class="amenity-check" value="حديقة"> حديقة</label>
-                        <label class="amenity-opt"><input type="checkbox" class="amenity-check" value="جراج"> جراج</label>
-                        <label class="amenity-opt"><input type="checkbox" class="amenity-check" value="أمن"> أمن</label>
-                        <label class="amenity-opt"><input type="checkbox" class="amenity-check" value="بلكونة"> بلكونة</label>
-                        <label class="amenity-opt"><input type="checkbox" class="amenity-check" value="مفروش"> مفروش</label>
-                        <label class="amenity-opt"><input type="checkbox" class="amenity-check" value="تكييف"> تكييف</label>
+                        <label class="amenity-opt"><input type="checkbox" class="amenity-check hidden" value="غاز"><span>غاز</span></label>
+                        <label class="amenity-opt"><input type="checkbox" class="amenity-check hidden" value="كهرباء"><span>كهرباء</span></label>
+                        <label class="amenity-opt"><input type="checkbox" class="amenity-check hidden" value="مياه"><span>مياه</span></label>
+                        <label class="amenity-opt"><input type="checkbox" class="amenity-check hidden" value="أسانسير"><span>أسانسير</span></label>
+                        <label class="amenity-opt"><input type="checkbox" class="amenity-check hidden" value="واي فاي"><span>واي فاي</span></label>
+                        <label class="amenity-opt"><input type="checkbox" class="amenity-check hidden" value="حمام سباحة"><span>حمام سباحة</span></label>
+                        <label class="amenity-opt"><input type="checkbox" class="amenity-check hidden" value="حديقة"><span>حديقة</span></label>
+                        <label class="amenity-opt"><input type="checkbox" class="amenity-check hidden" value="جراج"><span>جراج</span></label>
+                        <label class="amenity-opt"><input type="checkbox" class="amenity-check hidden" value="أمن"><span>أمن</span></label>
+                        <label class="amenity-opt"><input type="checkbox" class="amenity-check hidden" value="بلكونة"><span>بلكونة</span></label>
+                        <label class="amenity-opt"><input type="checkbox" class="amenity-check hidden" value="مفروش"><span>مفروش</span></label>
+                        <label class="amenity-opt"><input type="checkbox" class="amenity-check hidden" value="تكييف"><span>تكييف</span></label>
                     </div>
                 </div>
-                <style>.amenity-opt{display:flex;align-items:center;gap:4px;background:#f1f5f9;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:bold;border:1px solid #e2e8f0;cursor:pointer;}.dark .amenity-opt{background:#334155;border-color:#475569;color:white;}</style>
+                <style>
+                    .amenity-opt span { display: inline-block; padding: 6px 12px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+                    .dark .amenity-opt span { background: #334155; border-color: #475569; color: #cbd5e1; }
+                    .amenity-opt input:checked + span { background: #0f172a; color: white; border-color: #0f172a; }
+                    .dark .amenity-opt input:checked + span { background: #10b981; border-color: #10b981; color: white; }
+                </style>
 
                 <div class="flex gap-3 items-center">
                     <label class="text-xs font-bold text-slate-500 dark:text-slate-400">شارة:</label>
-                    <div class="flex gap-2"><label class="cursor-pointer"><input type="radio" name="badge" value="none" checked class="peer hidden"><div class="border dark:border-slate-600 rounded px-3 py-1 text-xs dark:text-white peer-checked:bg-slate-800 peer-checked:text-white">عادي</div></label><label class="cursor-pointer"><input type="radio" name="badge" value="hot" class="peer hidden"><div class="border dark:border-slate-600 rounded px-3 py-1 text-xs dark:text-white peer-checked:bg-orange-500 peer-checked:text-white">🔥 لقطة</div></label><label class="cursor-pointer"><input type="radio" name="badge" value="verified" class="peer hidden"><div class="border dark:border-slate-600 rounded px-3 py-1 text-xs dark:text-white peer-checked:bg-blue-500 peer-checked:text-white">☑️ موثوق</div></label></div>
+                    <div class="flex gap-2">
+                        <label class="cursor-pointer"><input type="radio" name="badge" value="none" checked class="peer hidden"><div class="border dark:border-slate-600 rounded px-3 py-1 text-xs dark:text-white peer-checked:bg-slate-800 peer-checked:text-white peer-checked:border-slate-800 transition">عادي</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="badge" value="hot" class="peer hidden"><div class="border dark:border-slate-600 rounded px-3 py-1 text-xs dark:text-white peer-checked:bg-orange-500 peer-checked:text-white peer-checked:border-orange-500 transition">🔥 لقطة</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="badge" value="verified" class="peer hidden"><div class="border dark:border-slate-600 rounded px-3 py-1 text-xs dark:text-white peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 transition">☑️ موثوق</div></label>
+                    </div>
                 </div>
-                <input id="in-loc" class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-3 py-2 text-sm font-bold outline-none" placeholder="الموقع / الحي">
-                <input id="in-map" class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-3 py-2 text-sm font-bold outline-none" placeholder="رابط جوجل ماب (اختياري)">
-                <input id="in-phone" type="tel" class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-3 py-2 text-sm font-bold outline-none" placeholder="رقم الهاتف">
-                <textarea id="in-desc" rows="3" class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-3 py-2 text-sm font-bold outline-none" placeholder="التفاصيل..."></textarea>
+
+                <input id="in-loc" class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-3 py-2 text-sm font-bold outline-none focus:border-slate-900 dark:focus:border-emerald-500 transition" placeholder="الموقع / الحي">
+                <input id="in-map" class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-3 py-2 text-sm font-bold outline-none focus:border-slate-900 dark:focus:border-emerald-500 transition" placeholder="رابط جوجل ماب (اختياري)">
+                <input id="in-phone" type="tel" class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-3 py-2 text-sm font-bold outline-none focus:border-slate-900 dark:focus:border-emerald-500 transition" placeholder="رقم الهاتف">
+                <textarea id="in-desc" rows="3" class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-3 py-2 text-sm font-bold outline-none focus:border-slate-900 dark:focus:border-emerald-500 transition" placeholder="التفاصيل..."></textarea>
             </div>
-            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-b-xl"><button onclick="submitListing()" id="btn-publish" class="w-full bg-slate-900 dark:bg-emerald-600 text-white py-3 rounded-lg font-bold text-sm shadow">نشر الإعلان</button></div>
+            <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-b-xl">
+                <button onclick="submitListing()" id="btn-publish" class="w-full bg-slate-900 dark:bg-emerald-600 text-white py-3 rounded-lg font-bold text-sm shadow-lg hover:opacity-90 transition">نشر الإعلان</button>
+            </div>
         </div>
     </div>
 
     <!-- Chat Modal -->
     <div id="chat-modal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-darkbg w-full max-w-sm h-[500px] max-h-[80vh] rounded-xl shadow-2xl flex flex-col overflow-hidden animate-pop">
-            <div class="bg-emerald-600 p-3 text-white flex justify-between items-center">
-                <div class="flex items-center gap-2"><div class="bg-white/20 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5"></i></div><div><h4 class="font-bold text-xs">الدعم الفني</h4></div></div><button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <div class="bg-white dark:bg-darkbg w-full max-w-sm h-[500px] max-h-[80vh] rounded-xl shadow-2xl flex flex-col overflow-hidden animate-pop border border-slate-200 dark:border-slate-700 transition-colors">
+            <div class="bg-slate-900 dark:bg-emerald-600 p-3 text-white flex justify-between items-center">
+                <div class="flex items-center gap-2"><div class="bg-white/20 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">الدعم الفني</h4></div></div><button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
-            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2"><input id="chat-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-2 text-xs outline-none dark:text-white" placeholder="اكتب..."><button onclick="sendMsg()" class="w-8 h-8 bg-emerald-600 rounded-full text-white flex items-center justify-center"><i data-lucide="send" class="w-3.5 h-3.5"></i></button></div>
+            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2"><input id="chat-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-2 text-xs outline-none dark:text-white" placeholder="اكتب..."><button onclick="sendMsg()" class="w-8 h-8 bg-slate-900 dark:bg-emerald-600 rounded-full text-white flex items-center justify-center"><i data-lucide="send" class="w-3.5 h-3.5"></i></button></div>
         </div>
     </div>
 
@@ -199,9 +279,14 @@
         signInAnonymously(auth);
         onAuthStateChanged(auth, (u) => { if(u) { state.user = u; document.getElementById('loader').classList.add('hidden'); loadListings(); checkUserChat(); initFavs(); } });
 
-        window.toggleDarkMode = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('souq_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); }
+        // --- Dark Mode ---
+        window.toggleDarkMode = () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('souq_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        }
         if(localStorage.getItem('souq_theme') === 'dark') document.documentElement.classList.add('dark');
 
+        // --- Helpers ---
         function normalizeText(text) { return text.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[ًٌٍَُِّْ]/g, '').toLowerCase(); }
         function timeAgo(date) { if(!date) return 'جديد'; const s = Math.floor((new Date() - date.toDate()) / 1000); if(s < 60) return "الآن"; if(s < 3600) return `منذ ${Math.floor(s/60)} د`; if(s < 86400) return `منذ ${Math.floor(s/3600)} س`; return `منذ ${Math.floor(s/86400)} ي`; }
 
@@ -214,7 +299,7 @@
 
         function loadListings() { showSkeletons(); onSnapshot(query(collection(db, "listings")), (snap) => { state.listings = []; snap.forEach(d => state.listings.push({id:d.id, ...d.data()})); state.listings.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); handleSearch(); }); }
         window.handleSearch = () => { const q = normalizeText(document.getElementById('search-input').value); const cont = document.getElementById('grid-container'); cont.innerHTML = ''; const filtered = state.listings.filter(item => { let matchType = true; if (state.currentFilter === 'fav') matchType = state.favorites.includes(item.id); else matchType = state.currentFilter === 'all' || item.type === state.currentFilter; const matchText = normalizeText(item.title).includes(q) || normalizeText(item.location).includes(q); return matchType && matchText; }); if(!filtered.length) document.getElementById('empty-state').classList.remove('hidden'); else { document.getElementById('empty-state').classList.add('hidden'); filtered.forEach(item => cont.innerHTML += createCard(item)); } lucide.createIcons(); };
-        window.filter = (type) => { state.currentFilter = type; ['all','sale','rent'].forEach(t => { const btn = document.getElementById(`chip-${t}`); if(t === type) btn.className = "px-5 py-1.5 rounded-full bg-slate-900 dark:bg-emerald-600 text-white text-xs font-bold shadow whitespace-nowrap transform active:scale-95"; else btn.className = "px-5 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap active:scale-95"; }); handleSearch(); };
+        window.filter = (type) => { state.currentFilter = type; ['all','sale','rent'].forEach(t => { const btn = document.getElementById(`chip-${t}`); if(t === type) btn.className = "px-5 py-1.5 rounded-full bg-slate-900 dark:bg-emerald-600 text-white text-xs font-bold shadow whitespace-nowrap transform active:scale-95 transition"; else btn.className = "px-5 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition active:scale-95"; }); handleSearch(); };
 
         function createCard(item) {
             const imgs = Array.isArray(item.images) ? item.images : [item.image];
@@ -229,10 +314,10 @@
         window.openDetails = (id) => {
             const item = state.listings.find(i => i.id === id); if(!item) return;
             state.currentItem = item; document.getElementById('d-title').innerHTML = item.title + (item.badge === 'verified' ? ' <i data-lucide="check-circle" class="w-4 h-4 text-blue-500 inline"></i>' : ''); document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' جنيه'; document.getElementById('d-loc').innerText = item.location; document.getElementById('d-desc').innerText = item.desc; document.getElementById('d-time-badge').innerHTML = `<i data-lucide="clock" class="w-3 h-3"></i> ${timeAgo(item.createdAt)}`;
-            const amCont = document.getElementById('d-amenities'); amCont.innerHTML=''; if(item.amenities) item.amenities.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1"><i data-lucide="check" class="w-3 h-3 text-emerald-500"></i> ${a}</span>`);
+            const amCont = document.getElementById('d-amenities'); amCont.innerHTML=''; if(item.amenities) item.amenities.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1 border border-slate-200 dark:border-slate-600"><i data-lucide="check" class="w-3 h-3 text-emerald-500"></i> ${a}</span>`);
             const mapBtn = document.getElementById('d-map'); if(item.mapLink) { mapBtn.classList.remove('hidden'); mapBtn.classList.add('flex'); mapBtn.href = item.mapLink; } else { mapBtn.classList.add('hidden'); mapBtn.classList.remove('flex'); }
             const typeEl = document.getElementById('d-type-badge'); typeEl.innerText = item.type === 'sale' ? 'للبيع' : 'للإيجار'; typeEl.className = `absolute bottom-3 right-3 text-white px-3 py-1 rounded-lg text-xs font-bold shadow backdrop-blur-sm ${item.type === 'sale' ? 'bg-emerald-600/90' : 'bg-blue-600/90'}`;
-            document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار: ${item.title}`; document.getElementById('d-call').href = `tel:${item.phone}`;
+            document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; document.getElementById('d-call').href = `tel:${item.phone}`;
             const imgs = Array.isArray(item.images) ? item.images : [item.image]; const slider = document.getElementById('details-slider'); slider.innerHTML = imgs.map(src => `<img src="${src}" class="w-full h-full object-cover snap-center shrink-0 cursor-pointer" onclick="openLightbox('${src}')">`).join('');
             document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none'; document.getElementById('details-modal').classList.remove('hidden'); lucide.createIcons();
         }
@@ -257,33 +342,17 @@
 
         window.del = async(e, id) => { e.stopPropagation(); if(confirm('حذف؟')) await deleteDoc(doc(db, "listings", id)); };
         window.pin = async(e, id, s) => { e.stopPropagation(); await updateDoc(doc(db, "listings", id), {isPinned: !s}); };
-        window.toggleChat = () => { const c = document.getElementById('chat-modal'); c.classList.toggle('hidden'); if(!c.classList.contains('hidden') && !state.chatId && state.chatStep === 0 && !state.welcomeSent) { state.welcomeSent = true; setTimeout(() => botMsg('مرحباً! 👋<br>ما هو الاسم؟'), 100); } };
+        window.toggleChat = () => { const c = document.getElementById('chat-modal'); c.classList.toggle('hidden'); if(!c.classList.contains('hidden') && !state.chatId && state.chatStep === 0 && !state.welcomeSent) { state.welcomeSent = true; setTimeout(() => botMsg('مرحباً بك! 👋<br>أنا المساعد الذكي. ما هو اسمك الكريم؟'), 100); } };
         window.sendMsg = async () => { const t = document.getElementById('chat-msg').value.trim(); if(!t) return; document.getElementById('chat-msg').value = ''; userMsg(t); if(!state.chatId) { if(state.chatStep === 0) { state.tempName = t; state.chatStep = 1; setTimeout(() => botMsg(`أهلاً ${t}، كيف نساعدك؟`), 200); } else if(state.chatStep === 1) { state.chatStep = 2; setTimeout(() => botMsg('جاري التوصيل...'), 200); const r = await addDoc(collection(db, "chats"), {userId: state.user.uid, userName: state.tempName, lastMsg: t, status: 'waiting', messages: [{s:'bot', t:`الاسم: ${state.tempName}`, d:new Date()},{s:'user', t:t, d:new Date()}], createdAt: serverTimestamp()}); state.chatId = r.id; listenChat(r.id); } } else { const s = await getDocs(query(collection(db, "chats"), where('__name__', '==', state.chatId))); if(!s.empty) { const m = s.docs[0].data().messages; m.push({s:'user', t:t, d:new Date()}); await updateDoc(doc(db, "chats", state.chatId), { messages: m, lastMsg: t, status: 'waiting' }); } } };
-        function listenChat(id) { 
-            onSnapshot(doc(db, "chats", id), s => { 
-                if(s.exists()) { 
-                    const d = s.data(); 
-                    if(d.status === 'closed') {
-                        // Chat Reset for User
-                        state.chatId = null; state.chatStep = 0; state.tempName = ''; state.welcomeSent = false;
-                        document.getElementById('chat-box').innerHTML = '';
-                        alert("تم إنهاء المحادثة. يمكنك بدء محادثة جديدة.");
-                        if(!document.getElementById('chat-modal').classList.contains('hidden')) setTimeout(()=>botMsg('مرحباً! 👋<br>ما هو الاسم؟'),500);
-                        return;
-                    }
-                    document.getElementById('chat-box').innerHTML = ''; 
-                    d.messages.forEach(m => { if(!m.t.startsWith('الاسم:')) { if(m.s === 'user') userMsg(m.t); else botMsg(m.t); } });
-                } 
-            }); 
-        }
+        function listenChat(id) { onSnapshot(doc(db, "chats", id), s => { if(s.exists()) { const d = s.data(); if(d.status==='closed') { state.chatId=null; state.chatStep=0; state.welcomeSent=false; document.getElementById('chat-box').innerHTML=''; alert("تم إنهاء المحادثة."); return; } document.getElementById('chat-box').innerHTML = ''; d.messages.forEach(m => { if(!m.t.startsWith('الاسم:')) { if(m.s === 'user') userMsg(m.t); else botMsg(m.t); } }); } }); }
         function checkUserChat() { onSnapshot(query(collection(db,"chats"), where('userId','==',state.user.uid), where('status','!=','closed')), s => { if(!s.empty) { state.chatId = s.docs[0].id; state.chatStep = 2; listenChat(state.chatId); } }); }
         function userMsg(t) { const d = document.createElement('div'); d.className = "flex justify-start"; d.innerHTML = `<div class="bg-emerald-100 text-emerald-900 px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">${t}</div>`; document.getElementById('chat-box').appendChild(d); document.getElementById('chat-box').scrollTop = 9999; }
         function botMsg(t) { const d = document.createElement('div'); d.className = "flex justify-end"; d.innerHTML = `<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%]">${t}</div>`; document.getElementById('chat-box').appendChild(d); document.getElementById('chat-box').scrollTop = 9999; }
         
         window.toggleAdminPanel = () => { document.getElementById('admin-panel').classList.toggle('hidden'); if(!document.getElementById('admin-panel').classList.contains('hidden')) refreshAdmin(); };
         document.getElementById('logo-trigger').addEventListener('click', () => { if(prompt('Code:') === '1532') { state.isAdmin = true; document.getElementById('btn-admin-top').classList.remove('hidden'); filter('all'); alert('Admin'); } });
-        window.refreshAdmin = () => { onSnapshot(query(collection(db, "chats"), where('status', '!=', 'closed')), s => { const l = document.getElementById('admin-users-list'); l.innerHTML = ''; s.forEach(d => { const dt = d.data(); l.innerHTML += `<div onclick="loadAdmin('${d.id}','${dt.userName}')" class="p-3 mb-2 bg-slate-700 rounded-xl cursor-pointer border border-slate-600 hover:bg-slate-600"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status === 'waiting' ? '<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>' : ''}</div><div class="text-[10px] text-slate-400 truncate mt-1">${dt.lastMsg}</div></div>`; }); }); };
-        window.loadAdmin = (id, n) => { state.activeAdminChat = id; document.getElementById('admin-chat-header').innerHTML = `<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`; document.getElementById('btn-end-chat').classList.remove('hidden'); onSnapshot(doc(db, "chats", id), s => { const b = document.getElementById('admin-msg-area'); b.innerHTML = ''; if(!s.exists()) return; s.data().messages.forEach(m => { b.innerHTML += `<div class="${m.s === 'support' ? 'text-left' : 'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s === 'support' ? 'bg-blue-600 text-white' : 'bg-slate-700 text-white'} shadow-sm">${m.t}</span></div>`; }); b.scrollTop = 9999; }); };
+        window.refreshAdmin = () => { onSnapshot(query(collection(db, "chats"), where('status', '!=', 'closed')), s => { const l = document.getElementById('admin-users-list'); l.innerHTML = ''; s.forEach(d => { const dt = d.data(); l.innerHTML += `<div onclick="loadAdmin('${d.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>`; }); }); };
+        window.loadAdmin = (id, n) => { state.activeAdminChat = id; document.getElementById('admin-chat-header').innerHTML = `<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`; document.getElementById('btn-end-chat').classList.remove('hidden'); onSnapshot(doc(db, "chats", id), s => { const b = document.getElementById('admin-msg-area'); b.innerHTML = ''; s.data().messages.forEach(m => { b.innerHTML += `<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-slate-900 dark:bg-emerald-600 text-white':'bg-white/10'}">${m.t}</span></div>`; }); b.scrollTop = 9999; }); };
         window.sendAdminMsg = async () => { const t = document.getElementById('admin-input').value; if(!t || !state.activeAdminChat) return; document.getElementById('admin-input').value = ''; const s = await getDocs(query(collection(db, "chats"), where('__name__', '==', state.activeAdminChat))); const m = s.docs[0].data().messages; m.push({s:'support', t:t, d:new Date()}); await updateDoc(doc(db, "chats", state.activeAdminChat), { messages: m, status: 'active' }); };
         window.kickUser = async () => { if(confirm("إنهاء؟")) { await updateDoc(doc(db, "chats", state.activeAdminChat), { status: 'closed' }); document.getElementById('admin-msg-area').innerHTML = ''; document.getElementById('btn-end-chat').classList.add('hidden'); state.activeAdminChat = null; } };
         window.resetFilters = () => { document.getElementById('search-input').value = ''; filter('all'); };
