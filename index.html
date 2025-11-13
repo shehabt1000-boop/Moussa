@@ -104,7 +104,7 @@
             </div>
         </div>
         
-        <!-- Categories Scroll (for Category View) -->
+        <!-- Categories Scroll (for Category View with 'all' or 'fav') -->
         <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-2 pb-3 no-scrollbar">
              <!-- JS will fill this -->
         </div>
@@ -163,7 +163,6 @@
         import { getAuth, signInAnonymously, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- تم تحديث إعدادات Firebase ---
         const firebaseConfig = {
             apiKey: "AIzaSyC7zHuH8LK-yQAKG-Nm7dh31fXtVLxuCLM",
             authDomain: "sharqia-81030.firebaseapp.com",
@@ -180,9 +179,50 @@
         
         let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentItem: null, currentView: 'home' };
 
-        const CATEGORIES = ["ملابس رجالي", "ملابس حريمي", "ملابس أطفال", "أحذية رجالي", "أحذية حريمي", "أحذية أطفال", "ساعات", "نظارات", "حقائب وشنط", "محافظ وأحزمة", "عطور", "مكياج وتجميل", "عناية بالبشرة", "عناية بالشعر", "إكسسوارات", "مجوهرات", "ملابس رياضية", "عبايات وفساتين", "بدل رجالي", "ملابس داخلية", "أخرى"];
-        const USED_CATS = ["ساعات", "نظارات", "أخرى"];
-        const SIZE_CATS = ["ملابس رجالي", "ملابس حريمي", "ملابس أطفال", "أحذية رجالي", "أحذية حريمي", "أحذية أطفال", "ملابس رياضية", "عبايات وفساتين", "بدل رجالي", "ملابس داخلية"];
+        // --- تم تحديث قائمة الأقسام ---
+        const CATEGORIES = [
+            "ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", 
+            "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "برفانات رجالي وحريمي", "الحقائب الشخصية",
+            "النظارات", "مستحضرات التجميل", "ادوات حلاقة للرجال", "مكملات غذائية", "ادوات رياضية",
+            "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة"
+        ];
+        const USED_CATS = ["النظارات", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال"];
+        const SIZE_CATS = [
+            "ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", "ادوات رياضية", "اقمشة"
+        ];
+
+        // --- إضافة صور الأقسام وتحميلها مسبقاً ---
+        const CATEGORY_IMAGES = {
+            "ملابس رجالي": "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=300&auto=format&fit=crop",
+            "ملابس حريمي": "https://images.unsplash.com/photo-1572804013427-4d714e28d9cb?q=80&w=300&auto=format&fit=crop",
+            "ملابس اطفال": "https://images.unsplash.com/photo-1604467795338-82b6b199c4a8?q=80&w=300&auto=format&fit=crop",
+            "احذية رجالي": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=300&auto=format&fit=crop",
+            "احذية حريمي": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=300&auto=format&fit=crop",
+            "احذية اطفال": "https://images.unsplash.com/photo-1595461059190-a43695532386?q=80&w=300&auto=format&fit=crop",
+            "اكسسورات رجالي": "https://images.unsplash.com/photo-1619211384384-933d26416182?q=80&w=300&auto=format&fit=crop",
+            "اكسسورات حريمي": "https://images.unsplash.com/photo-1611652022417-a55249e48732?q=80&w=300&auto=format&fit=crop",
+            "اكسسورات اطفال": "https://images.unsplash.com/photo-1519340241574-289a9d355735?q=80&w=300&auto=format&fit=crop",
+            "برفانات رجالي وحريمي": "https://images.unsplash.com/photo-1585399001829-d7c5353aa3b2?q=80&w=300&auto=format&fit=crop",
+            "الحقائب الشخصية": "https://images.unsplash.com/photo-1566150905458-1bf1bc112f2d?q=80&w=300&auto=format&fit=crop",
+            "النظارات": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=300&auto=format&fit=crop",
+            "مستحضرات التجميل": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=300&auto=format&fit=crop",
+            "ادوات حلاقة للرجال": "https://images.unsplash.com/photo-1621607512214-68297480165e?q=80&w=300&auto=format&fit=crop",
+            "مكملات غذائية": "https://images.unsplash.com/photo-1581009137042-c552e485697a?q=80&w=300&auto=format&fit=crop",
+            "ادوات رياضية": "https://images.unsplash.com/photo-1552674605-db6ffd402907?q=80&w=300&auto=format&fit=crop",
+            "الهدايا الشخصية": "https://images.unsplash.com/photo-1513201099705-487468139b3a?q=80&w=300&auto=format&fit=crop",
+            "الهدايا والالعاب": "https://images.unsplash.com/photo-1532456463935-23b5da4a5515?q=80&w=300&auto=format&fit=crop",
+            "منتجات العناية بالبشرة": "https://images.unsplash.com/photo-1556228852-6d45a7d8a323?q=80&w=300&auto=format&fit=crop",
+            "منتجات الاطفال": "https://images.unsplash.com/photo-1546015720-6939e13843b4?q=80&w=300&auto=format&fit=crop",
+            "اقمشة": "https://images.unsplash.com/photo-1593431107201-168d53a20cac?q=80&w=300&auto=format&fit=crop"
+        };
+
+        function preloadCategoryImages() {
+            Object.values(CATEGORY_IMAGES).forEach(url => {
+                const img = new Image();
+                img.src = url;
+            });
+        }
+        preloadCategoryImages(); // Call preloader on script start
 
         // --- AUTH & INITIALIZATION ---
         setPersistence(auth, browserLocalPersistence).then(() => signInAnonymously(auth));
@@ -219,22 +259,32 @@
 
         // --- VIEW MANAGEMENT ---
         function renderView() {
-            lucide.createIcons();
             const searchInput = document.getElementById('search-input');
+            const catContainer = document.getElementById('categories-container');
+            
             if (state.currentView === 'home') {
                 document.getElementById('view-header').classList.add('hidden');
-                document.getElementById('categories-container').classList.add('hidden');
-                document.getElementById('grid-container').className = 'grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4';
+                catContainer.classList.add('hidden');
+                document.getElementById('grid-container').className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4';
                 searchInput.placeholder = 'ابحث عن قسم...';
                 renderCategoryCards();
             } else if (state.currentView === 'category') {
                 document.getElementById('view-header').classList.remove('hidden');
-                document.getElementById('view-title').innerText = state.currentFilter === 'all' ? 'كل المنتجات' : state.currentFilter;
-                document.getElementById('categories-container').classList.remove('hidden');
-                document.getElementById('grid-container').className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pb-10';
+                const title = state.currentFilter === 'all' ? 'كل المنتجات' : (state.currentFilter === 'fav' ? 'المفضلة' : state.currentFilter);
+                document.getElementById('view-title').innerText = title;
+                
+                // --- تعديل منطق إظهار شريط الأقسام ---
+                if (state.currentFilter === 'all' || state.currentFilter === 'fav') {
+                    catContainer.classList.remove('hidden');
+                } else {
+                    catContainer.classList.add('hidden');
+                }
+
+                document.getElementById('grid-container').className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-10';
                 searchInput.placeholder = 'ابحث عن منتج...';
-                filter(state.currentFilter); // This will render products
+                filter(state.currentFilter);
             }
+            lucide.createIcons();
         }
 
         window.switchToCategoryView = (category) => {
@@ -264,13 +314,15 @@
             } else {
                 document.getElementById('empty-state').classList.add('hidden');
                 filteredCats.forEach(cat => {
+                    const imageUrl = CATEGORY_IMAGES[cat] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=300&auto=format&fit=crop';
                     cont.innerHTML += `
-                        <div onclick="switchToCategoryView('${cat}')" class="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col items-center justify-center p-4 h-28 cursor-pointer active:scale-95 transition-transform group">
-                            <h3 class="font-bold text-slate-900 dark:text-white text-sm text-center">${cat}</h3>
+                        <div onclick="switchToCategoryView('${cat}')" class="relative rounded-xl overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 h-28 cursor-pointer active:scale-95 transition-transform group flex items-center justify-center text-center p-2">
+                            <img src="${imageUrl}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy">
+                            <div class="absolute inset-0 bg-black/50"></div>
+                            <h3 class="relative z-10 font-bold text-white text-sm drop-shadow-md">${cat}</h3>
                         </div>`;
                 });
             }
-            lucide.createIcons();
         }
 
         // --- DATA & FILTERING ---
@@ -306,7 +358,8 @@
             if (state.currentView !== 'category') {
                 state.currentView = 'category';
             }
-            document.getElementById('view-title').innerText = type === 'all' ? 'كل المنتجات' : type;
+            const title = type === 'all' ? 'كل المنتجات' : (type === 'fav' ? 'المفضلة' : type);
+            document.getElementById('view-title').innerText = title;
             renderProducts(); 
         };
         
@@ -342,7 +395,6 @@
                 renderCategoryCards();
             }
         };
-
 
         // --- UI COMPONENTS & HELPERS ---
         function createCard(item) {
