@@ -36,10 +36,6 @@
         .gpu { transform: translateZ(0); will-change: transform; }
         .select-none { user-select: none; }
         
-        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
-        .skeleton { animation: shimmer 2s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
-        .dark .skeleton { background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%); }
-        
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
@@ -51,23 +47,41 @@
             .modal-overlay { position: fixed; inset: 0; z-index: 60; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
-
-        @keyframes slideInDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-        .toast { animation: slideInDown 0.3s ease-out forwards; }
-        .toast.hiding { animation: fadeOut 0.3s ease-in forwards; }
-
-
-        /* Form Styles */
-        .form-label { display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 0.1rem; } /* Reduced margin */
+        /* Form Styles (Reduced for less scrolling) */
+        .form-label { display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 0.1rem; }
         .dark .form-label { color: #cbd5e1; }
-        .form-input { width: 100%; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 600; color: #1e293b; outline: none; transition: all 0.2s; } /* Reduced padding/border-radius */
-        .form-input:focus { border-color: #10b981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); } /* Reduced shadow */
+        .form-input { width: 100%; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 600; color: #1e293b; outline: none; transition: all 0.2s; }
+        .form-input:focus { border-color: #10b981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
         .dark .form-input { background-color: #1e293b; border-color: #475569; color: white; }
         .dark .form-input:focus { border-color: #10b981; }
         .chip-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
-        .add-modal-content { padding: 10px; space-y: 10px; } /* Custom class for reduced padding/spacing */
-        .add-modal-footer { padding: 10px; } /* Custom class for reduced padding */
+        .add-modal-content { padding: 10px; }
+        .add-modal-footer { padding: 10px; }
+
+        /* Search Bar Enhancement */
+        .search-input-enhanced {
+            border: 3px solid #0f172a !important; /* Navy border */
+            border-radius: 1rem !important; /* More rounded */
+            padding-right: 3.5rem !important; /* Space for icon */
+        }
+        .dark .search-input-enhanced {
+            border-color: #10b981 !important; /* Primary border in dark mode */
+        }
+        .search-icon-enhanced {
+            right: 1rem; /* Move icon slightly */
+            color: #0f172a; /* Navy icon color */
+        }
+        .dark .search-icon-enhanced {
+            color: #10b981; /* Primary icon color */
+        }
+
+        /* Category Card Enhancement */
+        .cat-card-img {
+            width: 100%;
+            height: 80px; /* Fixed height for image */
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none transition-colors duration-300">
@@ -101,17 +115,16 @@
     <!-- Main Content -->
     <main class="pt-24 container mx-auto px-2 max-w-6xl min-h-screen">
         
-        <!-- Search Bar for Categories (Kept as requested) -->
+        <!-- Search Bar for Categories (Enhanced) -->
         <div class="sticky top-16 z-30 bg-slate-50 dark:bg-navy pb-2 pt-1 space-y-3 transition-colors">
             <div class="relative">
-                <!-- تم إضافة border-2 border-black هنا -->
-                <input type="text" id="search-input" oninput="handleCategorySearch()" placeholder="ابحث عن قسم..." class="w-full form-input pl-10 !border-2 !border-black dark:!border-slate-500 shadow-sm">
-                <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                <input type="text" id="search-input" oninput="handleCategorySearch()" placeholder="ابحث عن قسم..." class="w-full form-input pl-10 search-input-enhanced shadow-md">
+                <i data-lucide="search" class="absolute top-1/2 -translate-y-1/2 w-6 h-6 search-icon-enhanced"></i>
             </div>
         </div>
 
-        <!-- Category Cards Grid (New Main Content) -->
-        <div id="category-cards-grid" class="grid grid-cols-4 gap-3 pb-10 mt-2">
+        <!-- Category Cards Grid (3-columns) -->
+        <div id="category-cards-grid" class="grid grid-cols-3 gap-3 pb-10 mt-2">
             <!-- سيتم ملء بطاقات الأقسام هنا بالكود -->
         </div>
 
@@ -133,53 +146,44 @@
     <!-- ================= ADD MODAL ================= -->
     <div id="add-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0"> <!-- Reduced padding -->
-                <h3 class="font-bold text-slate-800 dark:text-white text-base">إضافة منتج جديد</h3> <!-- Reduced font size -->
-                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1.5 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button> <!-- Reduced size -->
+            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0">
+                <h3 class="font-bold text-slate-800 dark:text-white text-base">إضافة منتج جديد</h3>
+                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1.5 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             
-            <div class="flex-1 overflow-y-auto add-modal-content space-y-3 bg-white dark:bg-darkbg"> <!-- Reduced padding/spacing -->
+            <div class="flex-1 overflow-y-auto add-modal-content space-y-3 bg-white dark:bg-darkbg">
                 <div class="form-group">
                     <span class="form-label">صور المنتج (بحد أقصى 3)</span>
-                    <div class="grid grid-cols-4 gap-2"> <!-- Reduced gap -->
-                        <label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"> <!-- Reduced border-radius -->
+                    <div class="grid grid-cols-4 gap-2">
+                        <label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group">
                             <input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10">
-                            <i data-lucide="camera" class="w-5 h-5 mb-0.5 group-hover:scale-110 transition"></i> <!-- Reduced size -->
-                            <span class="text-[9px] font-bold">إضافة</span> <!-- Reduced font size -->
+                            <i data-lucide="camera" class="w-5 h-5 mb-0.5 group-hover:scale-110 transition"></i>
+                            <span class="text-[9px] font-bold">إضافة</span>
                         </label>
                         <div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div>
                     </div>
                 </div>
                 
-                <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input" placeholder="مثال: تيشرت قطن، حذاء جلد..."></div>
+                <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input" placeholder="مثال: تيشرت قطن، شقة للإيجار..."></div>
 
 
-                <div class="flex gap-2 form-group"> <!-- Reduced gap -->
+                <div class="flex gap-2 form-group">
                     <div class="flex-1"><label class="form-label">السعر (ج.م)</label><input id="in-price" type="number" class="form-input" placeholder="000"></div>
                     <div class="w-1/2"><label class="form-label">القسم الرئيسي</label><select id="in-cat" onchange="updateFormFields()" class="form-input bg-gray-50"><!-- JS --></select></div>
                 </div>
 
 
-                <div id="dynamic-fields" class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group"> <!-- Reduced padding/spacing/border-radius -->
-                    <div id="field-condition" class="hidden col-span-2">
-                        <label class="form-label text-primary">حالة المنتج</label>
-                        <select id="in-condition" class="form-input"><option value="new">جديد (New)</option><option value="used">مستعمل (Used)</option><option value="openbox">كسر زيرو</option></select>
-                    </div>
-                    <div id="field-size" class="col-span-2 hidden">
-                        <label class="form-label text-primary">المقاس / الحجم</label>
-                        <input id="in-size" class="form-input" placeholder="مثال: L, 44, 50ml">
-                    </div>
+                <div id="dynamic-fields" class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group">
+                    <!-- Dynamic fields will be injected here -->
                 </div>
 
 
                 <div class="form-group">
                     <label class="form-label">مواصفات إضافية:</label>
-                    <div class="flex flex-wrap gap-1"> <!-- Reduced gap -->
-                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label> <!-- Reduced padding/font size -->
-                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="هاي كوبي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label>
-                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label>
-                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل مجاني"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل مجاني</div></label>
+                    <div class="flex flex-wrap gap-1">
+                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label>
                         <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="قابل للتفاوض"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">قابل للتفاوض</div></label>
+                        <label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل متاح"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل متاح</div></label>
                     </div>
                 </div>
 
@@ -187,17 +191,17 @@
                 <div class="form-group">
                     <label class="form-label">تمييز الإعلان:</label>
                     <div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                        <label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1.5 rounded-md text-xs font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label> <!-- Reduced padding -->
+                        <label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1.5 rounded-md text-xs font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label>
                         <label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1.5 rounded-md text-xs font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label>
                     </div>
                 </div>
 
 
                 <div class="form-group"><label class="form-label">رقم التواصل (واتساب)</label><input id="in-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx"></div>
-                <div class="form-group"><label class="form-label">الوصف التفصيلي</label><textarea id="in-desc" rows="2" class="form-input" placeholder="اكتب التفاصيل الهامة..."></textarea></div> <!-- Reduced rows -->
+                <div class="form-group"><label class="form-label">الوصف التفصيلي</label><textarea id="in-desc" rows="2" class="form-input" placeholder="اكتب التفاصيل الهامة..."></textarea></div>
             </div>
-            <div class="add-modal-footer border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-4"> <!-- Reduced padding -->
-                <button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-2.5 rounded-lg font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر المنتج</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button> <!-- Reduced padding/border-radius -->
+            <div class="add-modal-footer border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-4">
+                <button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-2.5 rounded-lg font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر المنتج</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
             </div>
         </div>
     </div>
@@ -215,11 +219,11 @@
                 <button onclick="toggleFavViewFromCat()" class="p-2 rounded-full bg-red-50 dark:bg-slate-800 text-red-500 hover:bg-red-100 relative transition"><i data-lucide="heart" class="w-5 h-5"></i></button>
             </div>
             
-            <!-- Search Bar for Products -->
+            <!-- Search Bar for Products (Enhanced) -->
             <div class="sticky top-0 z-30 bg-slate-50 dark:bg-navy pb-2 pt-1 space-y-3 transition-colors px-4 shrink-0">
                 <div class="relative">
-                    <input type="text" id="cat-search-input" oninput="handleCatSearch()" placeholder="ابحث في هذا القسم..." class="w-full form-input pl-10 !border-2 !border-black dark:!border-slate-500 shadow-sm">
-                    <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                    <input type="text" id="cat-search-input" oninput="handleCatSearch()" placeholder="ابحث في هذا القسم..." class="w-full form-input pl-10 search-input-enhanced shadow-md">
+                    <i data-lucide="search" class="absolute top-1/2 -translate-y-1/2 w-6 h-6 search-icon-enhanced"></i>
                 </div>
             </div>
 
@@ -256,49 +260,51 @@
         let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentItem: null };
 
 
-        // UPDATED: 50 Categories for Egypt & Icons
+        // UPDATED: 100 Categories for Egypt (Clothes, Cars, Real Estate, Mobiles, etc.)
         const CATEGORIES = [
-            "ملابس كاجوال رجالي", "ملابس كلاسيك رجالي", "ملابس رياضية رجالي", "ملابس داخلية رجالي", "ملابس كاجوال حريمي",
-            "فساتين وعبايات", "ملابس رياضية حريمي", "ملابس داخلية ولانجري", "ملابس أطفال (أولادي)", "ملابس أطفال (بناتي)",
-            "أحذية كاجوال رجالي", "أحذية كلاسيك رجالي", "أحذية رياضية رجالي", "أحذية حريمي كعب عالي", "أحذية حريمي فلات",
-            "أحذية رياضية حريمي", "أحذية أطفال", "ساعات رجالي فاخرة", "ساعات حريمي أنيقة", "نظارات شمسية أصلية",
-            "نظارات طبية وإطارات", "حقائب يد حريمي", "شنط ظهر وسفر", "محافظ رجالي وحريمي", "أحزمة جلدية",
-            "عطور رجالي (براندات)", "عطور حريمي (براندات)", "مكياج وعناية بالوجه", "منتجات العناية بالشعر", "منتجات العناية بالبشرة",
-            "إكسسوارات شعر ومجوهرات", "مجوهرات ذهبية وألماس", "فضيات وإكسسوارات", "ملابس مقاسات كبيرة", "ملابس الحمل والأمومة",
-            "ملابس سباحة وشاطئ", "ملابس نوم وبيجامات", "جوارب وشرابات", "قبعات وكابات وشالات", "أقمشة وخامات خياطة",
-            "يونيفورم و ملابس عمل", "هدايا وإكسسوارات منزلية", "ألعاب أطفال تعليمية", "مستلزمات مواليد", "مستلزمات الحيوانات الأليفة",
-            "أدوات تجميل احترافية", "منتجات طبيعية وعضوية", "تخفيضات وعروض خاصة", "أخرى (عام)", "ملابس مستعملة بحالة ممتازة"
+            // الملابس والأزياء (30)
+            "رجالي كاجوال", "رجالي كلاسيك", "رجالي رياضي", "رجالي داخلي", "حريمي كاجوال", "حريمي سهرة", "حريمي رياضي", "حريمي لانجري", "أطفال أولادي", "أطفال بناتي",
+            "أحذية رجالي كاجوال", "أحذية رجالي كلاسيك", "أحذية رجالي رياضي", "أحذية حريمي كعب", "أحذية حريمي فلات", "أحذية حريمي رياضي", "أحذية أطفال", "ساعات رجالي", "ساعات حريمي", "نظارات شمسية",
+            "نظارات طبية", "حقائب يد حريمي", "شنط سفر وظهر", "محافظ وأحزمة", "عطور رجالي", "عطور حريمي", "مكياج", "عناية بالبشرة", "عناية بالشعر", "مجوهرات وفضيات",
+            // العقارات (15)
+            "شقق للبيع", "شقق للإيجار", "فيلات للبيع", "فيلات للإيجار", "أراضي للبيع", "محلات تجارية للبيع", "محلات تجارية للإيجار", "مكاتب إدارية للبيع", "مكاتب إدارية للإيجار", "مصانع ومخازن",
+            "شاليهات ومصايف للبيع", "شاليهات ومصايف للإيجار", "عقارات في العاصمة الإدارية", "عقارات في الساحل الشمالي", "عقارات أخرى",
+            // السيارات والمركبات (15)
+            "سيارات سيدان للبيع", "سيارات هاتشباك للبيع", "سيارات دفع رباعي للبيع", "سيارات نقل للبيع", "دراجات نارية", "دراجات هوائية", "قطع غيار سيارات", "إكسسوارات سيارات", "إطارات وبطاريات", "تأجير سيارات",
+            "قوارب ويخوت", "مركبات ثقيلة", "سيارات كلاسيكية", "سيارات مستعملة (كسر زيرو)", "سيارات جديدة (زيرو)",
+            // الإلكترونيات والموبايلات (15)
+            "موبايلات جديدة", "موبايلات مستعملة", "تابلت وآيباد", "لابتوب وكمبيوتر", "شاشات وتلفزيونات", "كاميرات ومعدات تصوير", "سماعات وإكسسوارات صوت", "ساعات ذكية", "أجهزة منزلية كبيرة", "أجهزة منزلية صغيرة",
+            "أجهزة ألعاب (بلايستيشن/إكس بوكس)", "راوترات وشبكات", "طابعات وماسحات ضوئية", "قطع غيار إلكترونيات", "إكسسوارات موبايل",
+            // خدمات ومنوعات (25)
+            "وظائف وخدمات", "هدايا ومنتجات يدوية", "مستلزمات أطفال ومواليد", "مستلزمات حيوانات أليفة", "أدوات رياضية", "أدوات مطبخ", "أثاث منزلي", "ديكور وإضاءة", "أدوات ومعدات بناء", "مستلزمات زراعية",
+            "كتب ومجلات", "آلات موسيقية", "معدات طبية", "معدات صالونات تجميل", "خدمات تعليمية", "خدمات صيانة", "خدمات تصميم", "خدمات تسويق", "خدمات شحن وتوصيل", "تذاكر وعروض سياحية",
+            "مواد غذائية", "مشروبات وعصائر", "تخفيضات عامة", "مستلزمات أخرى", "تبرعات ومساعدات"
         ];
         
-        // UPDATED: Condition/Size Logic
-        const USED_CATS = ["ساعات رجالي فاخرة", "ساعات حريمي أنيقة", "نظارات شمسية أصلية", "ملابس مستعملة بحالة ممتازة", "أخرى (عام)"];
-        const SIZE_CATS = ["ملابس كاجوال رجالي", "ملابس كلاسيك رجالي", "ملابس رياضية رجالي", "ملابس داخلية رجالي", "ملابس كاجوال حريمي", "فساتين وعبايات", "ملابس رياضية حريمي", "ملابس داخلية ولانجري", "ملابس أطفال (أولادي)", "ملابس أطفال (بناتي)", "أحذية كاجوال رجالي", "أحذية كلاسيك رجالي", "أحذية رياضية رجالي", "أحذية حريمي كعب عالي", "أحذية حريمي فلات", "أحذية رياضية حريمي", "أحذية أطفال", "ملابس مقاسات كبيرة", "ملابس الحمل والأمومة", "ملابس سباحة وشاطئ", "ملابس نوم وبيجامات", "يونيفورم و ملابس عمل"];
+        // Dynamic Fields Logic
+        const REAL_ESTATE_CATS = ["شقق للبيع", "شقق للإيجار", "فيلات للبيع", "فيلات للإيجار", "أراضي للبيع", "محلات تجارية للبيع", "محلات تجارية للإيجار", "مكاتب إدارية للبيع", "مكاتب إدارية للإيجار", "مصانع ومخازن", "شاليهات ومصايف للبيع", "شاليهات ومصايف للإيجار", "عقارات في العاصمة الإدارية", "عقارات في الساحل الشمالي", "عقارات أخرى"];
+        const CAR_CATS = ["سيارات سيدان للبيع", "سيارات هاتشباك للبيع", "سيارات دفع رباعي للبيع", "سيارات نقل للبيع", "سيارات كلاسيكية", "سيارات مستعملة (كسر زيرو)", "سيارات جديدة (زيرو)"];
+        const MOBILE_CATS = ["موبايلات جديدة", "موبايلات مستعملة"];
+        const CLOTHES_SIZE_CATS = ["رجالي كاجوال", "رجالي كلاسيك", "رجالي رياضي", "رجالي داخلي", "حريمي كاجوال", "حريمي سهرة", "حريمي رياضي", "حريمي لانجري", "أطفال أولادي", "أطفال بناتي"];
+        const SHOES_SIZE_CATS = ["أحذية رجالي كاجوال", "أحذية رجالي كلاسيك", "أحذية رجالي رياضي", "أحذية حريمي كعب", "أحذية حريمي فلات", "أحذية حريمي رياضي", "أحذية أطفال"];
+        const CONDITION_CATS = ["رجالي كاجوال", "حريمي كاجوال", "ساعات رجالي", "موبايلات مستعملة", "سيارات مستعملة (كسر زيرو)"];
 
-        // UPDATED: Category Icons Mapping (Using Lucide Icons)
-        const CATEGORY_DATA = {
-            "ملابس كاجوال رجالي": { icon: "t-shirt" }, "ملابس كلاسيك رجالي": { icon: "briefcase" }, "ملابس رياضية رجالي": { icon: "dumbbell" }, "ملابس داخلية رجالي": { icon: "box" }, "ملابس كاجوال حريمي": { icon: "shirt" },
-            "فساتين وعبايات": { icon: "dress" }, "ملابس رياضية حريمي": { icon: "activity" }, "ملابس داخلية ولانجري": { icon: "heart" }, "ملابس أطفال (أولادي)": { icon: "baby" }, "ملابس أطفال (بناتي)": { icon: "flower" },
-            "أحذية كاجوال رجالي": { icon: "shoe" }, "أحذية كلاسيك رجالي": { icon: "footprints" }, "أحذية رياضية رجالي": { icon: "bike" }, "أحذية حريمي كعب عالي": { icon: "high-heel" }, "أحذية حريمي فلات": { icon: "sandals" },
-            "أحذية رياضية حريمي": { icon: "running-shoe" }, "أحذية أطفال": { icon: "boot" }, "ساعات رجالي فاخرة": { icon: "watch" }, "ساعات حريمي أنيقة": { icon: "watch" }, "نظارات شمسية أصلية": { icon: "glasses" },
-            "نظارات طبية وإطارات": { icon: "eye" }, "حقائب يد حريمي": { icon: "handbag" }, "شنط ظهر وسفر": { icon: "baggage-claim" }, "محافظ رجالي وحريمي": { icon: "wallet" }, "أحزمة جلدية": { icon: "belt" },
-            "عطور رجالي (براندات)": { icon: "droplet" }, "عطور حريمي (براندات)": { icon: "droplets" }, "مكياج وعناية بالوجه": { icon: "sparkles" }, "منتجات العناية بالشعر": { icon: "scissors" }, "منتجات العناية بالبشرة": { icon: "sun" },
-            "إكسسوارات شعر ومجوهرات": { icon: "gem" }, "مجوهرات ذهبية وألماس": { icon: "diamond" }, "فضيات وإكسسوارات": { icon: "ring" }, "ملابس مقاسات كبيرة": { icon: "maximize" }, "ملابس الحمل والأمومة": { icon: "pregnant-woman" },
-            "ملابس سباحة وشاطئ": { icon: "waves" }, "ملابس نوم وبيجامات": { icon: "moon" }, "جوارب وشرابات": { icon: "socks" }, "قبعات وكابات وشالات": { icon: "hard-hat" }, "أقمشة وخامات خياطة": { icon: "spool" },
-            "يونيفورم و ملابس عمل": { icon: "user-cog" }, "هدايا وإكسسوارات منزلية": { icon: "gift" }, "ألعاب أطفال تعليمية": { icon: "toy-brick" }, "مستلزمات مواليد": { icon: "stroller" }, "مستلزمات الحيوانات الأليفة": { icon: "paw-print" },
-            "أدوات تجميل احترافية": { icon: "palette" }, "منتجات طبيعية وعضوية": { icon: "leaf" }, "تخفيضات وعروض خاصة": { icon: "tag" }, "أخرى (عام)": { icon: "more-horizontal" }, "ملابس مستعملة بحالة ممتازة": { icon: "recycle" }
+        // NEW: Placeholder for 8K-like images (You MUST replace these with your actual image URLs)
+        const getCatIconUrl = (category) => {
+            const base = "https://via.placeholder.com/150x80?text=";
+            const color = Math.floor(Math.random()*16777215).toString(16);
+            return `${base}${encodeURIComponent(category.split(' ')[0])}&bg=${color}`;
         };
-        const getCatIcon = (c) => CATEGORY_DATA[c]?.icon || 'package';
 
 
         setPersistence(auth, browserLocalPersistence).then(()=>signInAnonymously(auth));
         onAuthStateChanged(auth, (u) => { if(u) { state.user=u; document.getElementById('loader').classList.add('hidden'); loadListings(); checkUserChat(); initFavs(); checkAdminStatus(); initCats(); } });
 
 
-        // MODIFIED: initCats now renders the 4-column category cards
+        // MODIFIED: initCats now renders the 3-column category cards
         function initCats() {
             const sel = document.getElementById('in-cat');
             CATEGORIES.forEach(c => {
-                // Keep the <select> options for the Add Modal
                 const opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt);
             });
             handleCategorySearch(); // Initial render of category cards
@@ -317,11 +323,11 @@
             } else {
                 document.getElementById('empty-state').classList.add('hidden');
                 filteredCategories.forEach(c => {
-                    const icon = getCatIcon(c);
+                    const imgUrl = getCatIconUrl(c);
                     cont.innerHTML += `
-                        <button onclick="openCategoryView('${c}')" class="flex flex-col items-center justify-center p-3 sm:p-4 bg-white dark:bg-slate-800 rounded-xl shadow-md border-2 border-slate-200 dark:border-slate-700 hover:border-primary transition active:scale-95 group">
-                            <i data-lucide="${icon}" class="w-6 h-6 sm:w-8 sm:h-8 text-primary group-hover:scale-110 transition"></i>
-                            <span class="mt-1 text-[10px] sm:text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-2">${c}</span>
+                        <button onclick="openCategoryView('${c}')" class="flex flex-col items-center justify-start p-2 bg-white dark:bg-slate-800 rounded-xl shadow-md border-2 border-slate-200 dark:border-slate-700 hover:border-primary transition active:scale-95 group overflow-hidden">
+                            <img src="${imgUrl}" alt="${c}" class="cat-card-img">
+                            <span class="mt-2 text-[10px] font-bold text-slate-800 dark:text-slate-200 text-center">${c}</span>
                         </button>
                     `;
                 });
@@ -332,11 +338,52 @@
 
         window.updateFormFields = () => {
             const cat = document.getElementById('in-cat').value;
-            const condField = document.getElementById('field-condition');
-            const sizeField = document.getElementById('field-size');
-            const condInput = document.getElementById('in-condition');
-            if (USED_CATS.includes(cat)) { condField.classList.remove('hidden'); } else { condField.classList.add('hidden'); condInput.value = 'new'; }
-            if (SIZE_CATS.includes(cat)) { sizeField.classList.remove('hidden'); } else { sizeField.classList.add('hidden'); }
+            const dynamicFields = document.getElementById('dynamic-fields');
+            dynamicFields.innerHTML = ''; // Clear existing fields
+
+            // 1. Real Estate Fields (Sale/Rent)
+            if (REAL_ESTATE_CATS.includes(cat)) {
+                const type = cat.includes('للبيع') ? 'بيع' : (cat.includes('للإيجار') ? 'إيجار' : 'بيع/إيجار');
+                dynamicFields.innerHTML += `
+                    <div class="col-span-2">
+                        <label class="form-label text-primary">نوع العرض</label>
+                        <select id="in-re-type" class="form-input">
+                            <option value="sale" ${type === 'بيع' ? 'selected' : ''}>بيع</option>
+                            <option value="rent" ${type === 'إيجار' ? 'selected' : ''}>إيجار شهري</option>
+                            <option value="yearly-rent">إيجار سنوي</option>
+                        </select>
+                    </div>
+                    <div class="flex-1"><label class="form-label">المساحة (م²)</label><input id="in-re-area" type="number" class="form-input" placeholder="000"></div>
+                    <div class="flex-1"><label class="form-label">عدد الغرف</label><input id="in-re-rooms" type="number" class="form-input" placeholder="مثال: 3"></div>
+                `;
+            }
+            
+            // 2. Car Fields (Model/Year/Condition)
+            if (CAR_CATS.includes(cat)) {
+                dynamicFields.innerHTML += `
+                    <div class="flex-1"><label class="form-label text-primary">الموديل</label><input id="in-car-model" class="form-input" placeholder="مثال: BMW X5"></div>
+                    <div class="flex-1"><label class="form-label">سنة الصنع</label><input id="in-car-year" type="number" class="form-input" placeholder="مثال: 2020"></div>
+                    <div class="col-span-2"><label class="form-label">حالة السيارة</label><select id="in-car-condition" class="form-input"><option value="new">جديدة (زيرو)</option><option value="used_like_new">كسر زيرو</option><option value="used">مستعملة</option></select></div>
+                `;
+            }
+
+            // 3. Mobile Fields (Storage/Battery)
+            if (MOBILE_CATS.includes(cat)) {
+                dynamicFields.innerHTML += `
+                    <div class="flex-1"><label class="form-label text-primary">الذاكرة</label><input id="in-mobile-storage" class="form-input" placeholder="مثال: 128GB"></div>
+                    <div class="flex-1"><label class="form-label">حالة البطارية</label><input id="in-mobile-battery" class="form-input" placeholder="مثال: 95%"></div>
+                `;
+            }
+
+            // 4. Clothes/Shoes Size
+            if (CLOTHES_SIZE_CATS.includes(cat) || SHOES_SIZE_CATS.includes(cat)) {
+                dynamicFields.innerHTML += `<div class="col-span-2"><label class="form-label text-primary">المقاس / الحجم</label><input id="in-size" class="form-input" placeholder="مثال: XL, 42, 100ml"></div>`;
+            }
+
+            // 5. General Condition (for items that don't have specific condition fields)
+            if (CONDITION_CATS.includes(cat) && !dynamicFields.querySelector('#in-car-condition')) {
+                dynamicFields.innerHTML += `<div class="col-span-2"><label class="form-label text-primary">حالة المنتج</label><select id="in-condition" class="form-input"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>`;
+            }
         }
 
 
@@ -352,9 +399,8 @@
         window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); handleCatSearch(); };
         function updateFavBadge() { const b = document.getElementById('fav-count'); if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); }
         
-        // MODIFIED: toggleFavView now opens the category modal with all favorites
         window.toggleFavView = () => { 
-            state.currentFilter = 'fav_الكل'; // Use 'fav_الكل' to indicate all favorites
+            state.currentFilter = 'fav_الكل';
             document.getElementById('cat-view-title').innerText = 'المفضلة ❤️';
             document.getElementById('cat-search-input').value = '';
             handleCatSearch(); 
@@ -362,16 +408,13 @@
             showToast("المفضلة ❤️"); 
         };
         
-        // NEW: Toggle Fav View from inside the category modal
         window.toggleFavViewFromCat = () => {
             const isFavView = state.currentFilter.startsWith('fav');
             if (isFavView) {
-                // If currently in Fav view, go back to the original category
                 const originalCat = state.currentFilter.startsWith('fav_') ? state.currentFilter.substring(4) : 'الكل';
                 state.currentFilter = originalCat;
                 document.getElementById('cat-view-title').innerText = originalCat === 'الكل' ? 'المفضلة' : originalCat;
             } else {
-                // If currently in Category view, switch to Fav view for this category
                 state.currentFilter = `fav_${state.currentFilter}`;
                 document.getElementById('cat-view-title').innerText = `المفضلة في ${state.currentFilter.substring(4)}`;
             }
@@ -379,30 +422,27 @@
         };
 
 
-        // MODIFIED: loadListings no longer renders to the main grid
         function loadListings() { 
             onSnapshot(query(collection(db, "listings")), (snap) => { 
                 state.listings = []; 
                 snap.forEach(d => state.listings.push({id:d.id, ...d.data()})); 
                 state.listings.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); 
-                // Refresh the category view if it's open
                 if (!document.getElementById('category-products-modal').classList.contains('hidden')) {
                     handleCatSearch(); 
                 }
             }); 
         }
         
-        // NEW: Functions for the Category Products Modal
         window.openCategoryView = (category) => {
-            state.currentFilter = category; // Set the filter state to the category name
+            state.currentFilter = category;
             document.getElementById('cat-view-title').innerText = category;
-            document.getElementById('cat-search-input').value = ''; // Clear search
-            handleCatSearch(); // Load products for this category
+            document.getElementById('cat-search-input').value = '';
+            handleCatSearch();
             toggleModal('category-products-modal');
         };
 
         window.closeCategoryView = () => {
-            state.currentFilter = 'all'; // Reset filter
+            state.currentFilter = 'all';
             toggleModal('category-products-modal');
         };
 
@@ -414,7 +454,7 @@
             const isFavView = state.currentFilter.startsWith('fav');
             let categoryToFilter = state.currentFilter;
             if (state.currentFilter.startsWith('fav_')) {
-                categoryToFilter = state.currentFilter.substring(4); // Get original category from 'fav_CategoryName'
+                categoryToFilter = state.currentFilter.substring(4);
             }
 
             const filtered = state.listings.filter(item => { 
@@ -423,11 +463,9 @@
                 if (isFavView) {
                     matchType = state.favorites.includes(item.id);
                     if (categoryToFilter !== 'الكل') {
-                        // If filtering favorites within a specific category
                         matchType = matchType && item.category === categoryToFilter;
                     }
                 } else {
-                    // Filter by the active category
                     matchType = item.category === categoryToFilter;
                 }
                 
@@ -485,18 +523,56 @@
 
         function toggleModal(id) { const m=document.getElementById(id); m.classList.toggle('hidden'); if(!m.classList.contains('hidden')) document.body.style.overflow='hidden'; else document.body.style.overflow=''; return !m.classList.contains('hidden'); }
         window.toggleAddModal=()=>{if(toggleModal('add-modal')){state.images=[];document.getElementById('preview-area').innerHTML=''; updateFormFields();}};
-        window.handleUpload=async(input)=>{if(input.files.length+state.images.length>3)return showToast('مطلوب 3 صور فقط','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-12 h-12 rounded-lg object-cover border border-gray-200 shrink-0">`}}; // Reduced preview size
+        window.handleUpload=async(input)=>{if(input.files.length+state.images.length>3)return showToast('مطلوب 3 صور فقط','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-12 h-12 rounded-lg object-cover border border-gray-200 shrink-0">`}};
         function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
         
         window.submitListing=async()=>{
             if(!state.images.length)return showToast('مطلوب صورة','e');
             document.getElementById('btn-publish').innerText='...';
+            const cat = document.getElementById('in-cat').value;
+            
+            // Gather dynamic fields data
+            const dynamicData = {};
+            if (REAL_ESTATE_CATS.includes(cat)) {
+                dynamicData.reType = document.getElementById('in-re-type').value;
+                dynamicData.reArea = document.getElementById('in-re-area').value;
+                dynamicData.reRooms = document.getElementById('in-re-rooms').value;
+            }
+            if (CAR_CATS.includes(cat)) {
+                dynamicData.carModel = document.getElementById('in-car-model').value;
+                dynamicData.carYear = document.getElementById('in-car-year').value;
+                dynamicData.carCondition = document.getElementById('in-car-condition').value;
+            }
+            if (MOBILE_CATS.includes(cat)) {
+                dynamicData.mobileStorage = document.getElementById('in-mobile-storage').value;
+                dynamicData.mobileBattery = document.getElementById('in-mobile-battery').value;
+            }
+            if (CLOTHES_SIZE_CATS.includes(cat) || SHOES_SIZE_CATS.includes(cat)) {
+                dynamicData.size = document.getElementById('in-size').value;
+            }
+            if (CONDITION_CATS.includes(cat) && !dynamicData.carCondition) {
+                dynamicData.condition = document.getElementById('in-condition').value;
+            }
+
             const bdg=document.querySelector('input[name="badge"]:checked').value;
-            const cond=document.getElementById('in-condition').value;
-            const cat=document.getElementById('in-cat').value;
-            const size=document.getElementById('in-size').value;
             const feats=[]; document.querySelectorAll('.chip-checkbox:checked').forEach(c=>feats.push(c.value));
-            await addDoc(collection(db,"listings"),{title:document.getElementById('in-title').value,price:Number(document.getElementById('in-price').value),category:cat,condition:cond,size:size,phone:document.getElementById('in-phone').value,desc:document.getElementById('in-desc').value,features:feats,images:state.images,image:state.images[0],badge:bdg,status:'available',isPinned:false,createdAt:serverTimestamp(),authorId:state.user.uid});
+            
+            await addDoc(collection(db,"listings"),{
+                title:document.getElementById('in-title').value,
+                price:Number(document.getElementById('in-price').value),
+                category:cat,
+                phone:document.getElementById('in-phone').value,
+                desc:document.getElementById('in-desc').value,
+                features:feats,
+                images:state.images,
+                image:state.images[0],
+                badge:bdg,
+                status:'available',
+                isPinned:false,
+                createdAt:serverTimestamp(),
+                authorId:state.user.uid,
+                ...dynamicData // Merge dynamic fields
+            });
             showToast('تم النشر');toggleModal('add-modal');location.reload()};
 
 
@@ -519,7 +595,6 @@
         window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
         window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
         
-        // MODIFIED: resetFilters now just clears the category search and re-renders
         window.resetFilters=()=>{
             document.getElementById('search-input').value = '';
             handleCategorySearch();
