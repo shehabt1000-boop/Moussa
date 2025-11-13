@@ -63,19 +63,20 @@ background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); bac
         @keyframes popIn { from { transform: scale(0.95); opacity: 0;
 } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+will-change: transform, opacity; }
 
 
         .mobile-full-modal { position: fixed; inset: 0; z-index: 60; background-color: white; display: flex;
 flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a;
 }
+        .mobile-full-modal .overflow-y-auto { overscroll-behavior-y: contain; }
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative;
 inset: auto; width: 100%; max-width: 28rem; height: 600px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden;
 } 
             .modal-overlay { position: fixed; inset: 0;
-z-index: 60; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem;
+z-index: 60; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 1rem;
 } 
         }
 
@@ -85,7 +86,7 @@ opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1;
 } to { opacity: 0; } }
         .toast { animation: slideInDown 0.3s ease-out forwards;
-}
+will-change: transform, opacity; }
         .toast.hiding { animation: fadeOut 0.3s ease-in forwards;
 }
 
@@ -106,6 +107,8 @@ border-color: #475569; color: white; }
 }
         .chip-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981;
 }
+        
+        #lightbox-img { transition: opacity 0.15s ease-in-out; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none transition-colors duration-300">
@@ -114,7 +117,7 @@ border-color: #475569; color: white; }
     <div id="toast-container" class="fixed top-4 left-0 right-0 z-[100] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
 
-    <header class="fixed top-0 w-full z-40 bg-white/90 dark:bg-navy/90 border-b border-slate-200 dark:border-slate-700 h-16 flex items-center justify-between px-4 shadow-sm transition-colors">
+    <header class="fixed top-0 w-full z-40 bg-white/90 dark:bg-navy/90 backdrop-blur border-b border-slate-200 dark:border-slate-700 h-16 flex items-center justify-between px-4 shadow-sm transition-colors gpu">
         <div class="flex items-center gap-2" id="logo-trigger">
             <div class="bg-navy dark:bg-primary text-white p-1.5 rounded-lg"><i data-lucide="shopping-bag" class="w-5 h-5"></i></div>
             <h1 class="font-bold 
@@ -142,10 +145,10 @@ hover:bg-red-100 relative transition"><i data-lucide="heart" class="w-5 h-5"></i
         </div>
 
 
-        <div id="search-container" class="sticky top-16 z-30 bg-slate-50/80 dark:bg-navy/80 backdrop-blur-lg pt-4 pb-3 -mx-4 px-4">
+        <div class="sticky top-16 z-30 bg-slate-50/80 dark:bg-navy/80 backdrop-blur-lg pt-4 pb-3 -mx-4 px-4">
             <div class="relative max-w-3xl mx-auto">
        
-         <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-10 pl-4 !border-2 !border-black dark:!border-slate-500 shadow-lg">
+         <input type="text" id="search-input" oninput="debouncedSearch()" placeholder="ابحث..." class="w-full form-input pr-10 pl-4 !border-2 !border-black dark:!border-slate-500 shadow-lg">
                 <i data-lucide="search" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
             </div>
         </div>
@@ -165,7 +168,7 @@ py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-8
     </main>
 
 
-    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-xl transform transition-all gpu">
         <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-6 h-6 group-hover:scale-110 transition"></i></button>
         <button onclick="toggleAddModal()" class="w-14 h-14 bg-navy dark:bg-primary 
 text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-6 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-7 h-7"></i></button>
@@ -175,10 +178,10 @@ text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-
 
 
 
-    <div id="add-modal" class="hidden modal-overlay">
+    <div id="add-modal" class="hidden modal-overlay gpu">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div 
-class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0">
+class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0">
                 <h3 class="font-bold text-slate-800 dark:text-white text-lg">إضافة منتج جديد</h3>
                 <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-2 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
@@ -194,29 +197,29 @@ placeholder="مثال: ساعة كاسيو، بنطلون جينز..."></div>
 value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
                     <div id="field-size" class="col-span-2 hidden"><label class="form-label text-primary">المقاس / الحجم</label><input id="in-size" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="مثال: XL, 42, 100ml"></div>
                 </div>
-                <div class="form-group"><label class="form-label">مواصفات إضافية:</label><div class="flex flex-wrap gap-2"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value=" 
-كوبي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="فاتورة"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">فاتورة</div></label></div></div>
+                <div class="form-group"><label class="form-label">مواصفات إضافية:</label><div class="flex flex-wrap gap-2"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value=" 
+كوبي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="فاتورة"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">فاتورة</div></label></div></div>
                 <div class="form-group"><label class="form-label">تمييز الإعلان:</label><div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg"><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center 
-py-2 rounded-md text-xs font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-2 rounded-md text-xs font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div>
+py-1.5 rounded-md text-xs font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1.5 rounded-md text-xs font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div>
                 <div class="form-group"><label class="form-label">رقم التواصل</label><input id="in-phone" type="tel" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="01xxxxxxxxx"></div>
                 <div class="form-group"><label class="form-label">الوصف</label><textarea id="in-desc" rows="2" class="form-input !border-2 !border-black 
 dark:!border-slate-500" placeholder="اكتب التفاصيل..."></textarea></div>
             </div>
-            <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-4"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر المنتج</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-6 md:pb-3"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر المنتج</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
         </div>
     </div>
 
 
 
 
-    <div id="details-modal" class="hidden modal-overlay"><div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700"><div class="relative 
+    <div id="details-modal" class="hidden modal-overlay gpu"><div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700"><div class="relative 
 h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group"><button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button><button onclick="shareListing()" class="absolute top-3 right-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button><div id="details-slider" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth"></div><div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div><span id="d-time-badge" class="absolute top-3 right-12 bg-black/60 text-white px-2 py-1 rounded text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 z-10"></span><span id="d-type-badge" class="absolute bottom-3 right-3 text-white px-3 py-1 rounded-lg text-xs font-bold shadow backdrop-blur-sm"></span></div><div class="flex-1 overflow-y-auto 
 p-5 bg-white dark:bg-darkbg"><div class="flex justify-between items-start mb-2"><h2 id="d-title" class="text-lg font-bold text-slate-900 dark:text-white leading-snug w-3/4"></h2><span id="d-price" class="text-primary font-black text-xl whitespace-nowrap"></span></div><div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700 font-bold"></span></div><div id="d-features" class="flex flex-wrap gap-2 mb-5"></div><div class="space-y-2"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 font-medium"></p></div></div><div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-3 shrink-0 pb-8 md:pb-4"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-3 rounded-xl flex justify-center items-center 
 gap-2 font-bold shadow-lg hover:opacity-90 transition"><i data-lucide="message-circle" class="w-5 h-5"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-3 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition"><i data-lucide="phone" class="w-5 h-5"></i> اتصال</a></div></div></div>
-    <div id="chat-modal" class="hidden modal-overlay"><div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700"><div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0"><div class="flex items-center gap-2"><div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">الدعم الفني</h4></div></div><button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button></div><div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe"><input id="chat-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" 
+    <div id="chat-modal" class="hidden modal-overlay gpu"><div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700"><div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0"><div class="flex items-center gap-2"><div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">الدعم الفني</h4></div></div><button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button></div><div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe"><input id="chat-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" 
 placeholder="اكتب..."><button onclick="sendMsg()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button></div></div></div>
-    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center select-none"><button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button><div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div></div>
-    <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[90] flex flex-col text-white"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] 
+    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center select-none gpu"><button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button><button id="lightbox-prev" onclick="navigateLightbox(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 text-white p-2 rounded-full z-20 items-center justify-center hidden"><i data-lucide="chevron-left" class="w-8 h-8"></i></button><button id="lightbox-next" onclick="navigateLightbox(1)" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 text-white p-2 rounded-full z-20 items-center justify-center hidden"><i data-lucide="chevron-right" class="w-8 h-8"></i></button><div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div></div>
+    <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[90] flex flex-col text-white gpu"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] 
 overflow-y-auto p-2" id="admin-users-list"></div><div class="w-2/3 flex flex-col bg-navy relative"><div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38]"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div><div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38]"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div></div></div></div>
 
 
@@ -241,7 +244,7 @@ const firebaseConfig = {
         const app = initializeApp(firebaseConfig); 
         const db = getFirestore(app); 
         const auth = getAuth(app);
-let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentItem: null, currentView: 'home' };
+let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentItem: null, currentView: 'home', currentImageIndex: 0, deepLinkId: null };
 const CATEGORIES = [
             "ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", 
             "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "برفانات رجالي وحريمي", "الحقائب الشخصية",
@@ -289,6 +292,15 @@ function preloadCategoryImages() {
             });
 }
         preloadCategoryImages();
+        
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
 
 
         setPersistence(auth, browserLocalPersistence).then(() => signInAnonymously(auth));
@@ -302,8 +314,26 @@ onAuthStateChanged(auth, (u) => {
     initFavs(); 
                 checkAdminStatus(); 
                 initCats(); 
+                handleDeepLink();
             } 
         });
+        
+        function handleDeepLink() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('product');
+            if (productId) {
+                if (state.listings.length > 0) {
+                    const item = state.listings.find(i => i.id === productId);
+                    if (item) {
+                        openDetails(productId);
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+                } else {
+                    state.deepLinkId = productId;
+                }
+            }
+        }
+        
 function initCats() {
             const cont = document.getElementById('categories-container');
 cont.innerHTML = `<button onclick="filter('all')" id="chip-all" class="chip-btn">الكل</button>`;
@@ -329,42 +359,33 @@ CATEGORIES.forEach(c => {
         function renderView() {
             const searchInput = document.getElementById('search-input');
 const catContainer = document.getElementById('categories-container');
-            const searchContainer = document.getElementById('search-container');
-            const viewHeader = document.getElementById('view-header');
-            const gridContainer = document.getElementById('grid-container');
+            const searchContainer = document.querySelector('.sticky.top-16.z-30');
 
 
             if (state.currentView === 'home') {
-                viewHeader.classList.add('hidden');
+                document.getElementById('view-header').classList.add('hidden');
 catContainer.classList.add('hidden');
                 searchContainer.classList.remove('hidden');
-                gridContainer.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4';
+                document.getElementById('grid-container').className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4';
                 searchInput.placeholder = 'ابحث عن قسم...';
                 renderCategoryCards();
 } else if (state.currentView === 'category') {
-                viewHeader.classList.remove('hidden');
+                document.getElementById('view-header').classList.remove('hidden');
 const title = state.currentFilter === 'all' ? 'كل المنتجات' : (state.currentFilter === 'fav' ? 'المفضلة' : state.currentFilter);
                 document.getElementById('view-title').innerText = title;
 
-
-                if (state.currentFilter === 'fav') {
-                    // Request 5: Hide search and cats for favorites
+if (state.currentFilter === 'fav') {
                     searchContainer.classList.add('hidden');
-catContainer.classList.add('hidden');
+                    catContainer.classList.add('hidden');
                 } else {
-                    // Default behavior
                     searchContainer.classList.remove('hidden');
+catContainer.classList.toggle('hidden', state.currentFilter !== 'all');
+}
+
+
+                document.getElementById('grid-container').className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-10';
 searchInput.placeholder = 'ابحث عن منتج...';
-if (state.currentFilter === 'all') {
-                        catContainer.classList.remove('hidden');
-} else {
-                        catContainer.classList.add('hidden');
-                    }
-                }
-
-
-gridContainer.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-10';
-                filter(state.currentFilter); // This will call renderProducts
+                filter(state.currentFilter);
             }
             lucide.createIcons();
 }
@@ -419,6 +440,15 @@ onSnapshot(query(collection(db, "listings")), (snap) => {
                 snap.forEach(d => state.listings.push({id: d.id, ...d.data()})); 
                 state.listings.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); 
                 renderView();
+                
+                if (state.deepLinkId) {
+                    const item = state.listings.find(i => i.id === state.deepLinkId);
+                    if (item) {
+                        openDetails(state.deepLinkId);
+                        state.deepLinkId = null;
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+                }
             });
 }
 
@@ -430,6 +460,7 @@ onSnapshot(query(collection(db, "listings")), (snap) => {
                 renderProducts();
 }
         };
+        const debouncedSearch = debounce(handleSearch, 300);
 
 
         window.filter = (type) => { 
@@ -479,7 +510,11 @@ filtered.forEach(item => cont.innerHTML += createCard(item));
         window.resetFilters = () => {
             document.getElementById('search-input').value = '';
 if (state.currentView === 'category') {
-                filter('all');
+                if (state.currentFilter === 'fav') {
+                    switchToHomeView();
+                } else {
+                    filter('all');
+                }
 } else {
                 renderCategoryCards();
 }
@@ -520,7 +555,7 @@ amCont.innerHTML='';
 if(item.size) amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">مقاس: ${item.size}</span>`;
 document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; document.getElementById('d-call').href = `tel:${item.phone}`;
             const imgs = Array.isArray(item.images) ? item.images : [item.image]; const slider = document.getElementById('details-slider');
-slider.innerHTML = imgs.map(src => `<img src="${src}" class="w-full h-full object-cover snap-center shrink-0 cursor-pointer" onclick="openLightbox('${src}')">`).join('');
+slider.innerHTML = imgs.map((src, index) => `<img src="${src}" class="w-full h-full object-cover snap-center shrink-0 cursor-pointer" onclick="openLightbox(${index})">`).join('');
             document.getElementById('details-arrows').style.display = imgs.length > 1 ?
 'block' : 'none';
             toggleModal('details-modal'); lucide.createIcons();
@@ -536,6 +571,7 @@ function updateFavBadge() { const b = document.getElementById('fav-count'); if(s
         window.toggleFavView = () => { 
             state.currentView = 'category';
 state.currentFilter = 'fav';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             renderView();
             showToast("عرض المفضلة ❤️"); 
         };
@@ -580,31 +616,77 @@ function normalizeText(t) { return t.replace(/[أإآ]/g,'ا').replace(/ة/g,'ه
 for(let i=0;i<8;i++) c.innerHTML+=`<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-slate-200 dark:border-slate-700 h-full"><div class="h-32 skeleton"></div><div class="p-2 space-y-2"><div class="h-4 rounded skeleton w-3/4"></div><div class="h-3 rounded skeleton w-1/2"></div></div></div>`;
 }
         window.closeDetails = () => toggleModal('details-modal');
-window.shareListing = async () => { if(!state.currentItem) return; const d = { title: 'السوق وياك', text: `شاهد المنتج: ${state.currentItem.title}`, url: window.location.href };
+window.shareListing = async () => { if(!state.currentItem) return; const shareUrl = `${window.location.origin}${window.location.pathname}?product=${state.currentItem.id}`; const d = { title: 'السوق وياك', text: `شاهد المنتج: ${state.currentItem.title}`, url: shareUrl };
 try { await navigator.share(d); showToast('تمت المشاركة بنجاح'); } catch(e) { navigator.clipboard.writeText(d.url); showToast('تم نسخ الرابط'); } };
-window.scrollDetails = (dir) => { const s = document.getElementById('details-slider'); s.scrollBy({ left: dir * s.clientWidth, behavior: 'smooth' });
+window.scrollDetails = (dir) => { 
+            const s = document.getElementById('details-slider');
+            const totalImages = s.children.length;
+            const scrollAmount = s.clientWidth;
+            
+            let newScrollLeft = s.scrollLeft + (dir * scrollAmount);
+            
+            if (newScrollLeft < 0) {
+                newScrollLeft = scrollAmount * (totalImages - 1);
+            } else if (newScrollLeft >= (scrollAmount * totalImages) - (scrollAmount / 2)) {
+                newScrollLeft = 0;
+            }
+            
+            s.scrollTo({ left: newScrollLeft, behavior: 'smooth' });
 }
         window.scrollCard = (e, id, dir) => { e.stopPropagation(); const s = document.getElementById(`slider-${id}`);
 s.scrollBy({ left: dir * s.clientWidth, behavior: 'smooth' }); }
-        window.openLightbox = (src) => { document.getElementById('lightbox-img').src = src;
+        window.openLightbox = (index) => { 
+            const item = state.currentItem;
+            if (!item) return;
+            const imgs = Array.isArray(item.images) ? item.images : [item.image];
+            state.currentImageIndex = index;
+            document.getElementById('lightbox-img').src = imgs[state.currentImageIndex];
+            
+            document.getElementById('lightbox-prev').style.display = imgs.length > 1 ? 'flex' : 'none';
+            document.getElementById('lightbox-next').style.display = imgs.length > 1 ? 'flex' : 'none';
+            
 document.getElementById('lightbox').classList.remove('hidden'); }
         window.closeLightbox = () => document.getElementById('lightbox').classList.add('hidden');
+        
+        window.navigateLightbox = (dir) => {
+            const item = state.currentItem;
+            if (!item) return;
+            const imgs = Array.isArray(item.images) ? item.images : [item.image];
+            let newIndex = state.currentImageIndex + dir;
+            
+            if (newIndex < 0) {
+                newIndex = imgs.length - 1;
+            } else if (newIndex >= imgs.length) {
+                newIndex = 0;
+            }
+            
+            state.currentImageIndex = newIndex;
+            const newSrc = imgs[state.currentImageIndex];
+            
+            const imgEl = document.getElementById('lightbox-img');
+            imgEl.style.opacity = 0;
+            setTimeout(() => {
+                imgEl.src = newSrc;
+                imgEl.style.opacity = 1;
+            }, 150);
+        }
+        
         function toggleModal(id) { const m=document.getElementById(id); m.classList.toggle('hidden');
 if(!m.classList.contains('hidden')) document.body.style.overflow='hidden'; else document.body.style.overflow=''; return !m.classList.contains('hidden'); }
         window.toggleAddModal=()=>{if(toggleModal('add-modal')){state.images=[];document.getElementById('preview-area').innerHTML='';updateFormFields();document.getElementById('add-modal').querySelector('form')?.reset();}};
 window.handleUpload=async(input)=>{if(input.files.length+state.images.length>3)return showToast('3 صور بحد أقصى','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0">`}};
 function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
         window.toggleChat=()=>{if(toggleModal('chat-modal')){if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){state.welcomeSent=true;setTimeout(()=>botMsg('مرحباً بك 👋<br>اخبرني باسمك لمساعدتك؟'),100)}}};
-window.sendMsg=async()=>{const t=document.getElementById('chat-msg').value.trim();if(!t)return;document.getElementById('chat-msg').value='';userMsg(t);if(!state.chatId){if(state.chatStep===0){state.tempName=t;state.chatStep=1;setTimeout(()=>botMsg(`أهلاً بك،  ما استفسارك؟لتحويلك للدعم الفني مباشرة`),200)}else if(state.chatStep===1){state.chatStep=2;const r=await addDoc(collection(db,"chats"),{userId:state.user.uid,userName:state.tempName,lastMsg:t,status:'waiting',messages:[{s:'bot',t:`الاسم: ${state.tempName}`,d:new Date()},{s:'bot',t:'جاري التوصيل...',d:new Date()},{s:'user',t,d:new Date()}],createdAt:serverTimestamp()});state.chatId=r.id;listenChat(r.id)}}else{const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));if(!s.empty){const m=s.docs[0].data().messages;m.push({s:'user',t,d:new Date()});await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'})}}};
+window.sendMsg=async()=>{const t=document.getElementById('chat-msg').value.trim();if(!t)return;document.getElementById('chat-msg').value='';userMsg(t);if(!state.chatId){if(state.chatStep===0){state.tempName=t;state.chatStep=1;setTimeout(()=>botMsg(`أهلاً بك، ${state.tempName} 👋<br>ما هو استفسارك ليتم تحويلك للدعم الفني؟`),200)}else if(state.chatStep===1){state.chatStep=2;botMsg('جاري التوصيل... يرجى الانتظار');await new Promise(r => setTimeout(r, 2000));const r=await addDoc(collection(db,"chats"),{userId:state.user.uid,userName:state.tempName,lastMsg:t,status:'waiting',messages:[{s:'bot',t:`الاسم: ${state.tempName}`,d:new Date()},{s:'user',t,d:new Date()}],createdAt:serverTimestamp(),updatedAt:serverTimestamp()});state.chatId=r.id;listenChat(r.id)}}else{const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));if(!s.empty){const m=s.docs[0].data().messages;m.push({s:'user',t,d:new Date()});await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting',updatedAt:serverTimestamp()})}}};
 function listenChat(id){onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data();if(d.status==='closed'){state.chatId=null;state.chatStep=0;state.welcomeSent=false;document.getElementById('chat-box').innerHTML='';showToast("تم إنهاء المحادثة");toggleModal('chat-modal');return}document.getElementById('chat-box').innerHTML='';d.messages.forEach(m=>{if(!m.t.startsWith('الاسم'))(m.s==='user'?userMsg:botMsg)(m.t)})}})};
         function checkUserChat(){onSnapshot(query(collection(db,"chats"),where('userId','==',state.user.uid),where('status','!=','closed')),s=>{if(!s.empty){state.chatId=s.docs[0].id;state.chatStep=2;listenChat(state.chatId)}})};
         function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
         function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
         window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
 document.getElementById('logo-trigger').addEventListener('click',()=>{if(prompt('Code:')==='1532'){localStorage.setItem('souq_admin', 'true');state.isAdmin=true;document.getElementById('btn-admin-top').classList.remove('hidden');renderView();showToast('تم تفعيل وضع الأدمن');}});
-        window.refreshAdmin=()=>{onSnapshot(query(collection(db,"chats"),where('status','!=','closed'), orderBy('status'), orderBy('createdAt', 'desc')),s=>{const l=document.getElementById('admin-users-list');l.innerHTML='';s.forEach(d=>{const dt=d.data();l.innerHTML+=`<div onclick="loadAdmin('${d.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>`})})};
+        window.refreshAdmin=()=>{onSnapshot(query(collection(db,"chats"),where('status','!=','closed'),orderBy('updatedAt','desc')),s=>{const l=document.getElementById('admin-users-list');l.innerHTML='';s.forEach(d=>{const dt=d.data();l.innerHTML+=`<div onclick="loadAdmin('${d.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>`})})};
 window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'}">${m.t}</span></div>`});b.scrollTop=9999})};
-window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
+window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active',updatedAt:serverTimestamp()})};
         window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
 
 
