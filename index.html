@@ -58,53 +58,56 @@
         .add-modal-content { padding: 10px; }
         .add-modal-footer { padding: 10px; }
 
-        /* Floating Search Bar */
+        /* Floating Search Bar (Enhanced) */
         .floating-search-bar {
             position: fixed;
-            top: 80px; /* Below header */
+            top: 80px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 50;
-            width: calc(100% - 32px); /* Full width minus padding */
+            width: calc(100% - 32px);
             max-width: 600px;
             background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
-            border: 3px solid #0f172a;
-            border-radius: 1rem;
-            padding: 0.5rem 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 2px solid #0f172a; /* Black border */
+            border-radius: 0.75rem; /* Slightly smaller radius */
+            padding: 0.3rem 0.5rem; /* Reduced padding */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s;
         }
         .dark .floating-search-bar {
             background-color: rgba(15, 23, 42, 0.95);
             border-color: #10b981;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
         .floating-search-bar input {
             border: none !important;
             background-color: transparent !important;
-            padding: 0.5rem 0.5rem 0.5rem 3rem !important; /* Space for icon */
-            font-weight: 700;
+            padding: 0.5rem 0.5rem 0.5rem 2.5rem !important; /* Space for icon */
+            font-weight: 600; /* Slightly lighter font */
+            font-size: 0.875rem; /* Smaller font size */
         }
         .floating-search-bar .search-icon {
-            right: 0.75rem;
-            color: #0f172a;
+            right: 0.5rem; /* Move icon slightly */
+            color: #0f172a; /* Black icon color */
+            width: 1.25rem; /* Smaller icon */
+            height: 1.25rem;
         }
         .dark .floating-search-bar .search-icon {
             color: #10b981;
         }
 
-        /* Category Card Enhancement (SVG Icon) */
+        /* Category Card Enhancement (3-cols, Black Border, Black Icon) */
         .cat-card {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 8px; /* Reduced padding */
             background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem; /* Reduced radius */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 2px solid #0f172a; /* Black border */
             transition: all 0.2s;
             height: 100%;
         }
@@ -114,13 +117,16 @@
         }
         .cat-card:hover {
             border-color: #10b981;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
         .cat-card svg {
-            width: 40px;
-            height: 40px;
-            color: #10b981;
-            margin-bottom: 5px;
+            width: 30px; /* Smaller icon */
+            height: 30px;
+            color: #0f172a; /* Black icon color */
+            margin-bottom: 3px; /* Reduced margin */
+        }
+        .dark .cat-card svg {
+            color: #cbd5e1; /* Light icon in dark mode */
         }
     </style>
 </head>
@@ -156,13 +162,13 @@
     <div class="floating-search-bar">
         <div class="relative">
             <input type="text" id="search-input" oninput="handleCategorySearch()" placeholder="ابحث في الأقسام الرئيسية..." class="w-full form-input pl-10">
-            <i data-lucide="search" class="absolute top-1/2 -translate-y-1/2 w-6 h-6 search-icon"></i>
+            <i data-lucide="search" class="absolute top-1/2 -translate-y-1/2 search-icon"></i>
         </div>
     </div>
 
 
     <!-- Main Content -->
-    <main class="pt-40 container mx-auto px-2 max-w-6xl min-h-screen"> <!-- Increased padding-top -->
+    <main class="pt-40 container mx-auto px-2 max-w-6xl min-h-screen">
         
         <!-- Category Cards Grid (3-columns) -->
         <div id="category-cards-grid" class="grid grid-cols-3 gap-3 pb-10 mt-2">
@@ -211,6 +217,12 @@
                 <div class="flex gap-2 form-group">
                     <div class="flex-1"><label class="form-label">السعر (ج.م)</label><input id="in-price" type="number" class="form-input" placeholder="000"></div>
                     <div class="w-1/2"><label class="form-label">القسم الرئيسي</label><select id="in-cat" onchange="updateFormFields()" class="form-input bg-gray-50"><!-- JS --></select></div>
+                </div>
+                
+                <!-- NEW: Sub-Category Field -->
+                <div id="sub-category-field" class="form-group hidden">
+                    <label class="form-label">النوع الفرعي</label>
+                    <select id="in-sub-cat" class="form-input bg-gray-50" onchange="updateFormFields()"><!-- JS --></select>
                 </div>
 
 
@@ -327,20 +339,21 @@
             "مواد غذائية", "مشروبات وعصائر", "تخفيضات عامة", "مستلزمات أخرى", "تبرعات"
         ];
         
-        // UPDATED: Sub-Categories & Dynamic Fields Logic
+        // UPDATED: Sub-Categories for Filtering
         const SUB_CATEGORIES = {
-            "ملابس رجالي": ["تيشرتات", "قمصان", "بناطيل", "جاكيتات", "بدل"],
-            "ملابس حريمي": ["بلوزات", "جيبات", "فساتين", "عبايات", "كاردينجان"],
-            "أحذية رجالي": ["كاجوال", "كلاسيك", "رياضي", "صنادل"],
-            "أحذية حريمي": ["كعب عالي", "فلات", "رياضي", "صنادل"],
-            "موبايلات": ["سامسونج", "آيفون", "شاومي", "أوبو", "هواوي"],
-            "لابتوب وكمبيوتر": ["لابتوب", "كمبيوتر مكتبي", "شاشات كمبيوتر", "إكسسوارات"],
-            "شقق للبيع": ["جديدة", "قديمة", "تشطيب فاخر"],
-            "شقق للإيجار": ["مفروش", "غير مفروش", "إيجار يومي"],
-            "سيارات سيدان": ["مرسيدس", "بي إم دبليو", "تويوتا", "هيونداي", "شيفروليه"],
-            "سيارات دفع رباعي": ["جيب", "لاند كروزر", "كيا سبورتاج"],
+            "ملابس رجالي": ["تيشرت", "قميص", "بنطلون", "جاكيت", "بدلة", "بلوفر"],
+            "ملابس حريمي": ["بلوزة", "جيبة", "فستان", "عباية", "كارديجان", "طقم"],
+            "أحذية رجالي": ["كاجوال", "كلاسيك", "رياضي", "صندل", "بوت"],
+            "أحذية حريمي": ["كعب عالي", "فلات", "رياضي", "صندل", "بوت"],
+            "موبايلات": ["سامسونج", "آيفون", "شاومي", "أوبو", "هواوي", "أخرى"],
+            "لابتوب وكمبيوتر": ["لابتوب", "كمبيوتر مكتبي", "شاشة كمبيوتر", "إكسسوارات"],
+            "شقق للبيع": ["جديدة", "قديمة", "تشطيب فاخر", "نصف تشطيب"],
+            "شقق للإيجار": ["مفروش", "غير مفروش", "إيجار يومي", "إيجار شهري"],
+            "سيارات سيدان": ["مرسيدس", "بي إم دبليو", "تويوتا", "هيونداي", "شيفروليه", "أخرى"],
+            "سيارات دفع رباعي": ["جيب", "لاند كروزر", "كيا سبورتاج", "أخرى"],
         };
 
+        // UPDATED: Dynamic Fields Logic
         const CONDITION_CATS = ["شقق للبيع", "شقق للإيجار", "فيلات للبيع", "فيلات للإيجار", "محلات تجارية", "مكاتب إدارية", "مصانع ومخازن", "شاليهات ومصايف", "سيارات سيدان", "سيارات دفع رباعي", "سيارات نقل", "سيارات كسر زيرو", "سيارات مستعملة", "موبايلات", "تابلت وآيباد", "لابتوب وكمبيوتر", "ساعات", "نظارات", "كاميرات ومعدات تصوير", "ساعات ذكية", "أجهزة منزلية كبيرة", "أجهزة منزلية صغيرة", "أجهزة ألعاب"];
         const REAL_ESTATE_CATS = ["شقق للبيع", "شقق للإيجار", "فيلات للبيع", "فيلات للإيجار", "محلات تجارية", "مكاتب إدارية", "مصانع ومخازن", "شاليهات ومصايف"];
         const CAR_CATS = ["سيارات سيدان", "سيارات دفع رباعي", "سيارات نقل", "سيارات كسر زيرو", "سيارات مستعملة", "سيارات جديدة"];
@@ -404,10 +417,22 @@
 
         window.updateFormFields = () => {
             const cat = document.getElementById('in-cat').value;
+            const subCatField = document.getElementById('sub-category-field');
+            const subCatSelect = document.getElementById('in-sub-cat');
             const dynamicFields = document.getElementById('dynamic-fields');
             dynamicFields.innerHTML = '';
+            subCatField.classList.add('hidden');
+            subCatSelect.innerHTML = '';
 
-            // 1. Real Estate Fields (Sale/Rent)
+            // 1. Sub-Category Field (Type)
+            if (SUB_CATEGORIES[cat]) {
+                subCatField.classList.remove('hidden');
+                SUB_CATEGORIES[cat].forEach(sc => {
+                    const opt = document.createElement('option'); opt.value = sc; opt.innerText = sc; subCatSelect.appendChild(opt);
+                });
+            }
+
+            // 2. Real Estate Fields (Sale/Rent)
             if (REAL_ESTATE_CATS.includes(cat)) {
                 const isRent = cat.includes('للإيجار');
                 dynamicFields.innerHTML += `
@@ -424,7 +449,7 @@
                 `;
             }
             
-            // 2. Car Fields (Model/Year/Condition)
+            // 3. Car Fields (Model/Year/Condition)
             if (CAR_CATS.includes(cat)) {
                 dynamicFields.innerHTML += `
                     <div class="flex-1"><label class="form-label text-primary">الموديل</label><input id="in-car-model" class="form-input" placeholder="مثال: BMW X5"></div>
@@ -433,7 +458,7 @@
                 `;
             }
 
-            // 3. Mobile/Laptop Fields (RAM/Storage/Battery)
+            // 4. Mobile/Laptop Fields (RAM/Storage/Battery)
             if (MOBILE_LAPTOP_CATS.includes(cat)) {
                 dynamicFields.innerHTML += `
                     <div class="flex-1"><label class="form-label text-primary">الذاكرة (RAM)</label><input id="in-tech-ram" class="form-input" placeholder="مثال: 8GB"></div>
@@ -442,13 +467,13 @@
                 `;
             }
 
-            // 4. Clothes/Shoes Size
+            // 5. Clothes/Shoes Size
             if (SIZE_CATS.includes(cat)) {
                 dynamicFields.innerHTML += `<div class="col-span-2"><label class="form-label text-primary">المقاس / الحجم</label><input id="in-size" class="form-input" placeholder="مثال: XL, 42, 100ml"></div>`;
             }
 
-            // 5. General Condition (Only for items that can be used/second hand and don't have specific fields)
-            if (CONDITION_CATS.includes(cat) && !dynamicFields.querySelector('#in-car-condition') && !cat.includes('جديدة')) {
+            // 6. General Condition (Only for items that can be used/second hand and don't have specific fields)
+            if (CONDITION_CATS.includes(cat) && !dynamicFields.querySelector('#in-car-condition') && !cat.includes('جديدة') && !cat.includes('للبيع')) {
                 dynamicFields.innerHTML += `<div class="col-span-2"><label class="form-label text-primary">حالة المنتج</label><select id="in-condition" class="form-input"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>`;
             }
         }
@@ -480,11 +505,19 @@
                 subCats.forEach(sc => {
                     subCont.innerHTML += `<button onclick="filterSubCategory('${sc}')" id="sub-chip-${sc.replace(/\s/g, '')}" class="px-3 py-1 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold whitespace-nowrap transition hover:border-primary hover:text-primary sub-chip-btn">${sc}</button>`;
                 });
+            } else {
+                subCont.innerHTML = ''; // Hide if no sub-categories
             }
 
             handleCatSearch();
             toggleModal('category-products-modal');
             lucide.createIcons();
+        };
+
+        window.closeCategoryView = () => {
+            state.currentFilter = 'all';
+            state.currentSubFilter = 'الكل';
+            toggleModal('category-products-modal');
         };
 
         window.handleCatSearch = () => { 
@@ -512,7 +545,7 @@
                 
                 // Sub-Category Filter
                 if (state.currentSubFilter !== 'الكل' && item.subCategory) {
-                    matchType = matchType && item.subCategory === state.currentSubFilter;
+                    matchType = matchType && normalizeText(item.subCategory).includes(normalizeText(state.currentSubFilter));
                 }
 
                 const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); 
@@ -527,57 +560,6 @@
             lucide.createIcons(); 
         };
 
-        // Rest of the functions (loadListings, createCard, openDetails, etc.) remain the same for brevity, 
-        // but they are included in the full code above.
-        
-        // ... (rest of the functions)
-
-        function checkAdminStatus() { if(localStorage.getItem('souq_admin') === 'true') { state.isAdmin = true; document.getElementById('btn-admin-top').classList.remove('hidden'); } }
-        window.toggleDarkMode = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('souq_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); }
-        if(localStorage.getItem('souq_theme') === 'dark') document.documentElement.classList.add('dark');
-        window.showToast=(m,t='s')=>{const d=document.createElement('div');d.className=`toast fixed top-4 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 shadow-xl px-4 py-2 rounded-lg border border-${t==='e'?'red':'primary'}-500 flex items-center gap-2 text-xs font-bold z-[100] text-slate-800 dark:text-white`;d.innerHTML=`<i data-lucide="${t==='e'?'alert-circle':'check-circle'}" class="w-4 h-4 text-${t==='e'?'red':'primary'}-500"></i> ${m}`;document.getElementById('toast-container').appendChild(d);lucide.createIcons();setTimeout(()=>{d.classList.add('hiding');setTimeout(()=>d.remove(),300)},3000)};
-
-
-        function normalizeText(t) { return t.replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLowerCase(); }
-        function timeAgo(d) { if(!d) return 'جديد'; const s=Math.floor((new Date()-d.toDate())/1000); if(s<60)return 'الآن'; if(s<3600)return `منذ ${Math.floor(s/60)} د`; if(s<86400)return `منذ ${Math.floor(s/3600)} س`; return `منذ ${Math.floor(s/86400)} ي`; }
-        function initFavs() { state.favorites = JSON.parse(localStorage.getItem('souq_favs') || '[]'); updateFavBadge(); }
-        window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); handleCatSearch(); };
-        function updateFavBadge() { const b = document.getElementById('fav-count'); if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); }
-        
-        window.toggleFavView = () => { 
-            state.currentFilter = 'fav_الكل';
-            document.getElementById('cat-view-title').innerText = 'المفضلة ❤️';
-            document.getElementById('cat-search-input').value = '';
-            handleCatSearch(); 
-            toggleModal('category-products-modal');
-            showToast("المفضلة ❤️"); 
-        };
-        
-        window.toggleFavViewFromCat = () => {
-            const isFavView = state.currentFilter.startsWith('fav');
-            if (isFavView) {
-                const originalCat = state.currentFilter.startsWith('fav_') ? state.currentFilter.substring(4) : 'الكل';
-                state.currentFilter = originalCat;
-                document.getElementById('cat-view-title').innerText = originalCat === 'الكل' ? 'المفضلة' : originalCat;
-            } else {
-                state.currentFilter = `fav_${state.currentFilter}`;
-                document.getElementById('cat-view-title').innerText = `المفضلة في ${state.currentFilter.substring(4)}`;
-            }
-            handleCatSearch();
-        };
-
-
-        function loadListings() { 
-            onSnapshot(query(collection(db, "listings")), (snap) => { 
-                state.listings = []; 
-                snap.forEach(d => state.listings.push({id:d.id, ...d.data()})); 
-                state.listings.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); 
-                if (!document.getElementById('category-products-modal').classList.contains('hidden')) {
-                    handleCatSearch(); 
-                }
-            }); 
-        }
-        
         function createCard(item) {
             const imgs = Array.isArray(item.images)?item.images:[item.image];
             const isFav = state.favorites.includes(item.id);
@@ -628,6 +610,8 @@
             const cat = document.getElementById('in-cat').value;
             
             const dynamicData = {};
+            dynamicData.subCategory = document.getElementById('in-sub-cat')?.value || null;
+
             if (REAL_ESTATE_CATS.includes(cat)) {
                 dynamicData.reType = document.getElementById('in-re-type').value;
                 dynamicData.reArea = document.getElementById('in-re-area').value;
@@ -646,7 +630,7 @@
             if (SIZE_CATS.includes(cat)) {
                 dynamicData.size = document.getElementById('in-size').value;
             }
-            if (CONDITION_CATS.includes(cat) && !dynamicData.carCondition && !cat.includes('جديدة')) {
+            if (CONDITION_CATS.includes(cat) && !dynamicData.carCondition && !cat.includes('جديدة') && !cat.includes('للبيع') && document.getElementById('in-condition')) {
                 dynamicData.condition = document.getElementById('in-condition').value;
             }
 
