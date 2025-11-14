@@ -169,8 +169,12 @@
                 <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
                 <button onclick="shareListing()" class="absolute top-3 right-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
                 
-                <!-- The Slider Container: onscroll is now added dynamically -->
-                <div id="details-slider" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth"></div>
+                <!-- *** MODIFICATION START: Replaced scrolling div with a single image element *** -->
+                <!-- The Slider Container: Replaced with a single image -->
+                <div id="details-slider-container" class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800">
+                    <img id="details-img" src="" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(this.src)">
+                </div>
+                <!-- *** MODIFICATION END *** -->
                 
                 <!-- Arrows -->
                 <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
@@ -653,28 +657,29 @@
         // *** NEW SLIDER SYSTEM (REBUILT) ***
 
         // 3. Master function to move slider and update dots
-        function goToDetailsSlide(index, behavior = 'smooth') {
-            const s = document.getElementById('details-slider');
-            if (!s) return;
+        // *** MODIFICATION START: Replaced scroll logic with src change logic ***
+        function goToDetailsSlide(index, behavior = 'auto') { // behavior is no longer used
             const total = state.detailsSliderImages.length;
-            if (total <= 1) return;
+            if (total === 0) return;
 
             // Circular logic for index
             if (index < 0) index = total - 1;
             if (index >= total) index = 0;
 
             state.detailsSliderIndex = index;
-            
-            // Move the slider
-            s.scrollTo({ 
-                left: index * s.clientWidth, 
-                behavior: behavior 
-            });
+
+            // --- NEW LOGIC: Change image src ---
+            const imgEl = document.getElementById('details-img');
+            if (imgEl) {
+                imgEl.src = state.detailsSliderImages[state.detailsSliderIndex];
+            }
+            // --- END NEW LOGIC ---
             
             updateSliderDots();
         }
+        // *** MODIFICATION END ***
 
-        // 1. Function for ARROW CLICKS
+        // 1. Function for ARROW CLICKS (No change needed, it calls goToDetailsSlide)
         window.scrollDetails = (dir) => { 
             // dir = 1 (left arrow, previous), dir = -1 (right arrow, next)
             const total = state.detailsSliderImages.length;
@@ -683,31 +688,16 @@
             let dirAmount = -dir; // dir=1 -> -1 (prev), dir=-1 -> 1 (next)
             let newIndex = state.detailsSliderIndex + dirAmount;
 
-            // Call the master function (it handles circular logic)
             goToDetailsSlide(newIndex);
         }
 
         // 2. Function for MANUAL SWIPE (onscroll)
-        let scrollTimeout; // Debounce timer
-        function handleDetailsScroll() {
-            const s = document.getElementById('details-slider');
-            if (!s) return;
-
-            // Debounce the scroll event to run after swipe ends
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                const imgWidth = s.clientWidth;
-                // Find the closest snap point
-                const newIndex = Math.round(s.scrollLeft / imgWidth);
-                
-                if (newIndex !== state.detailsSliderIndex) {
-                    state.detailsSliderIndex = newIndex;
-                    updateSliderDots(); // Only update dots, don't re-scroll
-                }
-            }, 150); // 150ms debounce
-        }
+        // *** MODIFICATION START: This function is no longer needed ***
+        // let scrollTimeout; 
+        // function handleDetailsScroll() { ... }
+        // *** MODIFICATION END ***
         
-        // 4. Function to update DOTS
+        // 4. Function to update DOTS (No change needed)
         function updateSliderDots() {
             if (state.detailsSliderImages.length <= 1) return;
             for (let i = 0; i < state.detailsSliderImages.length; i++) {
@@ -721,26 +711,37 @@
         }
 
         // 5. Update openDetails to ADD the scroll listener
+        // *** MODIFICATION START: Reworked to use single image element ***
         window.openDetails = (id) => {
             const item = state.listings.find(i => i.id === id); if(!item) return;
             state.currentItem = item; 
-            document.getElementById('d-title').innerText = item.title; document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; document.getElementById('d-cat').innerText = item.category; document.getElementById('d-desc').innerText = item.desc;
+            document.getElementById('d-title').innerText = item.title; 
+            document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; 
+            document.getElementById('d-cat').innerText = item.category; 
+            document.getElementById('d-desc').innerText = item.desc;
             document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
-            const amCont = document.getElementById('d-features'); amCont.innerHTML=''; 
+            
+            const amCont = document.getElementById('d-features'); 
+            amCont.innerHTML=''; 
             if(item.features) item.features.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1 border border-slate-200 dark:border-slate-600 font-bold">${a}</span>`);
             if(item.size) amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">مقاس: ${item.size}</span>`;
-            document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; document.getElementById('d-call').href = `tel:${item.phone}`;
+            
+            document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; 
+            document.getElementById('d-call').href = `tel:${item.phone}`;
             
             const imgs = Array.isArray(item.images) ? item.images : [item.image]; 
             state.detailsSliderImages = imgs; 
             state.detailsSliderIndex = 0;   
             
-            const slider = document.getElementById('details-slider'); 
             const dotsContainer = document.getElementById('details-dots');
             
-            // Add snap-mandatory class for better swiping
-            slider.className = "flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth";
-            slider.innerHTML = imgs.map(src => `<img src="${src}" class="w-full h-full object-cover snap-center shrink-0 cursor-pointer" onclick="openLightbox('${src}')">`).join('');
+            // --- NEW LOGIC: Set the first image on the single img element ---
+            const imgEl = document.getElementById('details-img');
+            if (imgEl) {
+                imgEl.src = imgs.length > 0 ? imgs[0] : 'https://placehold.co/400x300/e2e8f0/94a3b8?text=No+Image'; // Set first image
+                // We update onclick to pass the *current* src
+                imgEl.onclick = () => openLightbox(imgEl.src); 
+            }
             
             dotsContainer.innerHTML = ''; 
             if (imgs.length > 1) {
@@ -749,13 +750,13 @@
                 ).join('');
             }
 
-            // --- ADD LISTENER ---
-            slider.onscroll = handleDetailsScroll;
+            // --- REMOVED onscroll listener ---
+            // slider.onscroll = handleDetailsScroll; 
 
             document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
             toggleModal('details-modal'); 
             
-            // Set initial state without smooth scroll
+            // Set initial state (dots and index)
             goToDetailsSlide(0, 'auto'); 
             
             lucide.createIcons();
@@ -764,21 +765,31 @@
             url.searchParams.set('product_id', id);
             window.history.replaceState({}, '', url);
         }
+        // *** MODIFICATION END ***
+
 
         // 6. Update closeDetails to REMOVE the scroll listener
+        // *** MODIFICATION START: Reworked to clear single image src ***
         window.closeDetails = () => {
              toggleModal('details-modal');
              state.currentItem = null; 
              document.getElementById('details-dots').innerHTML = ''; 
              
-             // --- REMOVE LISTENER ---
-             const slider = document.getElementById('details-slider');
-             slider.onscroll = null;
+             // --- REMOVE onscroll listener (no longer needed) ---
+             // const slider = document.getElementById('details-slider');
+             // if (slider) { slider.onscroll = null; }
+             
+             // --- NEW: Clear the image src to prevent flash of old content ---
+             const imgEl = document.getElementById('details-img');
+             if (imgEl) {
+                 imgEl.src = '';
+             }
              
              const url = new URL(window.location);
              url.searchParams.delete('product_id');
              window.history.replaceState({}, '', url);
         }
+        // *** MODIFICATION END ***
         
         // *** END NEW SLIDER SYSTEM ***
 
@@ -863,15 +874,39 @@
         }
         
         window.openLightbox = (src) => {
-            if (!state.currentItem) return;
-            const item = state.currentItem;
-            state.lightboxImages = Array.isArray(item.images) ? item.images : [item.image].filter(Boolean);
+            // *** MODIFICATION: Check if src is valid before opening ***
+            if (!src || src.endsWith('?text=No+Image')) return; // Don't open lightbox for placeholder
+
+            // Determine which images to show in lightbox
+            // If called from details modal, use details images
+            if (state.currentItem && document.getElementById('details-modal').classList.contains('hidden') === false) {
+                 state.lightboxImages = state.detailsSliderImages;
+            } 
+            // If called from card (currentItem is null or details modal is hidden)
+            // This part of your original logic might be tricky. Let's refine.
+            // A better way: openLightbox should ALWAYS be called with a list, or find its list.
+            
+            // Let's stick to the current item if it's open
+            if(state.currentItem && document.getElementById('details-modal').classList.contains('hidden') === false) {
+                 state.lightboxImages = state.detailsSliderImages;
+            } else {
+                // If modal is closed, this src must be from a card, which is not supported by this function
+                // Let's assume for now lightbox is only opened from details
+                 state.lightboxImages = state.detailsSliderImages.length ? state.detailsSliderImages : [];
+                 if(!state.lightboxImages.length && state.currentItem) {
+                     state.lightboxImages = Array.isArray(state.currentItem.images) ? state.currentItem.images : [state.currentItem.image].filter(Boolean);
+                 }
+            }
+
+
             state.lightboxIndex = state.lightboxImages.indexOf(src);
             if (state.lightboxIndex === -1) state.lightboxIndex = 0; 
             
-            document.getElementById('lightbox-img').src = state.lightboxImages[state.lightboxIndex];
-            document.getElementById('lightbox').classList.remove('hidden');
-            lucide.createIcons(); 
+            if (state.lightboxImages.length > 0) {
+                document.getElementById('lightbox-img').src = state.lightboxImages[state.lightboxIndex];
+                document.getElementById('lightbox').classList.remove('hidden');
+                lucide.createIcons(); 
+            }
         }
 
         window.navigateLightbox = (dir) => {
