@@ -49,8 +49,6 @@
         .skeleton { animation: shimmer 2s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
         .dark .skeleton { background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%); }
 
-        /* --- Animations Speed Up (Req 2 & 5) --- */
-        /* الرسوم المتحركة سريعة بالفعل (0.15 - 0.3 ثانية) */
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
@@ -76,7 +74,6 @@
         
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .install-banner { animation: slideUp 0.3s ease-out forwards; }
-        /* --- End Animations Speed Up --- */
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
@@ -148,7 +145,6 @@
             </div>
 
             <div class="flex-1 overflow-y-auto p-4 space-y-2 bg-white dark:bg-darkbg">
-                <!-- (Req 3) Change max 3 to max 7 -->
                 <div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-2"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
                 <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="اسم المنتج..."></div>
                 <div class="grid grid-cols-2 gap-2 form-group"><div><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="0"></div><div><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input bg-gray-50 !border-2 !border-black dark:!border-slate-500"></select></div></div>
@@ -168,14 +164,24 @@
     <!-- Details Modal -->
     <div id="details-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+            <!-- *** SLIDER REBUILT *** -->
             <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
                 <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
                 <button onclick="shareListing()" class="absolute top-3 right-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
-                <div id="details-slider" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth"></div>
-                <!-- (Req 6) Arrows inside details already have bg-black/30 -->
+                
+                <!-- The Slider Container: onscroll is now added dynamically -->
+                <div id="details-slider" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth"></div>
+                
+                <!-- Arrows -->
                 <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
+                
                 <span id="d-time-badge" class="absolute top-3 right-12 bg-black/60 text-white px-2 py-1 rounded text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 z-10"></span>
+                
+                <!-- Dots -->
+                <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
+            <!-- *** END SLIDER REBUILT *** -->
+
             <div class="flex-1 overflow-y-auto p-5 bg-white dark:bg-darkbg">
                 <div class="flex justify-between items-start mb-2"><h2 id="d-title" class="text-lg font-bold text-slate-900 dark:text-white leading-snug w-3/4"></h2><span id="d-price" class="text-primary font-black text-xl whitespace-nowrap"></span></div>
                 <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700 font-bold"></span></div>
@@ -198,7 +204,6 @@
     <!-- Lightbox (UPDATED with Arrows) -->
     <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center select-none">
         <button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button>
-        <!-- (Req 6) Change arrow background to bg-black/30 -->
         <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition">
             <i data-lucide="chevron-left" class="w-8 h-8"></i>
         </button>
@@ -218,7 +223,7 @@
         import { getAuth, signInAnonymously, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // === PWA Configuration (Req 1: New Icon) ===
+        // === PWA Configuration ===
         const pwaManifest = {
             "name": "السوق وياك",
             "short_name": "السوق وياك",
@@ -300,7 +305,9 @@
             currentItem: null, 
             currentView: 'home',
             lightboxImages: [], 
-            lightboxIndex: 0 
+            lightboxIndex: 0,
+            detailsSliderIndex: 0, 
+            detailsSliderImages: [] 
         };
 
         const CATEGORIES = [
@@ -338,24 +345,21 @@
             "اقمشة": "https://images.pexels.com/photos/34636582/pexels-photo-34636582.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop"
         };
 
-        // === (Req 7) Service Worker Registration (Caching) ===
+        // === Service Worker (Caching) ===
         const CACHE_NAME = 'souq-cache-v1';
-        // Define static assets to cache
         const STATIC_ASSETS = [
-            '/', // The main HTML file
+            '/', 
             'https://cdn.tailwindcss.com',
             'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap',
             'https://unpkg.com/lucide@latest',
             'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js',
             'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js',
             'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js',
-            // Add the PWA icon (Req 1)
             'https://cdn-icons-png.flaticon.com/512/641/641813.png'
         ];
 
         const swContent = `
             const CACHE_NAME = '${CACHE_NAME}';
-            // These will be injected as strings
             const STATIC_ASSETS = ${JSON.stringify(STATIC_ASSETS)};
             const CATEGORY_IMAGES_URLS = ${JSON.stringify(Object.values(CATEGORY_IMAGES))};
             
@@ -364,7 +368,6 @@
                 event.waitUntil(
                     caches.open(CACHE_NAME).then((cache) => {
                         console.log('SW: Caching App Shell');
-                        // Combine static assets and category images for precaching
                         const assetsToCache = [...STATIC_ASSETS, ...CATEGORY_IMAGES_URLS];
                         return cache.addAll(assetsToCache).catch(err => {
                             console.warn('SW: Failed to cache some assets during install.', err);
@@ -392,27 +395,22 @@
 
             self.addEventListener('fetch', (event) => {
                 const { request } = event;
-                // Don't cache firestore requests, always network
                 if (request.url.includes('firestore.googleapis.com')) {
                     event.respondWith(fetch(request));
                     return;
                 }
 
-                // Strategy: Stale-While-Revalidate for most requests (images, scripts, styles)
                 event.respondWith(
                     caches.open(CACHE_NAME).then((cache) => {
                         return cache.match(request).then((cachedResponse) => {
                             const fetchPromise = fetch(request).then((networkResponse) => {
-                                // Cache the new response
                                 cache.put(request, networkResponse.clone());
                                 return networkResponse;
                             }).catch(err => {
                                 console.warn('SW: Fetch failed', err, request.url);
-                                // If fetch fails, return the cached response (if any)
                                 return cachedResponse;
                             });
                             
-                            // Return cached response if found, else wait for fetch
                             return cachedResponse || fetchPromise;
                         });
                     })
@@ -432,7 +430,6 @@
                     });
             }
         }
-        // Call registerSW() on load
         window.addEventListener('load', registerSW);
         // === End Service Worker ===
 
@@ -649,10 +646,81 @@
             const showControls = state.isAdmin || isOwner;
             const controls = showControls ? `<div class="absolute top-1 right-1 z-20 flex gap-1"><button onclick="del(event,'${item.id}')" class="bg-white/80 text-red-500 p-1 rounded shadow"><i data-lucide="trash-2" class="w-3 h-3"></i></button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}')" class="bg-white/80 text-blue-600 p-1 rounded shadow"><i data-lucide="edit-3" class="w-3 h-3"></i></button></div>` : '';
 
-            // (Req 4) Card arrows already have bg-black/20 and circular logic
-            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-32 sm:h-40 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-4 h-4 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-2 py-0.5 rounded text-[9px] font-bold shadow z-10">${item.category}</span></div><div class="p-2 flex-1 flex flex-col"><div class="flex justify-between items-start mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-xs line-clamp-1">${item.title}</h3><span class="font-black text-primary text-xs whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[10px] text-slate-500 dark:text-slate-400 mb-2 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1.5 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-2 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1.5 rounded flex justify-center items-center gap-1 text-[10px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
+            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-32 sm:h-40 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-4 h-4 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-2 py-0.5 rounded text-[9px] font-bold shadow z-10">${item.category}</span></div><div class="p-2 flex-1 flex flex-col"><div class="flex justify-between items-start mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-xs line-clamp-1">${item.title}</h3><span class="font-black text-primary text-xs whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[10px] text-slate-500 dark:text-slate-400 mb-2 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1.5 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-2 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1.5 rounded flex justify-center items-center gap-1 text-[10px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
         }
 
+
+        // *** NEW SLIDER SYSTEM (REBUILT) ***
+
+        // 3. Master function to move slider and update dots
+        function goToDetailsSlide(index, behavior = 'smooth') {
+            const s = document.getElementById('details-slider');
+            if (!s) return;
+            const total = state.detailsSliderImages.length;
+            if (total <= 1) return;
+
+            // Circular logic for index
+            if (index < 0) index = total - 1;
+            if (index >= total) index = 0;
+
+            state.detailsSliderIndex = index;
+            
+            // Move the slider
+            s.scrollTo({ 
+                left: index * s.clientWidth, 
+                behavior: behavior 
+            });
+            
+            updateSliderDots();
+        }
+
+        // 1. Function for ARROW CLICKS
+        window.scrollDetails = (dir) => { 
+            // dir = 1 (left arrow, previous), dir = -1 (right arrow, next)
+            const total = state.detailsSliderImages.length;
+            if (total <= 1) return;
+
+            let dirAmount = -dir; // dir=1 -> -1 (prev), dir=-1 -> 1 (next)
+            let newIndex = state.detailsSliderIndex + dirAmount;
+
+            // Call the master function (it handles circular logic)
+            goToDetailsSlide(newIndex);
+        }
+
+        // 2. Function for MANUAL SWIPE (onscroll)
+        let scrollTimeout; // Debounce timer
+        function handleDetailsScroll() {
+            const s = document.getElementById('details-slider');
+            if (!s) return;
+
+            // Debounce the scroll event to run after swipe ends
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const imgWidth = s.clientWidth;
+                // Find the closest snap point
+                const newIndex = Math.round(s.scrollLeft / imgWidth);
+                
+                if (newIndex !== state.detailsSliderIndex) {
+                    state.detailsSliderIndex = newIndex;
+                    updateSliderDots(); // Only update dots, don't re-scroll
+                }
+            }, 150); // 150ms debounce
+        }
+        
+        // 4. Function to update DOTS
+        function updateSliderDots() {
+            if (state.detailsSliderImages.length <= 1) return;
+            for (let i = 0; i < state.detailsSliderImages.length; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                if (dot) {
+                    dot.className = i === state.detailsSliderIndex 
+                        ? 'w-4 h-2 rounded-full bg-white shadow transition-all' // Active dot
+                        : 'w-2 h-2 rounded-full bg-white/40 transition-all'; // Inactive
+                }
+            }
+        }
+
+        // 5. Update openDetails to ADD the scroll listener
         window.openDetails = (id) => {
             const item = state.listings.find(i => i.id === id); if(!item) return;
             state.currentItem = item; 
@@ -662,24 +730,58 @@
             if(item.features) item.features.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1 border border-slate-200 dark:border-slate-600 font-bold">${a}</span>`);
             if(item.size) amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">مقاس: ${item.size}</span>`;
             document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; document.getElementById('d-call').href = `tel:${item.phone}`;
-            const imgs = Array.isArray(item.images) ? item.images : [item.image]; const slider = document.getElementById('details-slider'); 
-            // (Req 4) Images in details slider already open the lightbox
+            
+            const imgs = Array.isArray(item.images) ? item.images : [item.image]; 
+            state.detailsSliderImages = imgs; 
+            state.detailsSliderIndex = 0;   
+            
+            const slider = document.getElementById('details-slider'); 
+            const dotsContainer = document.getElementById('details-dots');
+            
+            // Add snap-mandatory class for better swiping
+            slider.className = "flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth";
             slider.innerHTML = imgs.map(src => `<img src="${src}" class="w-full h-full object-cover snap-center shrink-0 cursor-pointer" onclick="openLightbox('${src}')">`).join('');
+            
+            dotsContainer.innerHTML = ''; 
+            if (imgs.length > 1) {
+                dotsContainer.innerHTML = imgs.map((_, index) => 
+                    `<span id="dot-${index}" class="w-2 h-2 rounded-full bg-white/40 transition-all"></span>`
+                ).join('');
+            }
+
+            // --- ADD LISTENER ---
+            slider.onscroll = handleDetailsScroll;
+
             document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
-            toggleModal('details-modal'); lucide.createIcons();
+            toggleModal('details-modal'); 
+            
+            // Set initial state without smooth scroll
+            goToDetailsSlide(0, 'auto'); 
+            
+            lucide.createIcons();
             
             const url = new URL(window.location);
             url.searchParams.set('product_id', id);
             window.history.replaceState({}, '', url);
         }
 
+        // 6. Update closeDetails to REMOVE the scroll listener
         window.closeDetails = () => {
              toggleModal('details-modal');
              state.currentItem = null; 
+             document.getElementById('details-dots').innerHTML = ''; 
+             
+             // --- REMOVE LISTENER ---
+             const slider = document.getElementById('details-slider');
+             slider.onscroll = null;
+             
              const url = new URL(window.location);
              url.searchParams.delete('product_id');
              window.history.replaceState({}, '', url);
         }
+        
+        // *** END NEW SLIDER SYSTEM ***
+
 
         function initFavs() { try { state.favorites = JSON.parse(localStorage.getItem('souq_favs') || '[]'); } catch(e){ state.favorites = []; } updateFavBadge(); }
         window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); if(state.currentView === 'category') renderProducts(); };
@@ -737,9 +839,7 @@
             try { await navigator.share(d); showToast('تمت المشاركة بنجاح'); } catch(e) { navigator.clipboard.writeText(d.url); showToast('تم نسخ الرابط'); } 
         };
         
-        window.scrollDetails = (dir) => { const s = document.getElementById('details-slider'); s.scrollBy({ left: dir * s.clientWidth, behavior: 'smooth' }); }
         
-        // --- SCROLL CARD (Req 4: Already circular) ---
         window.scrollCard = (e, id, dir) => { 
             e.stopPropagation(); 
             const s = document.getElementById(`slider-${id}`);
@@ -753,17 +853,15 @@
             
             let nextIndex = currentIndex - dir; 
             
-            // تطبيق التنقل الدائري
             if (nextIndex >= totalImages) {
-                nextIndex = 0; // العودة للأول
+                nextIndex = 0; 
             } else if (nextIndex < 0) {
-                nextIndex = totalImages - 1; // الذهاب للأخير
+                nextIndex = totalImages - 1; 
             }
             
             s.scrollTo({ left: nextIndex * imgWidth, behavior: 'smooth' });
         }
         
-        // --- LIGHTBOX FUNCTIONS ---
         window.openLightbox = (src) => {
             if (!state.currentItem) return;
             const item = state.currentItem;
@@ -776,7 +874,6 @@
             lucide.createIcons(); 
         }
 
-        // --- (Req 4: Already circular) ---
         window.navigateLightbox = (dir) => {
             if (!state.lightboxImages.length) return;
             state.lightboxIndex += dir;
@@ -793,7 +890,6 @@
             state.lightboxImages = [];
             state.lightboxIndex = 0;
         }
-        // --- END LIGHTBOX ---
 
         function toggleModal(id) { const m=document.getElementById(id); m.classList.toggle('hidden'); if(!m.classList.contains('hidden')) document.body.style.overflow='hidden'; else document.body.style.overflow=''; return !m.classList.contains('hidden'); }
         
@@ -814,12 +910,52 @@
             }
         };
 
-        // --- (Req 3) Change max images to 7 ---
         window.handleUpload=async(input)=>{if(input.files.length+state.images.length>7)return showToast('7 صور بحد أقصى','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0">`}}; function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
         window.toggleChat=()=>{if(toggleModal('chat-modal')){if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){state.welcomeSent=true;setTimeout(()=>botMsg('مرحباً بك 👋<br>اخبرني باسمك لمساعدتك؟'),100)}}};
         
-        window.sendMsg=async()=>{const t=document.getElementById('chat-msg').value.trim();if(!t)return;document.getElementById('chat-msg').value='';userMsg(t);if(!state.chatId){if(state.chatStep===0){state.tempName=t;state.chatStep=1;setTimeout(()=>botMsg(`أهلاً بك،  ما استفسارك؟لتحويلك للدعم الفني مباشرة`),200)}else if(state.chatStep===1){state.chatStep=2;
-            const r=await addDoc(collection(db,"chats"),{userId:state.s.uid,userName:state.tempName,lastMsg:t,status:'waiting',messages:[{s:'bot',t:`الاسم: ${state.tempName}`,d:new Date()},{s:'bot',t:'جاري التوصيل...',d:new Date()},{s:'user',t,d:new Date()}],createdAt:serverTimestamp()});state.chatId=r.id;listenChat(r.id)}}else{const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));if(!s.empty){const m=s.docs[0].data().messages;m.push({s:'user',t,d:new Date()});await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'})}}};
+        window.sendMsg=async()=>{
+            const t=document.getElementById('chat-msg').value.trim();
+            if(!t)return;
+            document.getElementById('chat-msg').value='';
+            userMsg(t);
+            
+            if(!state.chatId){
+                if(state.chatStep===0){
+                    state.tempName=t;
+                    state.chatStep=1;
+                    setTimeout(()=>botMsg(`أهلاً بك،  ما استفسارك؟لتحويلك للدعم الفني مباشرة`),200);
+                } else if(state.chatStep===1){
+                    state.chatStep=2;
+                    try {
+                        const r=await addDoc(collection(db,"chats"),{
+                            userId:state.user.uid, 
+                            userName:state.tempName,
+                            lastMsg:t,
+                            status:'waiting',
+                            messages:[
+                                {s:'bot',t:`الاسم: ${state.tempName}`,d:new Date()},
+                                {s:'user',t,d:new Date()},
+                                {s:'bot',t:'جاري توصيلك بخدمه العملاء',d:new Date()}
+                            ],
+                            createdAt:serverTimestamp()
+                        });
+                        state.chatId=r.id;
+                        listenChat(r.id);
+                    } catch (err) {
+                        console.error("Chat creation failed:", err);
+                        botMsg("عفواً، حدث خطأ أثناء محاولة توصيلك بالدعم. يرجى المحاولة مرة أخرى.");
+                        state.chatStep = 1; 
+                    }
+                }
+            } else {
+                const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));
+                if(!s.empty){
+                    const m=s.docs[0].data().messages;
+                    m.push({s:'user',t,d:new Date()});
+                    await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'});
+                }
+            }
+        };
         
         function listenChat(id){onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data();if(d.status==='closed'){state.chatId=null;state.chatStep=0;state.welcomeSent=false;document.getElementById('chat-box').innerHTML='';showToast("تم إنهاء المحادثة");toggleModal('chat-modal');return}document.getElementById('chat-box').innerHTML='';d.messages.forEach(m=>{if(!m.t.startsWith('الاسم'))(m.s==='user'?userMsg:botMsg)(m.t)})}})};
         function checkUserChat(){onSnapshot(query(collection(db,"chats"),where('userId','==',state.user.uid),where('status','!=','closed')),s=>{if(!s.empty){state.chatId=s.docs[0].id;state.chatStep=2;listenChat(state.chatId)}})};
@@ -849,4 +985,5 @@
     </script>
 </body>
 </html>
+
 
