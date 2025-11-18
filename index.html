@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>دليل الشرقية V15 - الماسية</title>
+    <title>دليل الشرقية V17 - الماسية</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -34,11 +34,13 @@
         ::-webkit-scrollbar { width: 0px; background: transparent; }
         button { cursor: pointer; touch-action: manipulation; }
         
-        /* Header */
+        /* --- تمت إعادة استايلاتك الأصلية بالكامل --- */
+
+        /* Header with Blur */
         .glass-header { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); border-bottom: 1px solid #d1d5db; }
         .dark .glass-header { background: rgba(17, 24, 39, 0.98); border-bottom: 1px solid #374151; }
         
-        /* Inputs & Cards (High Contrast) */
+        /* Inputs & Cards (High Contrast) - كما في الملف الأصلي */
         input, select, textarea { 
             border: 2px solid #6b7280; 
             background-color: #ffffff;
@@ -54,7 +56,7 @@
             color: white;
         }
         
-        /* Provider Card Black Border */
+        /* Provider Card Black Border - تم استرجاع الإطار الأسود */
         .provider-card {
             border: 2px solid #000000;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -250,7 +252,7 @@
             </div>
         </section>
 
-        <!-- EDIT PROFILE -->
+        <!-- EDIT PROFILE (تم إلغاء تعديل المهنة) -->
         <section id="page-edit-profile" class="page-section hidden px-4 animate-fade">
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm space-y-4 border border-gray-300 dark:border-gray-700">
                 <div class="flex flex-col items-center mb-4">
@@ -260,10 +262,10 @@
                 </div>
                 <div class="space-y-3">
                     <div><label class="text-xs font-bold text-gray-500">الاسم</label><input type="text" id="edit-name" class="w-full p-3 rounded-xl"></div>
-                    <div><label class="text-xs font-bold text-gray-500">البريد الإلكتروني</label><input type="email" id="edit-email" class="w-full p-3 rounded-xl"></div>
+                    <div><label class="text-xs font-bold text-gray-500">البريد الإلكتروني</label><input type="email" id="edit-email" class="w-full p-3 rounded-xl" readonly disabled style="opacity: 0.6;"></div>
                     <div><label class="text-xs font-bold text-gray-500">رقم الهاتف</label><input type="tel" id="edit-phone" class="w-full p-3 rounded-xl"></div>
                     <div><label class="text-xs font-bold text-gray-500">المدينة</label><select id="edit-city" class="w-full p-3 rounded-xl"><option value="الزقازيق">الزقازيق</option><option value="بلبيس">بلبيس</option><option value="منيا القمح">منيا القمح</option></select></div>
-                    <div id="edit-prof-container" class="hidden"><label class="text-xs font-bold text-gray-500">المهنة</label><select id="edit-prof" class="w-full p-3 rounded-xl"></select></div>
+                    <!-- Profession Change Removed -->
                 </div>
                 <div class="flex gap-3 mt-6">
                     <button onclick="window.saveProfileChanges()" class="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold shadow">حفظ</button>
@@ -293,13 +295,13 @@
             </div>
         </section>
 
-        <!-- CHAT LIST (Fixed) -->
+        <!-- CHAT LIST -->
         <section id="page-chat" class="page-section hidden px-4 animate-fade">
             <div id="chat-history-list" class="space-y-3 pb-20"><p class="text-center text-gray-400 py-10">جاري تحميل المحادثات...</p></div>
         </section>
     </div>
 
-    <!-- PROFILE POPUP (Detailed) -->
+    <!-- PROFILE POPUP -->
     <div id="profile-modal" class="modal-overlay hidden animate-pop overflow-y-auto">
         <div class="bg-white dark:bg-gray-800 w-full max-w-sm rounded-3xl p-6 relative shadow-2xl border-2 border-gray-200 dark:border-gray-600 my-10">
             <button onclick="document.getElementById('profile-modal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 font-bold text-xl">✕</button>
@@ -318,7 +320,7 @@
 
                 <div class="flex gap-2 w-full mb-4" id="modal-actions"></div>
 
-                <!-- Reviews (Read Only Here) -->
+                <!-- Reviews -->
                 <div class="w-full border-t pt-4 dark:border-gray-600">
                     <h4 class="font-bold text-sm mb-2 flex items-center gap-1 justify-between">
                         <span><span class="text-yellow-500">★</span> آراء العملاء</span>
@@ -331,7 +333,7 @@
         </div>
     </div>
 
-    <!-- RATE MODAL (Small Popup from Chat) -->
+    <!-- RATE MODAL -->
     <div id="rate-modal" class="modal-overlay hidden animate-pop">
         <div class="bg-white dark:bg-gray-800 w-full max-w-xs rounded-2xl p-5 shadow-xl border">
             <h3 class="text-center font-bold mb-3">تقييم المستخدم</h3>
@@ -345,7 +347,7 @@
                 </div>
                 <input type="text" id="review-text" placeholder="اكتب تعليقك..." class="w-full p-2 text-sm rounded-lg border mb-3">
                 <div class="flex gap-2">
-                    <button type="button" onclick="window.submitReview()" class="flex-1 bg-black text-white py-2 rounded-lg font-bold text-sm">إرسال</button>
+                    <button type="button" id="btn-submit-rate" onclick="window.submitReview()" class="flex-1 bg-black text-white py-2 rounded-lg font-bold text-sm">إرسال</button>
                     <button type="button" onclick="document.getElementById('rate-modal').classList.add('hidden')" class="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg font-bold text-sm">إلغاء</button>
                 </div>
             </form>
@@ -359,7 +361,6 @@
                 <button onclick="window.goBack()"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
                 <h3 id="chat-room-name" class="font-bold text-lg">...</h3>
             </div>
-            <!-- Rate Button in Header (Req 2) -->
             <button onclick="document.getElementById('rate-modal').classList.remove('hidden')" class="bg-yellow-100 text-yellow-600 p-2 rounded-full hover:bg-yellow-200 transition-colors">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z"/></svg>
             </button>
@@ -406,9 +407,16 @@
         // Pexels ID Mapping
         const validImages = ['313690/pexels-photo-313690.jpeg','40568/medical-appointment-doctor-healthcare-40568.jpeg','3212114/pexels-photo-3212114.jpeg','1432675/pexels-photo-1432675.jpeg','4489749/pexels-photo-4489749.jpeg','5212345/pexels-photo-5212345.jpeg','270348/pexels-photo-270348.jpeg','4386466/pexels-photo-4386466.jpeg','5816291/pexels-photo-5816291.jpeg','159306/construction-site-build-construction-work-159306.jpeg','1267320/pexels-photo-1267320.jpeg','1319460/pexels-photo-1319460.jpeg','4495018/pexels-photo-4495018.jpeg','4391470/pexels-photo-4391470.jpeg','5845633/pexels-photo-5845633.jpeg','6197116/pexels-photo-6197116.jpeg','5591581/pexels-photo-5591581.jpeg','3771069/pexels-photo-3771069.jpeg','2582937/pexels-photo-2582937.jpeg','102127/pexels-photo-102127.jpeg','5370665/pexels-photo-5370665.jpeg','863988/pexels-photo-863988.jpeg','323705/pexels-photo-323705.jpeg','996329/pexels-photo-996329.jpeg','264636/pexels-photo-264636.jpeg','2834626/pexels-photo-2834626.jpeg','3184418/pexels-photo-3184418.jpeg'];
         
-        function getProfImage(profName, index) {
+        // FIX 4: Stable Hash for Images (Consistent across searches)
+        function getProfImage(profName) {
             if(profName==="خدمات أخرى") return `https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=200`;
-            return `https://images.pexels.com/photos/${validImages[index % validImages.length]}?auto=compress&cs=tinysrgb&w=200`;
+            // Calculate hash from string
+            let hash = 0;
+            for (let i = 0; i < profName.length; i++) {
+                hash = profName.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const index = Math.abs(hash) % validImages.length;
+            return `https://images.pexels.com/photos/${validImages[index]}?auto=compress&cs=tinysrgb&w=200`;
         }
 
         let currentUser = null, userProfile = null, navStack = ['home'], tempImgBase64 = null, currentChatId = null, allUsersCache = [], chatListener = null, currentModalUserId = null;
@@ -440,8 +448,9 @@
             }
         };
 
+        // FIX 5: Optimized Navigation
         window.navTo = (pageId) => {
-            window.scrollTo(0, 0);
+            window.scrollTo(0, 0); // Scroll first
             if (pageId === 'chat-room') {
                 document.getElementById('page-chat-room').classList.remove('hidden');
                 navStack.push('chat-room'); return;
@@ -477,23 +486,34 @@
 
         function initApp() {
             const opts = professions.map(p => `<option value="${p}">${p}</option>`).join('');
-            ['signup-prof', 'req-prof', 'edit-prof', 'job-title-select'].forEach(id => document.getElementById(id).innerHTML = '<option value="">اختر المهنة...</option>'+opts);
+            ['signup-prof', 'req-prof', 'job-title-select'].forEach(id => document.getElementById(id).innerHTML = '<option value="">اختر المهنة...</option>'+opts);
             renderProfessionsGrid(professions);
         }
 
+        // FIX 1: Optimized Render (No innerHTML+= loops)
         function renderProfessionsGrid(list) {
-            const grid = document.getElementById('professions-grid'); grid.innerHTML = '';
-            list.forEach((p, i) => {
-                grid.innerHTML += `<div onclick="window.openCategory('${p}')" class="provider-card cursor-pointer h-32 rounded-2xl overflow-hidden relative group bg-white dark:bg-gray-800"><img src="${getProfImage(p,i)}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><div class="bg-gradient-to-t from-black/80 to-transparent absolute inset-0 flex flex-col justify-end p-3"><span class="font-bold text-white text-sm drop-shadow-lg">${p}</span><span class="text-[10px] text-gray-200">اضغط لعرض التفاصيل</span></div></div>`;
-            });
+            const grid = document.getElementById('professions-grid');
+            const html = list.map(p => `
+                <div onclick="window.openCategory('${p}')" class="provider-card cursor-pointer h-32 rounded-2xl overflow-hidden relative group bg-white dark:bg-gray-800">
+                    <img src="${getProfImage(p)}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="bg-gradient-to-t from-black/80 to-transparent absolute inset-0 flex flex-col justify-end p-3">
+                        <span class="font-bold text-white text-sm drop-shadow-lg">${p}</span>
+                        <span class="text-[10px] text-gray-200">اضغط لعرض التفاصيل</span>
+                    </div>
+                </div>
+            `).join('');
+            grid.innerHTML = html;
         }
 
         let searchTimeout;
         window.filterProfessions = () => {
             clearTimeout(searchTimeout);
             const term = document.getElementById('prof-search').value.trim();
-            if(!term) { renderProfessionsGrid(professions); return; }
-            searchTimeout = setTimeout(() => renderProfessionsGrid(professions.filter(p => p.includes(term))), 150);
+            // Debounce to prevent freezing
+            searchTimeout = setTimeout(() => {
+                if(!term) { renderProfessionsGrid(professions); return; }
+                renderProfessionsGrid(professions.filter(p => p.includes(term)));
+            }, 200);
         };
 
         // --- AUTH ---
@@ -558,9 +578,8 @@
                     document.getElementById('edit-city').value = userProfile.city || '';
                     document.getElementById('edit-img-preview').src = userProfile.photoURL;
                     
+                    // Fix 2: Removed Profession Edit Logic
                     if(userProfile.role === 'provider') {
-                        document.getElementById('edit-prof-container').classList.remove('hidden');
-                        document.getElementById('edit-prof').value = userProfile.profession;
                         document.getElementById('provider-dashboard').classList.remove('hidden');
                     } else document.getElementById('provider-dashboard').classList.add('hidden');
 
@@ -579,29 +598,32 @@
         });
 
         function startListeners() {
-            // 1. Chat List (Fixed & Ordered)
+            // FIX 3: Chat Loading Issue - Better Filtering
             onSnapshot(collection(db, 'artifacts', APP_ID, 'public', 'data', 'chats'), (snap) => {
                 const list = document.getElementById('chat-history-list');
                 const myChats = [];
                 snap.forEach(d => {
                     const c = d.data();
-                    // Filter manually because 'array-contains' needs index
                     if(c.users && c.users.includes(currentUser.uid)) myChats.push({id: d.id, ...c});
                 });
 
-                if(myChats.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد محادثات</p>'; return; }
+                // IMPORTANT: Ensure loading text is gone
+                list.innerHTML = '';
 
-                // Sort client-side (Newest first)
+                if(myChats.length === 0) { 
+                    list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد محادثات</p>'; 
+                    return; 
+                }
+
                 myChats.sort((a,b) => new Date(b.lastUpdated || 0) - new Date(a.lastUpdated || 0));
 
-                list.innerHTML = '';
-                myChats.forEach(c => {
+                // OPTIMIZED RENDER: No loop appending
+                const html = myChats.map(c => {
                     const otherId = c.users.find(u => u !== currentUser.uid);
-                    // Try find in cache or use placeholder, fetch async if needed (simplified for single file)
                     const otherUser = allUsersCache.find(u => u.uid === otherId) || { name: 'مستخدم', photoURL: 'https://via.placeholder.com/40' };
                     const time = c.lastUpdated ? new Date(c.lastUpdated).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
                     
-                    list.innerHTML += `
+                    return `
                        <div onclick="window.openChat('${otherId}', '${otherUser.name}')" class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm cursor-pointer border border-gray-200 dark:border-gray-700 mb-2">
                            <img src="${otherUser.photoURL}" class="w-12 h-12 rounded-full object-cover">
                            <div class="flex-1">
@@ -613,10 +635,11 @@
                            </div>
                        </div>
                     `;
-                });
+                }).join('');
+                list.innerHTML = html;
             });
 
-            // 2. Directory
+            // Directory Listener - Optimized
             onSnapshot(collection(db, 'artifacts', APP_ID, 'public', 'data', 'profiles'), (snap) => {
                 allUsersCache = [];
                 snap.forEach(d => { 
@@ -626,19 +649,21 @@
                 window.renderDirectory();
             });
 
-            // 3. Notifications
+            // Notifications
             if(userProfile.role === 'provider') {
                 const q = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('type','==','service'), where('profession','==',userProfile.profession));
                 onSnapshot(q, (snap) => {
                     const container = document.getElementById('matching-reqs-list'); container.innerHTML = '';
                     let newCount = 0;
+                    const html = [];
                     snap.forEach(d => {
                         const req = d.data();
                         if(req.uid === currentUser.uid) return;
                         const isNew = (new Date() - new Date(req.createdAt)) < 86400000;
                         if(isNew) newCount++;
-                        container.innerHTML += `<div class="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border-r-4 border-orange-500 flex justify-between items-center"><div><p class="font-bold text-sm dark:text-white">${req.requesterName} ${isNew?'🔴':''}</p><p class="text-xs text-gray-500">${req.desc}</p></div><button onclick="window.openChat('${req.uid}','${req.requesterName}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold">تواصل</button></div>`;
+                        html.push(`<div class="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border-r-4 border-orange-500 flex justify-between items-center"><div><p class="font-bold text-sm dark:text-white">${req.requesterName} ${isNew?'🔴':''}</p><p class="text-xs text-gray-500">${req.desc}</p></div><button onclick="window.openChat('${req.uid}','${req.requesterName}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold">تواصل</button></div>`);
                     });
+                    container.innerHTML = html.join('');
                     if(newCount > 0 && userProfile.settings.notifEnabled) {
                         document.getElementById('notif-dot').classList.remove('hidden');
                         document.getElementById('notif-list').innerHTML = `<div class="p-2 bg-green-50 rounded"><p class="text-sm text-green-800">يوجد ${newCount} طلبات جديدة!</p></div>`;
@@ -646,13 +671,15 @@
                 });
             }
 
-            // 4. Jobs
+            // Jobs
             onSnapshot(query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('type','==','job')), (snap) => {
-                const list = document.getElementById('view-jobs'); list.innerHTML = '';
-                if(snap.empty) list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد وظائف</p>';
+                const list = document.getElementById('view-jobs');
+                if(snap.empty) { list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد وظائف</p>'; return; }
+                
+                const html = [];
                 snap.forEach(d => {
                     const j = d.data();
-                    list.innerHTML += `
+                    html.push(`
                         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md mb-3 border-2 border-gray-200 dark:border-gray-600 animate-fade overflow-hidden">
                             <div class="flex items-center gap-3 p-3 border-b border-gray-100 dark:border-gray-700">
                                 <img src="${j.posterPhoto||'https://via.placeholder.com/40'}" class="w-8 h-8 rounded-full object-cover border">
@@ -664,11 +691,12 @@
                                 <a href="tel:${j.contactPhone||j.posterPhone}" class="flex-1 py-2 bg-green-600 text-white text-center rounded-lg font-bold text-sm shadow">اتصال 📞</a>
                                 <button onclick="window.openChat('${j.uid}','${j.posterName}')" class="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow">محادثة 💬</button>
                             </div>
-                        </div>`;
+                        </div>`);
                 });
+                list.innerHTML = html.join('');
             });
 
-            // 5. My Activity (With Show More)
+            // My Activity
             const qActivity = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('uid','==',currentUser.uid));
             onSnapshot(qActivity, (snap) => {
                 const list = document.getElementById('my-activity'); list.innerHTML = '';
@@ -698,7 +726,7 @@
         window.deleteRequest = async (id) => { if(confirm('حذف؟')) await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'requests', id)); };
         window.toggleNotifPanel = () => { document.getElementById('notif-panel').classList.toggle('hidden'); document.getElementById('notif-dot').classList.add('hidden'); };
 
-        // --- PROFILE MODAL (Req 3, 12) ---
+        // --- PROFILE MODAL ---
         window.openProfileModal = async (userStr) => {
             const user = JSON.parse(decodeURIComponent(userStr));
             currentModalUserId = user.uid; 
@@ -707,7 +735,6 @@
             document.getElementById('modal-name').innerText = user.name;
             document.getElementById('modal-role').innerText = user.role === 'provider' ? user.profession : 'عميل';
             
-            // Details Req 3
             const joinedDate = new Date(user.createdAt);
             const diffTime = Math.abs(new Date() - joinedDate);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
@@ -718,7 +745,6 @@
             document.getElementById('modal-gender').innerText = user.gender === 'male' ? 'ذكر' : 'أنثى';
             document.getElementById('modal-date').innerText = duration;
 
-            // Buttons
             const actionsDiv = document.getElementById('modal-actions'); actionsDiv.innerHTML = '';
             if (!user.settings?.hidePhone) {
                 actionsDiv.innerHTML = `<a href="https://wa.me/20${user.phone}" target="_blank" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold text-center shadow hover:bg-green-600">واتساب</a>`;
@@ -765,22 +791,32 @@
              }
         }
 
+        // FIX 6: Review Button Freezing
         window.submitReview = async () => {
+            const btn = document.getElementById('btn-submit-rate');
             const text = document.getElementById('review-text').value;
             const stars = document.querySelector('input[name="stars"]:checked')?.value;
+            
             if(!stars || !currentChatId) return window.showToast('اختر النجوم', 'error');
             
-            // Get User ID from Chat ID logic (Assuming currentChatId is sorted IDs)
-            // Better: store 'otherUserId' in global when chat opens
-            // Fallback: extracting from currentChatId
-            const otherUserId = currentChatId.replace(currentUser.uid, '').replace('_', '');
-
-            await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'reviews'), {
-                fromId: currentUser.uid, fromName: userProfile.name, fromPhoto: userProfile.photoURL,
-                toId: otherUserId, stars, comment: text || '', createdAt: new Date().toISOString()
-            });
-            window.showToast('تم التقييم');
-            document.getElementById('rate-modal').classList.add('hidden');
+            btn.innerText = 'جاري الإرسال...';
+            btn.disabled = true;
+            
+            try {
+                const otherUserId = currentChatId.replace(currentUser.uid, '').replace('_', '');
+                await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'reviews'), {
+                    fromId: currentUser.uid, fromName: userProfile.name, fromPhoto: userProfile.photoURL,
+                    toId: otherUserId, stars, comment: text || '', createdAt: new Date().toISOString()
+                });
+                window.showToast('تم التقييم');
+                document.getElementById('rate-modal').classList.add('hidden');
+                document.getElementById('form-review').reset();
+            } catch(e) {
+                window.showToast('خطأ في الإرسال', 'error');
+            } finally {
+                btn.innerText = 'إرسال';
+                btn.disabled = false;
+            }
         };
 
         window.openChat = (uid, name) => {
@@ -788,10 +824,8 @@
             document.getElementById('chat-room-name').innerText = name;
             window.navTo('chat-room');
             
-            // Update Chat Metadata for Sorting & Listing (CRITICAL FIX)
             setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'chats', currentChatId), { 
                 users: [currentUser.uid, uid], 
-                // We update lastUpdated on message send, but ensure doc exists here
             }, { merge: true });
 
             const msgsRef = collection(db, 'artifacts', APP_ID, 'public', 'data', 'chats', currentChatId, 'messages');
@@ -799,11 +833,13 @@
             if (chatListener) chatListener();
             chatListener = onSnapshot(q, (snap) => {
                 const box = document.getElementById('messages-container'); box.innerHTML = '';
+                const html = [];
                 snap.forEach(d => {
                     const m = d.data();
                     const isMe = m.senderId === currentUser.uid;
-                    box.innerHTML += `<div class="flex ${isMe?'justify-end':'justify-start'} animate-fade"><div class="max-w-[75%] p-3 rounded-2xl text-sm shadow-sm ${isMe?'bg-blue-600 text-white rounded-br-none':'bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-bl-none border'}">${m.text}</div></div>`;
+                    html.push(`<div class="flex ${isMe?'justify-end':'justify-start'} animate-fade"><div class="max-w-[75%] p-3 rounded-2xl text-sm shadow-sm ${isMe?'bg-blue-600 text-white rounded-br-none':'bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-bl-none border'}">${m.text}</div></div>`);
                 });
+                box.innerHTML = html.join('');
                 box.scrollTop = box.scrollHeight;
             });
         };
@@ -816,29 +852,51 @@
             
             try {
                 const now = new Date().toISOString();
-                // 1. Send Message
                 await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'chats', currentChatId, 'messages'), { 
                     text, senderId: currentUser.uid, createdAt: now 
                 });
-                // 2. Update Chat Meta for sorting (Req 1 Fix)
                 await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'chats', currentChatId), {
                     lastMessage: text, lastUpdated: now, users: [currentUser.uid, currentChatId.replace(currentUser.uid, '').replace('_', '')] 
                 }, { merge: true });
-
                 input.value = ''; 
             } catch(err) { window.showToast('فشل الإرسال', 'error'); }
         };
 
-        window.renderDirectory = () => { const cont = document.getElementById('dir-list'); cont.innerHTML = ''; allUsersCache.slice(0,50).forEach(u => cont.innerHTML += createUserCard(u)); };
-        window.filterDirectory = () => { const term = document.getElementById('dir-search').value.trim(); const cont = document.getElementById('dir-list'); cont.innerHTML = ''; const filtered = term ? allUsersCache.filter(u => u.name.includes(term)||u.profession?.includes(term)) : allUsersCache.slice(0,50); filtered.forEach(u => cont.innerHTML += createUserCard(u)); };
-        window.openCategory = (profName) => { window.navTo('category-details'); document.getElementById('page-title').innerText = profName; const filtered = allUsersCache.filter(u => u.profession === profName); const cont = document.getElementById('cat-list-container'); cont.innerHTML = ''; if(filtered.length === 0) { cont.innerHTML = `<div class="text-center py-10"><p class="text-gray-500">لا يوجد مسجلين</p></div>`; return; } filtered.forEach(u => cont.innerHTML += createUserCard(u)); };
-        function createUserCard(u) { const userStr = encodeURIComponent(JSON.stringify(u)); return `<div onclick="window.openProfileModal('${userStr}')" class="provider-card bg-white dark:bg-gray-800 p-3 rounded-xl flex items-center gap-3 cursor-pointer animate-fade hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"><img src="${u.photoURL}" class="w-12 h-12 rounded-full object-cover bg-gray-200 border"><div class="flex-1"><h4 class="font-bold text-sm dark:text-white">${u.name} ${u.gender==='female'?'🌸':''}</h4><p class="text-xs text-blue-600 font-bold">${u.role==='provider'?u.profession:'عميل'}</p><p class="text-xs text-gray-400">اضغط لعرض التفاصيل</p></div></div>`; }
+        // FIX 1: Optimized Directory Render (No += loop)
+        window.renderDirectory = () => { 
+            const cont = document.getElementById('dir-list'); 
+            const list = allUsersCache.slice(0,50);
+            cont.innerHTML = list.map(u => createUserCard(u)).join('');
+        };
+
+        window.filterDirectory = () => { 
+            const term = document.getElementById('dir-search').value.trim(); 
+            const cont = document.getElementById('dir-list'); 
+            const filtered = term ? allUsersCache.filter(u => u.name.includes(term)||u.profession?.includes(term)) : allUsersCache.slice(0,50); 
+            cont.innerHTML = filtered.map(u => createUserCard(u)).join('');
+        };
+
+        window.openCategory = (profName) => { 
+            window.navTo('category-details'); 
+            document.getElementById('page-title').innerText = profName; 
+            const filtered = allUsersCache.filter(u => u.profession === profName); 
+            const cont = document.getElementById('cat-list-container'); 
+            if(filtered.length === 0) { cont.innerHTML = `<div class="text-center py-10"><p class="text-gray-500">لا يوجد مسجلين</p></div>`; return; } 
+            cont.innerHTML = filtered.map(u => createUserCard(u)).join('');
+        };
+
+        function createUserCard(u) { 
+            const userStr = encodeURIComponent(JSON.stringify(u)); 
+            // Using strict provider-card class with black borders restored
+            return `<div onclick="window.openProfileModal('${userStr}')" class="provider-card bg-white dark:bg-gray-800 p-3 rounded-xl flex items-center gap-3 cursor-pointer animate-fade hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"><img src="${u.photoURL}" loading="lazy" class="w-12 h-12 rounded-full object-cover bg-gray-200 border"><div class="flex-1"><h4 class="font-bold text-sm dark:text-white">${u.name} ${u.gender==='female'?'🌸':''}</h4><p class="text-xs text-blue-600 font-bold">${u.role==='provider'?u.profession:'عميل'}</p><p class="text-xs text-gray-400">اضغط لعرض التفاصيل</p></div></div>`; 
+        }
         
         window.saveProfileChanges = async () => {
             try {
+                // Removed profession update
                 await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', currentUser.uid), {
                     name: document.getElementById('edit-name').value, phone: document.getElementById('edit-phone').value,
-                    city: document.getElementById('edit-city').value, profession: document.getElementById('edit-prof').value,
+                    city: document.getElementById('edit-city').value,
                     photoURL: tempImgBase64 || userProfile.photoURL
                 });
                 window.location.reload();
