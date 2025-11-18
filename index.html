@@ -38,7 +38,7 @@
 
     <style>
         /* === التعديل 1: منع التاثيرات الحركية والصور المتحركة (الأداء) === */
-        /* === Defect 3: Fix - Global Animation Killer === */
+        /* === Fix: Global Animation Killer (Request 2) === */
         * {
             transition: none !important;
             animation: none !important;
@@ -165,11 +165,11 @@
 
 
 
-        /* === إصلاح 1: تصغير ارتفاع البار العلوي (Defect 4) === */
+        /* === إصلاح 1: تصغير ارتفاع البار العلوي === */
         .app-header {
             padding: 0.5rem 0.75rem; 
         }
-        /* === إصلاح 1: تصغير ارتفاع بار الترحيب (Defect 4) === */
+        /* === إصلاح 1: تصغير ارتفاع بار الترحيب === */
         .welcome-header {
             padding: 0.6rem 1rem; 
         }
@@ -178,10 +178,8 @@
             background-color: #ffffff;
             border: 2px solid #1e40af; /* إطار نيلي غامق بسمك 2px */
             border-radius: 0.75rem; /* أكثر استدارة */
-            /* Defect 4: Adjust padding slightly for tighter fit on mobile */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); /* ظل أقوى */
-            padding: 0.75rem; /* تقليل الحشو الداخلي من 1rem */
-            /* transition: border-color 0.2s, box-shadow 0.2s;  تم إزالة الانتقال */
+            padding: 0.75rem; /* تقليل الحشو الداخلي */
         }
         .register-input-card:focus-within {
             border-color: #3730a3; /* indigo-900 */
@@ -254,14 +252,14 @@
                 font-size: 0.75rem; /* أصغر */
             }
             
-            /* Defect 4/New Fix: Ensure Auth/Register pages are compact */
+            /* Fix Request 1: Ensure Auth/Register pages are compact */
             #app > div.flex.flex-col.items-center.justify-center.min-h-screen > div.w-full.max-w-sm.bg-white.rounded-lg.shadow-xl.p-6 {
-                 padding: 0.75rem !important; /* Reduced from 1rem */
+                 padding: 0.75rem !important; /* Reduced for Auth Card */
             }
             #app > div.min-h-screen.main-padding.bg-indigo-800.flex.items-start.justify-center.pt-8.pb-24 > div.w-full.max-w-md > form {
-                padding: 1rem !important; /* Reduced from 1.25rem */
+                padding: 1rem !important; /* Reduced for Register Card */
             }
-            /* Also reduce top/bottom padding on Auth page container */
+            /* Reduce top/bottom padding on Auth page container */
             #app > div.flex.flex-col.items-center.justify-center.min-h-screen.p-4.bg-indigo-800.sm\:pt-8.sm\:pb-8 {
                 padding-top: 1rem !important;
                 padding-bottom: 1rem !important;
@@ -346,7 +344,7 @@
             background-color: #1f2937;
         }
         
-        /* === Toast Notification Styling (Defect 6) === */
+        /* === Toast Notification Styling (Request 3) === */
         #toast-container {
             position: fixed;
             top: 20px;
@@ -371,12 +369,28 @@
         .toast-error {
             background-color: #ef4444; /* Red */
         }
+        
+        /* === Bottom Nav Styling (Request 6) === */
+        .bottom-nav-container {
+            backdrop-filter: blur(5px);
+            background-color: rgba(30, 64, 175, 0.9); /* Indigo-800 semi-transparent */
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        .bottom-nav-button {
+            transition: all 0.2s;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+        }
+        .bottom-nav-button.active {
+            background-color: #4f46e5; /* Indigo-600 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body class="bg-gray-50">
 
 
-    <!-- === Toast Container (Defect 6) === -->
+    <!-- === Toast Container (Request 3) === -->
     <div id="toast-container"></div>
 
 
@@ -833,7 +847,7 @@
             camera: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.322 2.322 0 0 1 5.86 7.5v10.375A2.322 2.322 0 0 0 8.182 20.25h8.375A2.322 2.322 0 0 0 18.916 18V7.5a2.322 2.322 0 0 1-1.077-1.325M12 9.75a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z" /></svg>`,
             job: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25M9 13.5h6" /></svg>`,
             trash: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.24 6.913m1.018 0h16.5M16.5 6.75h-9" /></svg>`,
-            settings: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.875 1.486.82 2.668 2.05 3.37 3.568.163.33.194.71.09 1.055l-.202.73a1.125 1.125 0 0 1-.362.683l-1.704 1.705a1.125 1.125 0 0 0-.362.684l.202.73c.104.345.073.725-.09 1.055-.702 1.518-1.884 2.748-3.37 3.568a1.125 1.125 0 0 1-.645.875l-.213 1.281c-.09.542-.56.94-1.11.94h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281a1.125 1.125 0 0 1-.645-.875c-1.486-.82-2.668-2.05-3.37-3.568a1.125 1.125 0 0 1-.09-1.055l.202-.73a1.125 1.125 0 0 0-.362-.683l-1.704-1.705a1.125 1.125 0 0 0-.362-.684l.202-.73c.104-.345.073-.725-.09-1.055-.702-1.518-1.884-2.748-3.37-3.568a1.125 1.125 0 0 1-.645-.875l-.213-1.281Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>`,
+            settings: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.875 1.486.82 2.668 2.05 3.37 3.568.163.33.194.71.09 1.055l-.202.73a1.125 1.125 0 0 1-.362.683l-1.704 1.705a1.125 1.125 0 0 0-.362.684l.202.73c.104.345.073.725-.09 1.055-.702 1.518-1.884 2.748-3.37 3.568a1.125 1.125 0 0 1-.645.875l-.213 1.281c-.09.542-.56.94-1.11.94h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281a1.125 1.125 0 0 1-.645-.875c-1.486-.82-2.668-2.05-3.37-3.568a1.125 1.125 0 0 1-.09-1.055l.202-.73a1.125 1.125 0 0 0-.362-.683l-1.704-1.705a1.125 1.125 0 0 0-.362-.684l.202-.73c.104-.345.073-.725-.09-1.055-.702 1.518-1.884-2.748-3.37-3.568a1.125 1.125 0 0 1-.645-.875l-.213-1.281Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>`,
             bell: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.043 5.454 1.31Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75a.75.75 0 0 0 0 1.5h-9a.75.75 0 0 0 0-1.5Z" /></svg>`,
         };
 
@@ -856,7 +870,7 @@
         const appContainer = document.getElementById('app');
         const modalBackdrop = document.getElementById('modal-backdrop');
         const modalContent = document.getElementById('modal-content');
-        const toastContainer = document.getElementById('toast-container'); // Defect 6
+        const toastContainer = document.getElementById('toast-container'); // Request 3
 
 
 
@@ -901,7 +915,7 @@
             modalContent.innerHTML = '';
         }
         
-        // === Toast Notification Function (Defect 6) ===
+        // === Toast Notification Function (Request 3) ===
         function showToast(message, isSuccess = true) {
             const toast = document.createElement('div');
             toast.className = `toast-message ${isSuccess ? '' : 'toast-error'}`;
@@ -1251,7 +1265,7 @@
         async function createNotification(recipientId, type, title, linkPage, linkParams = {}) {
             if (recipientId === userId) return; // لا ترسل إشعاراً لنفسك
             
-            // === New Fix: Check if internal notifications are enabled (for the dot/count) ===
+            // === Fix: Check if recipient has disabled internal notifications (Request 5) ===
             const recipientDoc = await getDoc(doc(db, `artifacts/${appId}/public/data/users`, recipientId));
             const recipientProfile = recipientDoc.exists() ? recipientDoc.data() : {};
             
@@ -1283,7 +1297,7 @@
                 unreadNotifications: increment(1)
             });
             
-            // ⚠️ ملاحظة: الإشعارات الخارجية تتطلب إعداد FCM، وتم إيقافها بناءً على طلبك.
+            // ⚠️ ملاحظة: الإشعارات الخارجية تم إلغاؤها بناءً على طلبك.
         }
         
         // === دالة تحديد الإشعارات كمقروءة حسب الصفحة (جديد - الطلب 1) ===
@@ -1641,7 +1655,7 @@
 
         // === دالة مساعدة لعرض جرس الإشعارات (محدثة - الطلب 5) ===
         function renderNotificationBell() {
-            // === New Fix: Check if internal notifications are enabled ===
+            // === Fix: Check if internal notifications are enabled (Request 5) ===
             if (userProfile?.isInternalNotificationsEnabled === false) return '';
             
             const unreadCount = userProfile?.unreadNotifications || 0;
@@ -1724,11 +1738,12 @@
 
         function renderAuthPage() {
             appContainer.innerHTML = `
-                <!-- === التعديل 6: تقليل الحشو الرأسي في وضع الهاتف (Defect 4/New Fix) === -->
+                <!-- === Fix Request 1: Reduced vertical padding === -->
                 <div class="flex flex-col items-center justify-center min-h-screen p-4 bg-indigo-800 sm:pt-8 sm:pb-8">
                     <h1 class="text-4xl font-bold text-white mb-4">مستقبل الشرقية</h1>
                     <p class="text-lg text-indigo-100 mb-8 text-center">أهلاً بك في تطبيق خدمات محافظة الشرقية</p>
                     
+                    <!-- Fix Request 1: Reduced card padding -->
                     <div class="w-full max-w-sm bg-white rounded-lg shadow-xl p-6">
                         <form id="login-form" class="space-y-4">
                             <h2 class="text-2xl font-semibold text-center text-gray-800 mb-4">تسجيل الدخول</h2>
@@ -1817,11 +1832,11 @@
 
 
             appContainer.innerHTML = `
-                <!-- التعديل 5: تغيير خلفية الشاشة لـ indigo-800 -->
+                <!-- Fix Request 1: Reduced vertical padding -->
                 <div class="min-h-screen main-padding bg-indigo-800 flex items-start justify-center pt-8 pb-24">
                     <div class="w-full max-w-md">
                          <h1 class="text-2xl font-bold text-white mb-6 text-center">إنشاء حساب جديد</h1>
-                         <!-- التعديل 5: إضافة كلاس الزجاج الشفاف -->
+                         <!-- Fix Request 1: Reduced card padding -->
                         <form id="register-form" class="space-y-4 glassy-indigo-bg p-6 rounded-lg shadow-2xl mx-auto">
                             <div id="register-error" class="text-red-600 text-sm text-center font-bold hidden bg-red-100 p-2 rounded-md"></div>
                             
@@ -2214,7 +2229,7 @@
 
 
 
-                // === الفرز اليدوي (Client-Side Sorting - Defect 2 Fix) ===
+                // === الفرز اليدوي (Client-Side Sorting - Request 2 Fix) ===
                 requests.sort((a, b) => {
                     const timeA = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
                     const timeB = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
@@ -2590,7 +2605,7 @@
                     const userColor = user.role === 'provider' ? 'text-indigo-600' : 'text-green-600';
                     // === التعديل 5: عرض حالة الظهور باستخدام الدالة المحدثة ===
                     const onlineStatusHtml = getOnlineStatusHtml(user);
-                    // === New Fix: Add Last Seen Date/Time ===
+                    // === Fix: Add Last Seen Date/Time (Request 4) ===
                     const lastSeenDate = user.lastSeen && user.lastSeen.toDate ? new Date(user.lastSeen.toDate()).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : 'N/A';
                     const lastSeenHtml = user.lastSeen ? `<p class="text-xs text-gray-400">آخر ظهور: ${lastSeenDate}</p>` : '';
 
@@ -2824,7 +2839,7 @@
 
 
                 const chats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // === Defect 7 Fix: Sort by lastUpdate descending ===
+                // === Fix: Sort by lastUpdate descending (Request 4) ===
                 chats.sort((a, b) => b.lastUpdate.toMillis() - a.lastUpdate.toMillis());
 
 
@@ -2860,8 +2875,8 @@
                     const isUnread = chat.unreadBy && chat.unreadBy.includes(userId);
                     const unreadDot = isUnread ? `<span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white -mt-1 -mr-1"></span>` : '';
                     
-                    // === New Fix: Add Date/Time to Chat List ===
-                    const lastUpdateString = chat.lastUpdate.toDate ? new Date(chat.lastUpdate.toDate()).toLocaleString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '';
+                    // === Fix: Add Date/Time to Chat List (Request 4) ===
+                    const lastUpdateDate = chat.lastUpdate.toDate ? new Date(chat.lastUpdate.toDate()).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '';
 
 
 
@@ -2895,7 +2910,7 @@
                             </div>
                             <p class="text-sm text-gray-600 truncate-1-line">${chat.lastMessage}</p>
                         </div>
-                        <span class="text-xs text-gray-400 flex-shrink-0">${lastUpdateString}</span>
+                        <span class="text-xs text-gray-400 flex-shrink-0">${lastUpdateDate}</span>
                     </div>
                     `;
                 }).join('');
@@ -3305,7 +3320,7 @@
             const isDirectoryHidden = userProfile.isDirectoryHidden || false;
             const isDarkModeEnabled = userProfile.isDarkModeEnabled || false; // إعداد إضافي
             const isLocationSharingEnabled = userProfile.isLocationSharingEnabled || false; // إعداد إضافي
-            // === New Fix: Internal Notifications Toggle ===
+            // === Fix: Internal Notifications Toggle (Request 5) ===
             const isInternalNotificationsEnabled = userProfile.isInternalNotificationsEnabled !== false; 
             // === التعديل 3: إعدادات التحكم الكامل في المنافع ===
             const chatPermission = userProfile.chatPermission || 'all';
@@ -3399,7 +3414,7 @@
 
 
 
-                            <!-- إعدادات الإشعارات (الداخلية) - New Fix -->
+                            <!-- إعدادات الإشعارات (الداخلية) - Request 5 Fix -->
                             <div class="border-b border-indigo-200 pb-3 pt-2">
                                 <h2 class="text-lg font-semibold text-indigo-800">إعدادات الإشعارات</h2>
                             </div>
@@ -3454,7 +3469,7 @@
                 const isDirectoryHidden = document.getElementById('toggle-directory').checked;
                 const isDarkModeEnabled = document.getElementById('toggle-dark-mode').checked;
                 const isLocationSharingEnabled = document.getElementById('toggle-location-sharing').checked;
-                // === New Fix: Internal Notifications Toggle ===
+                // === Fix: Internal Notifications Toggle (Request 5) ===
                 const isInternalNotificationsEnabled = document.getElementById('toggle-internal-notifications').checked;
                 // === التعديل 3: جلب إعدادات التحكم الكامل في المنافع ===
                 const chatPermission = document.getElementById('chat-permission').value;
@@ -3473,12 +3488,12 @@
                     isDirectoryHidden: isDirectoryHidden,
                     isDarkModeEnabled: isDarkModeEnabled,
                     isLocationSharingEnabled: isLocationSharingEnabled,
-                    // === New Fix: Internal Notifications Toggle ===
+                    // === Fix: Internal Notifications Toggle (Request 5) ===
                     isInternalNotificationsEnabled: isInternalNotificationsEnabled, 
                     // === التعديل 3: حفظ إعدادات التحكم الكامل في المنافع ===
                     chatPermission: chatPermission,
                     ratingPermission: ratingPermission,
-                    // Hardcode external notifications to false (Defect 5)
+                    // Hardcode external notifications to false (Request 5)
                     isNotificationsEnabled: false,
                     isMessageNotificationsEnabled: false,
                     isJobNotificationsEnabled: false,
@@ -3516,7 +3531,7 @@
 
 
                 hideLoading();
-                // === Defect 6 Fix: Use Toast instead of Modal for success ===
+                // === Fix: Use Toast instead of Modal for success (Request 3) ===
                 showToast('تم حفظ الإعدادات بنجاح.', true);
 
 
@@ -3541,7 +3556,8 @@
             } catch (error) {
                 console.error("Save Settings Error: ", error);
                 hideLoading();
-                showMessageModal('خطأ', 'حدث خطأ أثناء حفظ الإعدادات. يرجى المحاولة مرة أخرى.', false);
+                // === Fix: Use Toast for error (Request 3) ===
+                showToast('حدث خطأ أثناء حفظ الإعدادات. يرجى المحاولة مرة أخرى.', false);
             }
         }
         
@@ -3599,7 +3615,7 @@
                 
                 hideLoading();
                 hideModal();
-                // === Defect 6 Fix: Use Toast instead of Modal for success ===
+                // === Fix: Use Toast instead of Modal for success (Request 3) ===
                 showToast('تم تغيير كلمة المرور بنجاح.', true);
                 
             } catch (error) {
@@ -3669,7 +3685,7 @@
 
 
             try {
-                // 1. جلب طلبات الخدمات (Service Requests) (Defect 1 & 2 Fix: حذف orderBy)
+                // 1. جلب طلبات الخدمات (Service Requests) (Request 2 Fix: حذف orderBy)
                 const requestsColRef = collection(db, `artifacts/${appId}/public/data/serviceRequests`);
                 // الاستعلام الجديد: where فقط
                 const requestsQuery = query(requestsColRef, where('requesterId', '==', userId)); 
@@ -3716,7 +3732,7 @@
 
 
 
-                // 2. جلب إعلانات الوظائف (Job Postings) (Defect 1 & 2 Fix: حذف orderBy)
+                // 2. جلب إعلانات الوظائف (Job Postings) (Request 2 Fix: حذف orderBy)
                 const jobsColRef = collection(db, `artifacts/${appId}/public/data/jobPostings`);
                 // الاستعلام الجديد: where فقط
                 const jobsQuery = query(jobsColRef, where('posterId', '==', userId));
@@ -3755,7 +3771,7 @@
 
 
 
-                // 3. دمج وترتيب الكل يدوياً في الكود (Client-Side Sorting - Defect 2 Fix)
+                // 3. دمج وترتيب الكل يدوياً في الكود (Client-Side Sorting - Request 2 Fix)
                 const allPostings = [...requests, ...jobs].sort((a, b) => {
                     const timeA = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
                     const timeB = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
@@ -3797,7 +3813,7 @@
                     const description = isRequest ? post.description : post.details;
                     const typeLabel = isRequest ? 'طلب خدمة' : 'إعلان وظيفة';
                     const typeColor = isRequest ? 'bg-green-100 text-green-700' : 'bg-indigo-100 text-indigo-700';
-                    // === New Fix: Add Date/Time to My Postings ===
+                    // === Fix: Add Date/Time to My Postings (Request 4) ===
                     const dateString = post.createdAt && post.createdAt.toDate ? new Date(post.createdAt.toDate()).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : 'تاريخ غير محدد';
 
 
@@ -4597,7 +4613,7 @@
 
 
             const jobPostingsColRef = collection(db, `artifacts/${appId}/public/data/jobPostings`);
-            // === Defect 7 Fix: Ensure orderBy works (simple query, should work) ===
+            // === Fix: Ensure orderBy works (simple query, should work) (Request 2) ===
             const q = query(jobPostingsColRef, orderBy('createdAt', 'desc'));
 
 
@@ -4644,7 +4660,7 @@
                 }
                 listings = validListings;
                 
-                // Note: The query already sorts by createdAt desc (Defect 7 fix)
+                // Note: The query already sorts by createdAt desc (Request 2 Fix)
 
 
 
@@ -4682,7 +4698,7 @@
 
 
                 listEl.innerHTML = listings.map(job => {
-                    // === New Fix: Add Date/Time to Job Listings ===
+                    // === Fix: Add Date/Time to Job Listings (Request 4) ===
                     const dateString = job.createdAt && job.createdAt.toDate ? new Date(job.createdAt.toDate()).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : 'تاريخ غير محدد';
                     return `
                     <div class="bg-indigo-50 p-4 rounded-lg shadow-md border border-indigo-200 job-listing-card">
@@ -4730,11 +4746,10 @@
 
         // === إصلاح 1 و 2: تصغير ارتفاع شريط التنقل السفلي وتغيير اللون ===
         function renderBottomNav(activeTab) {
-            const activeClass = 'text-white bg-indigo-700';
-            const inactiveClass = 'text-indigo-300 hover:text-white';
+            const activeClass = 'text-white active bottom-nav-button';
+            const inactiveClass = 'text-indigo-300 hover:text-white bottom-nav-button';
             
-            // === التعديل 1: منطق النقطة الحمراء في شريط التنقل (إزالة من البروفايل) ===
-            // === New Fix: Check if internal notifications are enabled ===
+            // === Fix: Check if internal notifications are enabled (Request 5) ===
             const isInternalNotificationsEnabled = userProfile?.isInternalNotificationsEnabled !== false;
             const unreadCount = userProfile?.unreadNotifications || 0;
             const showDot = isInternalNotificationsEnabled && unreadCount > 0;
@@ -4756,37 +4771,38 @@
 
 
             return `
-                <nav class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto md:max-w-2xl lg:max-w-4xl bg-indigo-800 shadow-lg border-t border-indigo-700 z-20">
-                    <div class="flex justify-around items-center h-12">
+                <!-- Fix Request 6: Modern Bottom Nav -->
+                <nav class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto md:max-w-2xl lg:max-w-4xl z-20 bottom-nav-container">
+                    <div class="flex justify-around items-center h-14">
                         <button data-action="navigateTo" data-page="home" 
-                                class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'home' ? activeClass : inactiveClass}">
+                                class="relative flex flex-col items-center justify-center ${activeTab === 'home' ? activeClass : inactiveClass}">
                             ${showDot ? dotHtml : ''}
                             ${ICONS.home}
                             <span class="text-xs font-medium">الرئيسية</span>
                         </button>
                         
                         <button data-action="navigateTo" data-page="directory" 
-                                class="flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'directory' ? activeClass : inactiveClass}">
+                                class="flex flex-col items-center justify-center ${activeTab === 'directory' ? activeClass : inactiveClass}">
                             ${ICONS.users}
                             <span class="text-xs font-medium">الدليل</span>
                         </button>
                         
                         <button data-action="navigateTo" data-page="chatList" 
-                                class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'chatList' ? activeClass : inactiveClass}">
+                                class="relative flex flex-col items-center justify-center ${activeTab === 'chatList' ? activeClass : inactiveClass}">
                             ${showDot ? dotHtml : ''}
                             ${ICONS.chat}
                             <span class="text-xs font-medium">المحادثات</span>
                         </button>
                         
                         <button data-action="navigateTo" data-page="jobListings" 
-                                class="relative flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'jobListings' ? activeClass : inactiveClass}">
+                                class="relative flex flex-col items-center justify-center ${activeTab === 'jobListings' ? activeClass : inactiveClass}">
                             ${showDot ? dotHtml : ''}
                             ${ICONS.job}
                             <span class="text-xs font-medium">وظائف</span>
                         </button>
                         
                         <button data-action="navigateTo" data-page="profile" data-uid="${userId}"
-                                class="flex flex-col items-center justify-center p-1 rounded-md ${activeTab === 'profile' ? activeClass : inactiveClass}">
+                                class="flex flex-col items-center justify-center ${activeTab === 'profile' ? activeClass : inactiveClass}">
                             ${ICONS.profile}
                             <span class="text-xs font-medium">ملفي</span>
                         </button>
@@ -4970,7 +4986,7 @@
 
 
                 hideLoading();
-                // === Defect 6 Fix: Use Toast for success ===
+                // === Fix: Use Toast for success (Request 3) ===
                 showToast('تم تسجيل الدخول بنجاح.', true);
             } catch (error) {
                 console.error("Login Error: ", error);
@@ -5177,9 +5193,9 @@
                 // === التعديل 5: تعيين حالة الوضع الداكن الافتراضية على false ===
                 const isDarkModeDefault = false; 
                 
-                // === New Fix: Internal Notifications Default ===
+                // === Fix: Internal Notifications Default (Request 5) ===
                 const isInternalNotificationsEnabledDefault = true; 
-                // === Hardcode external notifications to false (Defect 5) ===
+                // === Hardcode external notifications to false (Request 5) ===
                 const isNotificationsDefault = false; 
 
 
@@ -5208,9 +5224,9 @@
                     isPhoneHidden: false,
                     isAddressHidden: false,
                     isDirectoryHidden: false,
-                    // === New Fix: Internal Notifications Default ===
+                    // === Fix: Internal Notifications Default (Request 5) ===
                     isInternalNotificationsEnabled: isInternalNotificationsEnabledDefault,
-                    // === Hardcode external notifications to false (Defect 5) ===
+                    // === Hardcode external notifications to false (Request 5) ===
                     isNotificationsEnabled: isNotificationsDefault, 
                     isMessageNotificationsEnabled: isNotificationsDefault,
                     isJobNotificationsEnabled: isNotificationsDefault,
@@ -5260,7 +5276,7 @@
                 userProfile = newUserProfile;
                 userId = newUserId;
                 hideLoading();
-                // === Defect 6 Fix: Use Toast for success ===
+                // === Fix: Use Toast for success (Request 3) ===
                 showToast('تم التسجيل بنجاح. أهلاً بك في مستقبل الشرقية!', true);
 
 
@@ -5533,7 +5549,7 @@
 
 
                 hideLoading();
-                // === Defect 6 Fix: Use Toast for success ===
+                // === Fix: Use Toast for success (Request 3) ===
                 showToast('تم تحديث ملفك الشخصي بنجاح.', true);
 
 
@@ -5699,7 +5715,7 @@
                 if (!otherUserDoc.exists()) { throw new Error("Other user not found"); }
                 const otherUserData = otherUserDoc.data();
                 
-                // === Defect 5 Fix: Check if recipient has disabled internal notifications ===
+                // === Fix: Check if recipient has disabled internal notifications (Request 5) ===
                 const isRecipientNotificationsEnabled = otherUserData.isInternalNotificationsEnabled !== false;
 
 
@@ -5849,7 +5865,7 @@
 
 
                 providersSnapshot.docs.forEach(doc => {
-                    // Defect 5 Fix: Only send if recipient is a provider AND has notifications enabled
+                    // Fix: Only send if recipient is a provider AND has notifications enabled (Request 5)
                     const providerProfile = doc.data();
                     if (providerProfile.isInternalNotificationsEnabled !== false) {
                         createNotification(
@@ -5869,7 +5885,7 @@
 
 
                 hideLoading();
-                // === Defect 6 Fix: Use Toast for success ===
+                // === Fix: Use Toast for success (Request 3) ===
                 showToast('تم نشر الطلب. سيتم إخطار مقدمي الخدمات في مجالك.', true);
 
 
@@ -6021,7 +6037,7 @@
 
 
                 providersSnapshot.docs.forEach(doc => {
-                    // Defect 5 Fix: Only send if recipient is a provider AND has notifications enabled
+                    // Fix: Only send if recipient is a provider AND has notifications enabled (Request 5)
                     const providerProfile = doc.data();
                     if (providerProfile.isInternalNotificationsEnabled !== false) {
                         createNotification(
@@ -6041,7 +6057,7 @@
 
 
                 hideLoading();
-                // === Defect 6 Fix: Use Toast for success ===
+                // === Fix: Use Toast for success (Request 3) ===
                 showToast('تم نشر إعلان الوظيفة بنجاح.', true);
 
 
@@ -6140,7 +6156,7 @@
                 const docRef = doc(db, `artifacts/${appId}/public/data/${collectionName}`, id);
                 await deleteDoc(docRef);
                 hideLoading();
-                // === Defect 6 Fix: Use Toast for success ===
+                // === Fix: Use Toast for success (Request 3) ===
                 showToast(`تم حذف ${type === 'request' ? 'الطلب' : 'الإعلان'} بنجاح.`, true);
                 // إعادة تحميل الصفحة لعرض التحديث
                 setTimeout(() => {
@@ -6428,7 +6444,7 @@
 
                 hideLoading();
                 hideModal();
-                // === Defect 6 Fix: Use Toast for success ===
+                // === Fix: Use Toast for success (Request 3) ===
                 showToast('شكراً لتقييمك!', true);
 
 
@@ -6792,7 +6808,7 @@
 
         // 13. نقطة البداية الرئيسية
         window.onload = () => {
-            // === التعديل 3: إلغاء طلب الإذن الخارجي (Defect 5 Fix) ===
+            // === التعديل 3: إلغاء طلب الإذن الخارجي (Request 5) ===
             // requestNotificationPermission(); 
 
 
@@ -7026,3 +7042,4 @@ if ('serviceWorker' in navigator) {
     <script src="install-prompt.js" defer></script>
 </body>
 </html>
+
