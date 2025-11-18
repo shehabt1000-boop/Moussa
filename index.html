@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>دليل الشرقية V11 - صور ونشاط</title>
+    <title>دليل الشرقية V13 - الخصوصية والأمان</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,8 +19,11 @@
                 extend: {
                     fontFamily: { sans: ['Cairo', 'sans-serif'] },
                     colors: { primary: '#2563EB', darkBg: '#111827' },
-                    animation: { 'fade': 'fadeIn 0.2s ease-in-out' },
-                    keyframes: { fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } } }
+                    animation: { 'fade': 'fadeIn 0.15s ease-in-out', 'pop': 'popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)' },
+                    keyframes: { 
+                        fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+                        popIn: { '0%': { transform: 'scale(0.9)', opacity: 0 }, '100%': { transform: 'scale(1)', opacity: 1 } }
+                    }
                 }
             }
         }
@@ -32,16 +35,41 @@
         button { cursor: pointer; touch-action: manipulation; }
         
         /* طبقات الخلفية */
-        .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #eee; }
-        .dark .glass-header { background: rgba(17, 24, 39, 0.95); border-bottom: 1px solid #374151; }
+        .glass-header { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); border-bottom: 1px solid #9ca3af; }
+        .dark .glass-header { background: rgba(17, 24, 39, 0.98); border-bottom: 1px solid #374151; }
         
-        /* الكروت والصور */
-        .prof-card { transition: transform 0.2s; overflow: hidden; position: relative; }
-        .prof-card:active { transform: scale(0.95); }
-        .card-overlay { background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
+        /* تحسين الحقول والبطاقات (طلب رقم 4 - إطارات واضحة) */
+        input, select, textarea { 
+            border: 2px solid #9ca3af; /* إطار رمادي غامق واضح */
+            background-color: #ffffff;
+            transition: all 0.2s; 
+        }
+        input:focus, select:focus, textarea:focus { 
+            border-color: #000000; /* أسود عند الكتابة */
+            outline: none;
+        }
+        .dark input, .dark select, .dark textarea { 
+            background-color: #1f2937; 
+            border-color: #4b5563; 
+            color: white;
+        }
+        .dark input:focus { border-color: #60a5fa; }
+
+        /* إطارات البطاقات */
+        .prof-card, .job-card, .user-card {
+            border: 1px solid #d1d5db;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .dark .prof-card, .dark .job-card, .dark .user-card { border-color: #374151; }
+
+        /* الصور */
+        .prof-card { transition: transform 0.1s; overflow: hidden; position: relative; }
+        .prof-card:active { transform: scale(0.97); }
+        .card-overlay { background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%); }
         
-        /* شاشة الشات */
+        /* شاشة الشات والمنبثقات */
         .full-screen-modal { position: fixed; inset: 0; z-index: 100; background: white; display: flex; flex-direction: column; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 90; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(3px); }
         .dark .full-screen-modal { background: #111827; }
 
         /* Toast */
@@ -59,105 +87,124 @@
     <div id="toast-box"></div>
 
     <!-- Loading -->
-    <div id="loader" class="fixed inset-0 bg-white/80 dark:bg-gray-900/90 z-[100] flex flex-col items-center justify-center hidden">
-        <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+    <div id="loader" class="fixed inset-0 bg-white/90 dark:bg-gray-900/95 z-[100] flex flex-col items-center justify-center hidden">
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-gray-400 border-t-black dark:border-t-white"></div>
     </div>
 
     <!-- Header -->
-    <header id="app-header" class="fixed top-0 left-0 right-0 h-16 glass-header z-50 px-4 flex items-center justify-between hidden md:max-w-md md:mx-auto shadow-sm">
+    <header id="app-header" class="fixed top-0 left-0 right-0 h-16 glass-header z-50 px-4 flex items-center justify-between hidden md:max-w-md md:mx-auto shadow-md">
         <div class="flex items-center gap-3">
-            <button id="btn-back" onclick="window.goBack()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 hidden">
-                <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+            <button id="btn-back" onclick="window.goBack()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 hidden transition-colors">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
             </button>
-            <h1 id="page-title" class="text-lg font-bold text-primary">الرئيسية</h1>
+            <h1 id="page-title" class="text-lg font-bold text-black dark:text-white">الرئيسية</h1>
         </div>
+        
         <div class="flex items-center gap-3">
-            <img id="header-avatar" src="https://via.placeholder.com/40" class="w-9 h-9 rounded-full bg-gray-200 object-cover border border-gray-300 cursor-pointer" onclick="window.navTo('profile')">
+            <!-- Notifications Bell -->
+            <button onclick="window.toggleNotifPanel()" class="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <span id="notif-dot" class="hidden absolute top-1.5 right-2 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white animate-pulse"></span>
+            </button>
+            <!-- Avatar -->
+            <img id="header-avatar" src="https://via.placeholder.com/40" class="w-9 h-9 rounded-full bg-gray-200 object-cover border border-gray-400 cursor-pointer shadow-sm" onclick="window.navTo('profile')">
         </div>
     </header>
 
-    <!-- AUTH VIEW -->
+    <!-- Notification Panel -->
+    <div id="notif-panel" class="fixed top-16 left-4 right-4 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-2 border-gray-200 dark:border-gray-700 z-40 hidden md:max-w-md md:mx-auto animate-pop origin-top-right p-4">
+        <div class="flex justify-between items-center mb-2 border-b pb-2 dark:border-gray-700">
+            <h3 class="font-bold text-sm text-gray-800 dark:text-white">الإشعارات</h3>
+            <button onclick="window.toggleNotifPanel()" class="text-gray-400 hover:text-red-500">✕</button>
+        </div>
+        <div id="notif-list" class="space-y-2 max-h-60 overflow-y-auto">
+            <p class="text-center text-xs text-gray-400 py-4">لا توجد إشعارات جديدة</p>
+        </div>
+    </div>
+
+    <!-- ================= AUTH VIEW ================= -->
     <div id="auth-view" class="min-h-screen p-6 flex flex-col justify-center md:max-w-md md:mx-auto">
         <div class="text-center mb-8">
-            <div class="inline-block p-4 bg-blue-600 rounded-2xl shadow-lg mb-4 transform -rotate-3">
+            <div class="inline-block p-4 bg-blue-600 rounded-2xl shadow-xl border-2 border-blue-700 mb-4 transform -rotate-3">
                 <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
             </div>
-            <h1 class="text-3xl font-extrabold">خدمات الشرقية</h1>
+            <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white">خدمات الشرقية</h1>
         </div>
 
-        <div class="bg-gray-200 dark:bg-gray-800 p-1 rounded-xl flex mb-6">
+        <div class="bg-gray-200 dark:bg-gray-800 p-1 rounded-xl flex mb-6 border border-gray-300 dark:border-gray-600">
             <button onclick="window.switchAuthMode('login')" id="btn-mode-login" class="flex-1 py-3 rounded-lg text-sm font-bold bg-white shadow text-blue-600 transition-all">دخول</button>
             <button onclick="window.switchAuthMode('signup')" id="btn-mode-signup" class="flex-1 py-3 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-700 transition-all">حساب جديد</button>
         </div>
 
         <!-- Login -->
         <form id="form-login" class="space-y-4">
-            <input type="email" id="login-email" placeholder="البريد الإلكتروني" class="w-full p-4 rounded-xl bg-white dark:bg-gray-800 border-none shadow-sm" required>
-            <input type="password" id="login-pass" placeholder="كلمة المرور" class="w-full p-4 rounded-xl bg-white dark:bg-gray-800 border-none shadow-sm" required>
-            <button type="submit" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold shadow-lg">تسجيل الدخول</button>
+            <input type="email" id="login-email" placeholder="البريد الإلكتروني" class="w-full p-4 rounded-xl text-sm" required>
+            <input type="password" id="login-pass" placeholder="كلمة المرور" class="w-full p-4 rounded-xl text-sm" required>
+            <button type="submit" class="w-full py-4 bg-black text-white rounded-xl font-bold shadow-lg hover:bg-gray-800 active:scale-95 transition-transform">تسجيل الدخول</button>
         </form>
 
         <!-- Signup -->
         <form id="form-signup" class="hidden space-y-4 pb-10">
             <div class="flex flex-col items-center mb-4">
-                <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 border-4 border-dashed border-blue-300 relative overflow-hidden group cursor-pointer" onclick="document.getElementById('signup-file').click()">
+                <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 border-4 border-dashed border-gray-400 relative overflow-hidden group cursor-pointer hover:border-blue-500 transition-colors" onclick="document.getElementById('signup-file').click()">
                     <img id="signup-preview" src="https://via.placeholder.com/150?text=+" class="w-full h-full object-cover">
                 </div>
-                <p class="text-xs text-blue-500 font-bold mt-2">اضغط لرفع صورة</p>
+                <p class="text-xs text-blue-600 font-bold mt-2">اضغط لرفع صورة</p>
                 <input type="file" id="signup-file" class="hidden" accept="image/*" onchange="window.handleImageUpload(this, 'signup-preview')">
             </div>
 
             <div class="grid grid-cols-2 gap-3">
-                <input type="text" id="signup-name" placeholder="الاسم" class="w-full p-3 rounded-xl bg-white dark:bg-gray-800 border-none" required>
-                <input type="tel" id="signup-phone" placeholder="الهاتف" class="w-full p-3 rounded-xl bg-white dark:bg-gray-800 border-none" required>
+                <input type="text" id="signup-name" placeholder="الاسم" class="w-full p-3 rounded-xl" required>
+                <input type="tel" id="signup-phone" placeholder="الهاتف" class="w-full p-3 rounded-xl" required>
             </div>
 
             <div class="flex gap-3">
-                <label class="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-xl cursor-pointer border dark:border-gray-700 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-900/30">
+                <label class="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-xl cursor-pointer border-2 border-gray-300 dark:border-gray-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-900/30 transition-all">
                     <input type="radio" name="gender" value="male" class="hidden" checked><span>👨 ذكر</span>
                 </label>
-                <label class="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-xl cursor-pointer border dark:border-gray-700 has-[:checked]:border-pink-500 has-[:checked]:bg-pink-50 dark:has-[:checked]:bg-pink-900/30">
+                <label class="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-xl cursor-pointer border-2 border-gray-300 dark:border-gray-600 has-[:checked]:border-pink-500 has-[:checked]:bg-pink-50 dark:has-[:checked]:bg-pink-900/30 transition-all">
                     <input type="radio" name="gender" value="female" class="hidden"><span>👩 أنثى</span>
                 </label>
             </div>
 
-            <input type="email" id="signup-email" placeholder="البريد الإلكتروني" class="w-full p-3 rounded-xl bg-white dark:bg-gray-800 border-none" required>
-            <input type="password" id="signup-pass" placeholder="كلمة المرور" class="w-full p-3 rounded-xl bg-white dark:bg-gray-800 border-none" required>
+            <input type="email" id="signup-email" placeholder="البريد الإلكتروني" class="w-full p-3 rounded-xl" required>
+            <input type="password" id="signup-pass" placeholder="كلمة المرور" class="w-full p-3 rounded-xl" required>
 
             <div class="grid grid-cols-2 gap-3">
-                <select id="signup-city" class="w-full p-3 rounded-xl bg-white dark:bg-gray-800 border-none"><option value="الزقازيق">الزقازيق</option><option value="بلبيس">بلبيس</option><option value="منيا القمح">منيا القمح</option><option value="فاقوس">فاقوس</option><option value="أبو كبير">أبو كبير</option><option value="العاشر">العاشر</option><option value="ديرب نجم">ديرب نجم</option><option value="الحسينية">الحسينية</option></select>
-                <input type="text" id="signup-area" placeholder="المنطقة" class="w-full p-3 rounded-xl bg-white dark:bg-gray-800 border-none">
+                <select id="signup-city" class="w-full p-3 rounded-xl"><option value="الزقازيق">الزقازيق</option><option value="بلبيس">بلبيس</option><option value="منيا القمح">منيا القمح</option><option value="فاقوس">فاقوس</option><option value="أبو كبير">أبو كبير</option><option value="العاشر">العاشر</option><option value="ديرب نجم">ديرب نجم</option><option value="الحسينية">الحسينية</option></select>
+                <input type="text" id="signup-area" placeholder="المنطقة" class="w-full p-3 rounded-xl">
             </div>
 
-            <div class="flex bg-gray-200 dark:bg-gray-700 p-1 rounded-xl">
+            <div class="flex bg-gray-200 dark:bg-gray-700 p-1 rounded-xl border border-gray-300 dark:border-gray-600">
                 <label class="flex-1 text-center cursor-pointer"><input type="radio" name="role" value="client" class="hidden peer" checked onchange="window.toggleProfVisibility(false)"><div class="py-2 rounded-lg text-xs font-bold text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 transition-all">عميل</div></label>
                 <label class="flex-1 text-center cursor-pointer"><input type="radio" name="role" value="provider" class="hidden peer" onchange="window.toggleProfVisibility(true)"><div class="py-2 rounded-lg text-xs font-bold text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 transition-all">مقدم خدمة</div></label>
             </div>
 
             <div id="prof-container" class="hidden">
-                <select id="signup-prof" class="w-full p-3 rounded-xl bg-white dark:bg-gray-800 border-2 border-blue-100 dark:border-gray-600 outline-none text-sm"><option value="">اختر المهنة...</option></select>
+                <select id="signup-prof" class="w-full p-3 rounded-xl"><option value="">اختر المهنة...</option></select>
             </div>
 
-            <button type="submit" class="w-full py-4 bg-green-600 text-white rounded-xl font-bold shadow-lg">إنشاء الحساب</button>
+            <button type="submit" class="w-full py-4 bg-green-600 text-white rounded-xl font-bold shadow-lg active:scale-95 transition-transform">إنشاء الحساب</button>
         </form>
     </div>
 
-    <!-- APP VIEW -->
+    <!-- ================= APP VIEW ================= -->
     <div id="app-view" class="hidden md:max-w-md md:mx-auto pt-20 min-h-screen relative">
         
         <!-- HOME -->
         <section id="page-home" class="page-section px-4 animate-fade">
             <div class="sticky top-16 z-30 bg-gray-50 dark:bg-gray-900 py-2 mb-2 space-y-2">
-                <div class="flex p-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700">
-                    <button onclick="window.switchHomeTab('services')" id="tab-home-serv" class="flex-1 py-2 rounded-lg text-sm font-bold bg-blue-50 text-blue-600 transition-all">خدمات</button>
+                <div class="flex p-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-300 dark:border-gray-600">
+                    <button onclick="window.switchHomeTab('services')" id="tab-home-serv" class="flex-1 py-2 rounded-lg text-sm font-bold bg-black text-white transition-all">خدمات</button>
                     <button onclick="window.switchHomeTab('jobs')" id="tab-home-jobs" class="flex-1 py-2 rounded-lg text-sm font-bold text-gray-500 transition-all">وظائف</button>
                 </div>
                 <div id="prof-search-box" class="relative">
-                    <input type="text" id="prof-search" onkeyup="window.filterProfessions()" placeholder="ابحث عن مهنة (سباك، طبيب...)" class="w-full p-3 pr-10 rounded-xl bg-white dark:bg-gray-800 border-none shadow-sm outline-none text-sm">
+                    <input type="text" id="prof-search" onkeyup="window.filterProfessions()" placeholder="ابحث عن مهنة..." class="w-full p-3 pr-10 rounded-xl shadow-sm text-sm">
                 </div>
             </div>
+            <!-- GRID 2 COLS -->
             <div id="view-services" class="pb-4">
-                <div id="professions-grid" class="grid grid-cols-3 gap-2"></div>
+                <div id="professions-grid" class="grid grid-cols-2 gap-3"></div>
             </div>
             <div id="view-jobs" class="hidden space-y-3 pb-4">
                 <p class="text-center text-gray-400 py-10">جاري تحميل الوظائف...</p>
@@ -171,47 +218,48 @@
 
         <!-- DIRECTORY -->
         <section id="page-directory" class="page-section hidden px-4 animate-fade">
-            <input type="text" id="dir-search" onkeyup="window.filterDirectory()" placeholder="ابحث عن أي شخص..." class="w-full p-3 rounded-xl bg-white dark:bg-gray-800 border-none shadow-sm outline-none mb-4">
+            <input type="text" id="dir-search" onkeyup="window.filterDirectory()" placeholder="ابحث عن أي شخص..." class="w-full p-3 rounded-xl shadow-sm mb-4">
             <div id="dir-list" class="space-y-3 pb-20"></div>
         </section>
 
         <!-- ADD -->
         <section id="page-add" class="page-section hidden px-4 animate-fade">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border dark:border-gray-700">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 border border-gray-300 dark:border-gray-600">
                 <h2 class="text-lg font-bold mb-4 text-center">إضافة جديد</h2>
                 <div class="flex gap-2 mb-4">
-                    <button onclick="window.switchAddMode('req')" id="btn-add-req" class="flex-1 py-2 rounded-lg text-sm font-bold bg-blue-50 text-blue-600 border border-blue-200">طلب خدمة</button>
-                    <button onclick="window.switchAddMode('job')" id="btn-add-job" class="flex-1 py-2 rounded-lg text-sm font-bold bg-gray-50 text-gray-500 border border-gray-200">وظيفة</button>
+                    <button onclick="window.switchAddMode('req')" id="btn-add-req" class="flex-1 py-2 rounded-lg text-sm font-bold bg-blue-50 text-blue-600 border-2 border-blue-200">طلب خدمة</button>
+                    <button onclick="window.switchAddMode('job')" id="btn-add-job" class="flex-1 py-2 rounded-lg text-sm font-bold bg-gray-50 text-gray-500 border-2 border-gray-200">وظيفة</button>
                 </div>
                 
                 <!-- Request Form -->
                 <form id="form-req" class="space-y-3">
-                    <select id="req-prof" class="w-full p-3 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-600 outline-none text-sm"></select>
-                    <textarea id="req-desc" rows="4" placeholder="وصف المشكلة..." class="w-full p-3 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-600 outline-none" required></textarea>
-                    <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-xl font-bold">نشر الطلب</button>
+                    <select id="req-prof" class="w-full p-3 rounded-xl text-sm"></select>
+                    <textarea id="req-desc" rows="4" placeholder="وصف المشكلة..." class="w-full p-3 rounded-xl" required></textarea>
+                    <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-xl font-bold shadow hover:bg-blue-700">نشر الطلب</button>
                 </form>
 
                 <!-- Job Form -->
                 <form id="form-job" class="hidden space-y-3">
-                    <input type="text" id="job-title" placeholder="عنوان الوظيفة" class="w-full p-3 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-600 outline-none" required>
-                    <textarea id="job-desc" rows="4" placeholder="التفاصيل والراتب..." class="w-full p-3 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-600 outline-none" required></textarea>
-                    <button type="submit" class="w-full py-3 bg-purple-600 text-white rounded-xl font-bold">نشر الوظيفة</button>
+                    <input type="text" id="job-title" placeholder="المسمى الوظيفي (مثال: مطلوب سكرتيرة)" class="w-full p-3 rounded-xl" required>
+                    <input type="tel" id="job-phone" placeholder="رقم للتواصل (اختياري - بديل لرقمك)" class="w-full p-3 rounded-xl border-dashed !border-blue-400">
+                    <textarea id="job-desc" rows="4" placeholder="تفاصيل الوظيفة، الراتب، المواعيد..." class="w-full p-3 rounded-xl" required></textarea>
+                    <button type="submit" class="w-full py-3 bg-purple-600 text-white rounded-xl font-bold shadow hover:bg-purple-700">نشر الوظيفة</button>
                 </form>
             </div>
         </section>
 
         <!-- PROFILE -->
         <section id="page-profile" class="page-section hidden px-4 animate-fade">
-            <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mb-4 relative overflow-hidden">
-                <div class="absolute top-0 left-0 right-0 h-20 bg-gradient-to-r from-blue-500 to-cyan-400"></div>
+            <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-300 dark:border-gray-700 mb-4 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-20 bg-gradient-to-r from-blue-500 to-cyan-600"></div>
                 <div class="relative flex flex-col items-center pt-6">
-                    <img id="prof-img-view" src="" class="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 bg-white object-cover shadow-md">
+                    <img id="prof-img-view" src="" class="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 bg-white object-cover shadow-lg">
                     <h2 id="prof-name-view" class="text-xl font-bold mt-2 dark:text-white"></h2>
-                    <p id="prof-role-view" class="text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full mt-1"></p>
+                    <p id="prof-role-view" class="text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full mt-1 border dark:border-gray-600"></p>
                     <p id="prof-phone-view" class="text-sm text-gray-400 mt-1"></p>
                     <div class="flex gap-2 mt-4 w-full">
-                        <button onclick="window.navTo('edit-profile')" class="flex-1 py-2 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm hover:bg-blue-100">تعديل ✏️</button>
-                        <button onclick="window.navTo('settings')" class="flex-1 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200">إعدادات ⚙️</button>
+                        <button onclick="window.navTo('edit-profile')" class="flex-1 py-2 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm hover:bg-blue-100 border border-blue-200">تعديل ✏️</button>
+                        <button onclick="window.navTo('settings')" class="flex-1 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 border border-gray-200">إعدادات ⚙️</button>
                     </div>
                 </div>
             </div>
@@ -224,46 +272,66 @@
                 <div id="my-activity" class="space-y-2 min-h-[50px]">
                      <p class="text-center text-xs text-gray-400 py-4">جاري تحميل النشاط...</p>
                 </div>
-                <button onclick="window.logout()" class="w-full mt-8 py-3 bg-red-50 text-red-500 border border-red-100 rounded-xl font-bold">خروج</button>
+                <button onclick="window.logout()" class="w-full mt-8 py-3 bg-red-50 text-red-500 border-2 border-red-100 rounded-xl font-bold hover:bg-red-50">خروج</button>
             </div>
         </section>
 
         <!-- EDIT PROFILE -->
         <section id="page-edit-profile" class="page-section hidden px-4 animate-fade">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm space-y-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm space-y-4 border border-gray-300 dark:border-gray-700">
                 <div class="flex flex-col items-center mb-4">
-                    <img id="edit-img-preview" src="" class="w-24 h-24 rounded-full object-cover">
-                    <button onclick="document.getElementById('edit-file').click()" class="mt-2 text-blue-600 font-bold text-sm">تغيير الصورة</button>
+                    <img id="edit-img-preview" src="" class="w-24 h-24 rounded-full object-cover border-2 border-gray-200">
+                    <button onclick="document.getElementById('edit-file').click()" class="mt-2 text-blue-600 font-bold text-sm underline">تغيير الصورة</button>
                     <input type="file" id="edit-file" class="hidden" accept="image/*" onchange="window.handleImageUpload(this, 'edit-img-preview', true)">
                 </div>
                 <div class="space-y-3">
-                    <div><label class="text-xs text-gray-400">الاسم</label><input type="text" id="edit-name" class="w-full p-3 rounded-xl border dark:bg-gray-900 dark:border-gray-700"></div>
-                    <!-- EDIT EMAIL -->
-                    <div><label class="text-xs text-gray-400">البريد الإلكتروني</label><input type="email" id="edit-email" class="w-full p-3 rounded-xl border dark:bg-gray-900 dark:border-gray-700 bg-gray-50"></div>
-                    <!-- EDIT PHONE -->
-                    <div><label class="text-xs text-gray-400">رقم الهاتف</label><input type="tel" id="edit-phone" class="w-full p-3 rounded-xl border dark:bg-gray-900 dark:border-gray-700"></div>
-                    
-                    <div><label class="text-xs text-gray-400">المدينة</label><select id="edit-city" class="w-full p-3 rounded-xl border dark:bg-gray-900 dark:border-gray-700"><option value="الزقازيق">الزقازيق</option><option value="بلبيس">بلبيس</option><option value="منيا القمح">منيا القمح</option></select></div>
+                    <div><label class="text-xs font-bold text-gray-500 mb-1 block">الاسم</label><input type="text" id="edit-name" class="w-full p-3 rounded-xl"></div>
+                    <div><label class="text-xs font-bold text-gray-500 mb-1 block">البريد الإلكتروني</label><input type="email" id="edit-email" class="w-full p-3 rounded-xl"></div>
+                    <div><label class="text-xs font-bold text-gray-500 mb-1 block">رقم الهاتف</label><input type="tel" id="edit-phone" class="w-full p-3 rounded-xl"></div>
+                    <div><label class="text-xs font-bold text-gray-500 mb-1 block">المدينة</label><select id="edit-city" class="w-full p-3 rounded-xl"><option value="الزقازيق">الزقازيق</option><option value="بلبيس">بلبيس</option><option value="منيا القمح">منيا القمح</option></select></div>
                     <div id="edit-prof-container" class="hidden">
-                        <label class="text-xs text-gray-400">المهنة</label>
-                        <select id="edit-prof" class="w-full p-3 rounded-xl border dark:bg-gray-900 dark:border-gray-700"></select>
+                        <label class="text-xs font-bold text-gray-500 mb-1 block">المهنة</label>
+                        <select id="edit-prof" class="w-full p-3 rounded-xl"></select>
                     </div>
                 </div>
                 <div class="flex gap-3 mt-6">
-                    <button onclick="window.saveProfileChanges()" class="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold">حفظ</button>
-                    <button onclick="window.goBack()" class="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold">إلغاء</button>
+                    <button onclick="window.saveProfileChanges()" class="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold shadow">حفظ</button>
+                    <button onclick="window.goBack()" class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold">إلغاء</button>
                 </div>
             </div>
         </section>
 
-        <!-- SETTINGS -->
+        <!-- SETTINGS (NEW) -->
         <section id="page-settings" class="page-section hidden px-4 animate-fade">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm space-y-4 border dark:border-gray-700">
-                <div class="flex justify-between items-center p-2">
-                    <span class="font-bold">الوضع الليلي</span>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm space-y-4 border border-gray-300 dark:border-gray-700">
+                <h3 class="font-bold text-lg mb-4 border-b pb-2 dark:border-gray-700">الإعدادات والخصوصية</h3>
+                
+                <!-- Notifications -->
+                <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
+                    <span class="font-bold text-sm">🔔 تفعيل الإشعارات</span>
+                    <input type="checkbox" id="toggle-notif" class="w-6 h-6 accent-blue-600" checked>
+                </div>
+
+                <!-- Privacy: Hide Phone -->
+                <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
+                    <span class="font-bold text-sm">📞 إخفاء رقمي من الدليل</span>
+                    <input type="checkbox" id="toggle-hide-phone" class="w-6 h-6 accent-red-500">
+                </div>
+
+                <!-- Privacy: Hide Profile -->
+                <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
+                    <span class="font-bold text-sm">👻 إخفاء ملفي من المستخدمين</span>
+                    <input type="checkbox" id="toggle-hide-profile" class="w-6 h-6 accent-red-500">
+                </div>
+
+                <!-- Dark Mode -->
+                <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
+                    <span class="font-bold text-sm">🌙 الوضع الليلي</span>
                     <input type="checkbox" id="theme-toggle" class="w-6 h-6 accent-blue-600" onchange="window.toggleTheme()">
                 </div>
-                <button onclick="window.goBack()" class="w-full py-3 bg-gray-100 text-gray-600 rounded-xl font-bold mt-4">رجوع</button>
+
+                <button onclick="window.saveSettings()" class="w-full py-3 bg-black text-white rounded-xl font-bold mt-4 shadow-lg">حفظ التغييرات</button>
+                <button onclick="window.goBack()" class="w-full py-3 text-gray-500 font-bold mt-2">رجوع</button>
             </div>
         </section>
 
@@ -271,27 +339,50 @@
         <section id="page-chat" class="page-section hidden px-4 animate-fade">
             <div id="chat-history-list" class="space-y-2 pb-20"><p class="text-center text-gray-400 py-10">لا توجد محادثات</p></div>
         </section>
-
     </div>
 
-    <!-- CHAT ROOM (OVERLAY) -->
+    <!-- USER POPUP MODAL -->
+    <div id="profile-modal" class="modal-overlay hidden animate-pop">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-sm rounded-3xl p-6 relative shadow-2xl border-2 border-gray-200 dark:border-gray-600">
+            <button onclick="document.getElementById('profile-modal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 font-bold text-xl">✕</button>
+            <div class="flex flex-col items-center">
+                <img id="modal-img" src="" class="w-24 h-24 rounded-full object-cover border-4 border-gray-100 dark:border-gray-700 mb-3">
+                <h2 id="modal-name" class="text-xl font-bold dark:text-white"></h2>
+                <p id="modal-role" class="text-sm text-blue-600 font-bold mb-1"></p>
+                <p id="modal-city" class="text-xs text-gray-400 mb-4"></p>
+                
+                <!-- Fake Stats -->
+                <div class="flex gap-4 mb-6 w-full justify-center bg-gray-50 dark:bg-gray-700 rounded-xl p-3">
+                    <div class="text-center"><span class="block font-bold text-lg">4.9</span><span class="text-[10px] text-gray-500">تقييم</span></div>
+                    <div class="w-px bg-gray-300"></div>
+                    <div class="text-center"><span class="block font-bold text-lg">100+</span><span class="text-[10px] text-gray-500">عميل</span></div>
+                </div>
+
+                <div class="flex gap-2 w-full" id="modal-actions">
+                    <!-- Buttons injected via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAT ROOM (Overlay) -->
     <div id="page-chat-room" class="full-screen-modal hidden">
-        <div class="h-16 bg-gray-50 dark:bg-gray-800 flex items-center px-4 gap-3 border-b dark:border-gray-700 shrink-0">
+        <div class="h-16 bg-gray-50 dark:bg-gray-800 flex items-center px-4 gap-3 border-b border-gray-300 dark:border-gray-700 shrink-0">
             <button onclick="window.goBack()"><svg class="w-6 h-6 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
             <h3 id="chat-room-name" class="font-bold text-lg dark:text-white">...</h3>
         </div>
         <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-100 dark:bg-gray-900"></div>
-        <form id="form-message" class="p-3 bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex gap-2 shrink-0">
-            <input type="text" id="msg-input" class="flex-1 p-3 rounded-full bg-gray-100 dark:bg-gray-700 dark:text-white outline-none" placeholder="اكتب رسالة..." autocomplete="off">
+        <form id="form-message" class="p-3 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex gap-2 shrink-0">
+            <input type="text" id="msg-input" class="flex-1 p-3 rounded-full bg-gray-100 dark:bg-gray-700 dark:text-white border-2 border-gray-300 dark:border-gray-600" placeholder="اكتب رسالة..." autocomplete="off">
             <button type="submit" id="btn-send-msg" class="p-3 bg-blue-600 text-white rounded-full shadow-lg"><svg class="w-5 h-5 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg></button>
         </form>
     </div>
 
     <!-- NAV -->
-    <nav id="nav-bar" class="hidden fixed bottom-0 left-0 right-0 h-20 bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around items-center md:max-w-md md:mx-auto z-40 shadow-2xl">
+    <nav id="nav-bar" class="hidden fixed bottom-0 left-0 right-0 h-20 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-around items-center md:max-w-md md:mx-auto z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
         <button onclick="window.navTo('home')" class="nav-btn active flex flex-col items-center text-blue-600 w-16"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span class="text-[10px] font-bold">الرئيسية</span></button>
         <button onclick="window.navTo('directory')" class="nav-btn flex flex-col items-center text-gray-400 w-16 hover:text-blue-500"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg><span class="text-[10px] font-bold">الدليل</span></button>
-        <div class="relative -top-6"><button onclick="window.navTo('add')" class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-400 rounded-full flex items-center justify-center shadow-lg border-4 border-gray-50 dark:border-gray-900 text-white transform active:scale-90 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button></div>
+        <div class="relative -top-6"><button onclick="window.navTo('add')" class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-400 rounded-full flex items-center justify-center shadow-lg border-4 border-gray-100 dark:border-gray-800 text-white transform active:scale-90 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button></div>
         <button onclick="window.navTo('chat')" class="nav-btn flex flex-col items-center text-gray-400 w-16 hover:text-blue-500"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span class="text-[10px] font-bold">محادثات</span></button>
         <button onclick="window.navTo('profile')" class="nav-btn flex flex-col items-center text-gray-400 w-16 hover:text-blue-500"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span class="text-[10px] font-bold">حسابي</span></button>
     </nav>
@@ -317,7 +408,7 @@
         const db = getFirestore(app);
         const APP_ID = 'services-cef84';
 
-        // --- 100 Professions & Mapped Images ---
+        // --- 100 Professions + "خدمات أخرى" ---
         const professions = [
             "محاسب", "مهندس مدني", "مهندس معماري", "طبيب بشري", "طبيب أسنان", "صيدلي", "ممرض", "محامي", "مدرس", "جرافيك ديزاينر",
             "مبرمج", "كاتب محتوى", "مسوق إلكتروني", "مترجم", "مدخل بيانات", "موظف استقبال", "سكرتير", "شيف", "ويتر", "باريستا",
@@ -328,49 +419,25 @@
             "فني كاميرات", "فني شبكات", "فني مصاعد", "فني زجاج", "فني رخام", "فني جبس بورد", "فني باركيه", "خطاط", "رسام", "نحات", "صائغ",
             "ساعاتي", "فني مفاتيح", "فني اليكترونيات", "فني تحاليل", "فني أشعة", "أخصائي علاج طبيعي", "أخصائي تخاطب", "محفظ قرآن", "مأذون",
             "طباخ منزلي", "بيبي سيتر", "جليس مسنين", "مدرب جيم", "مدرب سباحة", "مدرب سواقة", "سمسار عقارات", "تاجر ملابس", "تاجر أغذية",
-            "مندوب مبيعات", "كاشير", "مدير محل", "فني بصريات", "فني أسنان", "مدرب كرة قدم", "حكم", "يوتيوبر", "صانع محتوى"
+            "مندوب مبيعات", "كاشير", "مدير محل", "فني بصريات", "فني أسنان", "مدرب كرة قدم", "حكم", "يوتيوبر", "صانع محتوى", "خدمات أخرى"
         ];
 
-        // Smart Image Mapping (Pexels)
-        const pexelsBase = "https://images.pexels.com/photos/";
-        const pexelsParams = "?auto=compress&cs=tinysrgb&w=150"; // High compression for performance
+        // Images Array (Extended for "Other Services")
+        const validImages = [
+            '313690/pexels-photo-313690.jpeg', '40568/medical-appointment-doctor-healthcare-40568.jpeg', '3212114/pexels-photo-3212114.jpeg', 
+            '1432675/pexels-photo-1432675.jpeg', '4489749/pexels-photo-4489749.jpeg', '5212345/pexels-photo-5212345.jpeg', '270348/pexels-photo-270348.jpeg',
+            '4386466/pexels-photo-4386466.jpeg', '5816291/pexels-photo-5816291.jpeg', '159306/construction-site-build-construction-work-159306.jpeg',
+            '1267320/pexels-photo-1267320.jpeg', '1319460/pexels-photo-1319460.jpeg', '4495018/pexels-photo-4495018.jpeg', '4391470/pexels-photo-4391470.jpeg',
+            '5845633/pexels-photo-5845633.jpeg', '6197116/pexels-photo-6197116.jpeg', '5591581/pexels-photo-5591581.jpeg', '3771069/pexels-photo-3771069.jpeg',
+            '2582937/pexels-photo-2582937.jpeg', '102127/pexels-photo-102127.jpeg', '5370665/pexels-photo-5370665.jpeg', '863988/pexels-photo-863988.jpeg',
+            '323705/pexels-photo-323705.jpeg', '996329/pexels-photo-996329.jpeg', '264636/pexels-photo-264636.jpeg', '2834626/pexels-photo-2834626.jpeg',
+            '3184418/pexels-photo-3184418.jpeg' // For "Other Services"
+        ];
         
-        // Map keywords to Pexels IDs (Manually Curated for accuracy)
-        const imgMap = {
-            'محاسب': '5816291/pexels-photo-5816291.jpeg', 'مهندس': '159306/construction-site-build-construction-work-159306.jpeg', 'طبيب': '40568/medical-appointment-doctor-healthcare-40568.jpeg',
-            'أسنان': '3845806/pexels-photo-3845806.jpeg', 'صيدلي': '3683099/pexels-photo-3683099.jpeg', 'ممرض': '4386466/pexels-photo-4386466.jpeg',
-            'محامي': '4427630/pexels-photo-4427630.jpeg', 'مدرس': '5212345/pexels-photo-5212345.jpeg', 'ديزاينر': '326503/pexels-photo-326503.jpeg',
-            'مبرمج': '270348/pexels-photo-270348.jpeg', 'كاتب': '210661/pexels-photo-210661.jpeg', 'مسوق': '9051/pexels-photo.jpg',
-            'مترجم': '6929365/pexels-photo-6929365.jpeg', 'بيانات': '17483906/pexels-photo-17483906.jpeg', 'استقبال': '5591126/pexels-photo-5591126.jpeg',
-            'شيف': '1267320/pexels-photo-1267320.jpeg', 'ويتر': '260922/pexels-photo-260922.jpeg', 'باريستا': '374885/pexels-photo-374885.jpeg',
-            'سباك': '3212114/pexels-photo-3212114.jpeg', 'كهربائي': '1432675/pexels-photo-1432675.jpeg', 'نجار': '1249611/pexels-photo-1249611.jpeg',
-            'نقاش': '7218525/pexels-photo-7218525.jpeg', 'حداد': '5845633/pexels-photo-5845633.jpeg', 'لحام': '2381463/pexels-photo-2381463.jpeg',
-            'ميكانيكي': '4489749/pexels-photo-4489749.jpeg', 'سيارات': '4489732/pexels-photo-4489732.jpeg', 'تكييف': '6197116/pexels-photo-6197116.jpeg',
-            'غسالات': '5591581/pexels-photo-5591581.jpeg', 'سيراميك': '1652544/pexels-photo-1652544.jpeg', 'بناء': '544965/pexels-photo-544965.jpeg',
-            'منجد': '3771069/pexels-photo-3771069.jpeg', 'ترزي': '4622321/pexels-photo-4622321.jpeg', 'مكوجي': '461035/pexels-photo-461035.jpeg',
-            'حلاق': '1319460/pexels-photo-1319460.jpeg', 'كوافير': '3993444/pexels-photo-3993444.jpeg', 'ماكيير': '2113855/pexels-photo-2113855.jpeg',
-            'مصور': '598917/pexels-photo-598917.jpeg', 'كمبيوتر': '2582937/pexels-photo-2582937.jpeg', 'موبايل': '404280/pexels-photo-404280.jpeg',
-            'سائق': '4495018/pexels-photo-4495018.jpeg', 'نقل': '6169160/pexels-photo-6169160.jpeg', 'دليفري': '4391470/pexels-photo-4391470.jpeg',
-            'نظافة': '4099256/pexels-photo-4099256.jpeg', 'زراعي': '2583847/pexels-photo-2583847.jpeg', 'حارس': '7564240/pexels-photo-7564240.jpeg',
-            'كاميرات': '430208/pexels-photo-430208.jpeg', 'شبكات': '1148820/pexels-photo-1148820.jpeg', 'زجاج': '1094873/pexels-photo-1094873.jpeg',
-            'خطاط': '2097102/pexels-photo-2097102.jpeg', 'رسام': '102127/pexels-photo-102127.jpeg', 'صائغ': '5370665/pexels-photo-5370665.jpeg',
-            'اليكترونيات': '163100/pexels-photo-163100.jpeg', 'تحاليل': '3735709/pexels-photo-3735709.jpeg', 'علاج': '5473182/pexels-photo-5473182.jpeg',
-            'قرآن': '2233416/pexels-photo-2233416.jpeg', 'بيبي': '51953/baby-sleeping-dream-51953.jpeg', 'جيم': '1954524/pexels-photo-1954524.jpeg',
-            'سباحة': '863988/pexels-photo-863988.jpeg', 'عقارات': '323705/pexels-photo-323705.jpeg', 'ملابس': '996329/pexels-photo-996329.jpeg',
-            'أغذية': '264636/pexels-photo-264636.jpeg', 'مبيعات': '3184360/pexels-photo-3184360.jpeg', 'كاشير': '5632397/pexels-photo-5632397.jpeg',
-            'بصريات': '704953/pexels-photo-704953.jpeg', 'كرة': '47730/the-ball-stadion-football-the-pitch-47730.jpeg', 'يوتيوبر': '2834626/pexels-photo-2834626.jpeg'
-        };
-
-        function getProfImage(profName) {
-            // Match closest key
-            const key = Object.keys(imgMap).find(k => profName.includes(k));
-            if (key) return pexelsBase + imgMap[key] + pexelsParams;
-            // Random fallback from specific generic list to avoid broken links
-            const fallbacks = [
-                '3183150/pexels-photo-3183150.jpeg', '3184291/pexels-photo-3184291.jpeg', 
-                '3184339/pexels-photo-3184339.jpeg', '3184292/pexels-photo-3184292.jpeg'
-            ];
-            return pexelsBase + fallbacks[profName.length % fallbacks.length] + pexelsParams;
+        function getProfImage(profName, index) {
+            // Special Case for "خدمات أخرى"
+            if (profName === "خدمات أخرى") return `https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=200`;
+            return `https://images.pexels.com/photos/${validImages[index % validImages.length]}?auto=compress&cs=tinysrgb&w=200`;
         }
 
         let currentUser = null;
@@ -391,10 +458,9 @@
             setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 3000);
         };
 
-        window.handleImageUpload = async (input, previewId, isEdit = false) => {
+        window.handleImageUpload = async (input, previewId) => {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                if (file.size > 5 * 1024 * 1024) return window.showToast('حجم الصورة كبير جداً', 'error');
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = (event) => {
@@ -416,6 +482,7 @@
         };
 
         window.navTo = (pageId) => {
+            window.scrollTo(0, 0);
             if (pageId === 'chat-room') {
                 document.getElementById('page-chat-room').classList.remove('hidden');
                 navStack.push('chat-room');
@@ -429,20 +496,15 @@
             else if (navStack[navStack.length - 1] !== pageId) navStack.push(pageId);
 
             document.getElementById(`page-${pageId}`).classList.remove('hidden');
-            
-            const headerTitle = document.getElementById('page-title');
             const backBtn = document.getElementById('btn-back');
-            document.getElementById('nav-bar').classList.remove('hidden');
-            
             if (pageId === 'home') {
-                headerTitle.innerText = 'الرئيسية';
+                document.getElementById('page-title').innerText = 'الرئيسية';
                 backBtn.classList.add('hidden');
             } else {
                 backBtn.classList.remove('hidden');
-                const titles = { directory: 'الدليل', add: 'إضافة', chat: 'المحادثات', profile: 'حسابي', 'category-details': 'مقدمو الخدمة', 'settings': 'الإعدادات', 'edit-profile': 'تعديل الملف' };
-                headerTitle.innerText = titles[pageId] || 'صفحة';
+                document.getElementById('page-title').innerText = 'رجوع';
             }
-
+            
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('text-blue-600', 'active'));
             const navMap = { 'home': 0, 'directory': 1, 'chat': 3, 'profile': 4 };
             if (navMap[pageId] !== undefined) document.querySelectorAll('.nav-btn')[navMap[pageId]].classList.add('text-blue-600');
@@ -457,13 +519,8 @@
                     document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
                     document.getElementById(`page-${prevPage}`).classList.remove('hidden');
                 }
-                const backBtn = document.getElementById('btn-back');
-                if (prevPage === 'home') {
-                    document.getElementById('page-title').innerText = 'الرئيسية';
-                    backBtn.classList.add('hidden');
-                } else {
-                    backBtn.classList.remove('hidden');
-                }
+                if (prevPage === 'home') document.getElementById('btn-back').classList.add('hidden');
+                window.scrollTo(0, 0);
             }
         };
 
@@ -480,26 +537,30 @@
         function renderProfessionsGrid(list) {
             const grid = document.getElementById('professions-grid');
             grid.innerHTML = '';
-            list.forEach((p) => {
-                const imgSrc = getProfImage(p);
+            list.forEach((p, index) => {
+                const imgSrc = getProfImage(p, index);
                 grid.innerHTML += `
-                    <div onclick="window.openCategory('${p}')" class="prof-card cursor-pointer h-28 rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 relative group">
+                    <div onclick="window.openCategory('${p}')" class="prof-card cursor-pointer h-32 rounded-2xl overflow-hidden shadow-md border border-gray-300 dark:border-gray-600 relative group bg-white dark:bg-gray-800">
                         <img src="${imgSrc}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        <div class="card-overlay absolute inset-0 flex items-end p-2">
-                            <span class="font-bold text-xs text-white leading-tight drop-shadow-md">${p}</span>
+                        <div class="card-overlay absolute inset-0 flex items-end p-3">
+                            <span class="font-bold text-white text-sm drop-shadow-lg">${p}</span>
                         </div>
                     </div>
                 `;
             });
         }
 
+        let searchTimeout;
         window.filterProfessions = () => {
-            const term = document.getElementById('prof-search').value.trim();
-            const filtered = term ? professions.filter(p => p.includes(term)) : professions;
-            renderProfessionsGrid(filtered);
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const term = document.getElementById('prof-search').value.trim();
+                const filtered = term ? professions.filter(p => p.includes(term)) : professions;
+                renderProfessionsGrid(filtered);
+            }, 200);
         };
 
-        // --- AUTH HANDLERS ---
+        // --- AUTH ---
         window.switchAuthMode = (mode) => {
             if (mode === 'login') {
                 document.getElementById('form-login').classList.remove('hidden');
@@ -538,18 +599,22 @@
                 const role = document.querySelector('input[name="role"]:checked').value;
                 const gender = document.querySelector('input[name="gender"]:checked').value;
                 const prof = role === 'provider' ? document.getElementById('signup-prof').value : null;
+                
                 if (role === 'provider' && !prof) throw new Error('يرجى اختيار المهنة');
 
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
                 let defAvatar = `https://ui-avatars.com/api/?name=${document.getElementById('signup-name').value}&background=${gender==='male'?'0D8ABC':'E91E63'}&color=fff`;
                 const photo = tempImgBase64 || defAvatar;
 
+                // Initialize Settings
+                const defaultSettings = { notifEnabled: true, hidePhone: false, hideProfile: false };
+
                 await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', cred.user.uid), {
                     uid: cred.user.uid,
                     name: document.getElementById('signup-name').value,
                     phone: document.getElementById('signup-phone').value,
                     city: document.getElementById('signup-city').value,
-                    role, profession: prof, photoURL: photo, gender,
+                    role, profession: prof, photoURL: photo, gender, settings: defaultSettings,
                     createdAt: new Date().toISOString()
                 });
                 window.showToast('تم التسجيل');
@@ -559,32 +624,40 @@
             }
         };
 
-        // --- MAIN APP ---
+        // --- MAIN APP START ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
                 const snap = await getDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', user.uid));
                 if (snap.exists()) {
                     userProfile = snap.data();
+                    // Ensure settings exist
+                    if(!userProfile.settings) userProfile.settings = { notifEnabled: true, hidePhone: false, hideProfile: false };
+
                     document.getElementById('auth-view').classList.add('hidden');
                     document.getElementById('app-view').classList.remove('hidden');
                     document.getElementById('app-header').classList.remove('hidden');
                     document.getElementById('nav-bar').classList.remove('hidden');
                     document.getElementById('header-avatar').src = userProfile.photoURL;
                     
-                    // Fill Profile UI
+                    // Profile Page Fill
                     document.getElementById('prof-name-view').innerText = userProfile.name + (userProfile.gender === 'male' ? '' : ' 🌸');
                     document.getElementById('prof-role-view').innerText = userProfile.role === 'provider' ? userProfile.profession : 'عميل';
                     document.getElementById('prof-phone-view').innerText = userProfile.phone;
                     document.getElementById('prof-img-view').src = userProfile.photoURL;
                     
-                    // Fill Edit Forms
+                    // Edit Page Fill
                     document.getElementById('edit-name').value = userProfile.name;
-                    document.getElementById('edit-email').value = currentUser.email; // Email Field
-                    document.getElementById('edit-phone').value = userProfile.phone; // Phone Field
+                    document.getElementById('edit-email').value = currentUser.email;
+                    document.getElementById('edit-phone').value = userProfile.phone;
                     document.getElementById('edit-city').value = userProfile.city || '';
                     document.getElementById('edit-img-preview').src = userProfile.photoURL;
                     
+                    // Settings Page Fill
+                    document.getElementById('toggle-notif').checked = userProfile.settings.notifEnabled;
+                    document.getElementById('toggle-hide-phone').checked = userProfile.settings.hidePhone;
+                    document.getElementById('toggle-hide-profile').checked = userProfile.settings.hideProfile;
+
                     if (userProfile.role === 'provider') {
                         document.getElementById('edit-prof-container').classList.remove('hidden');
                         document.getElementById('edit-prof').value = userProfile.profession;
@@ -608,46 +681,81 @@
         });
 
         function startListeners() {
-            // 1. All Users Cache (Fetch Everyone)
+            // 1. Directory - Filter out hidden profiles
             onSnapshot(collection(db, 'artifacts', APP_ID, 'public', 'data', 'profiles'), (snap) => {
                 allUsersCache = [];
-                snap.forEach(d => { if (d.id !== currentUser.uid) allUsersCache.push(d.data()); });
+                snap.forEach(d => { 
+                    const u = d.data();
+                    // PRIVACY CHECK: Hide Profile from Directory
+                    if (d.id !== currentUser.uid && !(u.settings && u.settings.hideProfile)) {
+                        allUsersCache.push(u); 
+                    }
+                });
                 window.renderDirectory(); 
             });
 
-            // 2. Provider Matching Requests
+            // 2. Notifications (Provider requests)
             if (userProfile.role === 'provider') {
                 const q = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('type', '==', 'service'), where('profession', '==', userProfile.profession));
                 onSnapshot(q, (snap) => {
                     const container = document.getElementById('matching-reqs-list');
                     container.innerHTML = '';
+                    let newCount = 0;
                     snap.forEach(d => {
                         const req = d.data();
                         if(req.uid === currentUser.uid) return;
+                        newCount++;
                         container.innerHTML += `
                             <div class="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border-r-4 border-orange-500 flex justify-between items-center animate-fade">
                                 <div><p class="font-bold text-sm dark:text-white">${req.requesterName || 'عميل'}</p><p class="text-xs text-gray-500">${req.desc}</p></div>
                                 <button onclick="window.openChat('${req.uid}', '${req.requesterName || 'عميل'}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold">تواصل</button>
                             </div>`;
                     });
+                    if(newCount > 0 && userProfile.settings.notifEnabled) {
+                        document.getElementById('notif-dot').classList.remove('hidden');
+                        document.getElementById('notif-list').innerHTML = `<div class="p-2 bg-blue-50 rounded border border-blue-100"><p class="text-sm text-blue-800">يوجد ${newCount} طلبات جديدة لمهنتك!</p></div>`;
+                    }
                     if(!container.innerHTML) container.innerHTML = '<p class="text-gray-400 text-sm text-center">لا توجد طلبات حالياً</p>';
                 });
             }
 
-            // 3. Jobs
+            // 3. Jobs (Reordered Card Layout - Requirement 1)
             onSnapshot(query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('type', '==', 'job')), (snap) => {
                 const list = document.getElementById('view-jobs');
                 list.innerHTML = '';
                 if (snap.empty) list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد وظائف</p>';
                 snap.forEach(d => {
                     const j = d.data();
-                    list.innerHTML += `<div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border-r-4 border-purple-500 mb-2 animate-fade"><h3 class="font-bold text-gray-800 dark:text-white">${j.title}</h3><p class="text-sm text-gray-500 mt-1">${j.desc}</p></div>`;
+                    const contactPhone = j.contactPhone || j.posterPhone; 
+                    list.innerHTML += `
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md mb-3 border-2 border-gray-200 dark:border-gray-600 animate-fade overflow-hidden">
+                            <!-- 1. Publisher Info -->
+                            <div class="flex items-center gap-3 p-3 border-b border-gray-100 dark:border-gray-700">
+                                <img src="${j.posterPhoto || 'https://via.placeholder.com/40'}" class="w-8 h-8 rounded-full object-cover border">
+                                <p class="text-xs font-bold text-gray-600 dark:text-gray-300">${j.posterName || 'ناشر الوظيفة'}</p>
+                            </div>
+                            
+                            <!-- 2. Job Title (Highlighted) -->
+                            <div class="bg-blue-50 dark:bg-blue-900/20 p-3">
+                                <h3 class="font-extrabold text-blue-700 dark:text-blue-300 text-base">مطلوب: ${j.title}</h3>
+                            </div>
+                            
+                            <!-- 3. Details -->
+                            <div class="p-3 text-sm text-gray-700 dark:text-gray-200 leading-relaxed border-b border-gray-100 dark:border-gray-700">
+                                ${j.desc}
+                            </div>
+                            
+                            <!-- 4. Contact Actions -->
+                            <div class="flex gap-2 p-3 bg-gray-50 dark:bg-gray-800">
+                                <a href="tel:${contactPhone}" class="flex-1 py-2 bg-green-600 text-white text-center rounded-lg font-bold text-sm shadow hover:bg-green-700 transition-colors">اتصال 📞</a>
+                                <button onclick="window.openChat('${j.uid}', '${j.posterName}')" class="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow hover:bg-blue-700 transition-colors">محادثة 💬</button>
+                            </div>
+                        </div>`;
                 });
             });
 
-            // 4. My Activity (Fixed) - Add Listener for own posts
-            const qMyActivity = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('uid', '==', currentUser.uid));
-            onSnapshot(qMyActivity, (snap) => {
+            // 4. My Activity
+            onSnapshot(query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('uid', '==', currentUser.uid)), (snap) => {
                 const list = document.getElementById('my-activity');
                 list.innerHTML = '';
                 if (snap.empty) {
@@ -655,22 +763,52 @@
                 } else {
                     snap.forEach(d => {
                         const act = d.data();
-                        const isJob = act.type === 'job';
                         list.innerHTML += `
-                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl mb-2 flex justify-between items-center border-r-4 ${isJob ? 'border-purple-500' : 'border-blue-500'} animate-fade">
-                                <div>
-                                    <p class="text-sm font-bold dark:text-white">${isJob ? act.title : act.profession}</p>
-                                    <p class="text-[10px] text-gray-400">${new Date(act.createdAt).toLocaleDateString('ar-EG')}</p>
-                                </div>
-                                <span class="text-[10px] bg-green-100 text-green-600 px-2 py-1 rounded-full">نشط</span>
-                            </div>
-                        `;
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl mb-2 flex justify-between items-center border-r-4 ${act.type==='job'?'border-purple-500':'border-blue-500'} shadow-sm border border-gray-200 dark:border-gray-700 animate-fade">
+                                <div><p class="text-sm font-bold dark:text-white">${act.type==='job'?act.title:act.profession}</p><p class="text-[10px] text-gray-400">${new Date(act.createdAt).toLocaleDateString('ar-EG')}</p></div>
+                                <span class="text-[10px] bg-green-100 text-green-600 px-2 py-1 rounded-full border border-green-200">نشط</span>
+                            </div>`;
                     });
                 }
             });
         }
 
-        // --- FUNCTIONS ---
+        // --- NOTIFICATION & MODAL ---
+        window.toggleNotifPanel = () => {
+            document.getElementById('notif-panel').classList.toggle('hidden');
+            document.getElementById('notif-dot').classList.add('hidden');
+        };
+
+        window.openProfileModal = (userStr) => {
+            const user = JSON.parse(decodeURIComponent(userStr));
+            document.getElementById('modal-img').src = user.photoURL;
+            document.getElementById('modal-name').innerText = user.name;
+            document.getElementById('modal-role').innerText = user.role === 'provider' ? user.profession : 'عميل';
+            document.getElementById('modal-city').innerText = user.city || 'غير محدد';
+            
+            // PRIVACY CHECK: Hide Phone Number
+            const actionsDiv = document.getElementById('modal-actions');
+            actionsDiv.innerHTML = '';
+            
+            if (user.settings && user.settings.hidePhone) {
+                actionsDiv.innerHTML = `<button disabled class="flex-1 py-3 bg-gray-300 text-gray-500 rounded-xl font-bold cursor-not-allowed">الرقم مخفي 🔒</button>`;
+            } else {
+                actionsDiv.innerHTML = `<a href="https://wa.me/20${user.phone}" target="_blank" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold text-center shadow-lg hover:bg-green-600 transition-colors">واتساب</a>`;
+            }
+            
+            const chatBtn = document.createElement('button');
+            chatBtn.className = "flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-colors";
+            chatBtn.innerText = "محادثة";
+            chatBtn.onclick = () => {
+                document.getElementById('profile-modal').classList.add('hidden');
+                window.openChat(user.uid, user.name);
+            };
+            actionsDiv.appendChild(chatBtn);
+            
+            document.getElementById('profile-modal').classList.remove('hidden');
+        };
+
+        // --- LIST RENDERERS ---
         window.openCategory = (profName) => {
             window.navTo('category-details');
             document.getElementById('page-title').innerText = profName;
@@ -699,17 +837,14 @@
         };
 
         function createUserCard(u) {
+            const userStr = encodeURIComponent(JSON.stringify(u));
             return `
-                <div class="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm flex items-center gap-3 border dark:border-gray-700">
-                    <img src="${u.photoURL}" class="w-12 h-12 rounded-full object-cover bg-gray-200">
+                <div onclick="window.openProfileModal('${userStr}')" class="user-card bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm flex items-center gap-3 border border-gray-300 dark:border-gray-700 cursor-pointer animate-fade hover:border-blue-400 transition-colors">
+                    <img src="${u.photoURL}" class="w-12 h-12 rounded-full object-cover bg-gray-200 border">
                     <div class="flex-1">
                         <h4 class="font-bold text-sm dark:text-white">${u.name} ${u.gender==='female'?'🌸':''}</h4>
                         <p class="text-xs text-blue-600 font-bold">${u.role==='provider'?u.profession:'عميل'}</p>
                         <p class="text-xs text-gray-400">${u.city||''}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <a href="https://wa.me/20${u.phone}" target="_blank" class="p-2 bg-green-100 text-green-600 rounded-full"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.232-.297.347-.497.114-.198.06-.371-.03-.496-.09-.124-.8-1.928-1.09-2.641-.283-.692-.572-.6-.789-.608l-.67-.007c-.231 0-.606.088-.922.434-.317.347-1.212 1.185-1.212 2.892 0 1.706 1.243 3.356 1.416 3.584.173.228 2.444 3.732 5.92 5.228.827.357 1.473.571 1.974.73.831.264 1.588.227 2.184.138.668-.1 2.052-.839 2.34-1.649.287-.811.287-1.505.201-1.649-.086-.144-.317-.228-.614-.377z"/></svg></a>
-                        <button onclick="window.openChat('${u.uid}', '${u.name}')" class="p-2 bg-blue-100 text-blue-600 rounded-full"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></button>
                     </div>
                 </div>`;
         }
@@ -727,7 +862,7 @@
                 snap.forEach(d => {
                     const m = d.data();
                     const isMe = m.senderId === currentUser.uid;
-                    box.innerHTML += `<div class="flex ${isMe ? 'justify-end' : 'justify-start'}"><div class="max-w-[75%] p-3 rounded-2xl text-sm ${isMe ? 'bg-blue-600 text-white rounded-br-none' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-bl-none'}">${m.text}</div></div>`;
+                    box.innerHTML += `<div class="flex ${isMe ? 'justify-end' : 'justify-start'} animate-fade"><div class="max-w-[75%] p-3 rounded-2xl text-sm shadow-sm ${isMe ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-bl-none border'}">${m.text}</div></div>`;
                 });
                 box.scrollTop = box.scrollHeight;
             });
@@ -756,10 +891,7 @@
                 const newProf = document.getElementById('edit-prof').value;
                 const newEmail = document.getElementById('edit-email').value;
                 
-                // Check Email Change First (Requires Auth)
-                if (newEmail !== currentUser.email) {
-                    await updateEmail(currentUser, newEmail);
-                }
+                if (newEmail !== currentUser.email) { await updateEmail(currentUser, newEmail); }
 
                 await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', currentUser.uid), {
                     name: newName, phone: newPhone, city: newCity, 
@@ -767,7 +899,6 @@
                     photoURL: tempImgBase64 || userProfile.photoURL
                 });
                 
-                // Update Local State
                 document.getElementById('prof-name-view').innerText = newName + (userProfile.gender === 'male' ? '' : ' 🌸');
                 document.getElementById('prof-phone-view').innerText = newPhone;
                 document.getElementById('prof-img-view').src = tempImgBase64 || userProfile.photoURL;
@@ -776,28 +907,44 @@
                 window.showToast('تم الحفظ');
                 window.goBack();
             } catch (e) { 
-                console.error(e);
-                if(e.code === 'auth/requires-recent-login') {
-                    window.showToast('لتغيير الإيميل، يرجى تسجيل الخروج والدخول مجدداً', 'error');
-                } else {
-                    window.showToast('خطأ في الحفظ', 'error'); 
-                }
-            } finally {
-                document.getElementById('loader').classList.add('hidden');
-            }
+                if(e.code === 'auth/requires-recent-login') window.showToast('يجب إعادة تسجيل الدخول لتغيير الإيميل', 'error');
+                else window.showToast('خطأ في الحفظ', 'error'); 
+            } finally { document.getElementById('loader').classList.add('hidden'); }
+        };
+        
+        // --- SAVE SETTINGS (NEW) ---
+        window.saveSettings = async () => {
+            document.getElementById('loader').classList.remove('hidden');
+            try {
+                const settings = {
+                    notifEnabled: document.getElementById('toggle-notif').checked,
+                    hidePhone: document.getElementById('toggle-hide-phone').checked,
+                    hideProfile: document.getElementById('toggle-hide-profile').checked
+                };
+                
+                await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', currentUser.uid), { settings });
+                userProfile.settings = settings; // Update local
+                window.showToast('تم حفظ الإعدادات');
+                window.goBack();
+            } catch (e) { window.showToast('خطأ في حفظ الإعدادات', 'error'); } 
+            finally { document.getElementById('loader').classList.add('hidden'); }
         };
 
         window.switchAddMode = (mode) => {
             if (mode === 'req') {
                 document.getElementById('form-req').classList.remove('hidden');
                 document.getElementById('form-job').classList.add('hidden');
-                document.getElementById('btn-add-req').classList.add('bg-blue-50', 'text-blue-600');
-                document.getElementById('btn-add-job').classList.remove('bg-blue-50', 'text-blue-600');
+                document.getElementById('btn-add-req').classList.add('bg-blue-50', 'text-blue-600', 'border-blue-200');
+                document.getElementById('btn-add-req').classList.remove('text-gray-500');
+                document.getElementById('btn-add-job').classList.remove('bg-gray-50', 'border-gray-200');
+                document.getElementById('btn-add-job').classList.add('text-gray-500');
             } else {
                 document.getElementById('form-job').classList.remove('hidden');
                 document.getElementById('form-req').classList.add('hidden');
-                document.getElementById('btn-add-job').classList.add('bg-blue-50', 'text-blue-600');
-                document.getElementById('btn-add-req').classList.remove('bg-blue-50', 'text-blue-600');
+                document.getElementById('btn-add-job').classList.add('bg-blue-50', 'text-blue-600', 'border-blue-200');
+                document.getElementById('btn-add-job').classList.remove('text-gray-500');
+                document.getElementById('btn-add-req').classList.remove('bg-blue-50', 'border-blue-200');
+                document.getElementById('btn-add-req').classList.add('text-gray-500');
             }
         };
 
@@ -808,11 +955,14 @@
                     type: 'job', 
                     title: document.getElementById('job-title').value,
                     desc: document.getElementById('job-desc').value,
+                    contactPhone: document.getElementById('job-phone').value,
+                    posterName: userProfile.name,
+                    posterPhoto: userProfile.photoURL,
+                    posterPhone: userProfile.phone,
                     uid: currentUser.uid, createdAt: new Date().toISOString()
                 });
                 window.showToast('تم نشر الوظيفة');
-                e.target.reset();
-                window.goBack();
+                e.target.reset(); window.goBack();
             } catch(err) { window.showToast('خطأ في النشر', 'error'); }
         };
 
@@ -828,24 +978,28 @@
                     createdAt: new Date().toISOString()
                 });
                 window.showToast('تم النشر');
-                e.target.reset();
-                window.goBack();
+                e.target.reset(); window.goBack();
             } catch(err) { window.showToast('خطأ', 'error'); }
         };
 
         window.switchHomeTab = (tab) => {
+            window.scrollTo(0,0);
             if (tab === 'services') {
                 document.getElementById('view-services').classList.remove('hidden');
                 document.getElementById('view-jobs').classList.add('hidden');
                 document.getElementById('prof-search-box').classList.remove('hidden');
-                document.getElementById('tab-home-serv').classList.add('bg-blue-50', 'text-blue-600');
-                document.getElementById('tab-home-jobs').classList.remove('bg-blue-50', 'text-blue-600');
+                document.getElementById('tab-home-serv').classList.add('bg-black', 'text-white');
+                document.getElementById('tab-home-serv').classList.remove('text-gray-500');
+                document.getElementById('tab-home-jobs').classList.remove('bg-black', 'text-white');
+                document.getElementById('tab-home-jobs').classList.add('text-gray-500');
             } else {
                 document.getElementById('view-services').classList.add('hidden');
                 document.getElementById('view-jobs').classList.remove('hidden');
                 document.getElementById('prof-search-box').classList.add('hidden');
-                document.getElementById('tab-home-jobs').classList.add('bg-blue-50', 'text-blue-600');
-                document.getElementById('tab-home-serv').classList.remove('bg-blue-50', 'text-blue-600');
+                document.getElementById('tab-home-jobs').classList.add('bg-black', 'text-white');
+                document.getElementById('tab-home-jobs').classList.remove('text-gray-500');
+                document.getElementById('tab-home-serv').classList.remove('bg-black', 'text-white');
+                document.getElementById('tab-home-serv').classList.add('text-gray-500');
             }
         };
 
