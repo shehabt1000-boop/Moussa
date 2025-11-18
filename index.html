@@ -451,7 +451,7 @@
         }
 
 
-        let currentUser = null, userProfile = null, navStack = ['home'], tempImgBase64 = null, currentChatId = null, allUsersCache = [], chatListener = null, currentModalUserId = null;
+        let currentUser = null, userProfile = null, navStack = ['home'], tempImgBase64 = null, currentChatId = null, allUsersCache = [], chatListener = null, currentModalUserId = null, chatHistory = [];
 
 
         window.showToast = (msg, type='success') => {
@@ -645,50 +645,52 @@
             }
         });
 
+        // دالة جديدة لعرض قائمة المحادثات (لإعادة الاستخدام)
+        window.renderChatHistoryList = () => {
+            const list = document.getElementById('chat-history-list');
+            list.innerHTML = ''; // مسح المحتوى القديم
+
+            if(chatHistory.length === 0) { 
+                list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد محادثات</p>'; 
+                return; 
+            }
+
+            // فرز المحادثات حسب آخر تحديث
+            chatHistory.sort((a,b) => new Date(b.lastUpdated || 0) - new Date(a.lastUpdated || 0));
+
+
+            // OPTIMIZED RENDER: No loop appending
+            const html = chatHistory.map(c => {
+                const otherId = c.users.find(u => u !== currentUser.uid);
+                // البحث عن المستخدم الآخر في الكاش
+                const otherUser = allUsersCache.find(u => u.uid === otherId) || { name: 'مستخدم غير معروف', photoURL: 'https://via.placeholder.com/40' };
+                const time = c.lastUpdated ? new Date(c.lastUpdated).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
+                
+                return `
+                    <div onclick="window.openChat('${otherId}', '${otherUser.name}')" class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm cursor-pointer border border-gray-200 dark:border-gray-700 mb-2">
+                        <img src="${otherUser.photoURL}" class="w-12 h-12 rounded-full object-cover">
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <h4 class="font-bold text-sm dark:text-white">${otherUser.name}</h4>
+                                <span class="text-[10px] text-gray-400">${time}</span>
+                            </div>
+                            <p class="text-xs text-gray-500 truncate">${c.lastMessage || '...'}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            list.innerHTML = html;
+        };
+
 
         function startListeners() {
             // FIX 2.1: تحسين أداء المحادثات - استخدام استعلام الخادم
             const qChats = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'chats'), where('users', 'array-contains', currentUser.uid));
 
             onSnapshot(qChats, (snap) => {
-                const list = document.getElementById('chat-history-list');
-                const myChats = [];
-                snap.forEach(d => myChats.push({id: d.id, ...d.data()})); // تم إزالة التصفية من جانب العميل
-
-                // IMPORTANT: Ensure loading text is gone
-                list.innerHTML = '';
-
-
-                if(myChats.length === 0) { 
-                    list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد محادثات</p>'; 
-                    return; 
-                }
-
-
-                myChats.sort((a,b) => new Date(b.lastUpdated || 0) - new Date(a.lastUpdated || 0));
-
-
-                // OPTIMIZED RENDER: No loop appending
-                const html = myChats.map(c => {
-                    const otherId = c.users.find(u => u !== currentUser.uid);
-                    // البحث عن المستخدم الآخر في الكاش
-                    const otherUser = allUsersCache.find(u => u.uid === otherId) || { name: 'مستخدم غير معروف', photoURL: 'https://via.placeholder.com/40' };
-                    const time = c.lastUpdated ? new Date(c.lastUpdated).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
-                    
-                    return `
-                       <div onclick="window.openChat('${otherId}', '${otherUser.name}')" class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm cursor-pointer border border-gray-200 dark:border-gray-700 mb-2">
-                           <img src="${otherUser.photoURL}" class="w-12 h-12 rounded-full object-cover">
-                           <div class="flex-1">
-                               <div class="flex justify-between">
-                                   <h4 class="font-bold text-sm dark:text-white">${otherUser.name}</h4>
-                                   <span class="text-[10px] text-gray-400">${time}</span>
-                               </div>
-                               <p class="text-xs text-gray-500 truncate">${c.lastMessage || '...'}</p>
-                           </div>
-                       </div>
-                    `;
-                }).join('');
-                list.innerHTML = html;
+                chatHistory = [];
+                snap.forEach(d => chatHistory.push({id: d.id, ...d.data()})); 
+                window.renderChatHistoryList(); // تحديث قائمة المحادثات
             });
 
 
@@ -700,6 +702,7 @@
                     if(d.id !== currentUser.uid && !(u.settings?.hideProfile)) allUsersCache.push(u); 
                 });
                 window.renderDirectory();
+                window.renderChatHistoryList(); // FIX 2: تحديث قائمة المحادثات بعد تحديث كاش المستخدمين
             });
 
 
@@ -714,8 +717,9 @@
                         const req = d.data();
                         if(req.uid === currentUser.uid) return;
                         const isNew = (new Date() - new Date(req.createdAt)) < 86400000;
+                        // FIX 3: تم إزالة الدائرة الحمراء (🔴) من هنا
                         if(isNew) newCount++;
-                        html.push(`<div class="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border-r-4 border-orange-500 flex justify-between items-center"><div><p class="font-bold text-sm dark:text-white">${req.requesterName} ${isNew?'🔴':''}</p><p class="text-xs text-gray-500">${req.desc}</p></div><button onclick="window.openChat('${req.uid}','${req.requesterName}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold">تواصل</button></div>`);
+                        html.push(`<div class="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border-r-4 border-orange-500 flex justify-between items-center"><div><p class="font-bold text-sm dark:text-white">${req.requesterName}</p><p class="text-xs text-gray-500">${req.desc}</p></div><button onclick="window.openChat('${req.uid}','${req.requesterName}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold">تواصل</button></div>`);
                     });
                     container.innerHTML = html.join('');
                     if(newCount > 0 && userProfile.settings.notifEnabled) {
@@ -897,7 +901,7 @@
             const q = query(msgsRef, orderBy('createdAt', 'asc'));
             if (chatListener) chatListener();
             chatListener = onSnapshot(q, (snap) => {
-                const box = document.getElementById('messages-container'); box.innerHTML = '';
+                const box = document.getElementById('messages-container'); 
                 const html = [];
                 snap.forEach(d => {
                     const m = d.data();
@@ -907,6 +911,33 @@
                 box.innerHTML = html.join('');
                 box.scrollTop = box.scrollHeight;
             });
+        };
+
+
+        // FIX 1: تم حل مشكلة إعادة التحميل عند الإرسال
+        document.getElementById('form-message').onsubmit = async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('msg-input');
+            const btn = document.getElementById('btn-send-msg');
+            const text = input.value.trim();
+            if (!text || !currentChatId) return;
+            
+            btn.disabled = true; // منع النقر المزدوج
+            
+            try {
+                const now = new Date().toISOString();
+                await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'chats', currentChatId, 'messages'), { 
+                    text, senderId: currentUser.uid, createdAt: now 
+                });
+                await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'chats', currentChatId), {
+                    lastMessage: text, lastUpdated: now, users: [currentUser.uid, currentChatId.replace(currentUser.uid, '').replace('_', '')] 
+                }, { merge: true });
+                input.value = ''; 
+            } catch(err) { 
+                window.showToast('فشل الإرسال', 'error'); 
+            } finally {
+                btn.disabled = false;
+            }
         };
 
 
