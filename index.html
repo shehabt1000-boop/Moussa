@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>دليل الشرقية V7 - النسخة المستقرة</title>
+    <title>دليل الشرقية V8 - المهن الشاملة</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -131,6 +131,9 @@
                     <option value="أبو كبير">أبو كبير</option>
                     <option value="العاشر من رمضان">العاشر</option>
                     <option value="ديرب نجم">ديرب نجم</option>
+                    <option value="الإبراهيمية">الإبراهيمية</option>
+                    <option value="الحسينية">الحسينية</option>
+                    <option value="ههيا">ههيا</option>
                 </select>
                 <input type="text" id="signup-area" placeholder="المنطقة" class="w-full p-3 rounded-xl bg-white dark:bg-gray-800 border-none shadow-sm outline-none">
             </div>
@@ -275,6 +278,7 @@
                     <div><label class="text-xs text-gray-400">المدينة</label>
                         <select id="edit-city" class="w-full p-3 rounded-xl border dark:bg-gray-900 dark:border-gray-700">
                             <option value="الزقازيق">الزقازيق</option><option value="بلبيس">بلبيس</option><option value="منيا القمح">منيا القمح</option><option value="فاقوس">فاقوس</option>
+                            <option value="أبو كبير">أبو كبير</option><option value="الحسينية">الحسينية</option>
                         </select>
                     </div>
                     <div id="edit-prof-container" class="hidden">
@@ -359,7 +363,7 @@
         import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, query, addDoc, where, updateDoc, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Config (User Provided)
+        // Config
         const firebaseConfig = {
             apiKey: "AIzaSyA5OiTcX95GBgiJoDHnY3y7N23o-j8hsQ8",
             authDomain: "services-cef84.firebaseapp.com",
@@ -376,7 +380,7 @@
         const db = getFirestore(app);
         const APP_ID = 'services-cef84';
 
-        // --- DATA LISTS ---
+        // --- DATA LISTS (UPDATED) ---
         const professions = [
             "محاسب", "مهندس مدني", "مهندس معماري", "طبيب بشري", "طبيب أسنان", "صيدلي", "ممرض", "محامي", "مدرس", "جرافيك ديزاينر",
             "مبرمج", "كاتب محتوى", "مسوق إلكتروني", "مترجم", "مدخل بيانات", "موظف استقبال", "سكرتير", "شيف", "ويتر", "باريستا",
@@ -390,16 +394,48 @@
             "مندوب مبيعات", "كاشير", "مدير محل", "فني بصريات", "فني أسنان", "مدرب كرة قدم", "حكم", "يوتيوبر", "صانع محتوى"
         ];
 
-        // Map jobs to visual categories
+        // Updated Category Map with Pexels Images & Better Grouping
         const categoryMap = {
-            'طب وصحة': { img: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=400', keywords: ['طبيب', 'صيدلي', 'ممرض', 'علاج', 'تحاليل', 'أشعة', 'أسنان'] },
-            'هندسة ومعمار': { img: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=400', keywords: ['مهندس', 'مقاول', 'بناء', 'رسام', 'ديكور'] },
-            'صيانة منزلية': { img: 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?w=400', keywords: ['سباك', 'كهربائي', 'نجار', 'نقاش', 'تكييف', 'دش', 'غسالات', 'ثلاجات'] },
-            'سيارات': { img: 'https://images.unsplash.com/photo-1487754180477-db33387b736b?w=400', keywords: ['ميكانيكي', 'عفشجي', 'سمكري', 'سيارات'] },
-            'تكنولوجيا': { img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400', keywords: ['مبرمج', 'كمبيوتر', 'موبايل', 'شبكات', 'كاميرات', 'جرافيك'] },
-            'تعليم': { img: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400', keywords: ['مدرس', 'محفظ', 'مدرب', 'مترجم'] },
-            'نقل ومواصلات': { img: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=400', keywords: ['سائق', 'دليفري', 'نقل'] },
-            'خدمات متنوعة': { img: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400', keywords: ['حلاق', 'شيف', 'عامل', 'مكوجي', 'مصور', 'خياط'] }
+            'طب وصحة': { 
+                img: 'https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg?auto=compress&cs=tinysrgb&w=400', 
+                keywords: ['طبيب', 'صيدلي', 'ممرض', 'علاج', 'تحاليل', 'أشعة', 'أسنان', 'بصريات', 'تخاطب'] 
+            },
+            'تشييد وبناء': { 
+                img: 'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg?auto=compress&cs=tinysrgb&w=400', 
+                keywords: ['مهندس', 'مقاول', 'بناء', 'سيراميك', 'محارة', 'جبس', 'رخام', 'باركيه', 'الوميتال', 'زجاج'] 
+            },
+            'صيانة وحرف': { 
+                img: 'https://images.pexels.com/photos/3212114/pexels-photo-3212114.jpeg?auto=compress&cs=tinysrgb&w=400', 
+                keywords: ['سباك', 'كهربائي', 'نجار', 'نقاش', 'حداد', 'لحام', 'تكييف', 'دش', 'غسالات', 'ثلاجات', 'فلاتر', 'استورجي', 'منجد', 'مفاتيح', 'اليكترونيات', 'مصاعد'] 
+            },
+            'سيارات ونقل': { 
+                img: 'https://images.pexels.com/photos/4489749/pexels-photo-4489749.jpeg?auto=compress&cs=tinysrgb&w=400', 
+                keywords: ['ميكانيكي', 'عفشجي', 'سمكري', 'سيارات', 'سائق', 'نقل', 'دليفري', 'سروجي'] 
+            },
+            'تكنولوجيا وأعمال': { 
+                img: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=400', 
+                keywords: ['مبرمج', 'كمبيوتر', 'موبايل', 'شبكات', 'كاميرات', 'جرافيك', 'محاسب', 'محامي', 'كاتب', 'مسوق', 'مترجم', 'بيانات', 'سكرتير', 'استقبال', 'يوتيوبر', 'صانع', 'طباعة'] 
+            },
+            'تعليم وتدريب': { 
+                img: 'https://images.pexels.com/photos/5212345/pexels-photo-5212345.jpeg?auto=compress&cs=tinysrgb&w=400', 
+                keywords: ['مدرس', 'محفظ', 'مدرب', 'حكم'] 
+            },
+            'خدمات شخصية': { 
+                img: 'https://images.pexels.com/photos/1319460/pexels-photo-1319460.jpeg?auto=compress&cs=tinysrgb&w=400', 
+                keywords: ['حلاق', 'كوافير', 'ماكيير', 'مصور', 'ترزي', 'جزمجي', 'مكوجي', 'ساعاتي', 'صائغ', 'خطاط', 'رسام', 'نحات', 'مأذون'] 
+            },
+            'طعام وضيافة': { 
+                img: 'https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=400', 
+                keywords: ['شيف', 'ويتر', 'باريستا', 'طباخ'] 
+            },
+            'عمالة وخدمات': {
+                img: 'https://images.pexels.com/photos/380769/pexels-photo-380769.jpeg?auto=compress&cs=tinysrgb&w=400',
+                keywords: ['نظافة', 'بوفيه', 'زراعي', 'جنايني', 'حارس', 'بيبي', 'جليس']
+            },
+            'تجارة ومبيعات': {
+                img: 'https://images.pexels.com/photos/955081/pexels-photo-955081.jpeg?auto=compress&cs=tinysrgb&w=400',
+                keywords: ['مندوب', 'كاشير', 'مدير', 'تاجر', 'سمسار']
+            }
         };
 
         // --- GLOBAL STATE ---
@@ -533,7 +569,7 @@
                     <div onclick="window.openCategory('${catName}')" class="relative h-28 rounded-xl overflow-hidden cursor-pointer shadow-sm transform hover:scale-105 transition-transform">
                         <img src="${data.img}" class="absolute inset-0 w-full h-full object-cover">
                         <div class="absolute inset-0 prof-card-overlay flex items-end p-3">
-                            <p class="text-white font-bold text-sm">${catName}</p>
+                            <p class="text-white font-bold text-sm shadow-black drop-shadow-md">${catName}</p>
                         </div>
                     </div>
                 `;
@@ -701,6 +737,7 @@
             document.getElementById('page-title').innerText = catName;
             
             const keywords = categoryMap[catName].keywords;
+            // Improved filtering logic: Check if any keyword matches profession
             const filtered = allUsersCache.filter(u => 
                 keywords.some(k => u.profession.includes(k))
             );
@@ -735,11 +772,19 @@
         }
 
         window.filterCategoryList = () => {
-            const term = document.getElementById('cat-search').value;
-            // Filter currently displayed category list logic would be needed here properly
-            // But since we regenerate on Open, simpler to just filter the DOM or cache the specific cat list
-            // For v7 stable, we will filter allUsersCache again based on current header title logic (simplified)
-            // Note: In production, store 'currentCategory' in a variable.
+            // Simple inline search within the opened category
+            const term = document.getElementById('cat-search').value.toLowerCase();
+            const container = document.getElementById('cat-list-container');
+            const cards = container.getElementsByTagName('div');
+            
+            // Note: This logic is simplified for DOM manipulation of already rendered cards
+            // In a real production app with virtual DOM, this would be state-based
+            Array.from(cards).forEach(card => {
+                if(card.className.includes('bg-white')) { // Check if it's a card
+                   const text = card.innerText.toLowerCase();
+                   card.style.display = text.includes(term) ? 'flex' : 'none';
+                }
+            });
         };
 
         window.renderDirectory = () => {
@@ -858,6 +903,11 @@
         window.logout = () => {
             signOut(auth);
             window.navStack = ['home'];
+        };
+        
+        // Toggle Theme
+        window.toggleTheme = () => {
+            document.documentElement.classList.toggle('dark');
         };
 
     </script>
