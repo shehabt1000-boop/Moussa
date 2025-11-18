@@ -254,12 +254,17 @@
                 font-size: 0.75rem; /* أصغر */
             }
             
-            /* Defect 4: Ensure Auth/Register pages are compact */
+            /* Defect 4/New Fix: Ensure Auth/Register pages are compact */
             #app > div.flex.flex-col.items-center.justify-center.min-h-screen > div.w-full.max-w-sm.bg-white.rounded-lg.shadow-xl.p-6 {
-                 padding: 1rem !important; /* تقليل حشو بطاقة الدخول */
+                 padding: 0.75rem !important; /* Reduced from 1rem */
             }
             #app > div.min-h-screen.main-padding.bg-indigo-800.flex.items-start.justify-center.pt-8.pb-24 > div.w-full.max-w-md > form {
-                padding: 1.25rem !important; /* تقليل حشو بطاقة التسجيل */
+                padding: 1rem !important; /* Reduced from 1.25rem */
+            }
+            /* Also reduce top/bottom padding on Auth page container */
+            #app > div.flex.flex-col.items-center.justify-center.min-h-screen.p-4.bg-indigo-800.sm\:pt-8.sm\:pb-8 {
+                padding-top: 1rem !important;
+                padding-bottom: 1rem !important;
             }
         }
         
@@ -1245,11 +1250,15 @@
         // === دالة إنشاء إشعار (محدثة - الإشعارات الداخلية إجبارية) ===
         async function createNotification(recipientId, type, title, linkPage, linkParams = {}) {
             if (recipientId === userId) return; // لا ترسل إشعاراً لنفسك
-
-
-
-
-            // ⚠️ الإشعارات الداخلية إجبارية، لا نتحقق من إعدادات المستخدم هنا.
+            
+            // === New Fix: Check if internal notifications are enabled (for the dot/count) ===
+            const recipientDoc = await getDoc(doc(db, `artifacts/${appId}/public/data/users`, recipientId));
+            const recipientProfile = recipientDoc.exists() ? recipientDoc.data() : {};
+            
+            // إذا كان المستخدم قد أوقف الإشعارات الداخلية، لا ترسل الإشعار (لتقليل الحمل)
+            if (recipientProfile.isInternalNotificationsEnabled === false) {
+                 return;
+            }
 
 
 
@@ -1632,6 +1641,9 @@
 
         // === دالة مساعدة لعرض جرس الإشعارات (محدثة - الطلب 5) ===
         function renderNotificationBell() {
+            // === New Fix: Check if internal notifications are enabled ===
+            if (userProfile?.isInternalNotificationsEnabled === false) return '';
+            
             const unreadCount = userProfile?.unreadNotifications || 0;
             const bellClass = unreadCount > 0 ? 'text-red-500' : 'text-white hover:text-indigo-100';
             const bellDot = unreadCount > 0 ? `
@@ -1712,7 +1724,7 @@
 
         function renderAuthPage() {
             appContainer.innerHTML = `
-                <!-- === التعديل 6: تقليل الحشو الرأسي في وضع الهاتف (Defect 4) === -->
+                <!-- === التعديل 6: تقليل الحشو الرأسي في وضع الهاتف (Defect 4/New Fix) === -->
                 <div class="flex flex-col items-center justify-center min-h-screen p-4 bg-indigo-800 sm:pt-8 sm:pb-8">
                     <h1 class="text-4xl font-bold text-white mb-4">مستقبل الشرقية</h1>
                     <p class="text-lg text-indigo-100 mb-8 text-center">أهلاً بك في تطبيق خدمات محافظة الشرقية</p>
@@ -2372,6 +2384,23 @@
                 const providers = snapshot.docs
                     .map(doc => ({ id: doc.id, ...doc.data() }))
                     .filter(p => !categoryName || (p.jobTitle && p.jobTitle.toLowerCase().includes(categoryName))); 
+                
+                // === Client-Side Sorting: Online first, then by rating ===
+                providers.sort((a, b) => {
+                    const isAOnline = a.isOnline && (Date.now() - (a.lastSeen?.toMillis() || 0) < ONLINE_THRESHOLD_MS);
+                    const isBOnline = b.isOnline && (Date.now() - (b.lastSeen?.toMillis() || 0) < ONLINE_THRESHOLD_MS);
+
+                    if (isAOnline && !isBOnline) return -1;
+                    if (!isAOnline && isBOnline) return 1;
+
+                    // Secondary sort by rating (descending)
+                    const ratingA = a.avgRating || 0;
+                    const ratingB = b.avgRating || 0;
+                    if (ratingB !== ratingA) return ratingB - ratingA;
+                    
+                    // Tertiary sort by name
+                    return a.name.localeCompare(b.name);
+                });
 
 
 
@@ -2561,12 +2590,9 @@
                     const userColor = user.role === 'provider' ? 'text-indigo-600' : 'text-green-600';
                     // === التعديل 5: عرض حالة الظهور باستخدام الدالة المحدثة ===
                     const onlineStatusHtml = getOnlineStatusHtml(user);
-
-
-
-
-
-
+                    // === New Fix: Add Last Seen Date/Time ===
+                    const lastSeenDate = user.lastSeen && user.lastSeen.toDate ? new Date(user.lastSeen.toDate()).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : 'N/A';
+                    const lastSeenHtml = user.lastSeen ? `<p class="text-xs text-gray-400">آخر ظهور: ${lastSeenDate}</p>` : '';
 
 
                     return `
@@ -2581,6 +2607,7 @@
                                 <p class="text-xs text-gray-500">${user.phone}</p>
                                 ${onlineStatusHtml}
                             </div>
+                            ${lastSeenHtml}
                         </div>
                     </div>
                     `
@@ -2832,6 +2859,9 @@
                     // === التعديل 1: منطق النقطة الحمراء لرسالة غير مقروءة (يعتمد على unreadBy) ===
                     const isUnread = chat.unreadBy && chat.unreadBy.includes(userId);
                     const unreadDot = isUnread ? `<span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white -mt-1 -mr-1"></span>` : '';
+                    
+                    // === New Fix: Add Date/Time to Chat List ===
+                    const lastUpdateString = chat.lastUpdate.toDate ? new Date(chat.lastUpdate.toDate()).toLocaleString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '';
 
 
 
@@ -2865,7 +2895,7 @@
                             </div>
                             <p class="text-sm text-gray-600 truncate-1-line">${chat.lastMessage}</p>
                         </div>
-                        <span class="text-xs text-gray-400 flex-shrink-0">${new Date(chat.lastUpdate.toDate()).toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit'})}</span>
+                        <span class="text-xs text-gray-400 flex-shrink-0">${lastUpdateString}</span>
                     </div>
                     `;
                 }).join('');
@@ -3273,12 +3303,10 @@
             const isPhoneHidden = userProfile.isPhoneHidden || false;
             const isAddressHidden = userProfile.isAddressHidden || false;
             const isDirectoryHidden = userProfile.isDirectoryHidden || false;
-            const isNotificationsEnabled = userProfile.isNotificationsEnabled || false;
-            const isMessageNotificationsEnabled = userProfile.isMessageNotificationsEnabled !== false; 
-            const isJobNotificationsEnabled = userProfile.isJobNotificationsEnabled !== false; 
-            const isRequestNotificationsEnabled = userProfile.isRequestNotificationsEnabled !== false; 
             const isDarkModeEnabled = userProfile.isDarkModeEnabled || false; // إعداد إضافي
             const isLocationSharingEnabled = userProfile.isLocationSharingEnabled || false; // إعداد إضافي
+            // === New Fix: Internal Notifications Toggle ===
+            const isInternalNotificationsEnabled = userProfile.isInternalNotificationsEnabled !== false; 
             // === التعديل 3: إعدادات التحكم الكامل في المنافع ===
             const chatPermission = userProfile.chatPermission || 'all';
             const ratingPermission = userProfile.ratingPermission || 'all';
@@ -3371,21 +3399,12 @@
 
 
 
-                            <!-- إعدادات الإشعارات -->
+                            <!-- إعدادات الإشعارات (الداخلية) - New Fix -->
                             <div class="border-b border-indigo-200 pb-3 pt-2">
-                                <h2 class="text-lg font-semibold text-indigo-800">إعدادات الإشعارات (للتنبيهات الخارجية)</h2>
+                                <h2 class="text-lg font-semibold text-indigo-800">إعدادات الإشعارات</h2>
                             </div>
-                            ${toggleHtml('toggle-notifications', 'تفعيل الإشعارات العامة (معطلة)', isNotificationsEnabled, 'تفعيل/إيقاف جميع الإشعارات الخارجية (ميزة قادمة - معطلة حالياً).')}
-                            <div class="mr-4 mt-2 p-3 bg-indigo-50 rounded-md border border-indigo-200 opacity-50 pointer-events-none" id="custom-notifications-settings">
-                                <h3 class="text-sm font-semibold text-indigo-700 mb-2">إشعارات مخصصة:</h3>
-                                ${toggleHtml('toggle-msg-notifications', 'إشعارات الرسائل الجديدة', isMessageNotificationsEnabled, 'تنبيه عند استلام رسالة محادثة جديدة.')}
-                                ${toggleHtml('toggle-job-notifications', 'إعلانات الوظائف الجديدة', isJobNotificationsEnabled, 'تنبيه عند نشر إعلان وظيفة جديد في مجالك.')}
-                                ${toggleHtml('toggle-request-notifications', 'طلبات الخدمات الجديدة', isRequestNotificationsEnabled, 'تنبيه عند نشر طلب خدمة جديد في مجالك.')}
-                            </div>
-
-
-
-
+                            ${toggleHtml('toggle-internal-notifications', 'تلقي الإشعارات الداخلية', isInternalNotificationsEnabled, 'تفعيل/إيقاف ظهور التنبيهات الجديدة (النقطة الحمراء) في شريط التنقل.')}
+                            
                             <!-- إعدادات العرض -->
                             <div class="border-b border-indigo-200 pb-3 pt-2">
                                 <h2 class="text-lg font-semibold text-indigo-800">إعدادات العرض</h2>
@@ -3409,19 +3428,6 @@
                     ${renderBottomNav('profile')}
                 </div>
             `;
-            
-            // تحديث حالة إعدادات الإشعارات المخصصة عند تغيير التبديل العام
-            // === Defect 5 Fix: Disable general notifications toggle interactivity ===
-            const toggleNotificationsEl = document.getElementById('toggle-notifications');
-            const customSettingsEl = document.getElementById('custom-notifications-settings');
-            
-            toggleNotificationsEl.disabled = true;
-            toggleNotificationsEl.closest('.settings-toggle-container').classList.add('opacity-50');
-            
-            if (toggleNotificationsEl.checked) {
-                // Should be disabled, but if checked upon load, visually disable custom settings too (Defect 5)
-                 customSettingsEl.classList.add('opacity-50', 'pointer-events-none');
-            }
         }
 
 
@@ -3446,13 +3452,10 @@
                 const isPhoneHidden = document.getElementById('toggle-phone').checked;
                 const isAddressHidden = document.getElementById('toggle-address').checked;
                 const isDirectoryHidden = document.getElementById('toggle-directory').checked;
-                // Defect 5: Keep notifications disabled internally
-                const isNotificationsEnabled = false; // Hardcoded to false
-                const isMessageNotificationsEnabled = document.getElementById('toggle-msg-notifications').checked;
-                const isJobNotificationsEnabled = document.getElementById('toggle-job-notifications').checked;
-                const isRequestNotificationsEnabled = document.getElementById('toggle-request-notifications').checked;
                 const isDarkModeEnabled = document.getElementById('toggle-dark-mode').checked;
                 const isLocationSharingEnabled = document.getElementById('toggle-location-sharing').checked;
+                // === New Fix: Internal Notifications Toggle ===
+                const isInternalNotificationsEnabled = document.getElementById('toggle-internal-notifications').checked;
                 // === التعديل 3: جلب إعدادات التحكم الكامل في المنافع ===
                 const chatPermission = document.getElementById('chat-permission').value;
                 const ratingPermission = document.getElementById('rating-permission').value;
@@ -3468,15 +3471,18 @@
                     isPhoneHidden: isPhoneHidden,
                     isAddressHidden: isAddressHidden,
                     isDirectoryHidden: isDirectoryHidden,
-                    isNotificationsEnabled: isNotificationsEnabled,
-                    isMessageNotificationsEnabled: isMessageNotificationsEnabled,
-                    isJobNotificationsEnabled: isJobNotificationsEnabled,
-                    isRequestNotificationsEnabled: isRequestNotificationsEnabled,
                     isDarkModeEnabled: isDarkModeEnabled,
                     isLocationSharingEnabled: isLocationSharingEnabled,
+                    // === New Fix: Internal Notifications Toggle ===
+                    isInternalNotificationsEnabled: isInternalNotificationsEnabled, 
                     // === التعديل 3: حفظ إعدادات التحكم الكامل في المنافع ===
                     chatPermission: chatPermission,
                     ratingPermission: ratingPermission,
+                    // Hardcode external notifications to false (Defect 5)
+                    isNotificationsEnabled: false,
+                    isMessageNotificationsEnabled: false,
+                    isJobNotificationsEnabled: false,
+                    isRequestNotificationsEnabled: false,
                 };
 
 
@@ -3791,7 +3797,8 @@
                     const description = isRequest ? post.description : post.details;
                     const typeLabel = isRequest ? 'طلب خدمة' : 'إعلان وظيفة';
                     const typeColor = isRequest ? 'bg-green-100 text-green-700' : 'bg-indigo-100 text-indigo-700';
-                    const dateString = post.createdAt && post.createdAt.toDate ? new Date(post.createdAt.toDate()).toLocaleDateString('ar-EG') : 'تاريخ غير محدد';
+                    // === New Fix: Add Date/Time to My Postings ===
+                    const dateString = post.createdAt && post.createdAt.toDate ? new Date(post.createdAt.toDate()).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : 'تاريخ غير محدد';
 
 
 
@@ -4675,7 +4682,8 @@
 
 
                 listEl.innerHTML = listings.map(job => {
-                    const dateString = job.createdAt && job.createdAt.toDate ? new Date(job.createdAt.toDate()).toLocaleDateString('ar-EG') : 'تاريخ غير محدد';
+                    // === New Fix: Add Date/Time to Job Listings ===
+                    const dateString = job.createdAt && job.createdAt.toDate ? new Date(job.createdAt.toDate()).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : 'تاريخ غير محدد';
                     return `
                     <div class="bg-indigo-50 p-4 rounded-lg shadow-md border border-indigo-200 job-listing-card">
                         <div class="flex items-center justify-between mb-1">
@@ -4726,8 +4734,10 @@
             const inactiveClass = 'text-indigo-300 hover:text-white';
             
             // === التعديل 1: منطق النقطة الحمراء في شريط التنقل (إزالة من البروفايل) ===
+            // === New Fix: Check if internal notifications are enabled ===
+            const isInternalNotificationsEnabled = userProfile?.isInternalNotificationsEnabled !== false;
             const unreadCount = userProfile?.unreadNotifications || 0;
-            const showDot = unreadCount > 0;
+            const showDot = isInternalNotificationsEnabled && unreadCount > 0;
             const dotHtml = `<span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-indigo-800 -mt-1 -mr-1"></span>`;
 
 
@@ -5167,7 +5177,9 @@
                 // === التعديل 5: تعيين حالة الوضع الداكن الافتراضية على false ===
                 const isDarkModeDefault = false; 
                 
-                // === التعديل 9: الإعدادات الافتراضية للإشعارات الخارجية (متعطلة) ===
+                // === New Fix: Internal Notifications Default ===
+                const isInternalNotificationsEnabledDefault = true; 
+                // === Hardcode external notifications to false (Defect 5) ===
                 const isNotificationsDefault = false; 
 
 
@@ -5196,11 +5208,14 @@
                     isPhoneHidden: false,
                     isAddressHidden: false,
                     isDirectoryHidden: false,
-                    isNotificationsEnabled: isNotificationsDefault, // ✅ تم التعديل
+                    // === New Fix: Internal Notifications Default ===
+                    isInternalNotificationsEnabled: isInternalNotificationsEnabledDefault,
+                    // === Hardcode external notifications to false (Defect 5) ===
+                    isNotificationsEnabled: isNotificationsDefault, 
                     isMessageNotificationsEnabled: isNotificationsDefault,
                     isJobNotificationsEnabled: isNotificationsDefault,
                     isRequestNotificationsEnabled: isNotificationsDefault,
-                    isDarkModeEnabled: isDarkModeDefault, // ✅ تم التعديل
+                    isDarkModeEnabled: isDarkModeDefault, 
                     isLocationSharingEnabled: false,
                     isOnline: true, 
                     unreadNotifications: 0, 
@@ -5683,20 +5698,9 @@
                 const otherUserDoc = await getDoc(doc(db, `artifacts/${appId}/public/data/users`, otherUserId));
                 if (!otherUserDoc.exists()) { throw new Error("Other user not found"); }
                 const otherUserData = otherUserDoc.data();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                
+                // === Defect 5 Fix: Check if recipient has disabled internal notifications ===
+                const isRecipientNotificationsEnabled = otherUserData.isInternalNotificationsEnabled !== false;
 
 
                 const chatRoomDocRef = doc(db, `artifacts/${appId}/public/data/chats`, chatRoomId);
@@ -5720,13 +5724,15 @@
 
 
                 // 3. إنشاء إشعار للمستلم (محدث) - يتم استدعاؤه بعد تحديث المحادثة
-                await createNotification(
-                    otherUserId, 
-                    'message', 
-                    `رسالة جديدة من ${userProfile.name}`, 
-                    'chat', 
-                    { otherUserId: userId }
-                );
+                if (isRecipientNotificationsEnabled) {
+                    await createNotification(
+                        otherUserId, 
+                        'message', 
+                        `رسالة جديدة من ${userProfile.name}`, 
+                        'chat', 
+                        { otherUserId: userId }
+                    );
+                }
 
 
 
@@ -5843,12 +5849,16 @@
 
 
                 providersSnapshot.docs.forEach(doc => {
-                    createNotification(
-                        doc.id, 
-                        'request', 
-                        `طلب خدمة جديد: ${category}`, 
-                        'providerHome'
-                    );
+                    // Defect 5 Fix: Only send if recipient is a provider AND has notifications enabled
+                    const providerProfile = doc.data();
+                    if (providerProfile.isInternalNotificationsEnabled !== false) {
+                        createNotification(
+                            doc.id, 
+                            'request', 
+                            `طلب خدمة جديد: ${category}`, 
+                            'providerHome'
+                        );
+                    }
                 });
 
 
@@ -6011,12 +6021,16 @@
 
 
                 providersSnapshot.docs.forEach(doc => {
-                    createNotification(
-                        doc.id, 
-                        'job', 
-                        `إعلان وظيفة جديد: ${category}`, 
-                        'jobListings'
-                    );
+                    // Defect 5 Fix: Only send if recipient is a provider AND has notifications enabled
+                    const providerProfile = doc.data();
+                    if (providerProfile.isInternalNotificationsEnabled !== false) {
+                        createNotification(
+                            doc.id, 
+                            'job', 
+                            `إعلان وظيفة جديد: ${category}`, 
+                            'jobListings'
+                        );
+                    }
                 });
 
 
