@@ -166,11 +166,11 @@
         </div>
 
 
-        <form id="form-login" class="space-y-4">
+        <form id="form-login" class="space-y-3"> <!-- تم تصغير space-y -->
             <!-- **إصلاح 3: تصغير حشو صفحة الدخول** -->
-            <input type="email" id="login-email" placeholder="البريد الإلكتروني" class="w-full p-3 rounded-lg text-sm" required>
-            <input type="password" id="login-pass" placeholder="كلمة المرور" class="w-full p-3 rounded-lg text-sm" required>
-            <button type="submit" class="w-full py-4 bg-black text-white rounded-xl font-bold shadow-lg active:scale-95 transition-transform">تسجيل الدخول</button>
+            <input type="email" id="login-email" placeholder="البريد الإلكتروني" class="w-full p-2 rounded-lg text-sm" required>
+            <input type="password" id="login-pass" placeholder="كلمة المرور" class="w-full p-2 rounded-lg text-sm" required>
+            <button type="submit" class="w-full py-3 bg-black text-white rounded-xl font-bold shadow-lg active:scale-95 transition-transform">تسجيل الدخول</button>
         </form>
 
 
@@ -264,7 +264,7 @@
                 </form>
                 <form id="form-job" class="hidden space-y-3">
                     <label class="text-xs font-bold text-gray-500">المسمى الوظيفي</label>
-                    <select id="job-title-select" class="w-full p-3 rounded-xl text-sm border-2 border-gray-400"></select>
+                    <select id="job-title-select" class="w-full p-3 rounded-xl text-sm"></select>
                     <input type="tel" id="job-phone" placeholder="رقم للتواصل (اختياري)" class="w-full p-3 rounded-xl border-dashed !border-blue-400">
                     <textarea id="job-desc" rows="4" placeholder="تفاصيل الوظيفة..." class="w-full p-3 rounded-xl" required></textarea>
                     <button type="submit" class="w-full py-3 bg-purple-600 text-white rounded-xl font-bold shadow">نشر الوظيفة</button>
@@ -428,7 +428,11 @@
         <form id="form-message" class="p-3 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex gap-2 shrink-0">
             <input type="text" id="msg-input" class="flex-1 p-3 rounded-full bg-gray-100 dark:bg-gray-700 dark:text-white border-2 border-gray-300 dark:border-gray-600 focus:border-blue-500" placeholder="اكتب رسالة..." autocomplete="off">
             <!-- **إصلاح 3: إصلاح اتجاه زر الإرسال** -->
-            <button type="submit" id="btn-send-msg" class="p-3 bg-blue-600 text-white rounded-full shadow-lg"><svg class="w-5 h-5 transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg></button>
+            <button type="submit" id="btn-send-msg" class="p-3 bg-blue-600 text-white rounded-full shadow-lg">
+                <svg class="w-5 h-5 transform -rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
+            </button>
         </form>
     </div>
 
@@ -705,6 +709,8 @@
                 signupBtn.classList.remove('text-gray-500', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
                 loginBtn.classList.remove('bg-white', 'shadow', 'text-blue-600');
                 loginBtn.classList.add('text-gray-500', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
+                 // **الإصلاح الجديد: ملء المراكز عند التبديل إلى صفحة التسجيل**
+                window.populateCenters('signup-area-center'); 
             }
         };
         window.toggleProfVisibility = (show) => document.getElementById('prof-container').style.display = show ? 'block' : 'none';
@@ -852,10 +858,11 @@
             });
 
 
-            // **FIX 4: استعلام مخصص للمحادثات لتقليل وقت التحميل (تحسين أداء)**
+            // **الإصلاح 4: استعلام المحادثات (تحسين أداء)**
             const chatsQuery = query(
                 collection(db, 'artifacts', APP_ID, 'public', 'data', 'chats'),
-                where('users', 'array-contains', currentUser.uid)
+                where('users', 'array-contains', currentUser.uid),
+                orderBy('lastUpdated', 'desc') 
             );
 
             onSnapshot(chatsQuery, async (snap) => {
@@ -868,9 +875,7 @@
 
                 if(myChats.length === 0) { 
                     list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد محادثات</p>'; 
-                    // **الإصلاح 2: إخفاء نقطة إشعار المحادثات إذا لا توجد محادثات**
                     document.getElementById('chat-unread-dot').classList.add('hidden');
-                    // **الإصلاح 1: تحديث نقطة الجرس**
                     window.updateNotifDot();
                     return; 
                 }
@@ -884,10 +889,8 @@
                     const otherUser = await fetchUserById(otherId); 
                     const time = c.lastUpdated ? new Date(c.lastUpdated).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
                     
-                    // **الإصلاح 3: حساب الرسائل غير المقروءة**
                     const lastReadTimestamp = c.lastRead?.[currentUser.uid] ? new Date(c.lastRead[currentUser.uid]).getTime() : 0;
                     const lastMessageTimestamp = c.lastUpdated ? new Date(c.lastUpdated).getTime() : 0;
-                    // غير مقروءة إذا: 1. أحدث رسالة بعد آخر قراءة AND 2. آخر رسالة ليست من المستخدم نفسه
                     const isUnread = lastMessageTimestamp > lastReadTimestamp && c.lastSenderId !== currentUser.uid;
                     if(isUnread) hasUnread = true;
 
@@ -908,19 +911,25 @@
                     `;
                 });
 
-                list.innerHTML = (await Promise.all(chatHtmlPromises)).join(''); // انتظار جميع الوعود قبل العرض
+                list.innerHTML = (await Promise.all(chatHtmlPromises)).join(''); 
 
-                // **الإصلاح 2: إظهار إشعار المحادثات في شريط التنقل**
                 document.getElementById('chat-unread-dot').classList.toggle('hidden', !hasUnread);
-
-                // **الإصلاح 1: تحديث نقطة الجرس**
                 window.updateNotifDot(hasUnread);
+            }, (error) => {
+                // **الإصلاح: رسالة واضحة في حالة فشل الاستعلام بسبب الفهارس**
+                console.error("Chats Query Failed:", error);
+                if (error.code === 'failed-precondition' && error.message.includes('index')) {
+                    list.innerHTML = `<p class="text-center text-red-500 py-10">خطأ في تحميل المحادثات. تحتاج لإنشاء فهرس في Firebase. <a href="${error.message.match(/https?:\/\/[^\s]+/)[0]}" target="_blank" class="underline">انقر هنا لإنشاء الفهرس</a>.</p>`;
+                } else {
+                    list.innerHTML = '<p class="text-center text-red-500 py-10">فشل تحميل المحادثات. (تحقق من اتصالك)</p>';
+                }
             });
 
 
             // Notifications for Provider Requests
             if(userProfile.role === 'provider') {
-                const q = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('type','==','service'), where('profession','==',userProfile.profession));
+                // **الإصلاح 1: إضافة orderBy لضمان عمل الاستعلام وتحسين الأداء**
+                const q = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('type','==','service'), where('profession','==',userProfile.profession), orderBy('createdAt', 'desc'));
                 onSnapshot(q, (snap) => {
                     const container = document.getElementById('matching-reqs-list'); container.innerHTML = '';
                     let newCount = 0;
@@ -951,11 +960,83 @@
                          if (requestsNotif) requestsNotif.remove();
                     }
                     window.updateNotifDot();
+                }, (error) => {
+                    console.error("Requests Query Failed:", error);
+                    if (error.code === 'failed-precondition' && error.message.includes('index')) {
+                        document.getElementById('matching-reqs-list').innerHTML = `<p class="text-center text-red-500 py-10">خطأ في تحميل الطلبات. تحتاج لإنشاء فهرس في Firebase. <a href="${error.message.match(/https?:\/\/[^\s]+/)[0]}" target="_blank" class="underline">انقر هنا لإنشاء الفهرس</a>.</p>`;
+                    } else {
+                        document.getElementById('matching-reqs-list').innerHTML = '<p class="text-center text-red-500 py-10">فشل تحميل الطلبات. (تحقق من اتصالك)</p>';
+                    }
                 });
             } else {
                 // **الإصلاح 1: لضمان تحديث الجرس حتى لو لم يكن مقدم خدمة**
                 window.updateNotifDot();
             }
+            
+            // **الإصلاح 3: إصلاح عدم تحميل الوظائف**
+            const jobsQuery = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('type','==','job'), orderBy('createdAt', 'desc'));
+            onSnapshot(jobsQuery, (snap) => {
+                const list = document.getElementById('view-jobs');
+                if(snap.empty) { list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد وظائف</p>'; return; }
+                
+                const html = [];
+                snap.forEach(d => {
+                    const j = d.data();
+                    html.push(`
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md mb-3 border-2 border-gray-200 dark:border-gray-600 animate-fade overflow-hidden">
+                            <div class="flex items-center gap-3 p-3 border-b border-gray-100 dark:border-gray-700">
+                                <img src="${j.posterPhoto||'https://via.placeholder.com/40'}" class="w-8 h-8 rounded-full object-cover border">
+                                <p class="text-xs font-bold text-gray-600 dark:text-gray-300">${j.posterName}</p>
+                            </div>
+                            <div class="bg-blue-50 dark:bg-blue-900/20 p-3"><h3 class="font-extrabold text-blue-700 dark:text-blue-300 text-base">مطلوب: ${j.title}</h3></div>
+                            <div class="p-3 text-sm text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-gray-700">${j.desc}</div>
+                            <div class="flex gap-2 p-3 bg-gray-50 dark:bg-gray-800">
+                                <a href="tel:${j.contactPhone||j.posterPhone}" class="flex-1 py-2 bg-green-600 text-white text-center rounded-lg font-bold text-sm shadow">اتصال 📞</a>
+                                <button onclick="window.openChat('${j.uid}','${j.posterName}')" class="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow">محادثة 💬</button>
+                            </div>
+                        </div>`);
+                });
+                list.innerHTML = html.join('');
+            }, (error) => {
+                console.error("Jobs Query Failed:", error);
+                if (error.code === 'failed-precondition' && error.message.includes('index')) {
+                    list.innerHTML = `<p class="text-center text-red-500 py-10">خطأ في تحميل الوظائف. تحتاج لإنشاء فهرس في Firebase. <a href="${error.message.match(/https?:\/\/[^\s]+/)[0]}" target="_blank" class="underline">انقر هنا لإنشاء الفهرس</a>.</p>`;
+                } else {
+                    list.innerHTML = '<p class="text-center text-red-500 py-10">فشل تحميل الوظائف. (تحقق من اتصالك)</p>';
+                }
+            });
+            
+            // **الإصلاح 5: ظهور النشاط الخاص بي**
+            const qActivity = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('uid','==',currentUser.uid), orderBy('createdAt', 'desc'));
+            onSnapshot(qActivity, (snap) => {
+                const list = document.getElementById('my-activity'); list.innerHTML = '';
+                const btn = document.getElementById('btn-show-more-activity');
+                const docs = []; snap.forEach(d => docs.push({id:d.id, ...d.data()}));
+                
+                if(docs.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 py-4 text-sm">لا يوجد نشاط</p>'; btn.classList.add('hidden'); return; }
+                
+                docs.forEach((act, idx) => {
+                    const el = document.createElement('div');
+                    el.className = `bg-gray-50 dark:bg-gray-800 p-3 rounded-xl mb-2 flex justify-between items-center border-r-4 ${act.type==='job'?'border-purple-500':'border-blue-500'} shadow-sm ${idx > 2 ? 'hidden extra-act' : ''}`;
+                    el.innerHTML = `<div><p class="text-sm font-bold dark:text-white">${act.type==='job'?act.title:act.profession}</p><p class="text-[10px] text-gray-400">${new Date(act.createdAt).toLocaleDateString('ar-EG')}</p></div><div class="flex gap-2 items-center"><span class="text-[10px] bg-green-100 text-green-600 px-2 py-1 rounded-full border">نشط</span><button onclick="window.deleteRequest('${act.id}')" class="text-red-500 p-1">🗑️</button></div>`;
+                    list.appendChild(el);
+                });
+                
+                if(docs.length > 3) {
+                    btn.classList.remove('hidden');
+                    btn.onclick = () => {
+                        document.querySelectorAll('.extra-act').forEach(e => e.classList.remove('hidden'));
+                        btn.classList.add('hidden');
+                    };
+                } else btn.classList.add('hidden');
+            }, (error) => {
+                console.error("My Activity Query Failed:", error);
+                if (error.code === 'failed-precondition' && error.message.includes('index')) {
+                    document.getElementById('my-activity').innerHTML = `<p class="text-center text-red-500 py-10">خطأ في تحميل النشاط. تحتاج لإنشاء فهرس في Firebase. <a href="${error.message.match(/https?:\/\/[^\s]+/)[0]}" target="_blank" class="underline">انقر هنا لإنشاء الفهرس</a>.</p>`;
+                } else {
+                    document.getElementById('my-activity').innerHTML = '<p class="text-center text-red-500 py-10">فشل تحميل النشاط. (تحقق من اتصالك)</p>';
+                }
+            });
         }
 
 
@@ -1004,7 +1085,7 @@
         // **الإصلاح 5: إخفاء إشعار الطلبات عند فتح اللوحة**
         window.toggleNotifPanel = () => {
             document.getElementById('notif-panel').classList.toggle('hidden');
-            document.getElementById('notif-dot').classList.add('hidden');
+            // document.getElementById('notif-dot').classList.add('hidden'); // يتم إخفاؤها في دالة updateNotifDot
 
             if (!document.getElementById('notif-panel').classList.contains('hidden') && userProfile?.settings?.notifEnabled) {
                  // إزالة رسالة الطلبات (افتراضاً أنها قُرئت)
@@ -1263,7 +1344,13 @@
         document.getElementById('form-job').onsubmit = async (e) => { e.preventDefault(); try { await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), { type: 'job', title: document.getElementById('job-title-select').value, desc: document.getElementById('job-desc').value, contactPhone: document.getElementById('job-phone').value, posterName: userProfile.name, posterPhoto: userProfile.photoURL, posterPhone: userProfile.phone, uid: currentUser.uid, createdAt: new Date().toISOString() }); window.showToast('تم النشر'); e.target.reset(); window.goBack(); } catch(err) { window.showToast('خطأ', 'error'); } };
         document.getElementById('form-req').onsubmit = async (e) => { e.preventDefault(); try { await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), { type: 'service', profession: document.getElementById('req-prof').value, desc: document.getElementById('req-desc').value, uid: currentUser.uid, requesterName: userProfile.name, createdAt: new Date().toISOString() }); window.showToast('تم النشر'); e.target.reset(); window.goBack(); } catch(err) { window.showToast('خطأ', 'error'); } };
         window.switchHomeTab = (tab) => { window.scrollTo(0,0); if (tab === 'services') { document.getElementById('view-services').classList.remove('hidden'); document.getElementById('view-jobs').classList.add('hidden'); document.getElementById('prof-search-box').classList.remove('hidden'); document.getElementById('tab-home-serv').classList.add('bg-black', 'text-white'); document.getElementById('tab-home-serv').classList.remove('text-gray-500'); document.getElementById('tab-home-jobs').classList.remove('bg-black', 'text-white'); document.getElementById('tab-home-jobs').classList.add('text-gray-500'); } else { document.getElementById('view-services').classList.add('hidden'); document.getElementById('view-jobs').classList.remove('hidden'); document.getElementById('prof-search-box').classList.add('hidden'); document.getElementById('tab-home-jobs').classList.add('bg-black', 'text-white'); document.getElementById('tab-home-jobs').classList.remove('text-gray-500'); document.getElementById('tab-home-serv').classList.remove('bg-black', 'text-white'); document.getElementById('tab-home-serv').classList.add('text-gray-500'); } };
-        window.logout = () => { signOut(auth); navStack = ['home']; };
+        
+        // **الإصلاح 4: مسح الذاكرة المؤقتة عند تسجيل الخروج**
+        window.logout = () => { 
+            userProfile = null;
+            signOut(auth); 
+            navStack = ['home']; 
+        };
         window.toggleTheme = () => document.documentElement.classList.toggle('dark');
     </script>
 </body>
