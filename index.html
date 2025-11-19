@@ -24,6 +24,13 @@
                         fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
                         popIn: { '0%': { transform: 'scale(0.9)', opacity: 0 }, '100%': { transform: 'scale(1)', opacity: 1 } }
                     }
+                },
+                screens: { // توسيع الشبكات للشاشات الكبيرة (إصلاح 6 و 7)
+                    'sm': '640px',
+                    'md': '768px',
+                    'lg': '1024px', // تابلت أفقي / ويب
+                    'xl': '1280px', // ويب كبير
+                    '2xl': '1536px',
                 }
             }
         }
@@ -85,6 +92,15 @@
         .star-rating input { display: none; }
         .star-rating label { color: #ddd; font-size: 24px; padding: 0 2px; cursor: pointer; transition: color 0.2s; }
         .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }
+        
+        /* **إصلاح 6 و 7: تعديل العرض على الويب/الآيباد** */
+        @media (min-width: 1024px) {
+            #app-header, #nav-bar, #auth-view { max-width: 500px; margin-left: auto; margin-right: auto; }
+            #app-view { max-width: 1024px; margin-left: auto; margin-right: auto; }
+        }
+        @media (min-width: 1280px) {
+             #app-view { max-width: 1200px; }
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen pb-24 transition-colors duration-200">
@@ -101,25 +117,25 @@
 
 
     <!-- Header -->
-    <header id="app-header" class="fixed top-0 left-0 right-0 h-16 glass-header z-50 px-4 flex items-center justify-between hidden md:max-w-md md:mx-auto shadow-sm">
+    <header id="app-header" class="fixed top-0 left-0 right-0 h-16 glass-header z-50 px-4 flex items-center justify-between hidden md:max-w-md md:mx-auto lg:max-w-full lg:px-6 xl:max-w-7xl shadow-sm">
         <div class="flex items-center gap-3">
             <button id="btn-back" onclick="window.goBack()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 hidden">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
             </button>
-            <h1 id="page-title" class="text-lg font-bold">الرئيسية</h1>
+            <h1 id="page-title" class="text-lg font-bold lg:text-xl">الرئيسية</h1>
         </div>
         <div class="flex items-center gap-3">
             <button onclick="window.toggleNotifPanel()" class="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <svg class="w-6 h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                 <span id="notif-dot" class="hidden absolute top-1.5 right-2 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></span>
             </button>
-            <img id="header-avatar" src="https://via.placeholder.com/40" class="w-9 h-9 rounded-full bg-gray-200 object-cover border border-gray-400 cursor-pointer shadow-sm" onclick="window.navTo('profile')">
+            <img id="header-avatar" src="https://via.placeholder.com/40" class="w-9 h-9 rounded-full bg-gray-200 object-cover border border-gray-400 cursor-pointer shadow-sm lg:w-10 lg:h-10" onclick="window.navTo('profile')">
         </div>
     </header>
 
 
     <!-- Notification Panel -->
-    <div id="notif-panel" class="fixed top-16 left-4 right-4 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-2 border-gray-200 dark:border-gray-700 z-40 hidden md:max-w-md md:mx-auto animate-pop origin-top-right p-4">
+    <div id="notif-panel" class="fixed top-16 left-4 right-4 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-2 border-gray-200 dark:border-gray-700 z-40 hidden md:max-w-md md:mx-auto lg:max-w-xl lg:left-auto lg:right-6 animate-pop origin-top-right p-4">
         <div class="flex justify-between items-center mb-2 border-b pb-2 dark:border-gray-700">
             <h3 class="font-bold text-sm">الإشعارات</h3>
             <button onclick="window.toggleNotifPanel()" class="text-gray-400 hover:text-red-500">✕</button>
@@ -194,11 +210,11 @@
 
 
     <!-- APP VIEW -->
-    <div id="app-view" class="hidden md:max-w-md md:mx-auto pt-20 min-h-screen relative">
+    <div id="app-view" class="hidden md:max-w-md md:mx-auto pt-20 min-h-screen relative lg:max-w-4xl lg:mx-auto">
         
         <!-- HOME -->
         <section id="page-home" class="page-section px-4 animate-fade">
-            <div class="sticky top-16 z-30 bg-gray-50 dark:bg-gray-900 py-2 mb-2 space-y-2">
+            <div class="sticky top-16 z-30 bg-gray-50 dark:bg-gray-900 py-2 mb-2 space-y-2 lg:max-w-4xl lg:mx-auto">
                 <div class="flex p-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-300 dark:border-gray-600">
                     <button onclick="window.switchHomeTab('services')" id="tab-home-serv" class="flex-1 py-2 rounded-lg text-sm font-bold bg-black text-white transition-all">خدمات</button>
                     <button onclick="window.switchHomeTab('jobs')" id="tab-home-jobs" class="flex-1 py-2 rounded-lg text-sm font-bold text-gray-500 transition-all">وظائف</button>
@@ -208,26 +224,27 @@
                     <button onclick="document.getElementById('prof-search').value=''; window.filterProfessions()" class="absolute left-3 top-3 text-gray-400">✕</button>
                 </div>
             </div>
-            <div id="view-services" class="pb-4"><div id="professions-grid" class="grid grid-cols-2 gap-3"></div></div>
+            <!-- **إصلاح 6 و 7: توسيع الشبكة** -->
+            <div id="view-services" class="pb-4"><div id="professions-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div></div>
             <div id="view-jobs" class="hidden space-y-3 pb-4"><p class="text-center text-gray-400 py-10">جاري تحميل الوظائف...</p></div>
         </section>
 
 
         <!-- CATEGORY -->
-        <section id="page-category-details" class="page-section hidden px-4 animate-fade">
+        <section id="page-category-details" class="page-section hidden px-4 animate-fade lg:max-w-4xl lg:mx-auto">
             <div id="cat-list-container" class="space-y-3 pb-20"></div>
         </section>
 
 
         <!-- DIRECTORY -->
-        <section id="page-directory" class="page-section hidden px-4 animate-fade">
+        <section id="page-directory" class="page-section hidden px-4 animate-fade lg:max-w-4xl lg:mx-auto">
             <input type="text" id="dir-search" onkeyup="window.filterDirectory()" placeholder="ابحث عن أي شخص..." class="w-full p-3 rounded-xl shadow-sm mb-4">
             <div id="dir-list" class="space-y-3 pb-20"></div>
         </section>
 
 
         <!-- ADD -->
-        <section id="page-add" class="page-section hidden px-4 animate-fade">
+        <section id="page-add" class="page-section hidden px-4 animate-fade lg:max-w-xl lg:mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 border border-gray-300 dark:border-gray-600">
                 <h2 class="text-lg font-bold mb-4 text-center">إضافة جديد</h2>
                 <div class="flex gap-2 mb-4">
@@ -251,7 +268,7 @@
 
 
         <!-- PROFILE -->
-        <section id="page-profile" class="page-section hidden px-4 animate-fade">
+        <section id="page-profile" class="page-section hidden px-4 animate-fade lg:max-w-2xl lg:mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-300 dark:border-gray-700 mb-4 relative overflow-hidden">
                 <div class="absolute top-0 left-0 right-0 h-20 bg-gradient-to-r from-blue-500 to-cyan-600"></div>
                 <div class="relative flex flex-col items-center pt-6">
@@ -276,7 +293,7 @@
 
 
         <!-- EDIT PROFILE (تم إضافة حقل المنطقة) -->
-        <section id="page-edit-profile" class="page-section hidden px-4 animate-fade">
+        <section id="page-edit-profile" class="page-section hidden px-4 animate-fade lg:max-w-2xl lg:mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm space-y-4 border border-gray-300 dark:border-gray-700">
                 <div class="flex flex-col items-center mb-4">
                     <img id="edit-img-preview" src="" class="w-24 h-24 rounded-full object-cover border-2 border-gray-200">
@@ -305,7 +322,7 @@
 
 
         <!-- SETTINGS -->
-        <section id="page-settings" class="page-section hidden px-4 animate-fade">
+        <section id="page-settings" class="page-section hidden px-4 animate-fade lg:max-w-2xl lg:mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm space-y-4 border border-gray-300 dark:border-gray-700">
                 <h3 class="font-bold text-lg mb-4 border-b pb-2 dark:border-gray-700">الإعدادات والخصوصية</h3>
                 <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
@@ -327,7 +344,7 @@
 
 
         <!-- CHAT LIST -->
-        <section id="page-chat" class="page-section px-4 animate-fade">
+        <section id="page-chat" class="page-section px-4 animate-fade lg:max-w-2xl lg:mx-auto">
             <div id="chat-history-list" class="space-y-3 pb-20"><p class="text-center text-gray-400 py-10">جاري تحميل المحادثات...</p></div>
         </section>
     </div>
@@ -335,7 +352,7 @@
 
     <!-- PROFILE POPUP -->
     <div id="profile-modal" class="modal-overlay hidden animate-pop overflow-y-auto">
-        <div class="bg-white dark:bg-gray-800 w-full max-w-sm rounded-3xl p-6 relative shadow-2xl border-2 border-gray-200 dark:border-gray-600 my-10">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-sm rounded-3xl p-6 relative shadow-2xl border-2 border-gray-200 dark:border-gray-600 my-10 lg:max-w-md">
             <button onclick="document.getElementById('profile-modal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 font-bold text-xl">✕</button>
             <div class="flex flex-col items-center">
                 <img id="modal-img" src="" class="w-24 h-24 rounded-full object-cover border-4 border-gray-100 dark:border-gray-700 mb-3">
@@ -404,13 +421,14 @@
         <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-100 dark:bg-gray-900"></div>
         <form id="form-message" class="p-3 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex gap-2 shrink-0">
             <input type="text" id="msg-input" class="flex-1 p-3 rounded-full bg-gray-100 dark:bg-gray-700 dark:text-white border-2 border-gray-300 dark:border-gray-600 focus:border-blue-500" placeholder="اكتب رسالة..." autocomplete="off">
-            <button type="submit" id="btn-send-msg" class="p-3 bg-blue-600 text-white rounded-full shadow-lg"><svg class="w-5 h-5 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg></button>
+            <!-- **إصلاح 3: إصلاح اتجاه زر الإرسال** -->
+            <button type="submit" id="btn-send-msg" class="p-3 bg-blue-600 text-white rounded-full shadow-lg"><svg class="w-5 h-5 transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg></button>
         </form>
     </div>
 
 
     <!-- NAV -->
-    <nav id="nav-bar" class="hidden fixed bottom-0 left-0 right-0 h-20 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-around items-center md:max-w-md md:mx-auto z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+    <nav id="nav-bar" class="hidden fixed bottom-0 left-0 right-0 h-20 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-around items-center md:max-w-md md:mx-auto lg:max-w-4xl lg:mx-auto z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
         <button onclick="window.navTo('home')" class="nav-btn active flex flex-col items-center text-blue-600 w-16"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span class="text-[10px] font-bold">الرئيسية</span></button>
         <button onclick="window.navTo('directory')" class="nav-btn flex flex-col items-center text-gray-400 w-16 hover:text-blue-500"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg><span class="text-[10px] font-bold">الدليل</span></button>
         <div class="relative -top-6"><button onclick="window.navTo('add')" class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-400 rounded-full flex items-center justify-center shadow-lg border-4 border-gray-100 dark:border-gray-800 text-white transform active:scale-90 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button></div>
@@ -447,7 +465,7 @@
         const APP_ID = 'services-cef84';
 
 
-        // **التحديث 2: بيانات المراكز والأماكن في الشرقية (توسيع القائمة)**
+        // **التحديث 2: بيانات المراكز والأماكن في الشرقية (توسيع القائمة النهائية)**
         const sharqiaRegions = {
             "الزقازيق": [
                 "هرية رزنة", "شيبة", "العصلوجي", "بنايوس", "الزنكلون", "كفر الحصر", "كفر عبد العزيز", "كفر الحمام", "النكارية", 
@@ -623,6 +641,12 @@
                      document.documentElement.classList.remove('dark');
                      themeToggle.checked = false;
                 }
+             } else if (userProfile) {
+                // **الإصلاح 1: تطبيق الإعدادات الافتراضية إذا لم تكن موجودة**
+                userProfile.settings = { notifEnabled: true, hidePhone: false, hideProfile: false, darkMode: false };
+                document.getElementById('toggle-notif').checked = true;
+                document.getElementById('toggle-hide-phone').checked = false;
+                document.getElementById('toggle-hide-profile').checked = false;
              }
         }
 
@@ -726,7 +750,7 @@
                 const snap = await getDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', user.uid));
                 if (snap.exists()) {
                     userProfile = snap.data();
-                    // تأكد من وجود حقل الإعدادات بالقيمة الافتراضية
+                    // **الإصلاح 1: تطبيق الإعدادات الافتراضية إذا لم تكن موجودة**
                     if(!userProfile.settings) userProfile.settings = { notifEnabled: true, hidePhone: false, hideProfile: false, darkMode: false };
                     
                     document.getElementById('auth-view').classList.add('hidden');
@@ -902,9 +926,19 @@
                     
                     // **الإصلاح 1: تحديث قائمة الإشعارات و نقطة الجرس**
                     if(newCount > 0 && userProfile.settings.notifEnabled) {
-                        document.getElementById('notif-list').innerHTML = `<div class="p-2 bg-green-50 rounded"><p class="text-sm text-green-800">يوجد ${newCount} طلبات جديدة!</p></div>`;
-                    } else if(document.getElementById('notif-list').innerText.includes('طلبات جديدة')) {
-                        document.getElementById('notif-list').innerHTML = '<p class="text-center text-xs text-gray-400 py-4">لا توجد إشعارات جديدة</p>';
+                        const requestsNotif = document.getElementById('requests-notif-msg');
+                        if (!requestsNotif) {
+                            const el = document.createElement('div');
+                            el.id = 'requests-notif-msg';
+                            el.className = 'p-2 bg-green-50 rounded mb-2';
+                            el.innerHTML = `<p class="text-sm text-green-800">يوجد ${newCount} طلبات جديدة تناسبك!</p>`;
+                            document.getElementById('notif-list').prepend(el);
+                        } else {
+                            requestsNotif.innerHTML = `<p class="text-sm text-green-800">يوجد ${newCount} طلبات جديدة تناسبك!</p>`;
+                        }
+                    } else {
+                         const requestsNotif = document.getElementById('requests-notif-msg');
+                         if (requestsNotif) requestsNotif.remove();
                     }
                     window.updateNotifDot();
                 });
@@ -912,11 +946,36 @@
                 // **الإصلاح 1: لضمان تحديث الجرس حتى لو لم يكن مقدم خدمة**
                 window.updateNotifDot();
             }
+            
+            // **الإصلاح 4: إصلاح عدم تحميل الوظائف**
+            onSnapshot(query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('type','==','job'), orderBy('createdAt', 'desc')), (snap) => {
+                const list = document.getElementById('view-jobs');
+                if(snap.empty) { list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد وظائف</p>'; return; }
+                
+                const html = [];
+                snap.forEach(d => {
+                    const j = d.data();
+                    html.push(`
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md mb-3 border-2 border-gray-200 dark:border-gray-600 animate-fade overflow-hidden">
+                            <div class="flex items-center gap-3 p-3 border-b border-gray-100 dark:border-gray-700">
+                                <img src="${j.posterPhoto||'https://via.placeholder.com/40'}" class="w-8 h-8 rounded-full object-cover border">
+                                <p class="text-xs font-bold text-gray-600 dark:text-gray-300">${j.posterName}</p>
+                            </div>
+                            <div class="bg-blue-50 dark:bg-blue-900/20 p-3"><h3 class="font-extrabold text-blue-700 dark:text-blue-300 text-base">مطلوب: ${j.title}</h3></div>
+                            <div class="p-3 text-sm text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-gray-700">${j.desc}</div>
+                            <div class="flex gap-2 p-3 bg-gray-50 dark:bg-gray-800">
+                                <a href="tel:${j.contactPhone||j.posterPhone}" class="flex-1 py-2 bg-green-600 text-white text-center rounded-lg font-bold text-sm shadow">اتصال 📞</a>
+                                <button onclick="window.openChat('${j.uid}','${j.posterName}')" class="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow">محادثة 💬</button>
+                            </div>
+                        </div>`);
+                });
+                list.innerHTML = html.join('');
+            });
         }
 
 
         // **الإصلاح 1: دالة موحدة لتحديث نقطة الجرس (Notif-Dot) مع رسالة توضيحية**
-        window.updateNotifDot = (hasChatUnread = false) => {
+        window.updateNotifDot = (hasChatUnread = !document.getElementById('chat-unread-dot').classList.contains('hidden')) => {
             let totalUnread = 0;
             const notifList = document.getElementById('notif-list');
             
@@ -930,7 +989,10 @@
                      el.id = 'chat-notif-msg';
                      el.className = 'p-2 bg-blue-50 rounded mb-2';
                      el.innerHTML = '<p class="text-sm text-blue-800">لديك محادثات جديدة غير مقروءة!</p>';
-                     notifList.prepend(el);
+                     // التأكد من عدم وجود الطلبات الجديدة لعدم تكرار الإضافة
+                     const reqNotif = document.getElementById('requests-notif-msg');
+                     if (reqNotif) notifList.insertBefore(el, reqNotif);
+                     else notifList.prepend(el);
                 }
             } else {
                 const chatNotif = document.getElementById('chat-notif-msg');
@@ -938,25 +1000,39 @@
             }
 
             // 2. فحص إشعارات الطلبات
-            const hasNewRequests = userProfile?.role === 'provider' && document.getElementById('notif-list').innerText.includes('طلبات جديدة');
+            const hasNewRequests = userProfile?.role === 'provider' && document.getElementById('requests-notif-msg');
             if (hasNewRequests) totalUnread++;
 
             // 3. تحديث نقطة الجرس
-            if (totalUnread > 0) {
+            if (totalUnread > 0 && userProfile?.settings?.notifEnabled) {
                 document.getElementById('notif-dot').classList.remove('hidden');
             } else {
                 document.getElementById('notif-dot').classList.add('hidden');
-                // إذا لم يكن هناك إشعارات، تأكد من أن القائمة تحتوي على رسالة "لا توجد"
-                if (!document.getElementById('notif-list').innerText.includes('طلبات جديدة')) {
-                     notifList.innerHTML = '<p class="text-center text-xs text-gray-400 py-4">لا توجد إشعارات جديدة</p>';
-                }
+            }
+            
+            // تحديث رسالة "لا توجد إشعارات"
+            if (!hasChatUnread && !hasNewRequests) {
+                 notifList.innerHTML = '<p class="text-center text-xs text-gray-400 py-4">لا توجد إشعارات جديدة</p>';
             }
         }
+
+        // **الإصلاح 5: إخفاء إشعار الطلبات عند فتح اللوحة**
+        const originalToggleNotifPanel = window.toggleNotifPanel;
+        window.toggleNotifPanel = () => {
+            originalToggleNotifPanel();
+            if (!document.getElementById('notif-panel').classList.contains('hidden') && userProfile?.settings?.notifEnabled) {
+                 // إزالة رسالة الطلبات (افتراضاً أنها قُرئت)
+                 const requestsNotif = document.getElementById('requests-notif-msg');
+                 if (requestsNotif) requestsNotif.remove();
+                 window.updateNotifDot(); // تحديث نقطة الجرس
+            }
+        };
 
 
         // --- ACTIONS ---
         window.deleteRequest = async (id) => { if(confirm('حذف؟')) await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'requests', id)); };
-        window.toggleNotifPanel = () => { document.getElementById('notif-panel').classList.toggle('hidden'); document.getElementById('notif-dot').classList.add('hidden'); };
+        // window.toggleNotifPanel تم تعديلها أعلاه
+        // window.toggleNotifPanel = () => { document.getElementById('notif-panel').classList.toggle('hidden'); document.getElementById('notif-dot').classList.add('hidden'); };
 
 
         // --- PROFILE MODAL ---
@@ -1186,12 +1262,16 @@
         // **الإصلاح 1: حفظ الإعدادات مع الوضع الليلي**
         window.saveSettings = async () => {
             try {
-                await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', currentUser.uid), { settings: {
+                const settingsToSave = { 
                     notifEnabled: document.getElementById('toggle-notif').checked,
                     hidePhone: document.getElementById('toggle-hide-phone').checked,
                     hideProfile: document.getElementById('toggle-hide-profile').checked,
-                    darkMode: document.documentElement.classList.contains('dark') // حفظ حالة الوضع الليلي
-                }});
+                    darkMode: document.documentElement.classList.contains('dark')
+                };
+                
+                await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', currentUser.uid), { settings: settingsToSave });
+                // تحديث الـ userProfile المحلي بعد الحفظ
+                userProfile.settings = settingsToSave;
                 window.showToast('تم الحفظ'); window.goBack();
             } catch (e) { window.showToast('خطأ', 'error'); }
         };
