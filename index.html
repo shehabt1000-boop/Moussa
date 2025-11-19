@@ -9,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Config -->
     <script>
@@ -139,6 +139,7 @@
             <h1 class="text-3xl font-extrabold">خدمات الشرقية</h1>
         </div>
         <div class="bg-gray-200 dark:bg-gray-800 p-1 rounded-xl flex mb-6 border border-gray-300 dark:border-gray-600">
+            <!-- إصلاح زر التبديل -->
             <button onclick="window.switchAuthMode('login')" id="btn-mode-login" class="flex-1 py-3 rounded-lg text-sm font-bold bg-white shadow text-blue-600 transition-all">دخول</button>
             <button onclick="window.switchAuthMode('signup')" id="btn-mode-signup" class="flex-1 py-3 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-700 transition-all">حساب جديد</button>
         </div>
@@ -151,39 +152,43 @@
         </form>
 
 
-        <form id="form-signup" class="hidden space-y-4 pb-10">
-            <div class="flex flex-col items-center mb-4">
-                <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 border-4 border-dashed border-gray-400 relative overflow-hidden group cursor-pointer hover:border-blue-500" onclick="document.getElementById('signup-file').click()">
+        <form id="form-signup" class="hidden space-y-2 pb-2"> <!-- تم تصغير space-y و pb لتقليل الارتفاع -->
+            <div class="flex flex-col items-center mb-1"> <!-- تم تصغير mb لتقليل الارتفاع -->
+                <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-400 relative overflow-hidden group cursor-pointer hover:border-blue-500" onclick="document.getElementById('signup-file').click()"> <!-- تم تصغير حجم الصورة -->
                     <img id="signup-preview" src="https://via.placeholder.com/150?text=+" class="w-full h-full object-cover">
                 </div>
                 <input type="file" id="signup-file" class="hidden" accept="image/*" onchange="window.handleImageUpload(this, 'signup-preview')">
             </div>
-            <div class="grid grid-cols-2 gap-3">
-                <input type="text" id="signup-name" placeholder="الاسم" class="w-full p-3 rounded-xl" required>
-                <input type="tel" id="signup-phone" placeholder="الهاتف" class="w-full p-3 rounded-xl" required>
+            <div class="grid grid-cols-2 gap-2"> <!-- تم تصغير gap -->
+                <!-- **إصلاح 5: تصغير حجم الخط والحشو الداخلي للحقول** -->
+                <input type="text" id="signup-name" placeholder="الاسم" class="w-full p-2 rounded-lg text-xs" required>
+                <input type="tel" id="signup-phone" placeholder="الهاتف" class="w-full p-2 rounded-lg text-xs" required>
             </div>
-            <div class="flex gap-3">
-                <label class="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-xl cursor-pointer border-2 border-gray-300 dark:border-gray-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-900/30">
+            <div class="flex gap-2">
+                <label class="flex-1 flex items-center justify-center gap-1 bg-white dark:bg-gray-800 p-2 rounded-lg cursor-pointer border-2 border-gray-300 dark:border-gray-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-900/30 text-xs">
                     <input type="radio" name="gender" value="male" class="hidden" checked><span>👨 ذكر</span>
                 </label>
-                <label class="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-xl cursor-pointer border-2 border-gray-300 dark:border-gray-600 has-[:checked]:border-pink-500 has-[:checked]:bg-pink-50 dark:has-[:checked]:bg-pink-900/30">
+                <label class="flex-1 flex items-center justify-center gap-1 bg-white dark:bg-gray-800 p-2 rounded-lg cursor-pointer border-2 border-gray-300 dark:border-gray-600 has-[:checked]:border-pink-500 has-[:checked]:bg-pink-50 dark:has-[:checked]:bg-pink-900/30 text-xs">
                     <input type="radio" name="gender" value="female" class="hidden"><span>👩 أنثى</span>
                 </label>
             </div>
-            <input type="email" id="signup-email" placeholder="البريد الإلكتروني" class="w-full p-3 rounded-xl" required>
-            <input type="password" id="signup-pass" placeholder="كلمة المرور" class="w-full p-3 rounded-xl" required>
-            <div class="grid grid-cols-2 gap-3">
-                <select id="signup-city" class="w-full p-3 rounded-xl"><option value="الزقازيق">الزقازيق</option><option value="بلبيس">بلبيس</option><option value="منيا القمح">منيا القمح</option><option value="فاقوس">فاقوس</option><option value="أبو كبير">أبو كبير</option><option value="العاشر">العاشر</option><option value="ديرب نجم">ديرب نجم</option><option value="الحسينية">الحسينية</option></select>
-                <input type="text" id="signup-area" placeholder="المنطقة" class="w-full p-3 rounded-xl">
+            <input type="email" id="signup-email" placeholder="البريد الإلكتروني" class="w-full p-2 rounded-lg text-xs" required>
+            <input type="password" id="signup-pass" placeholder="كلمة المرور" class="w-full p-2 rounded-lg text-xs" required>
+            <div class="grid grid-cols-3 gap-2">
+                <input type="hidden" id="signup-city" value="الشرقية">
+                <select id="signup-area-center" class="w-full p-2 rounded-lg text-xs" onchange="window.populateAreas(this.value, 'signup-area-select')"><option value="">اختر المركز...</option></select>
+                <select id="signup-area-select" class="w-full p-2 rounded-lg text-xs" disabled><option value="">اختر المنطقة</option></select>
+                <!-- **إصلاح 5: تصغير حجم الخط والحشو الداخلي للحقول** -->
+                <input type="text" id="signup-address-details" placeholder="تفاصيل العنوان (اختياري)" class="w-full p-2 rounded-lg col-span-1 text-xs">
             </div>
-            <div class="flex bg-gray-200 dark:bg-gray-700 p-1 rounded-xl border border-gray-300 dark:border-gray-600">
-                <label class="flex-1 text-center cursor-pointer"><input type="radio" name="role" value="client" class="hidden peer" checked onchange="window.toggleProfVisibility(false)"><div class="py-2 rounded-lg text-xs font-bold text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 transition-all">عميل</div></label>
-                <label class="flex-1 text-center cursor-pointer"><input type="radio" name="role" value="provider" class="hidden peer" onchange="window.toggleProfVisibility(true)"><div class="py-2 rounded-lg text-xs font-bold text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 transition-all">مقدم خدمة</div></label>
+            <div class="flex bg-gray-200 dark:bg-gray-700 p-1 rounded-lg border border-gray-300 dark:border-gray-600">
+                <label class="flex-1 text-center cursor-pointer"><input type="radio" name="role" value="client" class="hidden peer" checked onchange="window.toggleProfVisibility(false)"><div class="py-1 rounded-lg text-xs font-bold text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 transition-all">عميل</div></label>
+                <label class="flex-1 text-center cursor-pointer"><input type="radio" name="role" value="provider" class="hidden peer" onchange="window.toggleProfVisibility(true)"><div class="py-1 rounded-lg text-xs font-bold text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 transition-all">مقدم خدمة</div></label>
             </div>
             <div id="prof-container" class="hidden">
-                <select id="signup-prof" class="w-full p-3 rounded-xl"><option value="">اختر المهنة...</option></select>
+                <select id="signup-prof" class="w-full p-2 rounded-lg text-xs"><option value="">اختر المهنة...</option></select>
             </div>
-            <button type="submit" class="w-full py-4 bg-green-600 text-white rounded-xl font-bold shadow-lg active:scale-95 transition-transform">إنشاء الحساب</button>
+            <button type="submit" class="w-full py-3 bg-green-600 text-white rounded-xl font-bold shadow-lg active:scale-95 transition-transform text-sm">إنشاء الحساب</button>
         </form>
     </div>
 
@@ -282,9 +287,14 @@
                     <div><label class="text-xs font-bold text-gray-500">الاسم</label><input type="text" id="edit-name" class="w-full p-3 rounded-xl"></div>
                     <div><label class="text-xs font-bold text-gray-500">البريد الإلكتروني</label><input type="email" id="edit-email" class="w-full p-3 rounded-xl" readonly disabled style="opacity: 0.6;"></div>
                     <div><label class="text-xs font-bold text-gray-500">رقم الهاتف</label><input type="tel" id="edit-phone" class="w-full p-3 rounded-xl"></div>
-                    <div><label class="text-xs font-bold text-gray-500">المدينة</label><select id="edit-city" class="w-full p-3 rounded-xl"><option value="الزقازيق">الزقازيق</option><option value="بلبيس">بلبيس</option><option value="منيا القمح">منيا القمح</option></select></div>
-                    <!-- حقل المنطقة المضاف -->
-                    <div><label class="text-xs font-bold text-gray-500">المنطقة</label><input type="text" id="edit-area" class="w-full p-3 rounded-xl"></div>
+                    <!-- المدينة ثابتة كـ الشرقية -->
+                    <div><label class="text-xs font-bold text-gray-500">المدينة</label><input type="text" id="edit-city" class="w-full p-3 rounded-xl" value="الشرقية" readonly disabled style="opacity: 0.6;"></div>
+                    <!-- حقول المركز والمنطقة وتفاصيل العنوان الجديدة -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-xs font-bold text-gray-500">المركز</label><select id="edit-area-center" class="w-full p-3 rounded-xl" onchange="window.populateAreas(this.value, 'edit-area-select')"></select></div>
+                        <div><label class="text-xs font-bold text-gray-500">المنطقة</label><select id="edit-area-select" class="w-full p-3 rounded-xl" disabled><option value="">اختر المنطقة</option></select></div>
+                    </div>
+                    <div><label class="text-xs font-bold text-gray-500">تفاصيل العنوان</label><input type="text" id="edit-address-details" placeholder="تفاصيل العنوان (اختياري)" class="w-full p-3 rounded-xl"></div>
                 </div>
                 <div class="flex gap-3 mt-6">
                     <button onclick="window.saveProfileChanges()" class="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold shadow">حفظ</button>
@@ -404,7 +414,11 @@
         <button onclick="window.navTo('home')" class="nav-btn active flex flex-col items-center text-blue-600 w-16"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span class="text-[10px] font-bold">الرئيسية</span></button>
         <button onclick="window.navTo('directory')" class="nav-btn flex flex-col items-center text-gray-400 w-16 hover:text-blue-500"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg><span class="text-[10px] font-bold">الدليل</span></button>
         <div class="relative -top-6"><button onclick="window.navTo('add')" class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-400 rounded-full flex items-center justify-center shadow-lg border-4 border-gray-100 dark:border-gray-800 text-white transform active:scale-90 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button></div>
-        <button onclick="window.navTo('chat')" class="nav-btn flex flex-col items-center text-gray-400 w-16 hover:text-blue-500"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span class="text-[10px] font-bold">محادثات</span></button>
+        <button onclick="window.navTo('chat')" class="nav-btn flex flex-col items-center text-gray-400 w-16 hover:text-blue-500 relative">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            <span class="text-[10px] font-bold">محادثات</span>
+            <span id="chat-unread-dot" class="hidden absolute top-1 right-3 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-gray-800"></span>
+        </button>
         <button onclick="window.navTo('profile')" class="nav-btn flex flex-col items-center text-gray-400 w-16 hover:text-blue-500"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span class="text-[10px] font-bold">حسابي</span></button>
     </nav>
 
@@ -431,6 +445,37 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const APP_ID = 'services-cef84';
+
+
+        // **التحديث 2: بيانات المراكز والأماكن في الشرقية (توسيع القائمة)**
+        const sharqiaRegions = {
+            "الزقازيق": [
+                "هرية رزنة", "شيبة", "العصلوجي", "بنايوس", "الزنكلون", "كفر الحصر", "كفر عبد العزيز", "كفر الحمام", "النكارية", 
+                "الشبانات", "شوبك بسطة", "بيشة قايد", "الطاهرة", "الزهراء", "طوخ", "ميت أبو علي", "كفر السواقي", 
+                "كفر منلا", "كفر أبو حسين", "عزبة البكري", "كفر محفوظ", "كفر الشرفا", "عزبة العرب", "عزبة الجندي", 
+                "كفر المزارقة", "بيشة نوي", "شيبة النكارية", "كفر داوود", "كفر الحصر البحري", "كفر الشرفا البحري", 
+                "برازيل", "المسلمية", "الطيبة", "شيبة الزقازيق البحرية", "النحال", "المحافظة", "طريق ههيا", 
+                "أولاد سيف", "القومية", "الجامعة", "الزراعة", "الغشام", "المنتزه", "حي الزهور", "حي الحسينية", 
+                "حي النحال", "حي عمر بن الخطاب", "موقف المنصورة", "ميدان عرابي", "ميدان القومية", "شارع فاروق", 
+                "شارع الجلاء", "شارع الهرم", "شارع النقراشي", "طريق الجامعة"
+            ],
+            "منيا القمح": ["منيا القمح", "السعديين", "كفر السعديين", "كفر الشيخ سفر", "شرشرة", "ميت سهيل", "التلين", "سنهوا", "كفر سلامة", "عزبة التلين", "شلشلمون", "بني هلال", "عزبة الطباخ", "كفر شلشلمون", "صهرجت الكبرى", "صهرجت الصغرى", "كفر صهرجت", "العزيزية", "كفر الشيخ إبراهيم", "البناتية", "كفر عليم", "ملّيوس", "كفر ملّيوس", "كفر العرب"],
+            "بلبيس": ["بلبيس", "أنشاص الرمل", "تل روزن", "العلاقمة", "غيتة", "كفر أيوب سليمان", "ميت ربيعة", "سلمنت", "الكتيبة", "كفر أبودقن", "العدلية", "كفر أيوب", "كفر إبراهيم العايدي", "أولاد سيف (بلبيس)", "كفر أبو شحاتة", "السعادات"],
+            "أبو حماد": ["أبو حماد", "كفر أبو نجم", "الأسدية", "عزبة أبو عامر", "الصوة", "الطحاوية", "الدويانية", "القطاوية", "أبو خروع", "كفر البلاسي", "عزبة جودة", "قرى عرب أبو خروع"],
+            "فاقوس": ["فاقوس", "الصوالح", "الكيلانية", "الملاحات", "الديدامون", "قنتير", "السماعنة", "سماكين الغرب", "سماكين الشرق", "أبو شلبي", "النمروط", "الغزالي", "قهبونة", "أبو ياسين", "المنشأة الجديدة", "جلفيا"],
+            "الحسينية": ["الحسينية", "سعود", "منشأة أبو عامر", "العبودي", "الجمالية", "بحر البقر", "بحر البقر القديمة", "الأخيوة", "الروضة", "المناجاة", "القصبي شرق", "القصبي غرب", "العائط"],
+            "أبو كبير": ["أبو كبير", "الرحمانية", "المشاعلة", "طوخ القراموص", "هربيط", "أبو شحاتة", "كفر الشيخ عيسى", "بني عياض", "كفر بني عياض", "كفر أبو حطب"],
+            "ديرب نجم": ["ديرب نجم", "صفط زريق", "جميزة بني عمرو", "ديرب البلد", "الهوابر", "عزبة يوسف", "إكوه", "المناصافور", "طحا المرج"],
+            "كفر صقر": ["كفر صقر", "أبو الشقوق", "حانوت", "الهجارسة", "القُرين القديمة", "كفر السويركي"],
+            "أولاد صقر": ["أولاد صقر", "تلراك", "منشأة ناصف", "بني حسن", "الهجارسة (أولاد صقر)", "القطيع"],
+            "الإبراهيمية": ["الإبراهيمية", "كفور نجم", "العدوة", "السدس", "كفر أبو شريعة", "شلش"],
+            "مشتول السوق": ["مشتول السوق", "سنهوا (مشتول)", "الصحافة", "المنير", "العقدة", "العريشية"],
+            "ههيا": ["ههيا", "العلاقمة", "السكاكرة", "المهدية", "كفر أبو كبير (ههيا)", "شرشيمة"],
+            "العاشر من رمضان": ["المجاورة الأولى", "المجاورة العاشرة", "المنطقة الصناعية A1", "حي الأندلس", "حي الإسراء", "الحي 12"],
+            "القنايات": ["وسط المدينة", "نزلة خيال"],
+            "صان الحجر": ["منطقة الآثار", "وسط المدينة", "العباسة"],
+            "القرين": ["حي القرين", "المنطقة الصناعية"],
+        };
 
 
         const professions = ["محاسب","مهندس مدني","مهندس معماري","طبيب بشري","طبيب أسنان","صيدلي","ممرض","محامي","مدرس","جرافيك ديزاينر","مبرمج","كاتب محتوى","مسوق إلكتروني","مترجم","مدخل بيانات","موظف استقبال","سكرتير","شيف","ويتر","باريستا","سباك","كهربائي","نجار","نقاش","حداد","لحام","ميكانيكي سيارات","عفشجي","سمكري","كهربائي سيارات","سروجي سيارات","فني تكييف","فني دش","فني غسالات","فني ثلاجات","فني فلاتر","مبلط سيراميك","مبيض محارة","بناء","مقاول","فني الوميتال","استورجي","منجد","ترزي","جزمجي","مكوجي","حلاق","كوافير","ماكيير","مصور","فني طباعة","فني كمبيوتر","فني موبايل","سائق خاص","سائق تاكسي","سائق نقل","دليفري","عامل نظافة","عامل بوفيه","عامل بناء","عامل زراعي","جنايني","حارس عقار","فني كاميرات","فني شبكات","فني مصاعد","فني زجاج","فني رخام","فني جبس بورد","فني باركيه","خطاط","رسام","نحات","صائغ","ساعاتي","فني مفاتيح","فني اليكترونيات","فني تحاليل","فني أشعة","أخصائي علاج طبيعي","أخصائي تخاطب","محفظ قرآن","مأذون","طباخ منزلي","بيبي سيتر","جليس مسنين","مدرب جيم","مدرب سباحة","مدرب سواقة","سمسار عقارات","تاجر ملابس","تاجر أغذية","مندوب مبيعات","كاشير","مدير محل","فني بصريات","فني أسنان","مدرب كرة قدم","حكم","يوتيوبر","صانع محتوى","خدمات أخرى"];
@@ -488,7 +533,11 @@
             window.scrollTo(0, 0); // Scroll first
             if (pageId === 'chat-room') {
                 document.getElementById('page-chat-room').classList.remove('hidden');
-                navStack.push('chat-room'); return;
+                navStack.push('chat-room'); 
+                // **الإصلاح 3: تمييز المحادثة كمقروءة عند الدخول**
+                if (currentChatId) window.markChatAsRead(currentChatId); 
+                document.getElementById('chat-unread-dot').classList.add('hidden');
+                return;
             }
             document.getElementById('page-chat-room').classList.add('hidden');
             if (chatListener) { chatListener(); chatListener = null; }
@@ -521,10 +570,37 @@
         };
 
 
+        // **التحديث 1: دالة لملء قائمة المراكز**
+        window.populateCenters = (selectId, initialValue) => {
+            const centers = Object.keys(sharqiaRegions);
+            const opts = centers.map(c => `<option value="${c}">${c}</option>`).join('');
+            const selectEl = document.getElementById(selectId);
+            selectEl.innerHTML = '<option value="">اختر المركز...</option>' + opts;
+            if (initialValue) selectEl.value = initialValue;
+        }
+
+        window.populateAreas = (center, selectId, initialValue) => {
+            const areaSelect = document.getElementById(selectId);
+            areaSelect.innerHTML = '<option value="">اختر المنطقة</option>';
+            if (center && sharqiaRegions[center]) {
+                const areas = sharqiaRegions[center];
+                const opts = areas.map(a => `<option value="${a}">${a}</option>`).join('');
+                areaSelect.innerHTML += opts;
+                areaSelect.disabled = false;
+            } else {
+                areaSelect.disabled = true;
+            }
+            if (initialValue) areaSelect.value = initialValue;
+        }
+
+
         function initApp() {
             const opts = professions.map(p => `<option value="${p}">${p}</option>`).join('');
             ['signup-prof', 'req-prof', 'job-title-select'].forEach(id => document.getElementById(id).innerHTML = '<option value="">اختر المهنة...</option>'+opts);
             renderProfessionsGrid(professions);
+            // **التحديث 1: ملء المراكز**
+            window.populateCenters('signup-area-center');
+            window.populateCenters('edit-area-center');
             // تطبيق الإعدادات عند بدء التطبيق
             loadSettings();
         }
@@ -580,9 +656,26 @@
 
 
         // --- AUTH ---
+        // **الإصلاح 4: إصلاح تبديل حالة الأزرار**
         window.switchAuthMode = (mode) => {
-            if(mode==='login'){ document.getElementById('form-login').classList.remove('hidden'); document.getElementById('form-signup').classList.add('hidden'); }
-            else { document.getElementById('form-login').classList.add('hidden'); document.getElementById('form-signup').classList.remove('hidden'); }
+            const loginBtn = document.getElementById('btn-mode-login');
+            const signupBtn = document.getElementById('btn-mode-signup');
+            const loginForm = document.getElementById('form-login');
+            const signupForm = document.getElementById('form-signup');
+
+            if(mode === 'login'){
+                loginForm.classList.remove('hidden'); signupForm.classList.add('hidden');
+                loginBtn.classList.add('bg-white', 'shadow', 'text-blue-600');
+                loginBtn.classList.remove('text-gray-500', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
+                signupBtn.classList.remove('bg-white', 'shadow', 'text-blue-600');
+                signupBtn.classList.add('text-gray-500', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
+            } else {
+                loginForm.classList.add('hidden'); signupForm.classList.remove('hidden');
+                signupBtn.classList.add('bg-white', 'shadow', 'text-blue-600');
+                signupBtn.classList.remove('text-gray-500', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
+                loginBtn.classList.remove('bg-white', 'shadow', 'text-blue-600');
+                loginBtn.classList.add('text-gray-500', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
+            }
         };
         window.toggleProfVisibility = (show) => document.getElementById('prof-container').style.display = show ? 'block' : 'none';
 
@@ -601,6 +694,11 @@
                 const prof = role === 'provider' ? document.getElementById('signup-prof').value : null;
                 if(role === 'provider' && !prof) throw new Error('اختر المهنة');
                 
+                const center = document.getElementById('signup-area-center').value;
+                const area = document.getElementById('signup-area-select').value;
+                const addressDetails = document.getElementById('signup-address-details').value;
+                if(!center) throw new Error('اختر المركز');
+
                 const cred = await createUserWithEmailAndPassword(auth, document.getElementById('signup-email').value, document.getElementById('signup-pass').value);
                 const gender = document.querySelector('input[name="gender"]:checked').value;
                 const photo = tempImgBase64 || `https://ui-avatars.com/api/?name=${document.getElementById('signup-name').value}&background=${gender==='male'?'0D8ABC':'E91E63'}&color=fff`;
@@ -608,7 +706,10 @@
 
                 await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', cred.user.uid), {
                     uid: cred.user.uid, name: document.getElementById('signup-name').value,
-                    phone: document.getElementById('signup-phone').value, city: document.getElementById('signup-city').value, area: document.getElementById('signup-area').value,
+                    phone: document.getElementById('signup-phone').value, city: 'الشرقية', // تم تثبيت المدينة
+                    areaCenter: center, // المركز
+                    area: area, // المنطقة التابعة للمركز
+                    addressDetails: addressDetails, // تفاصيل العنوان
                     role, profession: prof, photoURL: photo, gender, settings: { notifEnabled: true, hidePhone: false, hideProfile: false, darkMode: false }, // تم إضافة darkMode
                     createdAt: new Date().toISOString()
                 });
@@ -645,9 +746,11 @@
                     document.getElementById('edit-name').value = userProfile.name;
                     document.getElementById('edit-email').value = currentUser.email;
                     document.getElementById('edit-phone').value = userProfile.phone;
-                    document.getElementById('edit-city').value = userProfile.city || '';
-                    // **الإصلاح 2: تحميل قيمة المنطقة**
-                    document.getElementById('edit-area').value = userProfile.area || '';
+                    
+                    // **التحديث 1: تحميل المركز والمنطقة وتفاصيل العنوان**
+                    window.populateCenters('edit-area-center', userProfile.areaCenter || '');
+                    window.populateAreas(userProfile.areaCenter || '', 'edit-area-select', userProfile.area || '');
+                    document.getElementById('edit-address-details').value = userProfile.addressDetails || '';
                     document.getElementById('edit-img-preview').src = userProfile.photoURL;
                     
                     // Fix 2: Removed Profession Edit Logic
@@ -671,7 +774,7 @@
         });
 
 
-        // **الإصلاح: دالة مساعدة لجلب بيانات المستخدم (لضمان ظهورها في المحادثات)**
+        // **الإصلاح 5: دالة مساعدة لجلب بيانات المستخدم (لضمان ظهورها في المحادثات)**
         async function fetchUserById(uid) {
             const cachedUser = allUsersCache.find(u => u.uid === uid);
             if (cachedUser) return cachedUser;
@@ -692,13 +795,18 @@
             // بيانات افتراضية إذا لم يتم العثور على المستخدم
             return { name: 'مستخدم محذوف/غير متوفر', photoURL: 'https://via.placeholder.com/40', role: 'client' };
         }
+        
+        // **الإصلاح 3: تمييز المحادثة كمقروءة**
+        window.markChatAsRead = async (chatId) => {
+            const lastRead = {};
+            lastRead[currentUser.uid] = new Date().toISOString();
+            await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'chats', chatId), { lastRead: lastRead }, { merge: true });
+        }
 
 
         function startListeners() {
             
             // **الإصلاح 5: إعادة بناء مستمع المستخدمين (البروفايلات)**
-            // الهدف: تحميل جميع المستخدمين ما عدا المستخدم الحالي لملء allUsersCache.
-            // (الآن لا نقوم بالفلترة حسب hideProfile هنا، بل في دوال العرض)
             onSnapshot(collection(db, 'artifacts', APP_ID, 'public', 'data', 'profiles'), (snap) => {
                 const tempCache = [];
                 snap.forEach(d => { 
@@ -706,7 +814,7 @@
                     if(d.id !== currentUser.uid) tempCache.push(u); 
                 });
                 allUsersCache = tempCache;
-                window.renderDirectory();
+                window.renderDirectory(); 
             });
 
 
@@ -726,38 +834,57 @@
 
                 if(myChats.length === 0) { 
                     list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد محادثات</p>'; 
+                    // **الإصلاح 2: إخفاء نقطة إشعار المحادثات إذا لا توجد محادثات**
+                    document.getElementById('chat-unread-dot').classList.add('hidden');
+                    // **الإصلاح 1: تحديث نقطة الجرس**
+                    window.updateNotifDot();
                     return; 
                 }
 
 
                 myChats.sort((a,b) => new Date(b.lastUpdated || 0) - new Date(a.lastUpdated || 0));
 
-
-                // **الإصلاح 5: جلب بيانات المستخدمين الشركاء بشكل متزامن**
+                let hasUnread = false;
                 const chatHtmlPromises = myChats.map(async (c) => {
                     const otherId = c.users ? c.users.find(u => u !== currentUser.uid) : null;
-                    const otherUser = await fetchUserById(otherId); // جلب مضمون
+                    const otherUser = await fetchUserById(otherId); 
                     const time = c.lastUpdated ? new Date(c.lastUpdated).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
                     
+                    // **الإصلاح 3: حساب الرسائل غير المقروءة**
+                    const lastReadTimestamp = c.lastRead?.[currentUser.uid] ? new Date(c.lastRead[currentUser.uid]).getTime() : 0;
+                    const lastMessageTimestamp = c.lastUpdated ? new Date(c.lastUpdated).getTime() : 0;
+                    // غير مقروءة إذا: 1. أحدث رسالة بعد آخر قراءة AND 2. آخر رسالة ليست من المستخدم نفسه
+                    const isUnread = lastMessageTimestamp > lastReadTimestamp && c.lastSenderId !== currentUser.uid;
+                    if(isUnread) hasUnread = true;
+
+                    const unreadClass = isUnread ? 'bg-blue-50/50 dark:bg-blue-900/30 border-blue-400' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700';
+                    const unreadDot = isUnread ? '<span class="w-2 h-2 bg-blue-500 rounded-full ml-2 flex-shrink-0"></span>' : '';
+                    
                     return `
-                       <div onclick="window.openChat('${otherId}', '${otherUser.name}')" class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm cursor-pointer border border-gray-200 dark:border-gray-700 mb-2">
+                       <div onclick="window.openChat('${otherId}', '${otherUser.name}', '${c.id}')" class="flex items-center gap-3 p-3 rounded-xl shadow-sm cursor-pointer border ${unreadClass} mb-2 hover:opacity-90 transition-opacity">
                            <img src="${otherUser.photoURL}" class="w-12 h-12 rounded-full object-cover">
                            <div class="flex-1">
-                               <div class="flex justify-between">
+                               <div class="flex justify-between items-center">
                                    <h4 class="font-bold text-sm dark:text-white">${otherUser.name}</h4>
                                    <span class="text-[10px] text-gray-400">${time}</span>
                                </div>
-                               <p class="text-xs text-gray-500 truncate">${c.lastMessage || '...'}</p>
+                               <p class="text-xs text-gray-500 truncate flex items-center">${unreadDot}${c.lastMessage || '...'}</p>
                            </div>
                        </div>
                     `;
                 });
 
                 list.innerHTML = (await Promise.all(chatHtmlPromises)).join(''); // انتظار جميع الوعود قبل العرض
+
+                // **الإصلاح 2: إظهار إشعار المحادثات في شريط التنقل**
+                document.getElementById('chat-unread-dot').classList.toggle('hidden', !hasUnread);
+
+                // **الإصلاح 1: تحديث نقطة الجرس**
+                window.updateNotifDot(hasUnread);
             });
 
 
-            // Notifications
+            // Notifications for Provider Requests
             if(userProfile.role === 'provider') {
                 const q = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('type','==','service'), where('profession','==',userProfile.profession));
                 onSnapshot(q, (snap) => {
@@ -772,64 +899,58 @@
                         html.push(`<div class="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border-r-4 border-orange-500 flex justify-between items-center"><div><p class="font-bold text-sm dark:text-white">${req.requesterName} ${isNew?'🔴':''}</p><p class="text-xs text-gray-500">${req.desc}</p></div><button onclick="window.openChat('${req.uid}','${req.requesterName}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold">تواصل</button></div>`);
                     });
                     container.innerHTML = html.join('');
+                    
+                    // **الإصلاح 1: تحديث قائمة الإشعارات و نقطة الجرس**
                     if(newCount > 0 && userProfile.settings.notifEnabled) {
-                        document.getElementById('notif-dot').classList.remove('hidden');
                         document.getElementById('notif-list').innerHTML = `<div class="p-2 bg-green-50 rounded"><p class="text-sm text-green-800">يوجد ${newCount} طلبات جديدة!</p></div>`;
+                    } else if(document.getElementById('notif-list').innerText.includes('طلبات جديدة')) {
+                        document.getElementById('notif-list').innerHTML = '<p class="text-center text-xs text-gray-400 py-4">لا توجد إشعارات جديدة</p>';
                     }
+                    window.updateNotifDot();
                 });
+            } else {
+                // **الإصلاح 1: لضمان تحديث الجرس حتى لو لم يكن مقدم خدمة**
+                window.updateNotifDot();
+            }
+        }
+
+
+        // **الإصلاح 1: دالة موحدة لتحديث نقطة الجرس (Notif-Dot) مع رسالة توضيحية**
+        window.updateNotifDot = (hasChatUnread = false) => {
+            let totalUnread = 0;
+            const notifList = document.getElementById('notif-list');
+            
+            // 1. فحص إشعارات المحادثات
+            if (hasChatUnread) {
+                totalUnread++;
+                // **الإصلاح 1: إضافة رسالة المحادثات غير المقروءة للوحة الإشعارات**
+                const chatNotif = document.getElementById('chat-notif-msg');
+                if (!chatNotif) {
+                     const el = document.createElement('div');
+                     el.id = 'chat-notif-msg';
+                     el.className = 'p-2 bg-blue-50 rounded mb-2';
+                     el.innerHTML = '<p class="text-sm text-blue-800">لديك محادثات جديدة غير مقروءة!</p>';
+                     notifList.prepend(el);
+                }
+            } else {
+                const chatNotif = document.getElementById('chat-notif-msg');
+                if (chatNotif) chatNotif.remove();
             }
 
+            // 2. فحص إشعارات الطلبات
+            const hasNewRequests = userProfile?.role === 'provider' && document.getElementById('notif-list').innerText.includes('طلبات جديدة');
+            if (hasNewRequests) totalUnread++;
 
-            // Jobs
-            onSnapshot(query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('type','==','job')), (snap) => {
-                const list = document.getElementById('view-jobs');
-                if(snap.empty) { list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد وظائف</p>'; return; }
-                
-                const html = [];
-                snap.forEach(d => {
-                    const j = d.data();
-                    html.push(`
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md mb-3 border-2 border-gray-200 dark:border-gray-600 animate-fade overflow-hidden">
-                            <div class="flex items-center gap-3 p-3 border-b border-gray-100 dark:border-gray-700">
-                                <img src="${j.posterPhoto||'https://via.placeholder.com/40'}" class="w-8 h-8 rounded-full object-cover border">
-                                <p class="text-xs font-bold text-gray-600 dark:text-gray-300">${j.posterName}</p>
-                            </div>
-                            <div class="bg-blue-50 dark:bg-blue-900/20 p-3"><h3 class="font-extrabold text-blue-700 dark:text-blue-300 text-base">مطلوب: ${j.title}</h3></div>
-                            <div class="p-3 text-sm text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-gray-700">${j.desc}</div>
-                            <div class="flex gap-2 p-3 bg-gray-50 dark:bg-gray-800">
-                                <a href="tel:${j.contactPhone||j.posterPhone}" class="flex-1 py-2 bg-green-600 text-white text-center rounded-lg font-bold text-sm shadow">اتصال 📞</a>
-                                <button onclick="window.openChat('${j.uid}','${j.posterName}')" class="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow">محادثة 💬</button>
-                            </div>
-                        </div>`);
-                });
-                list.innerHTML = html.join('');
-            });
-
-
-            // My Activity
-            const qActivity = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), where('uid','==',currentUser.uid));
-            onSnapshot(qActivity, (snap) => {
-                const list = document.getElementById('my-activity'); list.innerHTML = '';
-                const btn = document.getElementById('btn-show-more-activity');
-                const docs = []; snap.forEach(d => docs.push({id:d.id, ...d.data()}));
-                
-                if(docs.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 py-4 text-sm">لا يوجد نشاط</p>'; btn.classList.add('hidden'); return; }
-                
-                docs.forEach((act, idx) => {
-                    const el = document.createElement('div');
-                    el.className = `bg-gray-50 dark:bg-gray-800 p-3 rounded-xl mb-2 flex justify-between items-center border-r-4 ${act.type==='job'?'border-purple-500':'border-blue-500'} shadow-sm ${idx > 2 ? 'hidden extra-act' : ''}`;
-                    el.innerHTML = `<div><p class="text-sm font-bold dark:text-white">${act.type==='job'?act.title:act.profession}</p><p class="text-[10px] text-gray-400">${new Date(act.createdAt).toLocaleDateString('ar-EG')}</p></div><div class="flex gap-2 items-center"><span class="text-[10px] bg-green-100 text-green-600 px-2 py-1 rounded-full border">نشط</span><button onclick="window.deleteRequest('${act.id}')" class="text-red-500 p-1">🗑️</button></div>`;
-                    list.appendChild(el);
-                });
-                
-                if(docs.length > 3) {
-                    btn.classList.remove('hidden');
-                    btn.onclick = () => {
-                        document.querySelectorAll('.extra-act').forEach(e => e.classList.remove('hidden'));
-                        btn.classList.add('hidden');
-                    };
-                } else btn.classList.add('hidden');
-            });
+            // 3. تحديث نقطة الجرس
+            if (totalUnread > 0) {
+                document.getElementById('notif-dot').classList.remove('hidden');
+            } else {
+                document.getElementById('notif-dot').classList.add('hidden');
+                // إذا لم يكن هناك إشعارات، تأكد من أن القائمة تحتوي على رسالة "لا توجد"
+                if (!document.getElementById('notif-list').innerText.includes('طلبات جديدة')) {
+                     notifList.innerHTML = '<p class="text-center text-xs text-gray-400 py-4">لا توجد إشعارات جديدة</p>';
+                }
+            }
         }
 
 
@@ -852,8 +973,15 @@
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
             const duration = diffDays > 30 ? `${Math.floor(diffDays/30)} شهر` : `${diffDays} يوم`;
 
+            // **التحديث 3: دمج المركز والمنطقة وتفاصيل العنوان لصفحة التفاصيل**
+            const locationParts = [];
+            if(user.city) locationParts.push(user.city);
+            if(user.areaCenter) locationParts.push(user.areaCenter);
+            if(user.area) locationParts.push(user.area);
+            const locationString = locationParts.join(' / ');
+            const addressDetailsText = user.addressDetails ? `( ${user.addressDetails} )` : '';
 
-            document.getElementById('modal-addr').innerText = user.area || user.city;
+            document.getElementById('modal-addr').innerText = `${locationString} ${addressDetailsText}`;
             document.getElementById('modal-phone-disp').innerText = (user.settings?.hidePhone) ? 'مخفي 🔒' : user.phone;
             document.getElementById('modal-gender').innerText = user.gender === 'male' ? 'ذكر' : 'أنثى';
             document.getElementById('modal-date').innerText = duration;
@@ -936,14 +1064,16 @@
         };
 
 
-        window.openChat = (uid, name) => {
-            currentChatId = [currentUser.uid, uid].sort().join('_');
+        window.openChat = (uid, name, chatId) => {
+            currentChatId = chatId || [currentUser.uid, uid].sort().join('_');
             document.getElementById('chat-room-name').innerText = name;
             window.navTo('chat-room');
             
-            // **FIX 3: التأكد من إعداد مصفوفة المستخدمين**
+            // **الإصلاح 3: تمييز المحادثة كمقروءة عند الفتح**
+            window.markChatAsRead(currentChatId);
+
             setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'chats', currentChatId), { 
-                users: [currentUser.uid, uid], // نضمن وجود المصفوفة
+                users: [currentUser.uid, uid], 
             }, { merge: true });
 
 
@@ -972,17 +1102,21 @@
             
             try {
                 const now = new Date().toISOString();
-                const otherUserId = currentChatId.replace(currentUser.uid, '').replace('_', ''); // للحصول على ID الطرف الآخر
+                const otherUserId = currentChatId.replace(currentUser.uid, '').replace('_', ''); 
 
-
+                const lastRead = {};
+                lastRead[currentUser.uid] = now;
+                
                 await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'chats', currentChatId, 'messages'), { 
                     text, senderId: currentUser.uid, createdAt: now 
                 });
 
 
-                // **FIX 3: التأكد من إعداد مصفوفة المستخدمين في تحديث الرسالة الأخيرة**
+                // **الإصلاح 2 و 3: تحديث lastRead و lastSenderId**
                 await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'chats', currentChatId), {
-                    lastMessage: text, lastUpdated: now, users: [currentUser.uid, otherUserId] // نضمن وجود المصفوفة عند كل إرسال
+                    lastMessage: text, lastUpdated: now, users: [currentUser.uid, otherUserId],
+                    lastSenderId: currentUser.uid, 
+                    lastRead: lastRead, 
                 }, { merge: true });
 
                 input.value = ''; 
@@ -1033,11 +1167,16 @@
         // **الإصلاح 2: حفظ التغييرات مع حقل المنطقة الجديد**
         window.saveProfileChanges = async () => {
             try {
-                // Removed profession update
+                const center = document.getElementById('edit-area-center').value;
+                const area = document.getElementById('edit-area-select').value;
+                const addressDetails = document.getElementById('edit-address-details').value;
+
                 await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', currentUser.uid), {
                     name: document.getElementById('edit-name').value, phone: document.getElementById('edit-phone').value,
-                    city: document.getElementById('edit-city').value,
-                    area: document.getElementById('edit-area').value, // تم إضافة حقل المنطقة
+                    city: 'الشرقية',
+                    areaCenter: center,
+                    area: area,
+                    addressDetails: addressDetails,
                     photoURL: tempImgBase64 || userProfile.photoURL
                 });
                 window.location.reload();
