@@ -9,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Config -->
     <script>
@@ -270,7 +270,7 @@
         </section>
 
 
-        <!-- EDIT PROFILE (تم إلغاء تعديل المهنة) -->
+        <!-- EDIT PROFILE (تم إضافة حقل المنطقة) -->
         <section id="page-edit-profile" class="page-section hidden px-4 animate-fade">
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm space-y-4 border border-gray-300 dark:border-gray-700">
                 <div class="flex flex-col items-center mb-4">
@@ -283,7 +283,8 @@
                     <div><label class="text-xs font-bold text-gray-500">البريد الإلكتروني</label><input type="email" id="edit-email" class="w-full p-3 rounded-xl" readonly disabled style="opacity: 0.6;"></div>
                     <div><label class="text-xs font-bold text-gray-500">رقم الهاتف</label><input type="tel" id="edit-phone" class="w-full p-3 rounded-xl"></div>
                     <div><label class="text-xs font-bold text-gray-500">المدينة</label><select id="edit-city" class="w-full p-3 rounded-xl"><option value="الزقازيق">الزقازيق</option><option value="بلبيس">بلبيس</option><option value="منيا القمح">منيا القمح</option></select></div>
-                    <!-- Profession Change Removed -->
+                    <!-- حقل المنطقة المضاف -->
+                    <div><label class="text-xs font-bold text-gray-500">المنطقة</label><input type="text" id="edit-area" class="w-full p-3 rounded-xl"></div>
                 </div>
                 <div class="flex gap-3 mt-6">
                     <button onclick="window.saveProfileChanges()" class="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold shadow">حفظ</button>
@@ -316,7 +317,7 @@
 
 
         <!-- CHAT LIST -->
-        <section id="page-chat" class="page-section hidden px-4 animate-fade">
+        <section id="page-chat" class="page-section px-4 animate-fade">
             <div id="chat-history-list" class="space-y-3 pb-20"><p class="text-center text-gray-400 py-10">جاري تحميل المحادثات...</p></div>
         </section>
     </div>
@@ -412,8 +413,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // تم إضافة getDocs هنا لإصلاح الخطأ 1.1
-        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, query, addDoc, where, updateDoc, orderBy, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, query, addDoc, where, updateDoc, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
         const firebaseConfig = {
@@ -451,7 +451,7 @@
         }
 
 
-        let currentUser = null, userProfile = null, navStack = ['home'], tempImgBase64 = null, currentChatId = null, allUsersCache = [], chatListener = null, currentModalUserId = null, chatHistory = [];
+        let currentUser = null, userProfile = null, navStack = ['home'], tempImgBase64 = null, currentChatId = null, allUsersCache = [], chatListener = null, currentModalUserId = null;
 
 
         window.showToast = (msg, type='success') => {
@@ -525,6 +525,29 @@
             const opts = professions.map(p => `<option value="${p}">${p}</option>`).join('');
             ['signup-prof', 'req-prof', 'job-title-select'].forEach(id => document.getElementById(id).innerHTML = '<option value="">اختر المهنة...</option>'+opts);
             renderProfessionsGrid(professions);
+            // تطبيق الإعدادات عند بدء التطبيق
+            loadSettings();
+        }
+
+        // **الإصلاح 1: تحميل حالة الإعدادات**
+        function loadSettings() {
+             if (userProfile && userProfile.settings) {
+                const s = userProfile.settings;
+                document.getElementById('toggle-notif').checked = s.notifEnabled;
+                document.getElementById('toggle-hide-phone').checked = s.hidePhone;
+                document.getElementById('toggle-hide-profile').checked = s.hideProfile;
+                
+                // الوضع الليلي
+                const themeToggle = document.getElementById('theme-toggle');
+                const isDark = document.documentElement.classList.contains('dark');
+                if (s.darkMode && !isDark) {
+                     document.documentElement.classList.add('dark');
+                     themeToggle.checked = true;
+                } else if (!s.darkMode && isDark) {
+                     document.documentElement.classList.remove('dark');
+                     themeToggle.checked = false;
+                }
+             }
         }
 
 
@@ -580,14 +603,13 @@
                 
                 const cred = await createUserWithEmailAndPassword(auth, document.getElementById('signup-email').value, document.getElementById('signup-pass').value);
                 const gender = document.querySelector('input[name="gender"]:checked').value;
-                // ملاحظة: تم الإبقاء على تخزين الصورة كـ Base64 كما طلب، ولكن يوصى بشدة باستخدام Firebase Storage للأداء.
                 const photo = tempImgBase64 || `https://ui-avatars.com/api/?name=${document.getElementById('signup-name').value}&background=${gender==='male'?'0D8ABC':'E91E63'}&color=fff`;
 
 
                 await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', cred.user.uid), {
                     uid: cred.user.uid, name: document.getElementById('signup-name').value,
                     phone: document.getElementById('signup-phone').value, city: document.getElementById('signup-city').value, area: document.getElementById('signup-area').value,
-                    role, profession: prof, photoURL: photo, gender, settings: { notifEnabled: true, hidePhone: false, hideProfile: false },
+                    role, profession: prof, photoURL: photo, gender, settings: { notifEnabled: true, hidePhone: false, hideProfile: false, darkMode: false }, // تم إضافة darkMode
                     createdAt: new Date().toISOString()
                 });
                 window.showToast('تم التسجيل');
@@ -603,7 +625,8 @@
                 const snap = await getDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', user.uid));
                 if (snap.exists()) {
                     userProfile = snap.data();
-                    if(!userProfile.settings) userProfile.settings = { notifEnabled: true, hidePhone: false, hideProfile: false };
+                    // تأكد من وجود حقل الإعدادات بالقيمة الافتراضية
+                    if(!userProfile.settings) userProfile.settings = { notifEnabled: true, hidePhone: false, hideProfile: false, darkMode: false };
                     
                     document.getElementById('auth-view').classList.add('hidden');
                     document.getElementById('app-view').classList.remove('hidden');
@@ -623,6 +646,8 @@
                     document.getElementById('edit-email').value = currentUser.email;
                     document.getElementById('edit-phone').value = userProfile.phone;
                     document.getElementById('edit-city').value = userProfile.city || '';
+                    // **الإصلاح 2: تحميل قيمة المنطقة**
+                    document.getElementById('edit-area').value = userProfile.area || '';
                     document.getElementById('edit-img-preview').src = userProfile.photoURL;
                     
                     // Fix 2: Removed Profession Edit Logic
@@ -645,64 +670,90 @@
             }
         });
 
-        // دالة جديدة لعرض قائمة المحادثات (لإعادة الاستخدام)
-        window.renderChatHistoryList = () => {
-            const list = document.getElementById('chat-history-list');
-            list.innerHTML = ''; // مسح المحتوى القديم
 
-            if(chatHistory.length === 0) { 
-                list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد محادثات</p>'; 
-                return; 
+        // **الإصلاح: دالة مساعدة لجلب بيانات المستخدم (لضمان ظهورها في المحادثات)**
+        async function fetchUserById(uid) {
+            const cachedUser = allUsersCache.find(u => u.uid === uid);
+            if (cachedUser) return cachedUser;
+
+            // جلب مباشر من Firestore إذا لم يكن موجودًا في الكاش
+            try {
+                const userDoc = doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', uid);
+                const snap = await getDoc(userDoc);
+                if (snap.exists()) {
+                    const userData = snap.data();
+                    // إضافة إلى الكاش للاستخدام المستقبلي وتقليل مرات القراءة
+                    allUsersCache.push(userData);
+                    return userData;
+                }
+            } catch (error) {
+                console.error("Error fetching user:", error);
             }
-
-            // فرز المحادثات حسب آخر تحديث
-            chatHistory.sort((a,b) => new Date(b.lastUpdated || 0) - new Date(a.lastUpdated || 0));
-
-
-            // OPTIMIZED RENDER: No loop appending
-            const html = chatHistory.map(c => {
-                const otherId = c.users.find(u => u !== currentUser.uid);
-                // البحث عن المستخدم الآخر في الكاش
-                const otherUser = allUsersCache.find(u => u.uid === otherId) || { name: 'مستخدم غير معروف', photoURL: 'https://via.placeholder.com/40' };
-                const time = c.lastUpdated ? new Date(c.lastUpdated).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
-                
-                return `
-                    <div onclick="window.openChat('${otherId}', '${otherUser.name}')" class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm cursor-pointer border border-gray-200 dark:border-gray-700 mb-2">
-                        <img src="${otherUser.photoURL}" class="w-12 h-12 rounded-full object-cover">
-                        <div class="flex-1">
-                            <div class="flex justify-between">
-                                <h4 class="font-bold text-sm dark:text-white">${otherUser.name}</h4>
-                                <span class="text-[10px] text-gray-400">${time}</span>
-                            </div>
-                            <p class="text-xs text-gray-500 truncate">${c.lastMessage || '...'}</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            list.innerHTML = html;
-        };
+            // بيانات افتراضية إذا لم يتم العثور على المستخدم
+            return { name: 'مستخدم محذوف/غير متوفر', photoURL: 'https://via.placeholder.com/40', role: 'client' };
+        }
 
 
         function startListeners() {
-            // FIX 2.1: تحسين أداء المحادثات - استخدام استعلام الخادم
-            const qChats = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'chats'), where('users', 'array-contains', currentUser.uid));
-
-            onSnapshot(qChats, (snap) => {
-                chatHistory = [];
-                snap.forEach(d => chatHistory.push({id: d.id, ...d.data()})); 
-                window.renderChatHistoryList(); // تحديث قائمة المحادثات
+            
+            // **الإصلاح 5: إعادة بناء مستمع المستخدمين (البروفايلات)**
+            // الهدف: تحميل جميع المستخدمين ما عدا المستخدم الحالي لملء allUsersCache.
+            // (الآن لا نقوم بالفلترة حسب hideProfile هنا، بل في دوال العرض)
+            onSnapshot(collection(db, 'artifacts', APP_ID, 'public', 'data', 'profiles'), (snap) => {
+                const tempCache = [];
+                snap.forEach(d => { 
+                    const u = d.data(); 
+                    if(d.id !== currentUser.uid) tempCache.push(u); 
+                });
+                allUsersCache = tempCache;
+                window.renderDirectory();
             });
 
 
-            // Directory Listener - Optimized
-            onSnapshot(collection(db, 'artifacts', APP_ID, 'public', 'data', 'profiles'), (snap) => {
-                allUsersCache = [];
-                snap.forEach(d => { 
-                    const u = d.data(); 
-                    if(d.id !== currentUser.uid && !(u.settings?.hideProfile)) allUsersCache.push(u); 
+            // **FIX 4: استعلام مخصص للمحادثات لتقليل وقت التحميل (تحسين أداء)**
+            const chatsQuery = query(
+                collection(db, 'artifacts', APP_ID, 'public', 'data', 'chats'),
+                where('users', 'array-contains', currentUser.uid)
+            );
+
+            onSnapshot(chatsQuery, async (snap) => {
+                const list = document.getElementById('chat-history-list');
+                const myChats = [];
+                snap.forEach(d => {
+                    myChats.push({id: d.id, ...d.data()});
                 });
-                window.renderDirectory();
-                window.renderChatHistoryList(); // FIX 2: تحديث قائمة المحادثات بعد تحديث كاش المستخدمين
+
+
+                if(myChats.length === 0) { 
+                    list.innerHTML = '<p class="text-center text-gray-400 py-10">لا توجد محادثات</p>'; 
+                    return; 
+                }
+
+
+                myChats.sort((a,b) => new Date(b.lastUpdated || 0) - new Date(a.lastUpdated || 0));
+
+
+                // **الإصلاح 5: جلب بيانات المستخدمين الشركاء بشكل متزامن**
+                const chatHtmlPromises = myChats.map(async (c) => {
+                    const otherId = c.users ? c.users.find(u => u !== currentUser.uid) : null;
+                    const otherUser = await fetchUserById(otherId); // جلب مضمون
+                    const time = c.lastUpdated ? new Date(c.lastUpdated).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
+                    
+                    return `
+                       <div onclick="window.openChat('${otherId}', '${otherUser.name}')" class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm cursor-pointer border border-gray-200 dark:border-gray-700 mb-2">
+                           <img src="${otherUser.photoURL}" class="w-12 h-12 rounded-full object-cover">
+                           <div class="flex-1">
+                               <div class="flex justify-between">
+                                   <h4 class="font-bold text-sm dark:text-white">${otherUser.name}</h4>
+                                   <span class="text-[10px] text-gray-400">${time}</span>
+                               </div>
+                               <p class="text-xs text-gray-500 truncate">${c.lastMessage || '...'}</p>
+                           </div>
+                       </div>
+                    `;
+                });
+
+                list.innerHTML = (await Promise.all(chatHtmlPromises)).join(''); // انتظار جميع الوعود قبل العرض
             });
 
 
@@ -717,9 +768,8 @@
                         const req = d.data();
                         if(req.uid === currentUser.uid) return;
                         const isNew = (new Date() - new Date(req.createdAt)) < 86400000;
-                        // FIX 3: تم إزالة الدائرة الحمراء (🔴) من هنا
                         if(isNew) newCount++;
-                        html.push(`<div class="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border-r-4 border-orange-500 flex justify-between items-center"><div><p class="font-bold text-sm dark:text-white">${req.requesterName}</p><p class="text-xs text-gray-500">${req.desc}</p></div><button onclick="window.openChat('${req.uid}','${req.requesterName}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold">تواصل</button></div>`);
+                        html.push(`<div class="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border-r-4 border-orange-500 flex justify-between items-center"><div><p class="font-bold text-sm dark:text-white">${req.requesterName} ${isNew?'🔴':''}</p><p class="text-xs text-gray-500">${req.desc}</p></div><button onclick="window.openChat('${req.uid}','${req.requesterName}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold">تواصل</button></div>`);
                     });
                     container.innerHTML = html.join('');
                     if(newCount > 0 && userProfile.settings.notifEnabled) {
@@ -832,8 +882,7 @@
              list.innerHTML = '<p class="text-xs text-gray-400 text-center">جاري التحميل...</p>';
              
              const q = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'reviews'), where('toId', '==', targetId));
-             // FIX 1.1: تم استخدام getDocs المستوردة في بداية الكود
-             const snap = await getDocs(q); 
+             const snap = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(m => m.getDocs(q));
              
              list.innerHTML = '';
              let totalStars = 0;
@@ -892,8 +941,9 @@
             document.getElementById('chat-room-name').innerText = name;
             window.navTo('chat-room');
             
+            // **FIX 3: التأكد من إعداد مصفوفة المستخدمين**
             setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'chats', currentChatId), { 
-                users: [currentUser.uid, uid], 
+                users: [currentUser.uid, uid], // نضمن وجود المصفوفة
             }, { merge: true });
 
 
@@ -901,7 +951,7 @@
             const q = query(msgsRef, orderBy('createdAt', 'asc'));
             if (chatListener) chatListener();
             chatListener = onSnapshot(q, (snap) => {
-                const box = document.getElementById('messages-container'); 
+                const box = document.getElementById('messages-container'); box.innerHTML = '';
                 const html = [];
                 snap.forEach(d => {
                     const m = d.data();
@@ -914,37 +964,38 @@
         };
 
 
-        // FIX 1: تم حل مشكلة إعادة التحميل عند الإرسال
         document.getElementById('form-message').onsubmit = async (e) => {
             e.preventDefault();
             const input = document.getElementById('msg-input');
-            const btn = document.getElementById('btn-send-msg');
             const text = input.value.trim();
             if (!text || !currentChatId) return;
             
-            btn.disabled = true; // منع النقر المزدوج
-            
             try {
                 const now = new Date().toISOString();
+                const otherUserId = currentChatId.replace(currentUser.uid, '').replace('_', ''); // للحصول على ID الطرف الآخر
+
+
                 await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'chats', currentChatId, 'messages'), { 
                     text, senderId: currentUser.uid, createdAt: now 
                 });
+
+
+                // **FIX 3: التأكد من إعداد مصفوفة المستخدمين في تحديث الرسالة الأخيرة**
                 await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'chats', currentChatId), {
-                    lastMessage: text, lastUpdated: now, users: [currentUser.uid, currentChatId.replace(currentUser.uid, '').replace('_', '')] 
+                    lastMessage: text, lastUpdated: now, users: [currentUser.uid, otherUserId] // نضمن وجود المصفوفة عند كل إرسال
                 }, { merge: true });
+
                 input.value = ''; 
-            } catch(err) { 
-                window.showToast('فشل الإرسال', 'error'); 
-            } finally {
-                btn.disabled = false;
-            }
+            } catch(err) { window.showToast('فشل الإرسال', 'error'); }
         };
 
 
         // FIX 1: Optimized Directory Render (No += loop)
         window.renderDirectory = () => { 
             const cont = document.getElementById('dir-list'); 
-            const list = allUsersCache.slice(0,50);
+            // **تطبيق فلتر hideProfile هنا فقط**
+            const visibleUsers = allUsersCache.filter(u => !(u.settings?.hideProfile));
+            const list = visibleUsers.slice(0,50);
             cont.innerHTML = list.map(u => createUserCard(u)).join('');
         };
 
@@ -952,7 +1003,11 @@
         window.filterDirectory = () => { 
             const term = document.getElementById('dir-search').value.trim(); 
             const cont = document.getElementById('dir-list'); 
-            const filtered = term ? allUsersCache.filter(u => u.name.includes(term)||u.profession?.includes(term)) : allUsersCache.slice(0,50); 
+            // **تطبيق فلتر hideProfile هنا فقط**
+            const visibleUsers = allUsersCache.filter(u => !(u.settings?.hideProfile));
+            const filtered = term 
+                ? visibleUsers.filter(u => u.name.includes(term)||u.profession?.includes(term)) 
+                : visibleUsers.slice(0,50); 
             cont.innerHTML = filtered.map(u => createUserCard(u)).join('');
         };
 
@@ -960,7 +1015,9 @@
         window.openCategory = (profName) => { 
             window.navTo('category-details'); 
             document.getElementById('page-title').innerText = profName; 
-            const filtered = allUsersCache.filter(u => u.profession === profName); 
+            // **تطبيق فلتر hideProfile هنا فقط**
+            const visibleUsers = allUsersCache.filter(u => !(u.settings?.hideProfile));
+            const filtered = visibleUsers.filter(u => u.profession === profName); 
             const cont = document.getElementById('cat-list-container'); 
             if(filtered.length === 0) { cont.innerHTML = `<div class="text-center py-10"><p class="text-gray-500">لا يوجد مسجلين</p></div>`; return; } 
             cont.innerHTML = filtered.map(u => createUserCard(u)).join('');
@@ -973,58 +1030,33 @@
             return `<div onclick="window.openProfileModal('${userStr}')" class="provider-card bg-white dark:bg-gray-800 p-3 rounded-xl flex items-center gap-3 cursor-pointer animate-fade hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"><img src="${u.photoURL}" loading="lazy" class="w-12 h-12 rounded-full object-cover bg-gray-200 border"><div class="flex-1"><h4 class="font-bold text-sm dark:text-white">${u.name} ${u.gender==='female'?'🌸':''}</h4><p class="text-xs text-blue-600 font-bold">${u.role==='provider'?u.profession:'عميل'}</p><p class="text-xs text-gray-400">اضغط لعرض التفاصيل</p></div></div>`; 
         }
         
-        // FIX 1.3: تم إزالة window.location.reload()
+        // **الإصلاح 2: حفظ التغييرات مع حقل المنطقة الجديد**
         window.saveProfileChanges = async () => {
             try {
+                // Removed profession update
                 await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', currentUser.uid), {
                     name: document.getElementById('edit-name').value, phone: document.getElementById('edit-phone').value,
                     city: document.getElementById('edit-city').value,
+                    area: document.getElementById('edit-area').value, // تم إضافة حقل المنطقة
                     photoURL: tempImgBase64 || userProfile.photoURL
                 });
-                window.showToast('تم حفظ التغييرات');
-                window.goBack(); // العودة للصفحة السابقة
+                window.location.reload();
             } catch (e) { window.showToast('خطأ', 'error'); }
         };
         
+        // **الإصلاح 1: حفظ الإعدادات مع الوضع الليلي**
         window.saveSettings = async () => {
             try {
                 await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', currentUser.uid), { settings: {
                     notifEnabled: document.getElementById('toggle-notif').checked,
                     hidePhone: document.getElementById('toggle-hide-phone').checked,
-                    hideProfile: document.getElementById('toggle-hide-profile').checked
+                    hideProfile: document.getElementById('toggle-hide-profile').checked,
+                    darkMode: document.documentElement.classList.contains('dark') // حفظ حالة الوضع الليلي
                 }});
                 window.showToast('تم الحفظ'); window.goBack();
             } catch (e) { window.showToast('خطأ', 'error'); }
         };
-
-        // FIX 1.2: تم إصلاح تبديل وضع الإضافة
-        window.switchAddMode = (mode) => { 
-            const btnReq = document.getElementById('btn-add-req');
-            const btnJob = document.getElementById('btn-add-job');
-            const formReq = document.getElementById('form-req');
-            const formJob = document.getElementById('form-job');
-
-            if(mode==='req'){ 
-                formReq.classList.remove('hidden'); 
-                formJob.classList.add('hidden'); 
-                
-                btnReq.classList.add('bg-blue-50','text-blue-600','border-blue-200'); 
-                btnReq.classList.remove('bg-gray-50', 'text-gray-500', 'border-gray-200'); 
-                
-                btnJob.classList.remove('bg-blue-50','text-blue-600','border-blue-200'); 
-                btnJob.classList.add('bg-gray-50', 'text-gray-500', 'border-gray-200'); 
-            } else { 
-                formJob.classList.remove('hidden'); 
-                formReq.classList.add('hidden'); 
-                
-                btnJob.classList.add('bg-blue-50','text-blue-600','border-blue-200'); 
-                btnJob.classList.remove('bg-gray-50', 'text-gray-500', 'border-gray-200'); 
-                
-                btnReq.classList.remove('bg-blue-50','text-blue-600','border-blue-200'); 
-                btnReq.classList.add('bg-gray-50', 'text-gray-500', 'border-gray-200');
-            } 
-        };
-
+        window.switchAddMode = (mode) => { window.scrollTo(0,0); if(mode==='req'){ document.getElementById('form-req').classList.remove('hidden'); document.getElementById('form-job').classList.add('hidden'); document.getElementById('btn-add-req').classList.add('bg-blue-50','text-blue-600','border-blue-200'); document.getElementById('btn-add-req').classList.remove('text-gray-500'); document.getElementById('btn-add-job').classList.remove('bg-gray-50','border-gray-200'); document.getElementById('btn-add-job').classList.add('text-gray-500'); } else { document.getElementById('form-job').classList.remove('hidden'); document.getElementById('form-req').classList.add('hidden'); document.getElementById('btn-add-job').classList.add('bg-blue-50','text-blue-600','border-blue-200'); document.getElementById('btn-add-job').classList.remove('text-gray-500'); document.getElementById('btn-add-req').classList.remove('bg-blue-50','border-blue-200'); document.getElementById('btn-add-req').classList.add('text-gray-500'); } };
         document.getElementById('form-job').onsubmit = async (e) => { e.preventDefault(); try { await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), { type: 'job', title: document.getElementById('job-title-select').value, desc: document.getElementById('job-desc').value, contactPhone: document.getElementById('job-phone').value, posterName: userProfile.name, posterPhoto: userProfile.photoURL, posterPhone: userProfile.phone, uid: currentUser.uid, createdAt: new Date().toISOString() }); window.showToast('تم النشر'); e.target.reset(); window.goBack(); } catch(err) { window.showToast('خطأ', 'error'); } };
         document.getElementById('form-req').onsubmit = async (e) => { e.preventDefault(); try { await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'requests'), { type: 'service', profession: document.getElementById('req-prof').value, desc: document.getElementById('req-desc').value, uid: currentUser.uid, requesterName: userProfile.name, createdAt: new Date().toISOString() }); window.showToast('تم النشر'); e.target.reset(); window.goBack(); } catch(err) { window.showToast('خطأ', 'error'); } };
         window.switchHomeTab = (tab) => { window.scrollTo(0,0); if (tab === 'services') { document.getElementById('view-services').classList.remove('hidden'); document.getElementById('view-jobs').classList.add('hidden'); document.getElementById('prof-search-box').classList.remove('hidden'); document.getElementById('tab-home-serv').classList.add('bg-black', 'text-white'); document.getElementById('tab-home-serv').classList.remove('text-gray-500'); document.getElementById('tab-home-jobs').classList.remove('bg-black', 'text-white'); document.getElementById('tab-home-jobs').classList.add('text-gray-500'); } else { document.getElementById('view-services').classList.add('hidden'); document.getElementById('view-jobs').classList.remove('hidden'); document.getElementById('prof-search-box').classList.add('hidden'); document.getElementById('tab-home-jobs').classList.add('bg-black', 'text-white'); document.getElementById('tab-home-jobs').classList.remove('text-gray-500'); document.getElementById('tab-home-serv').classList.remove('bg-black', 'text-white'); document.getElementById('tab-home-serv').classList.add('text-gray-500'); } };
