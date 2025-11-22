@@ -37,7 +37,8 @@
             -webkit-tap-highlight-color: transparent;
             padding-bottom: 100px;
             background-color: #f8fafc;
-            /* تم إزالة overflow: hidden من هنا لإصلاح التمرير */
+            /* تم إزالة أي قفل للتمرير نهائياً */
+            overflow-x: hidden; 
         }
         .dark body { background-color: #0f172a; }
 
@@ -52,6 +53,7 @@
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
+        /* Modal Styling - Fixed Position but allow internal scroll */
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         @media (min-width: 768px) { 
@@ -70,28 +72,13 @@
         .form-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
         .dark .form-input { background-color: #1e293b; border-color: #475569; color: white; }
         .dark .form-input:focus { border-color: #10b981; }
+        
+        .size-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
         .chip-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
 
-        /* تنسيقات صفحة الدخول */
-        .auth-input { 
-            width: 100%; 
-            background-color: #ffffff; 
-            border: 2px solid #cbd5e1; 
-            border-radius: 0.75rem; 
-            padding: 0.5rem 0.8rem; 
-            padding-right: 2.5rem; 
-            font-size: 0.9rem; 
-            font-weight: 600; 
-            color: #1e293b; 
-            outline: none; 
-            transition: all 0.2s; 
-        }
-        .auth-input:focus { 
-            border-color: #10b981; 
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); 
-        }
+        .auth-input { width: 100%; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 0.75rem; padding: 0.5rem 0.8rem; padding-right: 2.5rem; font-size: 0.9rem; font-weight: 600; color: #1e293b; outline: none; transition: all 0.2s; }
+        .auth-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
 
-        /* Filter Sheet Animation */
         @keyframes slideUpFilter { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .filter-sheet-content { animation: slideUpFilter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
@@ -99,20 +86,17 @@
         .install-banner { animation: slideUp 0.3s ease-out forwards; }
     </style>
 </head>
-<!-- تم إضافة كلاس overflow-hidden بشكل مبدئي فقط، وسيتم إزالته بالجافاسكربت -->
-<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none overflow-hidden">
+<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
 
-    <!-- INITIAL APP LOADER (يظهر أول شيء) -->
+    <!-- INITIAL APP LOADER -->
     <div id="app-loader" class="fixed inset-0 z-[10000] bg-slate-50 dark:bg-navy flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
         <h1 class="font-black text-xl text-navy dark:text-white">السوق <span class="text-primary">وياك</span></h1>
     </div>
 
-    <!-- AUTH MODAL (صفحة التسجيل/الدخول) -->
+    <!-- AUTH MODAL -->
     <div id="auth-overlay" class="fixed inset-0 z-[9999] bg-slate-100 dark:bg-navy flex items-center justify-center p-4 hidden">
         <div class="w-full max-w-md bg-white dark:bg-darkbg p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 relative max-h-[90vh] overflow-y-auto">
-            
-            <!-- الشعار -->
             <div class="flex flex-col items-center gap-3 mb-4">
                 <div class="bg-navy dark:bg-primary text-white p-4 rounded-2xl shadow-lg rotate-3">
                     <i data-lucide="shopping-bag" class="w-8 h-8"></i>
@@ -121,54 +105,27 @@
                 <p class="text-slate-500 dark:text-slate-400 text-xs font-bold">بوابة الدخول الموحدة</p>
             </div>
 
-            <!-- تبديل الدور -->
             <div id="role-switcher" class="hidden bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-4 border border-slate-200 dark:border-slate-700">
-                <button onclick="setAuthRole('customer')" id="btn-role-customer" class="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all bg-navy text-white shadow-md">
-                    <div class="flex items-center justify-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> عميل</div>
-                </button>
-                <button onclick="setAuthRole('marketer')" id="btn-role-marketer" class="flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700">
-                    <div class="flex items-center justify-center gap-2"><i data-lucide="store" class="w-4 h-4"></i> مقدم خدمة</div>
-                </button>
+                <button onclick="setAuthRole('customer')" id="btn-role-customer" class="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all bg-navy text-white shadow-md"><div class="flex items-center justify-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> عميل</div></button>
+                <button onclick="setAuthRole('marketer')" id="btn-role-marketer" class="flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"><div class="flex items-center justify-center gap-2"><i data-lucide="store" class="w-4 h-4"></i> مقدم خدمة</div></button>
             </div>
 
-            <!-- نموذج البيانات -->
             <div class="space-y-4">
-                
-                <!-- رفع الصورة -->
                 <div id="auth-image-field" class="hidden flex-col items-center justify-center gap-2 transition-all duration-300 w-full text-center">
                     <div class="relative group cursor-pointer mx-auto">
                         <input type="file" id="auth-img-input" accept="image/*" onchange="handleAuthImage(this)" class="absolute inset-0 opacity-0 z-10 cursor-pointer">
                         <div class="w-24 h-24 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-primary/50 flex items-center justify-center overflow-hidden relative hover:bg-primary/5 transition mx-auto">
                             <img id="auth-img-preview" src="" class="w-full h-full object-cover hidden">
-                            <div id="auth-img-placeholder" class="flex flex-col items-center text-slate-400">
-                                <i data-lucide="camera" class="w-8 h-8 mb-1"></i>
-                                <span class="text-[10px] font-bold">صورة</span>
-                            </div>
+                            <div id="auth-img-placeholder" class="flex flex-col items-center text-slate-400"><i data-lucide="camera" class="w-8 h-8 mb-1"></i><span class="text-[10px] font-bold">صورة</span></div>
                         </div>
                         <div class="absolute bottom-0 right-0 bg-navy text-white p-1.5 rounded-full shadow-sm pointer-events-none"><i data-lucide="plus" class="w-3 h-3"></i></div>
                     </div>
                     <span class="text-[10px] text-slate-400 font-bold block text-center w-full">الصورة الشخصية (اختياري)</span>
                 </div>
 
-                <!-- الاسم -->
-                <div>
-                    <label class="text-xs font-bold text-slate-600 dark:text-slate-300 mb-1 block mr-1">الاسم (اسم المستخدم)</label>
-                    <div class="relative">
-                        <input id="auth-name" type="text" class="auth-input dark:bg-slate-800 dark:border-slate-600 dark:text-white" placeholder="اكتب اسمك هنا...">
-                        <i data-lucide="user" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
-                    </div>
-                </div>
+                <div><label class="text-xs font-bold text-slate-600 dark:text-slate-300 mb-1 block mr-1">الاسم</label><div class="relative"><input id="auth-name" type="text" class="auth-input dark:bg-slate-800 dark:border-slate-600 dark:text-white" placeholder="اكتب اسمك هنا..."><i data-lucide="user" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i></div></div>
+                <div><label class="text-xs font-bold text-slate-600 dark:text-slate-300 mb-1 block mr-1">كلمة المرور</label><div class="relative"><input id="auth-pass" type="password" class="auth-input dark:bg-slate-800 dark:border-slate-600 dark:text-white" placeholder="******"><i data-lucide="lock" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i></div></div>
 
-                <!-- كلمة المرور -->
-                <div>
-                    <label class="text-xs font-bold text-slate-600 dark:text-slate-300 mb-1 block mr-1">كلمة المرور</label>
-                    <div class="relative">
-                        <input id="auth-pass" type="password" class="auth-input dark:bg-slate-800 dark:border-slate-600 dark:text-white" placeholder="******">
-                        <i data-lucide="lock" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
-                    </div>
-                </div>
-
-                 <!-- تبديل (تسجيل دخول / حساب جديد) -->
                 <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700 mt-4">
                     <span class="text-xs font-bold text-slate-500">حالة الحساب:</span>
                     <div class="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 gap-1">
@@ -177,15 +134,10 @@
                     </div>
                 </div>
 
-                <!-- زر التنفيذ -->
-                <button onclick="processAuth()" id="btn-auth-action" class="w-full bg-navy dark:bg-primary text-white py-3.5 rounded-xl font-bold shadow-lg shadow-navy/20 hover:opacity-90 transition-all active:scale-95 mt-2 flex justify-center items-center gap-2 text-sm">
-                    <span>دخول للحساب</span> <i data-lucide="log-in" class="w-4 h-4"></i>
-                </button>
-
+                <button onclick="processAuth()" id="btn-auth-action" class="w-full bg-navy dark:bg-primary text-white py-3.5 rounded-xl font-bold shadow-lg shadow-navy/20 hover:opacity-90 transition-all active:scale-95 mt-2 flex justify-center items-center gap-2 text-sm"><span>دخول للحساب</span> <i data-lucide="log-in" class="w-4 h-4"></i></button>
             </div>
         </div>
     </div>
-    <!-- END AUTH MODAL -->
 
     <div id="toast-container" class="fixed top-4 left-0 right-0 z-[220] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
@@ -193,21 +145,17 @@
         <div class="flex items-center gap-2" id="logo-trigger">
             <div class="bg-navy dark:bg-primary text-white p-1.5 rounded-lg"><i data-lucide="shopping-bag" class="w-5 h-5"></i></div>
             <div class="flex flex-col">
-                <div class="flex items-center gap-1">
-                    <span class="text-[10px] text-slate-400 font-bold">مرحباً,</span>
-                    <h1 id="header-username" class="font-bold text-xs text-primary">...</h1>
-                </div>
+                <div class="flex items-center gap-1"><span class="text-[10px] text-slate-400 font-bold">مرحباً,</span><h1 id="header-username" class="font-bold text-xs text-primary">...</h1></div>
                 <h1 class="font-bold text-base leading-none">السوق <span class="text-primary">وياك</span></h1>
             </div>
         </div>
         <div class="flex gap-2 items-center">
-            <a href="https://wa.me/201206244875" target="_blank" class="p-2 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 border border-green-100 dark:border-green-900/50 transition shadow-sm"><i data-lucide="message-circle" class="w-5 h-5"></i></a>
-            <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i></button>
-            <button onclick="toggleFavView()" class="p-2 rounded-full bg-red-50 dark:bg-slate-800 text-red-500 hover:bg-red-100 relative transition"><i data-lucide="heart" class="w-5 h-5"></i><span id="fav-count" class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white dark:border-darkbg hidden"></span></button>
-            <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-5 h-5"></i></button>
+            <a href="https://wa.me/201206244875" target="_blank" class="p-2 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 border border-green-100 dark:border-green-900/50 transition shadow-sm cursor-pointer"><i data-lucide="message-circle" class="w-5 h-5"></i></a>
+            <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition cursor-pointer"><i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i></button>
+            <button onclick="toggleFavView()" class="p-2 rounded-full bg-red-50 dark:bg-slate-800 text-red-500 hover:bg-red-100 relative transition cursor-pointer"><i data-lucide="heart" class="w-5 h-5"></i><span id="fav-count" class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white dark:border-darkbg hidden"></span></button>
+            <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-white cursor-pointer"><i data-lucide="shield" class="w-5 h-5"></i></button>
         </div>
     </header>
-
 
     <main class="pt-20 container mx-auto px-4 max-w-6xl min-h-screen">
         <div id="view-header" class="hidden flex items-center gap-3 pb-3">
@@ -215,78 +163,82 @@
             <h2 id="view-title" class="text-xl font-bold text-slate-800 dark:text-white pt-1"></h2>
         </div>
 
-
-        <!-- Search Container -->
         <div id="search-container" class="sticky top-16 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-4 pb-3 -mx-4 px-4">
             <div class="relative max-w-3xl mx-auto flex gap-2">
                 <div class="relative flex-1">
                     <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-10 pl-4 !border-2 !border-black dark:!border-slate-500 shadow-lg">
                     <i data-lucide="search" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
                 </div>
-                <!-- Filter Button: HIDDEN BY DEFAULT -->
                 <button id="filter-btn-container" onclick="toggleFilterSheet()" class="hidden bg-navy dark:bg-primary text-white px-4 rounded-xl shadow-lg items-center justify-center gap-2 hover:opacity-90 transition active:scale-95">
                     <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
 
-
-        <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-2 pb-3 no-scrollbar">
-             <!-- JS will fill this -->
-        </div>
-
-
+        <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-2 pb-3 no-scrollbar"></div>
         <div id="grid-container" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4"></div>
-
-
         <div id="loader" class="text-center py-20 hidden"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
         <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
     </main>
 
-
     <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
         <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-6 h-6 group-hover:scale-110 transition"></i></button>
-        <button onclick="toggleAddModal()" class="w-14 h-14 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-6 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-7 h-7"></i></button>
+        <button onclick="toggleAddModal()" class="w-14 h-14 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-6 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-95 cursor-pointer"><i data-lucide="plus" class="w-7 h-7"></i></button>
         <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-6 h-6 group-hover:scale-110 transition"></i></button>
     </nav>
 
-
     <div id="pwa-install-toast" class="hidden fixed bottom-24 left-4 right-4 bg-navy dark:bg-white dark:text-navy text-white p-4 rounded-xl shadow-2xl z-[110] flex items-center justify-between install-banner border dark:border-slate-200">
-        <div class="flex items-center gap-3">
-            <div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-6 h-6"></i></div>
-            <div>
-                <h4 class="font-bold text-sm">تثبيت التطبيق</h4>
-                <p class="text-xs opacity-80">السوق وياك - تجربة أسرع</p>
-            </div>
-        </div>
-        <div class="flex gap-2">
-            <button onclick="installPWA()" class="bg-primary text-white px-4 py-2 rounded-lg font-bold text-xs shadow-lg">تثبيت</button>
-            <button onclick="closeInstall()" class="text-white dark:text-navy p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
-        </div>
+        <div class="flex items-center gap-3"><div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-6 h-6"></i></div><div><h4 class="font-bold text-sm">تثبيت التطبيق</h4><p class="text-xs opacity-80">السوق وياك - تجربة أسرع</p></div></div>
+        <div class="flex gap-2"><button onclick="installPWA()" class="bg-primary text-white px-4 py-2 rounded-lg font-bold text-xs shadow-lg">تثبيت</button><button onclick="closeInstall()" class="text-white dark:text-navy p-1"><i data-lucide="x" class="w-4 h-4"></i></button></div>
     </div>
 
-
-    <!-- Add Modal -->
+    <!-- Add Modal (SMART FORM) -->
     <div id="add-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0">
                 <h3 class="font-bold text-slate-800 dark:text-white text-base">إضافة منتج</h3>
                 <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1.5 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-
-
             <div class="flex-1 overflow-y-auto p-4 space-y-2 bg-white dark:bg-darkbg">
                 <div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-2"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
                 <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="اسم المنتج..."></div>
                 <div class="grid grid-cols-2 gap-2 form-group"><div><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="0"></div><div><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input bg-gray-50 !border-2 !border-black dark:!border-slate-500"></select></div></div>
                 
-                <!-- Dynamic Fields (Clothes) -->
-                <div id="dynamic-fields" class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-xl border border-slate-100 dark:border-slate-700 form-group">
-                    <div id="field-condition" class="hidden col-span-2"><label class="form-label text-primary">الحالة</label><select id="in-condition" class="form-input !border-2 !border-black dark:!border-slate-500"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
-                    <div id="field-size" class="col-span-2 hidden"><label class="form-label text-primary">المقاس (Size)</label><input id="in-size" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="مثال: XL"></div>
-                    <!-- Weight & Height -->
-                    <div id="field-weight" class="hidden"><label class="form-label text-primary">الوزن (كجم)</label><input id="in-weight" type="number" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="مثال: 75"></div>
-                    <div id="field-height" class="hidden"><label class="form-label text-primary">الطول (سم)</label><input id="in-height" type="number" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="مثال: 170"></div>
+                <!-- Dynamic Fields Container -->
+                <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 form-group space-y-3 hidden">
+                    <!-- Condition (Not for clothes) -->
+                    <div id="field-condition" class="hidden"><label class="form-label text-primary">الحالة</label><select id="in-condition" class="form-input !border-2 !border-black dark:!border-slate-500"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
+                    
+                    <!-- SIZES -->
+                    <div id="field-sizes" class="hidden">
+                        <label class="form-label text-primary" id="label-sizes">المقاسات المتاحة</label>
+                        <div id="sizes-container" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <!-- CLOTHES RANGES (From - To) -->
+                    <div id="field-clothes-ranges" class="hidden grid grid-cols-2 gap-3">
+                        <div class="col-span-2 sm:col-span-1"><label class="form-label text-primary">الوزن (كجم)</label><div class="flex gap-2 items-center"><input id="in-weight-from" type="number" class="form-input text-center !px-1" placeholder="من"><span class="font-bold text-slate-400">-</span><input id="in-weight-to" type="number" class="form-input text-center !px-1" placeholder="إلى"></div></div>
+                        <div class="col-span-2 sm:col-span-1"><label class="form-label text-primary">الطول (سم)</label><div class="flex gap-2 items-center"><input id="in-height-from" type="number" class="form-input text-center !px-1" placeholder="من"><span class="font-bold text-slate-400">-</span><input id="in-height-to" type="number" class="form-input text-center !px-1" placeholder="إلى"></div></div>
+                        <div id="subfield-age" class="col-span-2 hidden"><label class="form-label text-primary">العمر (سنة)</label><div class="flex gap-2 items-center"><input id="in-age-from" type="number" class="form-input text-center !px-1" placeholder="من"><span class="font-bold text-slate-400">-</span><input id="in-age-to" type="number" class="form-input text-center !px-1" placeholder="إلى"></div></div>
+                    </div>
+
+                    <!-- ELECTRONICS FIELDS (SMART) -->
+                    <div id="field-elec-specs" class="hidden grid grid-cols-2 gap-2">
+                        <div class="col-span-2"><label class="form-label text-primary">نوع الجهاز</label><select id="in-elec-type" onchange="updateElecFields()" class="form-input bg-white"><option value="phone">هاتف (Mobile)</option><option value="tablet">تابلت / آيباد</option><option value="laptop">لابتوب</option><option value="desktop">كمبيوتر (PC)</option><option value="console">ألعاب (Console)</option><option value="access">اكسسوارات</option></select></div>
+                        
+                        <!-- Fields dependent on Type -->
+                        <div id="elec-sub-storage" class="col-span-1"><label class="form-label text-primary">المساحة</label><select id="in-storage" class="form-input"><option value="">اختر...</option><option value="64GB">64GB</option><option value="128GB">128GB</option><option value="256GB">256GB</option><option value="512GB">512GB</option><option value="1TB">1TB+</option></select></div>
+                        <div id="elec-sub-ram" class="col-span-1"><label class="form-label text-primary">الرام</label><select id="in-ram" class="form-input"><option value="">اختر...</option><option value="4GB">4GB</option><option value="8GB">8GB</option><option value="16GB">16GB</option><option value="32GB">32GB+</option></select></div>
+                        <div id="elec-sub-battery" class="col-span-2"><label class="form-label text-primary">حالة البطارية %</label><input id="in-battery" type="number" class="form-input" placeholder="مثال: 90"></div>
+                        <div id="elec-sub-cpu" class="col-span-2 hidden"><label class="form-label text-primary">المعالج (Processor)</label><input id="in-cpu" type="text" class="form-input" placeholder="مثال: Core i7 / M1"></div>
+                        <div id="elec-sub-gpu" class="col-span-2 hidden"><label class="form-label text-primary">كارت الشاشة</label><input id="in-gpu" type="text" class="form-input" placeholder="مثال: RTX 3060"></div>
+                    </div>
+
+                    <!-- BEAUTY FIELDS -->
+                    <div id="field-beauty-specs" class="hidden"><label class="form-label text-primary">الحجم (مل)</label><input id="in-volume" type="number" class="form-input" placeholder="مثال: 100"></div>
+
+                    <!-- FURNITURE FIELDS -->
+                    <div id="field-furniture-specs" class="hidden"><label class="form-label text-primary">الأبعاد (طول x عرض x ارتفاع)</label><input id="in-dimensions" type="text" class="form-input" placeholder="مثال: 200x150x50 سم"></div>
                 </div>
 
                 <div class="form-group"><label class="form-label">مواصفات:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value=" كوبي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="فاتورة"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">فاتورة</div></label></div></div>
@@ -306,27 +258,13 @@
                 <button onclick="toggleFilterSheet()" class="p-1 bg-slate-100 dark:bg-slate-800 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="space-y-2">
-                <button onclick="applyFilterSort('newest')" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-start font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center">
-                    <span>الأحدث (الافتراضي)</span>
-                    <i data-lucide="clock" class="w-4 h-4 opacity-50"></i>
-                </button>
-                <button onclick="applyFilterSort('price_low')" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-start font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center">
-                    <span>السعر: من الأقل للأعلى</span>
-                    <i data-lucide="arrow-up-0-1" class="w-4 h-4 opacity-50"></i>
-                </button>
-                <button onclick="applyFilterSort('price_high')" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-start font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center">
-                    <span>السعر: من الأعلى للأقل</span>
-                    <i data-lucide="arrow-down-1-0" class="w-4 h-4 opacity-50"></i>
-                </button>
-                <!-- زر إلغاء الفلتر -->
-                <button onclick="applyFilterSort('newest')" class="w-full p-3 rounded-xl bg-red-50 text-red-600 text-start font-bold text-sm hover:bg-red-100 flex justify-between items-center mt-2 border border-red-100">
-                    <span>إلغاء الفلتر / إعادة تعيين</span>
-                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                </button>
+                <button onclick="applyFilterSort('newest')" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-start font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center"><span>الأحدث (الافتراضي)</span><i data-lucide="clock" class="w-4 h-4 opacity-50"></i></button>
+                <button onclick="applyFilterSort('price_low')" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-start font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center"><span>السعر: من الأقل للأعلى</span><i data-lucide="arrow-up-0-1" class="w-4 h-4 opacity-50"></i></button>
+                <button onclick="applyFilterSort('price_high')" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-start font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center"><span>السعر: من الأعلى للأقل</span><i data-lucide="arrow-down-1-0" class="w-4 h-4 opacity-50"></i></button>
+                <button onclick="applyFilterSort('newest')" class="w-full p-3 rounded-xl bg-red-50 text-red-600 text-start font-bold text-sm hover:bg-red-100 flex justify-between items-center mt-2 border border-red-100"><span>إلغاء الفلتر / إعادة تعيين</span><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
             </div>
         </div>
     </div>
-
 
     <!-- Details Modal -->
     <div id="details-modal" class="hidden modal-overlay">
@@ -334,41 +272,22 @@
             <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
                 <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
                 <button onclick="shareListing()" class="absolute top-3 right-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
-
-                <div id="details-slider-container" class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800">
-                    <img id="details-img" src="" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(this.src)">
-                </div>
-
+                <div id="details-slider-container" class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800"><img id="details-img" src="" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(this.src)"></div>
                 <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
-
                 <span id="d-time-badge" class="absolute top-3 right-12 bg-black/60 text-white px-2 py-1 rounded text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 z-10"></span>
-
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
-
             <div class="flex-1 overflow-y-auto p-5 bg-white dark:bg-darkbg">
-                
-                <!-- Publisher Info with Trusted Logic -->
-                <div class="flex items-center gap-2 mb-3 p-2 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg">
-                    <img id="d-author-img" src="https://cdn-icons-png.flaticon.com/512/641/641813.png" class="w-10 h-10 rounded-full object-cover border border-slate-200">
-                    <div>
-                        <div class="flex items-center gap-1">
-                             <p id="d-author-name" class="text-xs font-bold text-navy dark:text-white">اسم الناشر</p>
-                             <i id="d-author-verify" data-lucide="check-circle" class="w-3 h-3 hidden"></i>
-                        </div>
-                        <p id="d-author-status" class="text-[10px] text-slate-500 dark:text-slate-400">...</p>
-                    </div>
-                </div>
-
+                <div class="flex items-center gap-2 mb-3 p-2 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg"><img id="d-author-img" src="" class="w-10 h-10 rounded-full object-cover border border-slate-200"><div><div class="flex items-center gap-1"><p id="d-author-name" class="text-xs font-bold text-navy dark:text-white">اسم الناشر</p><i id="d-author-verify" data-lucide="check-circle" class="w-3 h-3 hidden"></i></div><p id="d-author-status" class="text-[10px] text-slate-500 dark:text-slate-400">...</p></div></div>
                 <div class="flex justify-between items-start mb-2"><h2 id="d-title" class="text-lg font-bold text-slate-900 dark:text-white leading-snug w-3/4"></h2><span id="d-price" class="text-primary font-black text-xl whitespace-nowrap"></span></div>
                 <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700 font-bold"></span></div>
                 <div id="d-features" class="flex flex-wrap gap-2 mb-5"></div>
+                <div id="d-specs-area" class="mb-5 grid grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-300"></div>
                 <div class="space-y-2"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 font-medium"></p></div>
             </div>
             <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-3 shrink-0 pb-8 md:pb-4"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-3 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition"><i data-lucide="message-circle" class="w-5 h-5"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-3 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition"><i data-lucide="phone" class="w-5 h-5"></i> اتصال</a></div>
         </div>
     </div>
-
 
     <!-- Chat Modal -->
     <div id="chat-modal" class="hidden modal-overlay">
@@ -379,1123 +298,407 @@
         </div>
     </div>
 
-
-    <!-- Lightbox (UPDATED with Arrows) -->
+    <!-- Lightbox & Admin Panel (Standard) -->
     <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center select-none">
         <button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button>
-        <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition">
-            <i data-lucide="chevron-left" class="w-8 h-8"></i>
-        </button>
-        <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition">
-            <i data-lucide="chevron-right" class="w-8 h-8"></i>
-        </button>
-        <div class="relative w-full h-full flex items-center justify-center">
-            <img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain">
-        </div>
+        <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
+        <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
+        <div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div>
     </div>
 
-
-    <!-- Admin Panel -->
     <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] overflow-y-auto p-2" id="admin-users-list"></div><div class="w-2/3 flex flex-col bg-navy relative"><div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38]"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div><div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38]"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div></div></div></div>
-
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        const firebaseConfig = { apiKey: "AIzaSyC7zHuH8LK-yQAKG-Nm7dh31fXtVLxuCLM", authDomain: "sharqia-81030.firebaseapp.com", databaseURL: "https://sharqia-81030-default-rtdb.firebaseio.com", projectId: "sharqia-81030", storageBucket: "sharqia-81030.firebasestorage.app", messagingSenderId: "581888625195", appId: "1:581888625195:web:1667ba1e439e8e6c1fb86e" };
+        const app = initializeApp(firebaseConfig); const db = getFirestore(app); const auth = getAuth(app);
 
-        // === PWA Configuration ===
-        const pwaManifest = {
-            "name": "السوق وياك",
-            "short_name": "السوق وياك",
-            "start_url": ".",
-            "display": "standalone",
-            "background_color": "#ffffff",
-            "theme_color": "#0f172a",
-            "description": "متجر اكتروني عصري",
-            "icons": [
-                {
-                    "src": "https://cdn-icons-png.flaticon.com/512/641/641813.png",
-                    "sizes": "192x192",
-                    "type": "image/png"
-                },
-                 {
-                    "src": "https://cdn-icons-png.flaticon.com/512/641/641813.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
-                }
-            ]
-        };
-        const stringManifest = JSON.stringify(pwaManifest);
-        const blob = new Blob([stringManifest], {type: 'application/json'});
-        const manifestURL = URL.createObjectURL(blob);
-        document.querySelector('#manifest-link').setAttribute('href', manifestURL);
+        let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, activeAdminUser: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentSort: 'newest', currentItem: null, currentView: 'home', lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImage: null, currentUserProfile: null };
 
-
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            if(!localStorage.getItem('pwa_installed')) {
-                document.getElementById('pwa-install-toast').classList.remove('hidden');
-            }
-        });
-
-
-        window.installPWA = async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    localStorage.setItem('pwa_installed', 'true');
-                }
-                deferredPrompt = null;
-                document.getElementById('pwa-install-toast').classList.add('hidden');
-            }
-        }
-
-
-        window.closeInstall = () => {
-            document.getElementById('pwa-install-toast').classList.add('hidden');
-        }
-
-
-        // === Firebase & App Logic ===
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7zHuH8LK-yQAKG-Nm7dh31fXtVLxuCLM",
-            authDomain: "sharqia-81030.firebaseapp.com",
-            databaseURL: "https://sharqia-81030-default-rtdb.firebaseio.com",
-            projectId: "sharqia-81030",
-            storageBucket: "sharqia-81030.firebasestorage.app",
-            messagingSenderId: "581888625195",
-            appId: "1:581888625195:web:1667ba1e439e8e6c1fb86e"
-        };
-
-
-        const app = initializeApp(firebaseConfig); 
-        const db = getFirestore(app); 
-        const auth = getAuth(app);
-
-
-        let state = { 
-            user: null, 
-            listings: [], 
-            images: [], 
-            chatId: null, 
-            chatStep: 0, 
-            tempName: '', 
-            activeAdminChat: null, 
-            isAdmin: false, 
-            welcomeSent: false, 
-            favorites: [], 
-            currentFilter: 'all', 
-            currentSort: 'newest', // New sort state
-            currentItem: null, 
-            currentView: 'home',
-            lightboxImages: [], 
-            lightboxIndex: 0,
-            detailsSliderIndex: 0, 
-            detailsSliderImages: [],
-            // === New Auth State ===
-            authRole: 'customer', 
-            authType: 'login', // DEFAULT IS LOGIN
-            authImage: null,
-            currentUserProfile: null 
-        };
-
-
-        const CATEGORIES = [
-            "ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", 
-            "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "برفانات رجالي وحريمي", "الحقائب الشخصية",
-            "النظارات", "مستحضرات التجميل", "ادوات حلاقة للرجال", "مكملات غذائية", "ادوات رياضية",
-            "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة"
-        ];
-        const USED_CATS = ["النظارات", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال"];
-        const SIZE_CATS = [
-            "ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", "ادوات رياضية", "اقمشة"
-        ];
-        const CLOTHES_CATS = ["ملابس رجالي", "ملابس حريمي", "ملابس اطفال"];
-
-
-         const CATEGORY_IMAGES = {
-            "ملابس رجالي": "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=300&auto=format&fit=crop",
-            "برفانات رجالي وحريمي": "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=300&auto=format&fit=crop",
-            "النظارات": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=300&auto=format&fit=crop",
-            "مستحضرات التجميل": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=300&auto=format&fit=crop",
-            "ادوات حلاقة للرجال": "https://images.unsplash.com/photo-1621607512214-68297480165e?q=80&w=300&auto=format&fit=crop",
-            "مكملات غذائية": "https://images.unsplash.com/photo-1581009137042-c552e485697a?q=80&w=300&auto=format&fit=crop",
-            "احذية حريمي": "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop",
-            "ادوات رياضية": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=300&auto=format&fit=crop",
-            "ملابس حريمي": "https://images.pexels.com/photos/3772506/pexels-photo-3772506.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-            "احذية رجالي": "https://images.pexels.com/photos/5264901/pexels-photo-5264901.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-            "احذية اطفال": "https://images.pexels.com/photos/29737094/pexels-photo-29737094.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-            "ملابس اطفال": "https://images.pexels.com/photos/1620758/pexels-photo-1620758.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-            "اكسسورات رجالي": "https://images.pexels.com/photos/3766112/pexels-photo-3766112.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-            "اكسسورات حريمي": "https://images.pexels.com/photos/17568000/pexels-photo-17568000.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-            "اكسسورات اطفال": "https://images.pexels.com/photos/2848522/pexels-photo-2848522.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-            "الحقائب الشخصية": "https://images.pexels.com/photos/1986996/pexels-photo-1986996.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-            "الهدايا الشخصية": "https://images.pexels.com/photos/19066549/pexels-photo-19066549.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-            "الهدايا والالعاب": "https://images.pexels.com/photos/4491662/pexels-photo-4491662.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-            "منتجات العناية بالبشرة": "https://images.pexels.com/photos/10117729/pexels-photo-10117729.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-            "منتجات الاطفال": "https://images.pexels.com/photos/26337029/pexels-photo-26337029.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-            "اقمشة": "https://images.pexels.com/photos/34636582/pexels-photo-34636582.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop"
-        };
-
-
-        // === Service Worker (Caching) ===
-        const CACHE_NAME = 'souq-cache-v1';
-        const STATIC_ASSETS = [
-            '/', 
-            'https://cdn.tailwindcss.com',
-            'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap',
-            'https://unpkg.com/lucide@latest',
-            'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js',
-            'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js',
-            'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js',
-            'https://cdn-icons-png.flaticon.com/512/641/641813.png'
-        ];
-
-
-        const swContent = `
-            const CACHE_NAME = '${CACHE_NAME}';
-            const STATIC_ASSETS = ${JSON.stringify(STATIC_ASSETS)};
-            const CATEGORY_IMAGES_URLS = ${JSON.stringify(Object.values(CATEGORY_IMAGES))};
-            
-            self.addEventListener('install', (event) => {
-                event.waitUntil(
-                    caches.open(CACHE_NAME).then((cache) => {
-                        const assetsToCache = [...STATIC_ASSETS, ...CATEGORY_IMAGES_URLS];
-                        return cache.addAll(assetsToCache).catch(err => {
-                            console.warn('SW: Failed to cache some assets during install.', err);
-                        });
-                    })
-                );
-            });
-
-            self.addEventListener('activate', (event) => {
-                const cacheWhitelist = [CACHE_NAME];
-                event.waitUntil(
-                    caches.keys().then((cacheNames) => {
-                        return Promise.all(
-                            cacheNames.map((cacheName) => {
-                                if (cacheWhitelist.indexOf(cacheName) === -1) {
-                                    return caches.delete(cacheName);
-                                }
-                            })
-                        );
-                    })
-                );
-            });
-
-            self.addEventListener('fetch', (event) => {
-                const { request } = event;
-                if (request.url.includes('firestore.googleapis.com')) {
-                    event.respondWith(fetch(request));
-                    return;
-                }
-                event.respondWith(
-                    caches.open(CACHE_NAME).then((cache) => {
-                        return cache.match(request).then((cachedResponse) => {
-                            const fetchPromise = fetch(request).then((networkResponse) => {
-                                cache.put(request, networkResponse.clone());
-                                return networkResponse;
-                            }).catch(err => {
-                                return cachedResponse;
-                            });
-                            return cachedResponse || fetchPromise;
-                        });
-                    })
-                );
-            });
-        `;
-
-
-        function registerSW() {
-            if ('serviceWorker' in navigator) {
-                const blob = new Blob([swContent], {type: 'application/javascript'});
-                const swURL = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swURL)
-                    .then((registration) => {}).catch((error) => {});
-            }
-        }
-        window.addEventListener('load', registerSW);
-        // === End Service Worker ===
-
-
-        function preloadCategoryImages() {
-            Object.values(CATEGORY_IMAGES).forEach(url => {
-                const img = new Image();
-                img.src = url;
-            });
-        }
-        preloadCategoryImages();
-
-
-        // ==========================================
-        // === AUTH & LOGIN SYSTEM LOGIC START ===
-        // ==========================================
-
-        setPersistence(auth, browserLocalPersistence).then(() => signInAnonymously(auth));
+        const CATEGORIES = ["ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "برفانات رجالي وحريمي", "الحقائب الشخصية", "النظارات", "مستحضرات التجميل", "ادوات حلاقة للرجال", "مكملات غذائية", "ادوات رياضية", "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة", "أثاث منزلي", "إلكترونيات"];
         
+        const FIELD_CONFIG = {
+            'clothes_adult': { condition:false, sizes:true, clothes_range:true },
+            'clothes_kids': { condition:false, sizes:true, clothes_range:true, age:true },
+            'shoes': { condition:false, sizes:true },
+            'elec': { condition:true, elec_specs:true },
+            'beauty': { condition:false, beauty_specs:true },
+            'furniture': { condition:true, furniture_specs:true },
+            'general': { condition:true }
+        };
+
+        const CAT_TYPE_MAP = {
+            "ملابس رجالي": 'clothes_adult', "ملابس حريمي": 'clothes_adult', "ملابس اطفال": 'clothes_kids',
+            "احذية رجالي": 'shoes', "احذية حريمي": 'shoes', "احذية اطفال": 'shoes',
+            "إلكترونيات": 'elec', "برفانات رجالي وحريمي": 'beauty', "مستحضرات التجميل": 'beauty',
+            "أثاث منزلي": 'furniture'
+        };
+
+        const SIZE_OPTIONS = {
+            'clothes_adult': ['S','M','L','XL','2XL','3XL','4XL'],
+            'clothes_kids': ['0-3M','3-6M','6-12M','1-2Y','2-4Y','4-6Y','6-8Y','8-10Y','10-12Y'],
+            'shoes': ['36','37','38','39','40','41','42','43','44','45']
+        };
+
+        const CATEGORY_IMAGES = { "ملابس رجالي": "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=300&auto=format&fit=crop", "برفانات رجالي وحريمي": "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=300&auto=format&fit=crop", "النظارات": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=300&auto=format&fit=crop", "مستحضرات التجميل": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=300&auto=format&fit=crop", "ادوات حلاقة للرجال": "https://images.unsplash.com/photo-1621607512214-68297480165e?q=80&w=300&auto=format&fit=crop", "مكملات غذائية": "https://images.unsplash.com/photo-1581009137042-c552e485697a?q=80&w=300&auto=format&fit=crop", "احذية حريمي": "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop", "ادوات رياضية": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=300&auto=format&fit=crop", "ملابس حريمي": "https://images.pexels.com/photos/3772506/pexels-photo-3772506.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "احذية رجالي": "https://images.pexels.com/photos/5264901/pexels-photo-5264901.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "احذية اطفال": "https://images.pexels.com/photos/29737094/pexels-photo-29737094.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "ملابس اطفال": "https://images.pexels.com/photos/1620758/pexels-photo-1620758.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات رجالي": "https://images.pexels.com/photos/3766112/pexels-photo-3766112.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات حريمي": "https://images.pexels.com/photos/17568000/pexels-photo-17568000.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات اطفال": "https://images.pexels.com/photos/2848522/pexels-photo-2848522.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الحقائب الشخصية": "https://images.pexels.com/photos/1986996/pexels-photo-1986996.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الهدايا الشخصية": "https://images.pexels.com/photos/19066549/pexels-photo-19066549.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الهدايا والالعاب": "https://images.pexels.com/photos/4491662/pexels-photo-4491662.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "منتجات العناية بالبشرة": "https://images.pexels.com/photos/10117729/pexels-photo-10117729.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "منتجات الاطفال": "https://images.pexels.com/photos/26337029/pexels-photo-26337029.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اقمشة": "https://images.pexels.com/photos/34636582/pexels-photo-34636582.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "إلكترونيات": "https://images.pexels.com/photos/326503/pexels-photo-326503.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "أثاث منزلي": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=300&auto=format&fit=crop" };
+
+        function registerSW(){if('serviceWorker'in navigator){const blob=new Blob([`const CACHE_NAME='souq-cache-v1';self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(['/','https://cdn.tailwindcss.com','https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap','https://unpkg.com/lucide@latest'])))})`],{type:'application/javascript'});navigator.serviceWorker.register(URL.createObjectURL(blob))}}window.addEventListener('load',registerSW);
+        function preloadCategoryImages(){Object.values(CATEGORY_IMAGES).forEach(u=>{(new Image()).src=u})}preloadCategoryImages();
+
+        // AUTH
+        setPersistence(auth, browserLocalPersistence).then(() => signInAnonymously(auth));
         onAuthStateChanged(auth, async (u) => { 
-            if(u) { 
-                state.user = u; 
-                
-                // Check if user profile exists in Firestore OR LocalStorage
-                const storedProfile = localStorage.getItem('souq_user_profile');
-                
-                if (storedProfile) {
-                    state.currentUserProfile = JSON.parse(storedProfile);
-                    finishLogin();
-                } else {
-                    // User is technically "authenticated" as anonymous, but no profile
-                    // So we hide the APP LOADER, but SHOW the AUTH OVERLAY
-                    document.getElementById('app-loader').classList.add('opacity-0', 'pointer-events-none');
-                    setTimeout(() => { document.getElementById('app-loader').style.display = 'none'; }, 500);
-                    
-                    document.getElementById('auth-overlay').classList.remove('hidden');
-                    
-                    // Ensure icons are loaded inside the modal
-                    lucide.createIcons();
+            if(u) { state.user = u; 
+                const stored = localStorage.getItem('souq_user_profile');
+                if(stored) { state.currentUserProfile = JSON.parse(stored); finishLogin(); } 
+                else { 
+                    document.getElementById('app-loader').classList.add('opacity-0','pointer-events-none');
+                    setTimeout(()=>document.getElementById('app-loader').style.display='none',500);
+                    document.getElementById('auth-overlay').classList.remove('hidden'); 
+                    lucide.createIcons(); 
                 }
             } 
         });
+
+        setTimeout(() => {
+            if(document.getElementById('app-loader').style.display !== 'none') {
+                document.getElementById('app-loader').style.display = 'none';
+                if(!state.currentUserProfile) document.getElementById('auth-overlay').classList.remove('hidden');
+            }
+        }, 3000);
 
         function finishLogin() {
-            const appLoader = document.getElementById('app-loader');
-            appLoader.classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(() => { appLoader.style.display = 'none'; }, 500);
-
-            document.getElementById('loader').classList.add('hidden');
-            document.getElementById('auth-overlay').classList.add('hidden');
-            document.body.classList.remove('overflow-hidden'); // Enable scrolling by removing the class
+            const l = document.getElementById('app-loader'); l.classList.add('opacity-0','pointer-events-none'); setTimeout(()=>l.style.display='none',500);
+            document.getElementById('loader').classList.add('hidden'); document.getElementById('auth-overlay').classList.add('hidden'); 
             
-            if(state.currentUserProfile && state.currentUserProfile.name) {
-                document.getElementById('header-username').innerText = state.currentUserProfile.name;
-            }
-
-            loadListings(); 
-            checkUserChat(); 
-            initFavs(); 
-            checkAdminStatus(); 
-            initCats();
+            if(state.currentUserProfile?.name) document.getElementById('header-username').innerText = state.currentUserProfile.name;
+            initCats(); loadListings(); checkUserChat(); initFavs(); checkAdminStatus(); 
         }
 
-        // --- Auth UI Functions ---
-        window.setAuthRole = (role) => {
-            state.authRole = role;
-            const btnCust = document.getElementById('btn-role-customer');
-            const btnMark = document.getElementById('btn-role-marketer');
+        window.setAuthRole=r=>{state.authRole=r;const c=document.getElementById('btn-role-customer'),m=document.getElementById('btn-role-marketer');if(r==='customer'){c.className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all bg-navy text-white shadow-md";m.className="flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"}else{m.className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all bg-navy text-white shadow-md";c.className="flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"}};
+        window.setAuthType=t=>{state.authType=t;const l=document.getElementById('btn-type-login'),s=document.getElementById('btn-type-signup'),a=document.getElementById('btn-auth-action'),i=document.getElementById('auth-image-field'),r=document.getElementById('role-switcher');if(t==='login'){l.className="px-4 py-1.5 rounded-md text-[11px] font-bold bg-navy text-white shadow transition-all";s.className="px-4 py-1.5 rounded-md text-[11px] font-bold text-slate-500 transition-all hover:text-navy";a.innerHTML=`<span>دخول للحساب</span> <i data-lucide="log-in" class="w-4 h-4"></i>`;i.classList.add('hidden');r.classList.add('hidden')}else{s.className="px-4 py-1.5 rounded-md text-[11px] font-bold bg-navy text-white shadow transition-all";l.className="px-4 py-1.5 rounded-md text-[11px] font-bold text-slate-500 transition-all hover:text-navy";a.innerHTML=`<span>إنشاء حساب جديد</span> <i data-lucide="plus-circle" class="w-4 h-4"></i>`;i.classList.remove('hidden');i.classList.add('flex');r.classList.remove('hidden')}lucide.createIcons()};
+        window.handleAuthImage=async i=>{if(i.files[0]){state.authImage=await compress(i.files[0]);document.getElementById('auth-img-preview').src=state.authImage;document.getElementById('auth-img-preview').classList.remove('hidden');document.getElementById('auth-img-placeholder').classList.add('hidden')}};
+        window.processAuth=async()=>{const n=document.getElementById('auth-name').value.trim(),p=document.getElementById('auth-pass').value.trim(),b=document.getElementById('btn-auth-action');if(!n||!p)return showToast("بيانات ناقصة","e");const old=b.innerHTML;b.innerHTML="جاري...";b.disabled=true;try{if(state.authType==='signup'){const q=await getDocs(query(collection(db,"users"),where("name","==",n)));if(!q.empty){showToast("الاسم مستخدم","e");b.innerHTML=old;b.disabled=false;return}const d={name:n,password:p,role:state.authRole,image:state.authImage||'https://cdn-icons-png.flaticon.com/512/641/641813.png',joinedAt:new Date().toISOString(),uid:state.user.uid,isTrusted:false};await setDoc(doc(db,"users",state.user.uid),d);localStorage.setItem('souq_user_profile',JSON.stringify(d));state.currentUserProfile=d;finishLogin();showToast("تم الحساب")}else{const q=await getDocs(query(collection(db,"users"),where("name","==",n),where("password","==",p)));if(!q.empty){const d=q.docs[0].data();localStorage.setItem('souq_user_profile',JSON.stringify(d));state.currentUserProfile=d;finishLogin();showToast(`أهلاً ${n}`)}else{showToast("خطأ في البيانات","e");b.innerHTML=old;b.disabled=false}}}catch(e){console.log(e);b.disabled=false;b.innerHTML=old}};
 
-            if (role === 'customer') {
-                // Active = Navy, Inactive = Slate
-                btnCust.className = "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all bg-navy text-white shadow-md";
-                btnMark.className = "flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700";
-            } else {
-                btnMark.className = "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all bg-navy text-white shadow-md";
-                btnCust.className = "flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700";
-            }
-        }
-
-        // UPDATED: Removed lucide.createIcons() and complex logic for better performance
-        window.setAuthType = (type) => {
-            state.authType = type;
-            const btnLogin = document.getElementById('btn-type-login');
-            const btnSignup = document.getElementById('btn-type-signup');
-            const actionBtn = document.getElementById('btn-auth-action');
-            const imgField = document.getElementById('auth-image-field');
-            const roleSwitcher = document.getElementById('role-switcher');
-            
-            if (type === 'login') {
-                // Toggle Classes Only
-                btnLogin.classList.remove('text-slate-500', 'hover:text-navy');
-                btnLogin.classList.add('bg-navy', 'text-white', 'shadow');
-                
-                btnSignup.classList.remove('bg-navy', 'text-white', 'shadow');
-                btnSignup.classList.add('text-slate-500', 'hover:text-navy');
-                
-                actionBtn.innerHTML = `<span>دخول للحساب</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-in w-4 h-4"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>`;
-                
-                imgField.classList.add('hidden');
-                roleSwitcher.classList.add('hidden');
-            } else {
-                btnSignup.classList.remove('text-slate-500', 'hover:text-navy');
-                btnSignup.classList.add('bg-navy', 'text-white', 'shadow');
-                
-                btnLogin.classList.remove('bg-navy', 'text-white', 'shadow');
-                btnLogin.classList.add('text-slate-500', 'hover:text-navy');
-                
-                actionBtn.innerHTML = `<span>إنشاء حساب جديد</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-circle w-4 h-4"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>`;
-                
-                // Flex + Centered for Image Field
-                imgField.classList.remove('hidden');
-                imgField.classList.add('flex');
-                roleSwitcher.classList.remove('hidden');
-            }
-        }
-
-        window.handleAuthImage = async (input) => {
-            if (input.files && input.files[0]) {
-                const base64 = await compress(input.files[0]); 
-                state.authImage = base64;
-                const preview = document.getElementById('auth-img-preview');
-                const placeholder = document.getElementById('auth-img-placeholder');
-                preview.src = base64;
-                preview.classList.remove('hidden');
-                placeholder.classList.add('hidden');
-            }
-        }
-
-        window.processAuth = async () => {
-            const name = document.getElementById('auth-name').value.trim();
-            const pass = document.getElementById('auth-pass').value.trim();
-
-            if (!name || !pass) return showToast("يرجى ملء الاسم وكلمة المرور", "e");
-
-            const btn = document.getElementById('btn-auth-action');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = "جاري المعالجة...";
-            btn.disabled = true;
-
-            try {
-                if (state.authType === 'signup') {
-                    // === SIGNUP LOGIC (Prevent Duplicates) ===
-                    const q = query(collection(db, "users"), where("name", "==", name));
-                    const querySnapshot = await getDocs(q);
-                    
-                    if (!querySnapshot.empty) {
-                         showToast("اسم المستخدم موجود بالفعل، يرجى اختيار اسم آخر", "e");
-                         btn.innerHTML = originalText;
-                         btn.disabled = false;
-                         return;
-                    }
-
-                    const profileData = {
-                        name: name,
-                        password: pass, 
-                        role: state.authRole,
-                        image: state.authImage || 'https://cdn-icons-png.flaticon.com/512/641/641813.png',
-                        joinedAt: new Date().toISOString(),
-                        uid: state.user.uid,
-                        isTrusted: false 
-                    };
-                    
-                    await setDoc(doc(db, "users", state.user.uid), profileData);
-                    localStorage.setItem('souq_user_profile', JSON.stringify(profileData));
-                    
-                    state.currentUserProfile = profileData;
-                    showToast(`تم إنشاء الحساب: ${name}`);
-                    finishLogin();
-
-                } else {
-                    // === LOGIN LOGIC ===
-                    const q = query(collection(db, "users"), where("name", "==", name), where("password", "==", pass));
-                    const querySnapshot = await getDocs(q);
-
-                    if (!querySnapshot.empty) {
-                        const userData = querySnapshot.docs[0].data();
-                        localStorage.setItem('souq_user_profile', JSON.stringify(userData));
-                        state.currentUserProfile = userData;
-                        showToast(`أهلاً بعودتك ${name} 👋`);
-                        finishLogin();
-                    } else {
-                        showToast("بيانات الدخول غير صحيحة", "e");
-                        btn.innerHTML = originalText;
-                        btn.disabled = false;
-                    }
-                }
-
-            } catch (error) {
-                console.error(error);
-                showToast("حدث خطأ، حاول مرة أخرى", "e");
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
-        }
-
-        // ==========================================
-        // === AUTH LOGIC END ===
-        // ==========================================
-
-
-        function initCats() {
-            const cont = document.getElementById('categories-container');
-            cont.innerHTML = `<button onclick="filter('all')" id="chip-all" class="chip-btn">الكل</button>`;
-            const sel = document.getElementById('in-cat');
-            sel.innerHTML = '';
-            CATEGORIES.forEach(c => {
-                const btn = document.createElement('button'); 
-                btn.innerText = c; 
-                btn.id = `chip-${c.replace(/\s/g, '')}`;
-                btn.className = "px-4 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition hover:border-primary hover:text-primary chip-btn";
-                btn.onclick = () => filter(c); 
-                cont.appendChild(btn);
-                const opt = document.createElement('option'); 
-                opt.value = c; 
-                opt.innerText = c; 
-                sel.appendChild(opt);
-            });
-        }
-
-
-        function renderView() {
-            const searchInput = document.getElementById('search-input');
-            const catContainer = document.getElementById('categories-container');
-            const searchContainer = document.getElementById('search-container');
-            const viewHeader = document.getElementById('view-header');
-            const gridContainer = document.getElementById('grid-container');
-            const filterBtn = document.getElementById('filter-btn-container');
-
-            if (state.currentView === 'home') {
-                viewHeader.classList.add('hidden');
-                catContainer.classList.add('hidden');
-                searchContainer.classList.remove('hidden');
-                gridContainer.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4';
-                searchInput.placeholder = 'ابحث عن قسم...';
-                filterBtn.classList.add('hidden'); // HIDE Filter on Home
-                filterBtn.classList.remove('flex');
-                renderCategoryCards();
-            } else if (state.currentView === 'category') {
-                viewHeader.classList.remove('hidden');
-                const title = state.currentFilter === 'all' ? 'كل المنتجات' : (state.currentFilter === 'fav' ? 'المفضلة' : state.currentFilter);
-                document.getElementById('view-title').innerText = title;
-
-                if (state.currentFilter === 'fav') {
-                    searchContainer.classList.add('hidden');
-                    catContainer.classList.add('hidden');
-                } else {
-                    searchContainer.classList.remove('hidden');
-                    searchInput.placeholder = 'ابحث عن منتج...';
-                    if (state.currentFilter === 'all') {
-                        catContainer.classList.remove('hidden');
-                        filterBtn.classList.add('flex'); // SHOW Filter on Products
-                        filterBtn.classList.remove('hidden');
-                    } else {
-                        catContainer.classList.add('hidden');
-                        filterBtn.classList.add('flex');
-                        filterBtn.classList.remove('hidden');
-                    }
-                }
-
-                gridContainer.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-10';
-                filter(state.currentFilter);
-            }
-            lucide.createIcons();
-        }
-
-
-        window.switchToCategoryView = (category) => {
-            state.currentView = 'category';
-            state.currentFilter = category;
-            document.getElementById('search-input').value = '';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            renderView();
-        }
-
-
-        window.switchToHomeView = () => {
-            state.currentView = 'home';
-            state.currentFilter = 'all';
-            document.getElementById('search-input').value = '';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            renderView();
-            const url = new URL(window.location);
-            url.searchParams.delete('product_id');
-            window.history.replaceState({}, '', url);
-        }
-
-
-        function renderCategoryCards() {
-            const cont = document.getElementById('grid-container');
-            const q = normalizeText(document.getElementById('search-input').value);
-            cont.innerHTML = '';
-            const filteredCats = CATEGORIES.filter(c => normalizeText(c).includes(q));
-
-
-            if (!filteredCats.length) {
-                document.getElementById('empty-state').classList.remove('hidden');
-            } else {
-                document.getElementById('empty-state').classList.add('hidden');
-                filteredCats.forEach(cat => {
-                    const imageUrl = CATEGORY_IMAGES[cat] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=300&auto=format&fit=crop';
-                    cont.innerHTML += `
-                        <div onclick="switchToCategoryView('${cat}')" class="relative rounded-xl overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 h-28 cursor-pointer active:scale-95 transition-transform group flex items-center justify-center text-center p-2">
-                            <img src="${imageUrl}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy">
-                            <div class="absolute inset-0 bg-black/50"></div>
-                            <h3 class="relative z-10 font-bold text-white text-sm drop-shadow-md">${cat}</h3>
-                        </div>`;
-                });
-            }
-        }
-
-
-        function loadListings() { 
-            showSkeletons(); 
-            onSnapshot(query(collection(db, "listings")), (snap) => { 
-                state.listings = []; 
-                snap.forEach(d => state.listings.push({id: d.id, ...d.data()})); 
-                state.listings.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); 
-
-
-                const params = new URLSearchParams(window.location.search);
-                const linkedProdId = params.get('product_id');
-                if(linkedProdId && !state.currentItem) {
-                   const item = state.listings.find(i => i.id === linkedProdId);
-                   if(item) openDetails(item.id);
-                }
-
-
-                renderView();
-            }); 
-        }
-
-
-        window.handleSearch = () => {
-            if (state.currentView === 'home') {
-                renderCategoryCards();
-            } else {
-                renderProducts();
-            }
+        function initCats(){const c=document.getElementById('categories-container');c.innerHTML=`<button onclick="filter('all')" id="chip-all" class="chip-btn">الكل</button>`;const s=document.getElementById('in-cat');s.innerHTML='';CATEGORIES.forEach(x=>{const b=document.createElement('button');b.innerText=x;b.id=`chip-${x.replace(/\s/g,'')}`;b.className="px-4 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition hover:border-primary hover:text-primary chip-btn";b.onclick=()=>filter(x);c.appendChild(b);const o=document.createElement('option');o.value=x;o.innerText=x;s.appendChild(o)})};
+        function renderView(){const s=document.getElementById('search-container'),c=document.getElementById('categories-container'),v=document.getElementById('view-header'),g=document.getElementById('grid-container'),f=document.getElementById('filter-btn-container');if(state.currentView==='home'){v.classList.add('hidden');c.classList.add('hidden');s.classList.remove('hidden');g.className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4';document.getElementById('search-input').placeholder='ابحث عن قسم...';f.classList.add('hidden');f.classList.remove('flex');renderCategoryCards()}else{v.classList.remove('hidden');document.getElementById('view-title').innerText=state.currentFilter==='all'?'كل المنتجات':state.currentFilter;if(state.currentFilter==='fav'){s.classList.add('hidden');c.classList.add('hidden')}else{s.classList.remove('hidden');document.getElementById('search-input').placeholder='ابحث عن منتج...';if(state.currentFilter==='all'){c.classList.remove('hidden');f.classList.add('flex');f.classList.remove('hidden')}else{c.classList.add('hidden');f.classList.add('flex');f.classList.remove('hidden')}}g.className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-10';filter(state.currentFilter)}lucide.createIcons()};
+        window.switchToCategoryView=c=>{state.currentView='category';state.currentFilter=c;document.getElementById('search-input').value='';window.scrollTo({top:0});renderView()};
+        window.switchToHomeView=()=>{state.currentView='home';state.currentFilter='all';document.getElementById('search-input').value='';window.scrollTo({top:0});renderView()};
+        function renderCategoryCards(){const q=normalizeText(document.getElementById('search-input').value),c=document.getElementById('grid-container');c.innerHTML='';const f=CATEGORIES.filter(x=>normalizeText(x).includes(q));if(!f.length)document.getElementById('empty-state').classList.remove('hidden');else{document.getElementById('empty-state').classList.add('hidden');f.forEach(x=>{c.innerHTML+=`<div onclick="switchToCategoryView('${x}')" class="relative rounded-xl overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 h-28 cursor-pointer active:scale-95 transition-transform group flex items-center justify-center text-center p-2"><img src="${CATEGORY_IMAGES[x]||'https://via.placeholder.com/300'}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"><div class="absolute inset-0 bg-black/50"></div><h3 class="relative z-10 font-bold text-white text-sm drop-shadow-md">${x}</h3></div>`})}};
+        function loadListings(){showSkeletons();onSnapshot(query(collection(db,"listings")),s=>{state.listings=[];s.forEach(d=>state.listings.push({id:d.id,...d.data()}));state.listings.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderView()})};
+        window.handleSearch=()=>{if(state.currentView==='home')renderCategoryCards();else renderProducts()};
+        window.toggleFilterSheet=()=>{const s=document.getElementById('filter-sheet');s.classList.toggle('hidden')};
+        window.applyFilterSort=t=>{state.currentSort=t;toggleFilterSheet();renderProducts();showToast("تم الترتيب")};
+        window.filter=t=>{state.currentFilter=t;document.querySelectorAll('#categories-container .chip-btn').forEach(b=>b.className="px-4 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition hover:border-primary hover:text-primary chip-btn");const a=document.getElementById(t==='all'?'chip-all':`chip-${t.replace(/\s/g,'')}`);if(a){a.className="px-5 py-1.5 rounded-full bg-navy dark:bg-primary text-white text-xs font-bold shadow whitespace-nowrap transform scale-105 transition chip-btn";a.scrollIntoView({behavior:'smooth',inline:'center'})}if(state.currentView!=='category')state.currentView='category';document.getElementById('view-title').innerText=t;renderProducts()};
+        function renderProducts(){const q=normalizeText(document.getElementById('search-input').value),c=document.getElementById('grid-container');c.innerHTML='';let f=state.listings.filter(i=>(state.currentFilter==='fav'?(state.favorites||[]).includes(i.id):(state.currentFilter==='all'||i.category===state.currentFilter))&&(normalizeText(i.title).includes(q)||normalizeText(i.category||'').includes(q)));if(state.currentSort==='price_low')f.sort((a,b)=>a.price-b.price);else if(state.currentSort==='price_high')f.sort((a,b)=>b.price-a.price);else f.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));if(!f.length)document.getElementById('empty-state').classList.remove('hidden');else{document.getElementById('empty-state').classList.add('hidden');f.forEach(i=>c.innerHTML+=createCard(i))}lucide.createIcons()};
+        window.resetFilters=()=>{document.getElementById('search-input').value='';if(state.currentView==='category')filter('all');else renderCategoryCards()};
+        
+        function createCard(i){
+            const s=i.status&&i.status!=='available';
+            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${!s?`openDetails('${i.id}')`:''}"><div class="relative w-full h-32 sm:h-40 bg-gray-200 dark:bg-slate-700">${s?`<div class="absolute inset-0 z-20 bg-white/80 dark:bg-black/80 flex items-center justify-center"><span class="bg-red-600 text-white font-bold px-4 py-2 rounded-xl -rotate-12 text-sm">${i.status==='sold'?'مباع':'غير متاح'}</span></div>`:''}${state.isAdmin||state.user?.uid===i.authorId?`<div class="absolute top-1 right-1 z-20 flex gap-1"><button onclick="del(event,'${i.id}')" class="bg-white/80 text-red-500 p-1 rounded"><i data-lucide="trash-2" class="w-3 h-3"></i></button><button onclick="toggleStatus(event,'${i.id}','${i.status||'available'}')" class="bg-white/80 text-blue-600 p-1 rounded"><i data-lucide="edit-3" class="w-3 h-3"></i></button></div>`:''}<button onclick="toggleFav(event,'${i.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-4 h-4 ${state.favorites.includes(i.id)?'fill-red-500 text-red-500':'text-white'}"></i></button><img src="${i.images[0]}" class="w-full h-full object-cover"></div><div class="p-2 flex-1 flex flex-col"><div class="flex justify-between mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-xs line-clamp-1">${i.title}</h3><span class="font-black text-primary text-xs">${Number(i.price).toLocaleString()} ج.م</span></div><div class="mt-auto pt-2 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${i.phone}" target="_blank" class="flex-1 bg-primary text-white py-1.5 rounded flex justify-center items-center gap-1 text-[10px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`
         };
 
-        // Filter Sheet Logic
-        window.toggleFilterSheet = () => {
-            const sheet = document.getElementById('filter-sheet');
-            sheet.classList.toggle('hidden');
-        }
-
-        window.applyFilterSort = (sortType) => {
-            state.currentSort = sortType;
-            toggleFilterSheet();
-            renderProducts();
-            let msg = 'تم الترتيب: الأحدث';
-            if(sortType === 'price_low') msg = 'تم الترتيب: الأقل سعراً';
-            if(sortType === 'price_high') msg = 'تم الترتيب: الأعلى سعراً';
-            showToast(msg);
-        }
-
-
-        window.filter = (type) => { 
-            state.currentFilter = type; 
-            document.querySelectorAll('#categories-container .chip-btn').forEach(btn => {
-                btn.className = "px-4 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition hover:border-primary hover:text-primary chip-btn";
-            });
-            const activeId = type === 'all' ? 'chip-all' : `chip-${type.replace(/\s/g, '')}`;
-            const activeBtn = document.getElementById(activeId);
-            if(activeBtn) {
-                activeBtn.className = "px-5 py-1.5 rounded-full bg-navy dark:bg-primary text-white text-xs font-bold shadow whitespace-nowrap transform scale-105 transition chip-btn";
-                activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
-            if (state.currentView !== 'category') {
-                state.currentView = 'category';
-            }
-            const title = type === 'all' ? 'كل المنتجات' : (type === 'fav' ? 'المفضلة' : type);
-            document.getElementById('view-title').innerText = title;
-            renderProducts(); 
-        };
-
-
-        function renderProducts() {
-            const q = normalizeText(document.getElementById('search-input').value); 
-            const cont = document.getElementById('grid-container'); 
-            cont.innerHTML = ''; 
+        window.openDetails=id=>{
+            const i=state.listings.find(x=>x.id===id);if(!i)return;state.currentItem=i;
+            document.getElementById('d-title').innerText=i.title;document.getElementById('d-price').innerText=Number(i.price).toLocaleString()+' ج.م';
+            document.getElementById('d-cat').innerText=i.category;document.getElementById('d-desc').innerText=i.desc;
             
-            let filtered = state.listings.filter(item => { 
-                let matchType = true; 
-                if (state.currentFilter === 'fav') {
-                    matchType = (state.favorites || []).includes(item.id);
-                } else {
-                    matchType = state.currentFilter === 'all' || item.category === state.currentFilter; 
-                }
-                const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); 
-                return matchType && matchText; 
-            }); 
+            // Author & Trust
+            document.getElementById('d-author-name').innerText=i.authorName||'مجهول';document.getElementById('d-author-img').src=i.authorImage||'https://cdn-icons-png.flaticon.com/512/641/641813.png';
+            const v=document.getElementById('d-author-verify'),s=document.getElementById('d-author-status');
+            if(i.authorTrusted){v.classList.remove('hidden');v.classList.add('text-primary','inline');s.innerHTML=`ناشر موثوق <span class="text-primary">✓</span>`;s.className="text-[10px] text-navy dark:text-white font-bold"}
+            else{v.classList.add('hidden');s.innerText="عضو جديد / غير موثوق";s.className="text-[10px] text-slate-500"}
 
-            if (state.currentSort === 'price_low') {
-                filtered.sort((a, b) => a.price - b.price);
-            } else if (state.currentSort === 'price_high') {
-                filtered.sort((a, b) => b.price - a.price);
-            } else {
-                filtered.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-            }
-
-
-            if(!filtered.length) {
-                document.getElementById('empty-state').classList.remove('hidden'); 
-            } else { 
-                document.getElementById('empty-state').classList.add('hidden'); 
-                filtered.forEach(item => cont.innerHTML += createCard(item)); 
-            } 
-            lucide.createIcons(); 
-        }
-
-
-        window.resetFilters = () => {
-            document.getElementById('search-input').value = '';
-            if (state.currentView === 'category') {
-                filter('all');
-            } else {
-                renderCategoryCards();
-            }
-        };
-
-
-        function createCard(item) {
-            const imgs = Array.isArray(item.images)?item.images:[item.image];
-            const isFav = (state.favorites || []).includes(item.id);
-            const heartClass = isFav ? "fill-red-500 text-red-500" : "text-white";
-            const isOwner = state.user && state.user.uid === item.authorId;
-            let badge = item.badge==='hot' ? `<span class="absolute top-1 left-1 bg-orange-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow animate-pulse z-10">🔥 عرض</span>` : '';
-            let statusOverlay = ''; let isClickable = true; 
-            if(item.status && item.status !== 'available') { 
-                isClickable = false; 
-                const txt = item.status==='sold'?'تم البيع':'غير متاح'; 
-                statusOverlay=`<div class="absolute inset-0 z-20 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center"><span class="bg-red-600 text-white font-bold px-4 py-2 rounded-xl shadow-xl transform -rotate-12 text-sm">${txt}</span></div>`; 
-            }
-            const showControls = state.isAdmin || isOwner;
-            const controls = showControls ? `<div class="absolute top-1 right-1 z-20 flex gap-1"><button onclick="del(event,'${item.id}')" class="bg-white/80 text-red-500 p-1 rounded shadow"><i data-lucide="trash-2" class="w-3 h-3"></i></button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}')" class="bg-white/80 text-blue-600 p-1 rounded shadow"><i data-lucide="edit-3" class="w-3 h-3"></i></button></div>` : '';
-
-
-            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-32 sm:h-40 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-4 h-4 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-2 py-0.5 rounded text-[9px] font-bold shadow z-10">${item.category}</span></div><div class="p-2 flex-1 flex flex-col"><div class="flex justify-between items-start mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-xs line-clamp-1">${item.title}</h3><span class="font-black text-primary text-xs whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[10px] text-slate-500 dark:text-slate-400 mb-2 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1.5 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-2 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1.5 rounded flex justify-center items-center gap-1 text-[10px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
-        }
-
-
-        function goToDetailsSlide(index, behavior = 'auto') {
-            const total = state.detailsSliderImages.length;
-            if (total === 0) return;
-            if (index < 0) index = total - 1;
-            if (index >= total) index = 0;
-            state.detailsSliderIndex = index;
-            const imgEl = document.getElementById('details-img');
-            if (imgEl) {
-                imgEl.src = state.detailsSliderImages[state.detailsSliderIndex];
-            }
-            updateSliderDots();
-        }
-
-        window.scrollDetails = (dir) => { 
-            const total = state.detailsSliderImages.length;
-            if (total <= 1) return;
-            let dirAmount = -dir;
-            let newIndex = state.detailsSliderIndex + dirAmount;
-            goToDetailsSlide(newIndex);
-        }
-
-        function updateSliderDots() {
-            if (state.detailsSliderImages.length <= 1) return;
-            for (let i = 0; i < state.detailsSliderImages.length; i++) {
-                const dot = document.getElementById(`dot-${i}`);
-                if (dot) {
-                    dot.className = i === state.detailsSliderIndex 
-                        ? 'w-4 h-2 rounded-full bg-white shadow transition-all' 
-                        : 'w-2 h-2 rounded-full bg-white/40 transition-all'; 
-                }
-            }
-        }
-
-
-        window.openDetails = (id) => {
-            const item = state.listings.find(i => i.id === id); if(!item) return;
-            state.currentItem = item; 
-            document.getElementById('d-title').innerText = item.title; 
-            document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; 
-            document.getElementById('d-cat').innerText = item.category; 
-            document.getElementById('d-desc').innerText = item.desc;
-            document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
-
-            // Show Author Info & Verify Status
-            document.getElementById('d-author-name').innerText = item.authorName || 'ناشر غير معروف';
-            document.getElementById('d-author-img').src = item.authorImage || 'https://cdn-icons-png.flaticon.com/512/641/641813.png';
+            const f=document.getElementById('d-features');f.innerHTML='';
+            // Multi Sizes
+            if(i.sizes && Array.isArray(i.sizes)) i.sizes.forEach(z=>f.innerHTML+=`<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">مقاس: ${z}</span>`);
             
-            const verifyIcon = document.getElementById('d-author-verify');
-            const statusText = document.getElementById('d-author-status');
-            
-            if (item.authorTrusted === true) {
-                verifyIcon.classList.remove('hidden');
-                verifyIcon.classList.add('text-primary', 'inline');
-                statusText.innerHTML = `ناشر موثوق <span class="text-primary">✓</span>`;
-                statusText.classList.remove('text-slate-500');
-                statusText.classList.add('text-navy', 'font-bold');
-            } else {
-                verifyIcon.classList.add('hidden');
-                verifyIcon.classList.remove('text-primary');
-                statusText.innerText = "عضو جديد / غير موثوق";
-                statusText.classList.add('text-slate-500');
-                statusText.classList.remove('text-navy', 'font-bold');
-            }
+            // Features
+            if(i.features)i.features.forEach(x=>f.innerHTML+=`<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-600">${x}</span>`);
 
-
-            const amCont = document.getElementById('d-features'); 
-            amCont.innerHTML=''; 
-            if(item.features) item.features.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1 border border-slate-200 dark:border-slate-600 font-bold">${a}</span>`);
-            if(item.size) amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">مقاس: ${item.size}</span>`;
-            
-            // Show Weight & Height if available
-            if(item.weight) amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">الوزن: ${item.weight} كجم</span>`;
-            if(item.height) amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">الطول: ${item.height} سم</span>`;
-
-
-            document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; 
-            document.getElementById('d-call').href = `tel:${item.phone}`;
-
-
-            const imgs = Array.isArray(item.images) ? item.images : [item.image]; 
-            state.detailsSliderImages = imgs; 
-            state.detailsSliderIndex = 0;   
-
-
-            const dotsContainer = document.getElementById('details-dots');
-
-
-            const imgEl = document.getElementById('details-img');
-            if (imgEl) {
-                imgEl.src = imgs.length > 0 ? imgs[0] : 'https://placehold.co/400x300/e2e8f0/94a3b8?text=No+Image'; 
-                imgEl.onclick = () => openLightbox(imgEl.src); 
-            }
-
-
-            dotsContainer.innerHTML = ''; 
-            if (imgs.length > 1) {
-                dotsContainer.innerHTML = imgs.map((_, index) => 
-                    `<span id="dot-${index}" class="w-2 h-2 rounded-full bg-white/40 transition-all"></span>`
-                ).join('');
-            }
-
-
-            document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
-            toggleModal('details-modal'); 
-
-
-            goToDetailsSlide(0, 'auto'); 
-
-
-            lucide.createIcons();
-
-
-            const url = new URL(window.location);
-            url.searchParams.set('product_id', id);
-            window.history.replaceState({}, '', url);
-        }
-
-
-        window.closeDetails = () => {
-             toggleModal('details-modal');
-             state.currentItem = null; 
-             document.getElementById('details-dots').innerHTML = ''; 
-
-             const imgEl = document.getElementById('details-img');
-             if (imgEl) {
-                 imgEl.src = '';
-             }
-
-
-             const url = new URL(window.location);
-             url.searchParams.delete('product_id');
-             window.history.replaceState({}, '', url);
-        }
-
-
-        function initFavs() { try { state.favorites = JSON.parse(localStorage.getItem('souq_favs') || '[]'); } catch(e){ state.favorites = []; } updateFavBadge(); }
-        window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); if(state.currentView === 'category') renderProducts(); };
-        function updateFavBadge() { const b = document.getElementById('fav-count'); if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); }
-        window.toggleFavView = () => { 
-            state.currentView = 'category';
-            state.currentFilter = 'fav';
-            renderView();
-            showToast("عرض المفضلة ❤️"); 
-        };
-
-
-        window.updateFormFields = () => {
-            const cat = document.getElementById('in-cat').value;
-            document.getElementById('field-condition').classList.toggle('hidden', !USED_CATS.includes(cat));
-            document.getElementById('field-size').classList.toggle('hidden', !SIZE_CATS.includes(cat));
-            
-            // Weight & Height for Clothes
-            const isClothes = CLOTHES_CATS.includes(cat);
-            document.getElementById('field-weight').classList.toggle('hidden', !isClothes);
-            document.getElementById('field-height').classList.toggle('hidden', !isClothes);
-        }
-
-
-        window.submitListing=async()=>{
-            if(!state.images.length)return showToast('مطلوب صورة واحدة على الأقل','e');
-            const btn = document.getElementById('btn-publish');
-            btn.disabled = true;
-            btn.innerHTML = '<span>جاري النشر...</span>';
-            const bdg=document.querySelector('input[name="badge"]:checked').value;
-            const cond=document.getElementById('in-condition').value;
-            const cat=document.getElementById('in-cat').value;
-            const size=document.getElementById('in-size').value;
-            const weight=document.getElementById('in-weight').value;
-            const height=document.getElementById('in-height').value;
-            const feats=[]; document.querySelectorAll('.chip-checkbox:checked').forEach(c=>feats.push(c.value));
-            
-            // Include Author Data & Trusted Status
-            const authorName = state.currentUserProfile ? state.currentUserProfile.name : 'مجهول';
-            const authorImage = state.currentUserProfile ? state.currentUserProfile.image : 'https://cdn-icons-png.flaticon.com/512/641/641813.png';
-            const authorTrusted = state.currentUserProfile ? (state.currentUserProfile.isTrusted || false) : false;
-            
-            await addDoc(collection(db,"listings"),{
-                title:document.getElementById('in-title').value,
-                price:Number(document.getElementById('in-price').value),
-                category:cat,
-                condition:cond,
-                size:size,
-                weight:weight, // Added
-                height:height, // Added
-                phone:document.getElementById('in-phone').value,
-                desc:document.getElementById('in-desc').value,
-                features:feats,
-                images:state.images,
-                badge:bdg,
-                status:'available',
-                createdAt:serverTimestamp(),
-                authorId:state.user.uid,
-                authorName: authorName,
-                authorImage: authorImage,
-                authorTrusted: authorTrusted 
-            });
-
-            showToast('تم النشر بنجاح');
-            toggleAddModal();
-            btn.disabled = false;
-            btn.innerHTML = '<span>نشر المنتج</span><i data-lucide="arrow-left" class="w-4 h-4"></i>';
-            lucide.createIcons();
-        };
-
-
-        window.del=async(e,id)=>{e.stopPropagation();if(confirm('هل أنت متأكد من الحذف؟')){await deleteDoc(doc(db,"listings",id));showToast('تم الحذف بنجاح')}};
-        window.toggleStatus=async(e,id,currentStatus)=>{e.stopPropagation();let nextStatus=currentStatus==='available'?'sold':'available';await updateDoc(doc(db,"listings",id),{status:nextStatus});showToast(`تم تغيير الحالة إلى: ${nextStatus==='available'?'متاح':'مُباع'}`)};
-
-
-        function checkAdminStatus() { 
-            if(localStorage.getItem('souq_admin') === 'true') { 
-                state.isAdmin = true; 
-                document.getElementById('btn-admin-top').classList.remove('hidden'); 
-            } 
-        }
-
-
-        window.toggleDarkMode = () => { 
-            document.documentElement.classList.toggle('dark'); 
-            localStorage.setItem('souq_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); 
-        }
-        if(localStorage.getItem('souq_theme') === 'dark') document.documentElement.classList.add('dark');
-
-
-        window.showToast=(m,t='s')=>{const d=document.createElement('div');d.className=`toast fixed top-4 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 shadow-xl px-4 py-2 rounded-lg border border-${t==='e'?'red':'primary'}-500 flex items-center gap-2 text-xs font-bold z-[250] text-slate-800 dark:text-white`;d.innerHTML=`<i data-lucide="${t==='e'?'alert-circle':'check-circle'}" class="w-4 h-4 text-${t==='e'?'red':'primary'}-500"></i> ${m}`;document.getElementById('toast-container').appendChild(d);lucide.createIcons();setTimeout(()=>{d.classList.add('hiding');setTimeout(()=>d.remove(),300)},3000)};
-        function normalizeText(t) { return t.replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLowerCase(); }
-        function showSkeletons() { const c=document.getElementById('grid-container'); c.innerHTML=''; for(let i=0;i<8;i++) c.innerHTML+=`<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-slate-200 dark:border-slate-700 h-full"><div class="h-32 skeleton"></div><div class="p-2 space-y-2"><div class="h-4 rounded skeleton w-3/4"></div><div class="h-3 rounded skeleton w-1/2"></div></div></div>`; }
-
-
-        window.shareListing = async () => { 
-            if(!state.currentItem) return; 
-            const directLink = `${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}`;
-            const d = { title: 'السوق وياك', text: `شاهد المنتج: ${state.currentItem.title}`, url: directLink }; 
-            try { await navigator.share(d); showToast('تمت المشاركة بنجاح'); } catch(e) { navigator.clipboard.writeText(d.url); showToast('تم نسخ الرابط'); } 
-        };
-
-
-        window.scrollCard = (e, id, dir) => { 
-            e.stopPropagation(); 
-            const s = document.getElementById(`slider-${id}`);
-            if (!s) return;
-
-
-            const totalImages = s.children.length;
-            if (totalImages <= 1) return;
-
-
-            const imgWidth = s.clientWidth;
-            let currentIndex = Math.round(s.scrollLeft / imgWidth);
-
-
-            let nextIndex = currentIndex - dir; 
-
-
-            if (nextIndex >= totalImages) {
-                nextIndex = 0; 
-            } else if (nextIndex < 0) {
-                nextIndex = totalImages - 1; 
-            }
-
-
-            s.scrollTo({ left: nextIndex * imgWidth, behavior: 'smooth' });
-        }
-
-
-        window.openLightbox = (src) => {
-            if (!src || src.endsWith('?text=No+Image')) return; 
-            if(state.currentItem && document.getElementById('details-modal').classList.contains('hidden') === false) {
-                 state.lightboxImages = state.detailsSliderImages;
-            } else {
-                 state.lightboxImages = state.detailsSliderImages.length ? state.detailsSliderImages : [];
-                 if(!state.lightboxImages.length && state.currentItem) {
-                     state.lightboxImages = Array.isArray(state.currentItem.images) ? state.currentItem.images : [state.currentItem.image].filter(Boolean);
+            // SPECS GRID
+            const sp = document.getElementById('d-specs-area'); sp.innerHTML = '';
+            // Condition only if exists and not clothes/shoes
+            if(i.condition && !['new','used','openbox'].includes(i.condition)) {} // Skip logic handled by category
+            else if(i.condition) {
+                 const condText = i.condition==='new'?'جديد':(i.condition==='openbox'?'كسر زيرو':'مستعمل');
+                 // Don't show for clothes/shoes
+                 if(!['ملابس رجالي','ملابس حريمي','ملابس اطفال','احذية رجالي','احذية حريمي','احذية اطفال'].includes(i.category)) {
+                     sp.innerHTML += `<div><span class="font-bold">الحالة:</span> ${condText}</div>`;
                  }
             }
 
-            state.lightboxIndex = state.lightboxImages.indexOf(src);
-            if (state.lightboxIndex === -1) state.lightboxIndex = 0; 
-
-
-            if (state.lightboxImages.length > 0) {
-                document.getElementById('lightbox-img').src = state.lightboxImages[state.lightboxIndex];
-                document.getElementById('lightbox').classList.remove('hidden');
-                lucide.createIcons(); 
+            if(i.weightFrom && i.weightTo) sp.innerHTML += `<div><span class="font-bold">الوزن:</span> ${i.weightFrom} - ${i.weightTo} كجم</div>`;
+            if(i.heightFrom && i.heightTo) sp.innerHTML += `<div><span class="font-bold">الطول:</span> ${i.heightFrom} - ${i.heightTo} سم</div>`;
+            if(i.ageFrom && i.ageTo) sp.innerHTML += `<div><span class="font-bold">العمر:</span> ${i.ageFrom} - ${i.ageTo} سنة</div>`;
+            
+            if(i.elecType) {
+                let typeName = i.elecType;
+                if(i.elecType==='phone') typeName='هاتف'; if(i.elecType==='laptop') typeName='لابتوب';
+                sp.innerHTML += `<div><span class="font-bold">النوع:</span> ${typeName}</div>`;
             }
-        }
+            if(i.storage) sp.innerHTML += `<div><span class="font-bold">المساحة:</span> ${i.storage}</div>`;
+            if(i.ram) sp.innerHTML += `<div><span class="font-bold">الرام:</span> ${i.ram}</div>`;
+            if(i.battery) sp.innerHTML += `<div><span class="font-bold">البطارية:</span> ${i.battery}%</div>`;
+            if(i.cpu) sp.innerHTML += `<div><span class="font-bold">المعالج:</span> ${i.cpu}</div>`;
+            if(i.gpu) sp.innerHTML += `<div><span class="font-bold">كارت الشاشة:</span> ${i.gpu}</div>`;
+            
+            if(i.volume) sp.innerHTML += `<div><span class="font-bold">الحجم:</span> ${i.volume} مل</div>`;
+            if(i.dimensions) sp.innerHTML += `<div><span class="font-bold">الأبعاد:</span> ${i.dimensions}</div>`;
 
+            document.getElementById('d-wa').href=`https://wa.me/20${i.phone}?text=${i.title}`;document.getElementById('d-call').href=`tel:${i.phone}`;
+            state.detailsSliderImages=i.images;goToDetailsSlide(0);document.getElementById('details-arrows').style.display=i.images.length>1?'block':'none';
+            toggleModal('details-modal');lucide.createIcons();
+        };
 
-        window.navigateLightbox = (dir) => {
-            if (!state.lightboxImages.length) return;
-            state.lightboxIndex += dir;
-            if (state.lightboxIndex >= state.lightboxImages.length) {
-                state.lightboxIndex = 0;
-            } else if (state.lightboxIndex < 0) {
-                state.lightboxIndex = state.lightboxImages.length - 1;
+        window.updateFormFields=()=>{
+            const c=document.getElementById('in-cat').value;
+            const type = CAT_TYPE_MAP[c] || 'general';
+            const conf = FIELD_CONFIG[type] || FIELD_CONFIG['general'];
+
+            // Toggle Dynamic Container
+            const dc = document.getElementById('dynamic-fields');
+            if(Object.keys(conf).length > 0) dc.classList.remove('hidden'); else dc.classList.add('hidden');
+
+            // Toggle Sections
+            document.getElementById('field-condition').classList.toggle('hidden', !conf.condition);
+            document.getElementById('field-sizes').classList.toggle('hidden', !conf.sizes);
+            document.getElementById('field-clothes-ranges').classList.toggle('hidden', !conf.clothes_range);
+            document.getElementById('subfield-age').classList.toggle('hidden', !conf.age);
+            document.getElementById('field-elec-specs').classList.toggle('hidden', !conf.elec_specs);
+            document.getElementById('field-beauty-specs').classList.toggle('hidden', !conf.beauty_specs);
+            document.getElementById('field-furniture-specs').classList.toggle('hidden', !conf.furniture_specs);
+
+            // Update Sizes Options if visible
+            if(conf.sizes) {
+                const sc = document.getElementById('sizes-container');
+                sc.innerHTML = '';
+                const opts = SIZE_OPTIONS[type] || [];
+                opts.forEach(sz => {
+                    sc.innerHTML += `<label class="cursor-pointer"><input type="checkbox" class="size-checkbox hidden" value="${sz}"><div class="border-2 border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">${sz}</div></label>`;
+                });
             }
-            document.getElementById('lightbox-img').src = state.lightboxImages[state.lightboxIndex];
+        };
+
+        window.updateElecFields = () => {
+            const t = document.getElementById('in-elec-type').value;
+            // Mobile/Tablet: Storage, Ram, Battery
+            // PC/Laptop: Storage, Ram, CPU, GPU
+            const isMobile = ['phone','tablet'].includes(t);
+            const isPC = ['laptop','desktop'].includes(t);
+            
+            document.getElementById('elec-sub-storage').classList.remove('hidden');
+            document.getElementById('elec-sub-ram').classList.remove('hidden');
+            
+            // Battery only for mobile/tablet/laptop(sometimes) - Let's show for mobile/tablet
+            document.getElementById('elec-sub-battery').classList.toggle('hidden', !isMobile);
+            
+            // CPU/GPU for PC
+            document.getElementById('elec-sub-cpu').classList.toggle('hidden', !isPC);
+            document.getElementById('elec-sub-gpu').classList.toggle('hidden', !isPC);
         }
 
+        window.submitListing=async()=>{
+            if(!state.images.length)return showToast('صورة واحدة ع الأقل','e');
+            const btn=document.getElementById('btn-publish');btn.innerHTML='جاري...';btn.disabled=true;
+            
+            // Gather Data
+            const sizes=[]; document.querySelectorAll('.size-checkbox:checked').forEach(c=>sizes.push(c.value));
+            const feats=[]; document.querySelectorAll('.chip-checkbox:checked').forEach(c=>feats.push(c.value));
 
-        window.closeLightbox = () => {
-            document.getElementById('lightbox').classList.add('hidden');
-            state.lightboxImages = [];
-            state.lightboxIndex = 0;
-        }
+            const d={
+                title:document.getElementById('in-title').value, price:Number(document.getElementById('in-price').value),
+                category:document.getElementById('in-cat').value, 
+                condition:document.getElementById('in-condition').value,
+                phone:document.getElementById('in-phone').value, desc:document.getElementById('in-desc').value,
+                features:feats, images:state.images, badge:document.querySelector('input[name="badge"]:checked').value,
+                status:'available', createdAt:serverTimestamp(), authorId:state.user.uid,
+                authorName:state.currentUserProfile?.name||'مجهول', authorImage:state.currentUserProfile?.image,
+                authorTrusted:state.currentUserProfile?.isTrusted||false,
+                // New Fields
+                sizes: sizes,
+                weightFrom: document.getElementById('in-weight-from').value, weightTo: document.getElementById('in-weight-to').value,
+                heightFrom: document.getElementById('in-height-from').value, heightTo: document.getElementById('in-height-to').value,
+                ageFrom: document.getElementById('in-age-from').value, ageTo: document.getElementById('in-age-to').value,
+                
+                elecType: document.getElementById('in-elec-type').value,
+                storage: document.getElementById('in-storage').value, ram: document.getElementById('in-ram').value,
+                battery: document.getElementById('in-battery').value, 
+                cpu: document.getElementById('in-cpu').value, gpu: document.getElementById('in-gpu').value,
+                
+                volume: document.getElementById('in-volume').value,
+                dimensions: document.getElementById('in-dimensions').value
+            };
+            await addDoc(collection(db,"listings"),d);
+            showToast('تم النشر');toggleAddModal();btn.disabled=false;btn.innerHTML='<span>نشر</span><i data-lucide="arrow-left" class="w-4 h-4"></i>';lucide.createIcons();
+        };
 
-
-        function toggleModal(id) { const m=document.getElementById(id); m.classList.toggle('hidden'); if(!m.classList.contains('hidden')) document.body.style.overflow='hidden'; else document.body.style.overflow=''; return !m.classList.contains('hidden'); }
-
-
-        window.toggleAddModal=()=>{
+        window.toggleAddModal = () => {
             if(toggleModal('add-modal')) { 
                 state.images=[];
                 document.getElementById('preview-area').innerHTML='';
                 document.getElementById('in-title').value = '';
                 document.getElementById('in-price').value = '';
-                document.getElementById('in-size').value = '';
-                document.getElementById('in-weight').value = '';
-                document.getElementById('in-height').value = '';
                 document.getElementById('in-phone').value = '';
                 document.getElementById('in-desc').value = '';
-                document.getElementById('in-cat').selectedIndex = 0;
+                // Reset new fields
+                ['in-weight-from','in-weight-to','in-height-from','in-height-to','in-age-from','in-age-to','in-battery','in-volume','in-dimensions','in-cpu','in-gpu'].forEach(id=>document.getElementById(id).value='');
+                
+                const catEl = document.getElementById('in-cat');
+                if(catEl && catEl.options.length > 0) catEl.selectedIndex = 0;
+                
                 document.getElementById('in-condition').selectedIndex = 0;
                 document.querySelectorAll('.chip-checkbox').forEach(c => c.checked = false);
-                document.querySelector('input[name="badge"][value="none"]').checked = true;
+                
+                const badge = document.querySelector('input[name="badge"][value="none"]');
+                if(badge) badge.checked = true;
+                
                 updateFormFields(); 
             }
         };
 
-
-        window.handleUpload=async(input)=>{if(input.files.length+state.images.length>7)return showToast('7 صور بحد أقصى','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0">`}}; 
-        
-        function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
-        
+        // --- Chat System ---
         window.toggleChat=()=>{
             if(toggleModal('chat-modal')){
-                if(!state.chatId && state.chatStep === 0 && !state.welcomeSent){
-                    state.welcomeSent = true;
-                    
-                    // Use User Name if available
-                    let welcomeMsg = 'مرحباً بك 👋<br>كيف يمكنني مساعدتك؟';
-                    if(state.currentUserProfile && state.currentUserProfile.name) {
-                        welcomeMsg = `أهلاً بك يا ${state.currentUserProfile.name} 👋<br>كيف يمكنني مساعدتك؟`;
-                        // Auto-set temp name so we skip the name asking step
-                        state.tempName = state.currentUserProfile.name;
-                        state.chatStep = 1; // Skip asking for name
-                    } else {
-                        // Ask for name if not logged in (guest)
-                        welcomeMsg = 'مرحباً بك 👋<br>اخبرني باسمك لمساعدتك؟';
-                    }
-                    
-                    setTimeout(()=>botMsg(welcomeMsg), 100);
+                if(!state.chatId && state.chatStep===0){
+                    const name = state.currentUserProfile?.name || 'زائر';
+                    botMsg(`أهلاً بك يا ${name} 👋<br>كيف يمكنني مساعدتك؟`, true); // true = show buttons
                 }
             }
         };
 
-
-        window.sendMsg=async()=>{
-            const t=document.getElementById('chat-msg').value.trim();
+        window.sendMsg=async(val)=>{
+            let t = typeof val === 'string' ? val : document.getElementById('chat-msg').value.trim();
             if(!t)return;
-            document.getElementById('chat-msg').value='';
+            if(typeof val !== 'string') document.getElementById('chat-msg').value=''; // Clear input if typed
+            
+            // Render user msg
             userMsg(t);
 
-
+            // Logic
             if(!state.chatId){
-                if(state.chatStep===0){
-                    // User providing name (Guest flow)
-                    state.tempName=t;
-                    state.chatStep=1;
-                    setTimeout(()=>botMsg(`أهلاً بك،  ما استفسارك؟لتحويلك للدعم الفني مباشرة`),200);
-                } else if(state.chatStep===1){
-                    // User asking question
-                    state.chatStep=2;
-                    try {
-                        const r=await addDoc(collection(db,"chats"),{
-                            userId:state.user.uid, 
-                            userName:state.tempName,
-                            lastMsg:t,
-                            status:'waiting',
-                            messages:[
-                                {s:'bot',t:`الاسم: ${state.tempName}`,d:new Date()},
-                                {s:'user',t,d:new Date()},
-                                {s:'bot',t:'جاري توصيلك بخدمه العملاء',d:new Date()}
-                            ],
-                            createdAt:serverTimestamp()
-                        });
-                        state.chatId=r.id;
-                        listenChat(r.id);
-                    } catch (err) {
-                        console.error("Chat creation failed:", err);
-                        botMsg("عفواً، حدث خطأ أثناء محاولة توصيلك بالدعم. يرجى المحاولة مرة أخرى.");
-                        state.chatStep = 1; 
-                    }
-                }
+                // New Chat Creation
+                const d = {
+                    userId: state.user.uid, userName: state.currentUserProfile?.name || 'زائر',
+                    lastMsg: t, status: t==='طلب توثيق الحساب'?'verification_request':'waiting', // Tag for Admin
+                    messages: [
+                        {s:'bot', t:`أهلاً بك يا ${state.currentUserProfile?.name}`, d:new Date()},
+                        {s:'user', t:t, d:new Date()} // First msg
+                    ],
+                    createdAt: serverTimestamp()
+                };
+                const r = await addDoc(collection(db,"chats"),d);
+                state.chatId = r.id;
+                listenChat(r.id);
+                if(t==='طلب توثيق الحساب') botMsg("تم استلام طلب التوثيق. سيقوم الدعم بمراجعته قريباً.");
+                else botMsg("سيقوم أحد ممثلي الخدمة بالرد عليك قريباً.");
             } else {
+                // Existing Chat
                 const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));
                 if(!s.empty){
-                    const m=s.docs[0].data().messages;
-                    m.push({s:'user',t,d:new Date()});
+                    const m=s.docs[0].data().messages; m.push({s:'user',t,d:new Date()});
                     await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'});
                 }
             }
         };
 
-
-        function listenChat(id){onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data();if(d.status==='closed'){state.chatId=null;state.chatStep=0;state.welcomeSent=false;document.getElementById('chat-box').innerHTML='';showToast("تم إنهاء المحادثة");toggleModal('chat-modal');return}document.getElementById('chat-box').innerHTML='';d.messages.forEach(m=>{if(!m.t.startsWith('الاسم'))(m.s==='user'?userMsg:botMsg)(m.t)})}})};
-        function checkUserChat(){onSnapshot(query(collection(db,"chats"),where('userId','==',state.user.uid),where('status','!=','closed')),s=>{if(!s.empty){state.chatId=s.docs[0].id;state.chatStep=2;listenChat(state.chatId)}})};
+        // Helper to show buttons
+        function botMsg(t, showBtns=false){
+            const d=document.createElement('div');d.className="flex flex-col items-end w-full";
+            let btnsHtml = '';
+            if(showBtns){
+                btnsHtml = `
+                <div class="flex gap-2 mt-2 w-full justify-end">
+                    <button onclick="sendMsg('متابعة الشكاوي')" class="bg-slate-200 text-slate-700 text-[10px] font-bold px-3 py-2 rounded-lg hover:bg-slate-300 transition">متابعة الشكاوي</button>
+                    <button onclick="sendMsg('طلب توثيق الحساب')" class="bg-primary text-white text-[10px] font-bold px-3 py-2 rounded-lg hover:opacity-90 transition">طلب توثيق الحساب 🛡️</button>
+                </div>`;
+            }
+            d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%] self-end">${t}</div>${btnsHtml}`;
+            document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999;
+        }
         function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
-        function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
-        window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
-        document.getElementById('logo-trigger').addEventListener('click',()=>{if(prompt('Code:')==='1532'){localStorage.setItem('souq_admin', 'true');state.isAdmin=true;document.getElementById('btn-admin-top').classList.remove('hidden');renderView();showToast('تم تفعيل وضع الأدمن');}});
 
-
-        window.refreshAdmin=()=>{
-            onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{
-                const l=document.getElementById('admin-users-list');
-                l.innerHTML='';
-                let chats = [];
-                s.forEach(d => chats.push({id: d.id, ...d.data()}));
-                chats.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-                chats.forEach(dt => {
-                    l.innerHTML+=`<div onclick="loadAdmin('${dt.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>`
-                });
+        // --- Admin Panel ---
+        window.loadAdmin=(id,n,uid,isVerifyReq)=>{
+            state.activeAdminChat=id; state.activeAdminUser=uid;
+            // Header with Buttons
+            let btns = `<button onclick="kickUser()" class="bg-red-600 text-white text-[10px] px-2 py-1 rounded">إنهاء</button>`;
+            if(isVerifyReq) {
+                btns = `
+                <div class="flex gap-1">
+                    <button onclick="verifyUser('${uid}')" class="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded flex gap-1 items-center"><i data-lucide="check" class="w-3 h-3"></i> قبول</button>
+                    <button onclick="rejectVerify()" class="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded flex gap-1 items-center"><i data-lucide="x" class="w-3 h-3"></i> رفض</button>
+                </div> ` + btns;
+            }
+            document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span>${btns}`;
+            document.getElementById('btn-end-chat').classList.remove('hidden');
+            
+            onSnapshot(doc(db,"chats",id),s=>{
+                const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;
+                s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'}">${m.t}</span></div>`});
+                b.scrollTop=9999; lucide.createIcons();
             })
         };
 
+        window.refreshAdmin=()=>{
+            onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{
+                const l=document.getElementById('admin-users-list');l.innerHTML='';
+                s.forEach(d=>{
+                    const dt=d.data(); const isVerify = dt.status === 'verification_request';
+                    l.innerHTML+=`<div onclick="loadAdmin('${d.id}','${dt.userName}','${dt.userId}', ${isVerify})" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border ${isVerify?'border-primary/50':'border-white/10'}"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${isVerify?'<span class="text-primary text-[9px]">طلب توثيق</span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>`
+                })
+            })
+        };
 
-        window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'}">${m.t}</span></div>`});b.scrollTop=9999})};
+        // Verify Logic
+        window.verifyUser = async (uid) => {
+            if(!confirm('هل أنت متأكد من توثيق هذا الحساب؟')) return;
+            // 1. Update User
+            await setDoc(doc(db, "users", uid), { isTrusted: true }, { merge: true });
+            
+            // 2. Update All Listings (Ideally server-side, but client-side loop for small app)
+            const q = query(collection(db, "listings"), where("authorId", "==", uid));
+            const snap = await getDocs(q);
+            const batch = writeBatch(db);
+            snap.forEach(doc => { batch.update(doc.ref, { authorTrusted: true }); });
+            await batch.commit();
+
+            // 3. Notify
+            sendAdminMsg("تم قبول طلب التوثيق ✅. حسابك الآن موثوق.");
+            await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'active'}); // Remove verify request tag
+            alert("تم التوثيق بنجاح وتحديث المنتجات");
+        };
+
+        window.rejectVerify = async () => {
+            sendAdminMsg("عذراً، تم رفض طلب التوثيق لعدم استيفاء الشروط.");
+            await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'active'});
+        };
+
+        // ... Standard functions (sendAdminMsg, kickUser, etc. from prev code) ...
         window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
         window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
-
-
+        window.del=async(e,id)=>{e.stopPropagation();if(confirm('حذف؟')){await deleteDoc(doc(db,"listings",id));showToast('تم الحذف')}};
+        window.toggleStatus=async(e,id,c)=>{e.stopPropagation();let n=c==='available'?'sold':'available';await updateDoc(doc(db,"listings",id),{status:n});showToast('تم التعديل')};
+        window.closeDetails=()=>{toggleModal('details-modal');state.currentItem=null;const u=new URL(window.location);u.searchParams.delete('product_id');window.history.replaceState({},'',u)};
+        window.closeLightbox=()=>{document.getElementById('lightbox').classList.add('hidden');state.lightboxImages=[]};
+        window.scrollDetails=d=>{if(state.detailsSliderImages.length<=1)return;goToDetailsSlide(state.detailsSliderIndex-d)};
+        function goToDetailsSlide(i){const t=state.detailsSliderImages.length;if(t===0)return;if(i<0)i=t-1;if(i>=t)i=0;state.detailsSliderIndex=i;document.getElementById('details-img').src=state.detailsSliderImages[i];updateSliderDots()}
+        function updateSliderDots(){if(state.detailsSliderImages.length<=1)return;document.getElementById('details-dots').innerHTML=state.detailsSliderImages.map((_,x)=>`<span class="w-2 h-2 rounded-full transition-all ${x===state.detailsSliderIndex?'bg-white w-4':'bg-white/40'}"></span>`).join('')}
+        window.openLightbox=s=>{if(!s)return;state.lightboxImages=state.detailsSliderImages.length?state.detailsSliderImages:[s];state.lightboxIndex=state.lightboxImages.indexOf(s);if(state.lightboxIndex===-1)state.lightboxIndex=0;document.getElementById('lightbox-img').src=state.lightboxImages[state.lightboxIndex];document.getElementById('lightbox').classList.remove('hidden')}
+        window.navigateLightbox=d=>{if(!state.lightboxImages.length)return;state.lightboxIndex+=d;if(state.lightboxIndex>=state.lightboxImages.length)state.lightboxIndex=0;else if(state.lightboxIndex<0)state.lightboxIndex=state.lightboxImages.length-1;document.getElementById('lightbox-img').src=state.lightboxImages[state.lightboxIndex]};
+        function toggleModal(id){const m=document.getElementById(id);m.classList.toggle('hidden');if(!m.classList.contains('hidden'))document.body.classList.add('overflow-hidden');else document.body.classList.remove('overflow-hidden');return !m.classList.contains('hidden')}
+        window.handleUpload=async(input)=>{if(input.files.length+state.images.length>7)return showToast('7 صور بحد أقصى','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0">`}}; 
+        function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
+        window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
+        document.getElementById('logo-trigger').addEventListener('click',()=>{if(prompt('Code:')==='1532'){localStorage.setItem('souq_admin','true');state.isAdmin=true;document.getElementById('btn-admin-top').classList.remove('hidden');renderView();showToast('Admin Mode')}});
+        window.showToast=(m,t='s')=>{const d=document.createElement('div');d.className=`toast fixed top-4 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 shadow-xl px-4 py-2 rounded-lg border border-${t==='e'?'red':'primary'}-500 flex items-center gap-2 text-xs font-bold z-[250] text-slate-800 dark:text-white`;d.innerHTML=`<i data-lucide="${t==='e'?'alert-circle':'check-circle'}" class="w-4 h-4 text-${t==='e'?'red':'primary'}-500"></i> ${m}`;document.getElementById('toast-container').appendChild(d);lucide.createIcons();setTimeout(()=>{d.classList.add('hiding');setTimeout(()=>d.remove(),300)},3000)};
+        function normalizeText(t){return t.replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLowerCase()}
+        function showSkeletons(){const c=document.getElementById('grid-container');c.innerHTML='';for(let i=0;i<8;i++)c.innerHTML+=`<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-slate-200 dark:border-slate-700 h-full"><div class="h-32 skeleton"></div><div class="p-2 space-y-2"><div class="h-4 rounded skeleton w-3/4"></div><div class="h-3 rounded skeleton w-1/2"></div></div></div>`}
+        
         lucide.createIcons();
     </script>
 </body>
 </html>
-
-
