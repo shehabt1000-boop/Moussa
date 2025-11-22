@@ -48,7 +48,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .select-none { user-select: none; }
 
-        /* Loader Styles */
+        /* Animations */
         @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
         .skeleton { animation: shimmer 1.5s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
         .dark .skeleton { background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%); }
@@ -63,11 +63,13 @@
             .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
+        /* Toast */
         @keyframes slideInDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         .toast { animation: slideInDown 0.15s ease-out forwards; }
         .toast.hiding { animation: fadeOut 0.15s ease-in forwards; }
 
+        /* Form Elements */
         .form-label { display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 0.1rem; }
         .dark .form-label { color: #cbd5e1; }
         .form-input { width: 100%; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 0.75rem; padding: 0.5rem 0.8rem; font-size: 0.8rem; font-weight: 600; color: #1e293b; outline: none; }
@@ -77,20 +79,18 @@
 
         .size-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
         .chip-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
-
         .auth-input { width: 100%; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 0.75rem; padding: 0.5rem 0.8rem; padding-right: 2.5rem; font-size: 0.9rem; font-weight: 600; color: #1e293b; outline: none; }
         .auth-input:focus { border-color: #10b981; }
 
         @keyframes slideUpFilter { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .filter-sheet-content { animation: slideUpFilter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .install-banner { animation: slideUp 0.2s ease-out forwards; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none overflow-hidden">
 
-    <!-- INITIAL APP LOADER -->
+    <!-- APP LOADER -->
     <div id="app-loader" class="fixed inset-0 z-[10000] bg-slate-50 dark:bg-navy flex flex-col items-center justify-center transition-opacity duration-200">
         <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
         <h1 class="font-black text-xl text-navy dark:text-white">السوق <span class="text-primary">وياك</span></h1>
@@ -301,23 +301,16 @@
 
     <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] overflow-y-auto p-2" id="admin-users-list"></div><div class="w-2/3 flex flex-col bg-navy relative"><div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38]"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div><div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38]"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div></div></div></div>
 
-    <!-- THIS SCRIPT RUNS INDEPENDENTLY TO REMOVE LOADER IF FIREBASE FAILS -->
     <script>
         (function(){
-            // Fallback: Force remove loader after 4 seconds no matter what
             setTimeout(function(){
                 var l = document.getElementById('app-loader');
                 if(l && l.style.display !== 'none') {
-                    l.style.opacity = '0';
-                    l.style.pointerEvents = 'none';
+                    l.style.opacity = '0'; l.style.pointerEvents = 'none';
                     setTimeout(function(){ l.style.display = 'none'; }, 300);
                     document.body.classList.remove('overflow-hidden');
-                    
-                    // If no user data is loaded yet, show the auth overlay as a fallback
                     var auth = document.getElementById('auth-overlay');
-                    if(auth && localStorage.getItem('souq_user_profile') === null) {
-                        auth.classList.remove('hidden');
-                    }
+                    if(auth && localStorage.getItem('souq_user_profile') === null) auth.classList.remove('hidden');
                 }
             }, 4000);
         })();
@@ -331,61 +324,43 @@
         const firebaseConfig = { apiKey: "", authDomain: "sharqia-81030.firebaseapp.com", databaseURL: "https://sharqia-81030-default-rtdb.firebaseio.com", projectId: "sharqia-81030", storageBucket: "sharqia-81030.firebasestorage.app", messagingSenderId: "581888625195", appId: "1:581888625195:web:1667ba1e439e8e6c1fb86e" };
         
         let app, db, auth;
-        
-        // Main Execution Block with Try-Catch
         try {
-            app = initializeApp(firebaseConfig); 
-            db = getFirestore(app); 
-            auth = getAuth(app);
-
+            app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app);
             setPersistence(auth, browserLocalPersistence).then(() => signInAnonymously(auth)).catch(e => console.error("Auth Error:", e));
-            
             onAuthStateChanged(auth, async (u) => { 
-                if(u) { 
-                    state.user = u; 
-                    try {
-                        const stored = localStorage.getItem('souq_user_profile');
-                        if(stored) { 
-                            state.currentUserProfile = JSON.parse(stored); 
-                            finishLogin(); 
-                        } else { 
-                            // User is signed in but has no profile locally
-                            // Hide loader immediately and show auth
-                            document.getElementById('app-loader').style.display='none';
-                            document.body.classList.remove('overflow-hidden');
-                            document.getElementById('auth-overlay').classList.remove('hidden'); 
-                            lucide.createIcons(); 
-                        }
+                if(u) { state.user = u; 
+                    try { const stored = localStorage.getItem('souq_user_profile');
+                        if(stored) { state.currentUserProfile = JSON.parse(stored); finishLogin(); } 
+                        else { document.getElementById('app-loader').style.display='none'; document.body.classList.remove('overflow-hidden'); document.getElementById('auth-overlay').classList.remove('hidden'); lucide.createIcons(); }
                     } catch(e) { console.log("Profile parse error", e); finishLogin(); }
                 } 
             });
-
-        } catch(e) {
-            console.error("Firebase Init Error:", e);
-            // Even if Firebase crashes, UI should work (handled by top script)
-        }
+        } catch(e) { console.error("Init Error:", e); }
 
         window.onerror = function(msg, url, line) { console.error("Global Error: " + msg); return false; };
 
-        // Attach to window
-        window.toggleDarkMode = () => { 
-            document.documentElement.classList.toggle('dark'); 
-            localStorage.setItem('souq_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); 
-            lucide.createIcons();
-        };
+        window.toggleDarkMode = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('souq_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); lucide.createIcons(); };
         window.toggleFavView = () => { state.currentView='category'; state.currentFilter='fav'; renderView(); showToast("المفضلة ❤️"); };
         window.toggleAdminPanel = () => { document.getElementById('admin-panel').classList.toggle('hidden'); if(!document.getElementById('admin-panel').classList.contains('hidden')) refreshAdmin(); };
-
         if(localStorage.getItem('souq_theme') === 'dark') document.documentElement.classList.add('dark');
 
         let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, activeAdminUser: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentSort: 'newest', currentItem: null, currentView: 'home', lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImage: null, currentUserProfile: null };
 
         const CATEGORIES = ["ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "برفانات رجالي وحريمي", "الحقائب الشخصية", "النظارات", "مستحضرات التجميل", "ادوات حلاقة للرجال", "مكملات غذائية", "ادوات رياضية", "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة", "أثاث منزلي", "إلكترونيات"];
         
-        // Smart Config
-        const FIELD_CONFIG = { 'clothes_adult': { condition:false, sizes:true, clothes_range:true }, 'clothes_kids': { condition:false, sizes:true, clothes_range:true, age:true }, 'shoes': { condition:false, sizes:true }, 'elec': { condition:true, elec_specs:true, elec_type:true }, 'beauty': { condition:false, beauty_specs:true }, 'furniture': { condition:true, furniture_specs:true } };
-        const CAT_TYPE_MAP = { "ملابس رجالي": 'clothes_adult', "ملابس حريمي": 'clothes_adult', "ملابس اطفال": 'clothes_kids', "احذية رجالي": 'shoes', "احذية حريمي": 'shoes', "احذية اطفال": 'shoes', "إلكترونيات": 'elec', "برفانات رجالي وحريمي": 'beauty', "مستحضرات التجميل": 'beauty', "أثاث منزلي": 'furniture' };
-        const SIZE_OPTIONS = { 'clothes_adult': ['S','M','L','XL','2XL','3XL','4XL'], 'clothes_kids': ['0-3M','3-6M','6-12M','1-2Y','2-4Y','4-6Y','6-8Y','8-10Y','10-12Y'], 'shoes': ['36','37','38','39','40','41','42','43','44','45'] };
+        // Updated Config with Separate Shoe Sizes
+        const FIELD_CONFIG = { 'clothes_adult': { condition:false, sizes:true, clothes_range:true }, 'clothes_kids': { condition:false, sizes:true, clothes_range:true, age:true }, 'shoes_adult': { condition:false, sizes:true }, 'shoes_kids': { condition:false, sizes:true }, 'elec': { condition:true, elec_specs:true, elec_type:true }, 'beauty': { condition:false, beauty_specs:true }, 'furniture': { condition:true, furniture_specs:true } };
+        
+        const CAT_TYPE_MAP = { "ملابس رجالي": 'clothes_adult', "ملابس حريمي": 'clothes_adult', "ملابس اطفال": 'clothes_kids', "احذية رجالي": 'shoes_adult', "احذية حريمي": 'shoes_adult', "احذية اطفال": 'shoes_kids', "إلكترونيات": 'elec', "برفانات رجالي وحريمي": 'beauty', "مستحضرات التجميل": 'beauty', "أثاث منزلي": 'furniture' };
+        
+        // Corrected Sizes
+        const SIZE_OPTIONS = { 
+            'clothes_adult': ['S','M','L','XL','2XL','3XL','4XL'], 
+            'clothes_kids': ['0-3M','3-6M','6-12M','1-2Y','2-4Y','4-6Y','6-8Y','8-10Y','10-12Y'], 
+            'shoes_adult': ['37','38','39','40','41','42','43','44','45'], // Adults start from 37
+            'shoes_kids': ['16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36'] // Kids up to 36
+        };
+
         const CATEGORY_IMAGES = { "إلكترونيات": "https://images.pexels.com/photos/3568520/pexels-photo-3568520.jpeg?auto=compress&cs=tinysrgb&w=400", "ملابس رجالي": "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=300&auto=format&fit=crop", "برفانات رجالي وحريمي": "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=300&auto=format&fit=crop", "النظارات": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=300&auto=format&fit=crop", "مستحضرات التجميل": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=300&auto=format&fit=crop", "ادوات حلاقة للرجال": "https://images.unsplash.com/photo-1621607512214-68297480165e?q=80&w=300&auto=format&fit=crop", "مكملات غذائية": "https://images.unsplash.com/photo-1581009137042-c552e485697a?q=80&w=300&auto=format&fit=crop", "احذية حريمي": "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop", "ادوات رياضية": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=300&auto=format&fit=crop", "ملابس حريمي": "https://images.pexels.com/photos/3772506/pexels-photo-3772506.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "احذية رجالي": "https://images.pexels.com/photos/5264901/pexels-photo-5264901.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "احذية اطفال": "https://images.pexels.com/photos/29737094/pexels-photo-29737094.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "ملابس اطفال": "https://images.pexels.com/photos/1620758/pexels-photo-1620758.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات رجالي": "https://images.pexels.com/photos/3766112/pexels-photo-3766112.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات حريمي": "https://images.pexels.com/photos/17568000/pexels-photo-17568000.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات اطفال": "https://images.pexels.com/photos/2848522/pexels-photo-2848522.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الحقائب الشخصية": "https://images.pexels.com/photos/1986996/pexels-photo-1986996.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الهدايا الشخصية": "https://images.pexels.com/photos/19066549/pexels-photo-19066549.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الهدايا والالعاب": "https://images.pexels.com/photos/4491662/pexels-photo-4491662.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "منتجات العناية بالبشرة": "https://images.pexels.com/photos/10117729/pexels-photo-10117729.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "منتجات الاطفال": "https://images.pexels.com/photos/26337029/pexels-photo-26337029.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اقمشة": "https://images.pexels.com/photos/34636582/pexels-photo-34636582.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "أثاث منزلي": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=300&auto=format&fit=crop" };
 
         function registerSW(){if('serviceWorker'in navigator){const blob=new Blob([`const CACHE_NAME='souq-cache-v1';self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(['/','https://cdn.tailwindcss.com','https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap','https://unpkg.com/lucide@latest'])))})`],{type:'application/javascript'});navigator.serviceWorker.register(URL.createObjectURL(blob))}}window.addEventListener('load',registerSW);
@@ -409,7 +384,7 @@
         window.switchToCategoryView=c=>{state.currentView='category';state.currentFilter=c;document.getElementById('search-input').value='';window.scrollTo({top:0});renderView()};
         window.switchToHomeView=()=>{state.currentView='home';state.currentFilter='all';document.getElementById('search-input').value='';window.scrollTo({top:0});renderView()};
         function renderCategoryCards(){const q=normalizeText(document.getElementById('search-input').value),c=document.getElementById('grid-container');c.innerHTML='';const f=CATEGORIES.filter(x=>normalizeText(x).includes(q));if(!f.length)document.getElementById('empty-state').classList.remove('hidden');else{document.getElementById('empty-state').classList.add('hidden');f.forEach(x=>{c.innerHTML+=`<div onclick="switchToCategoryView('${x}')" class="relative rounded-xl overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 h-28 cursor-pointer active:scale-95 transition-transform group flex items-center justify-center text-center p-2"><img src="${CATEGORY_IMAGES[x]||'https://via.placeholder.com/300'}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"><div class="absolute inset-0 bg-black/50"></div><h3 class="relative z-10 font-bold text-white text-sm drop-shadow-md">${x}</h3></div>`})}};
-        function loadListings(){showSkeletons();onSnapshot(query(collection(db,"listings")),s=>{state.listings=[];s.forEach(d=>state.listings.push({id:d.id,...d.data()}));state.listings.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderView()}, e => console.log("Err loading"))};
+        function loadListings(){onSnapshot(query(collection(db,"listings")),s=>{state.listings=[];s.forEach(d=>state.listings.push({id:d.id,...d.data()}));state.listings.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderView()}, e => console.log("Err loading"))};
         window.handleSearch=()=>{if(state.currentView==='home')renderCategoryCards();else renderProducts()};
         window.toggleFilterSheet=()=>{const s=document.getElementById('filter-sheet');s.classList.toggle('hidden');};
         window.applyFilterSort=t=>{state.currentSort=t;toggleFilterSheet();renderProducts();showToast("تم الترتيب")};
@@ -431,7 +406,10 @@
             if(i.authorTrusted){v.classList.remove('hidden');v.classList.add('text-primary','inline');s.innerHTML=`ناشر موثوق <span class="text-primary">✓</span>`;s.className="text-[10px] text-navy dark:text-white font-bold"}
             else{v.classList.add('hidden');s.innerText="عضو جديد / غير موثوق";s.className="text-[10px] text-slate-500"}
             const f=document.getElementById('d-features');f.innerHTML='';
-            if(i.sizes && Array.isArray(i.sizes)) i.sizes.forEach(z=>f.innerHTML+=`<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">مقاس: ${z}</span>`);
+            // Unified Sizes in One Cell
+            if(i.sizes && Array.isArray(i.sizes) && i.sizes.length > 0) {
+                f.innerHTML += `<div class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-xs font-bold text-slate-600 dark:text-slate-300 mb-2 flex items-center gap-2"><i data-lucide="ruler" class="w-4 h-4 text-primary"></i> المقاسات المتاحة: <span class="text-navy dark:text-white">${i.sizes.join(' - ')}</span></div>`;
+            }
             if(i.features)i.features.forEach(x=>f.innerHTML+=`<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-600">${x}</span>`);
             const sp = document.getElementById('d-specs-area'); sp.innerHTML = '';
             if(i.weightFrom && i.weightTo) sp.innerHTML += `<div><span class="font-bold">الوزن:</span> ${i.weightFrom} - ${i.weightTo} كجم</div>`;
@@ -498,19 +476,20 @@
             }
         };
 
+        // --- SMART BOT LOGIC ---
         window.toggleChat=()=>{
             if(toggleModal('chat-modal')){
                 if(!state.chatId && state.chatStep===0){
                     const name = state.currentUserProfile?.name || 'زائر';
                     document.getElementById('chat-box').innerHTML = ''; 
-                    botMsg(`أهلاً بك يا ${name} 👋<br>كيف يمكنني مساعدتك؟`, true); 
+                    botMsg(`أهلاً بك يا ${name} 👋<br>ما هو طلبك؟`, false); 
                 }
             }
         };
 
         window.checkUserChat = async () => {
             if(state.user) {
-                const q = query(collection(db, "chats"), where("userId", "==", state.user.uid), where("status", "in", ["waiting", "verification_request", "active"]));
+                const q = query(collection(db, "chats"), where("userId", "==", state.user.uid), where("status", "in", ["waiting", "verification_request", "active", "rejected"]));
                 const s = await getDocs(q);
                 if(!s.empty) { state.chatId = s.docs[0].id; listenChat(state.chatId); }
             }
@@ -520,7 +499,13 @@
             onSnapshot(doc(db,"chats",id), d=>{
                 if(!d.exists()) { state.chatId=null; return; }
                 const data = d.data();
-                if(data.status === 'closed') { state.chatId=null; document.getElementById('chat-box').innerHTML=''; state.chatStep=0; botMsg("تم إنهاء المحادثة. شكراً لك."); return; }
+                // IF REJECTED, ASK FOR INQUIRY
+                if(data.status === 'rejected') {
+                     botMsg("تم رفض طلبك. هل لديك استفسار آخر؟", false, true); // Show Yes/No
+                     return;
+                }
+                if(data.status === 'closed') { state.chatId=null; document.getElementById('chat-box').innerHTML=''; state.chatStep=0; botMsg("تم إنهاء المحادثة."); return; }
+                
                 const b = document.getElementById('chat-box'); b.innerHTML='';
                 data.messages.forEach(m => {
                     if(m.s==='bot') botMsg(m.t, false);
@@ -537,59 +522,84 @@
             if(typeof val !== 'string') document.getElementById('chat-msg').value='';
 
             if(!state.chatId) {
-                // LOCAL BOT LOGIC
+                // --- SMART BOT LOCAL LOGIC ---
                 userMsg(t);
                 
-                if(t === 'طلب توثيق الحساب') {
-                    setTimeout(() => botMsg("هل لديك استفسار آخر؟", false, true), 500);
-                    return;
-                }
-                if(t === 'نعم_استفسار') {
-                     botMsg("جاري تحويلك للدعم الفني...");
-                     await createChatTicket("استفسار بعد التوثيق", "verification_request");
+                // 1. Check Verification Keywords
+                const verifyWords = ['توثيق', 'اوثق', 'موثق', 'علامة زرقاء', 'توثيق حسابي'];
+                if (verifyWords.some(w => t.includes(w))) {
+                     setTimeout(() => botMsg("هل تريد طلب توثيق الحساب؟", false, true, 'verify'), 500);
                      return;
                 }
-                if(t === 'لا_شكرا') {
-                    botMsg("شكراً لك. سيتم مراجعة طلبك.");
-                    setTimeout(() => {
+
+                // 2. Handle Yes/No Logic for Verification
+                if(t === 'نعم_verify') {
+                    botMsg("تم إرسال طلب التوثيق. سيقوم الدعم بمراجعته.");
+                    await createChatTicket("طلب توثيق حساب", "verification_request");
+                    return;
+                }
+                if(t === 'لا_verify') {
+                     botMsg("حسناً، جاري تحويلك للدعم الفني...");
+                     await createChatTicket("استفسار عام", "waiting");
+                     return;
+                }
+
+                // 3. Handle Yes/No Logic for Rejection Follow-up
+                // (This is usually handled inside existing chat, but for safety)
+                if(t === 'نعم_inquiry') {
+                    botMsg("جاري تحويلك للدعم الفني...");
+                    await createChatTicket("استفسار بعد الرفض", "waiting");
+                    return;
+                }
+                if(t === 'لا_close') {
+                     botMsg("شكراً لك. إلى اللقاء.");
+                     setTimeout(() => {
                         document.getElementById('chat-box').innerHTML = '';
                         state.chatStep = 0;
-                        // Reset UI
-                        const m = document.getElementById('chat-modal');
-                        m.classList.add('hidden');
-                        document.body.classList.remove('overflow-hidden');
-                    }, 1500);
-                    return;
+                        toggleChat();
+                     }, 1000);
+                     return;
                 }
-                if(t === 'متابعة الشكاوي') {
-                    botMsg("جاري تحويلك للدعم الفني للمتابعة...");
-                    await createChatTicket("متابعة شكاوي", "waiting");
-                    return;
-                }
-                // Default
+
+                // 4. Default: Connect to Support
+                botMsg("جاري تحويلك للدعم الفني...");
                 await createChatTicket(t, "waiting");
+
             } else {
-                // Active Chat
+                // Active Chat Logic
                 const r = doc(db,"chats",state.chatId);
                 const snap = await getDoc(r);
                 if(snap.exists()) {
+                    // Check if we are in "Rejected" state locally
+                    if(t === 'نعم_inquiry') {
+                         await updateDoc(r, {status: 'waiting', messages: [...snap.data().messages, {s:'user',t:'نعم، لدي استفسار',d:new Date()}]});
+                         return;
+                    }
+                    if(t === 'لا_close') {
+                        await updateDoc(r, {status: 'closed'});
+                        return;
+                    }
+
                     const m = snap.data().messages; m.push({s:'user', t:t, d:new Date()});
-                    await updateDoc(r, {messages:m, lastMsg:t, status:'waiting'});
+                    await updateDoc(r, {messages:m, lastMsg:t});
                 }
             }
         };
 
         async function createChatTicket(msg, status) {
-            const d = { userId: state.user.uid, userName: state.currentUserProfile?.name||'زائر', lastMsg: msg, status: status, messages: [{s:'bot',t:`أهلاً بك. ${msg === 'متابعة شكاوي' ? 'طلب متابعة شكوى' : 'كيف نساعدك؟'}`, d:new Date()}, {s:'user',t:msg,d:new Date()}], createdAt: serverTimestamp() };
+            const d = { userId: state.user.uid, userName: state.currentUserProfile?.name||'زائر', lastMsg: msg, status: status, messages: [{s:'bot',t:`أهلاً بك. ${status==='verification_request'?'طلب توثيق':'كيف نساعدك؟'}`, d:new Date()}, {s:'user',t:msg,d:new Date()}], createdAt: serverTimestamp() };
             const r = await addDoc(collection(db,"chats"), d);
             state.chatId = r.id; listenChat(r.id);
         }
 
-        function botMsg(t, showBtns=false, showYesNo=false){
+        function botMsg(t, showBtns=false, showYesNo=false, type='inquiry'){
             const d=document.createElement('div');d.className="flex flex-col items-end w-full mb-2";
             let html = `<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%] self-end">${t}</div>`;
-            if(showBtns) html += `<div class="flex gap-2 mt-2 w-full justify-end"><button onclick="sendMsg('متابعة الشكاوي')" class="bg-slate-200 text-slate-700 text-[10px] font-bold px-3 py-2 rounded-lg hover:bg-slate-300 transition">متابعة الشكاوي</button><button onclick="sendMsg('طلب توثيق الحساب')" class="bg-primary text-white text-[10px] font-bold px-3 py-2 rounded-lg hover:opacity-90 transition">طلب توثيق الحساب 🛡️</button></div>`;
-            if(showYesNo) html += `<div class="flex gap-2 mt-2 w-full justify-end"><button onclick="sendMsg('نعم_استفسار')" class="bg-primary text-white text-[10px] font-bold px-4 py-2 rounded-lg">نعم</button><button onclick="sendMsg('لا_شكرا')" class="bg-red-500 text-white text-[10px] font-bold px-4 py-2 rounded-lg">لا</button></div>`;
+            if(showYesNo) {
+                 const yesAction = type === 'verify' ? 'نعم_verify' : 'نعم_inquiry';
+                 const noAction = type === 'verify' ? 'لا_verify' : 'لا_close';
+                 html += `<div class="flex gap-2 mt-2 w-full justify-end"><button onclick="sendMsg('${yesAction}')" class="bg-primary text-white text-[10px] font-bold px-4 py-2 rounded-lg">نعم</button><button onclick="sendMsg('${noAction}')" class="bg-red-500 text-white text-[10px] font-bold px-4 py-2 rounded-lg">لا</button></div>`;
+            }
             d.innerHTML = html;
             document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999;
         }
@@ -616,17 +626,15 @@
             await setDoc(doc(db, "users", uid), { isTrusted: true }, { merge: true });
             const snap = await getDocs(query(collection(db, "listings"), where("authorId", "==", uid)));
             const batch = writeBatch(db); snap.forEach(doc => { batch.update(doc.ref, { authorTrusted: true }); }); await batch.commit();
-            sendAdminMsg("تم قبول طلب التوثيق ✅.");
+            sendAdminMsg("تم قبول طلب التوثيق ✅. حسابك الآن موثوق.");
             alert("تم التوثيق");
         };
 
         window.rejectVerify = async () => {
-            await sendAdminMsg("عذراً، تم رفض الطلب لعدم استيفاء الشروط.");
-            setTimeout(async () => {
-                await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});
-                document.getElementById('admin-msg-area').innerHTML = '';
-                state.activeAdminChat = null;
-            }, 1000);
+            // Only send message, client handles logic
+            await sendAdminMsg("عذراً، تم رفض الطلب.");
+            await updateDoc(doc(db,"chats",state.activeAdminChat), {status: 'rejected'}); 
+            // We set status to 'rejected' so the user sees the Yes/No question
         };
 
         window.sendAdminMsg=async(txt)=>{const t=txt||document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;if(!txt)document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
