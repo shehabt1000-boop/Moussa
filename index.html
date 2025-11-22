@@ -11,6 +11,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="السوق وياك">
+    
+    <!-- Manifest Link Placeholder -->
     <link id="manifest-link" rel="manifest">
 
 
@@ -259,12 +261,15 @@
         import { getFirestore, doc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
-        // === PWA Configuration ===
+        // === PWA Configuration & Logic (CRITICAL UPDATE) ===
+        // Using window.location.href prevents scope mismatch in single-file/blob environments
+        const currentUrl = window.location.href;
+        
         const pwaManifest = {
           "name": "السوق وياك",
           "short_name": "السوق وياك",
           "description": "خدمة مميزة لعميل مميز",
-          "start_url": "/",
+          "start_url": currentUrl, 
           "display": "standalone",
           "background_color": "#ffffff",
           "theme_color": "#ffffff",
@@ -284,6 +289,8 @@
             }
           ]
         };
+
+
         const stringManifest = JSON.stringify(pwaManifest);
         const blob = new Blob([stringManifest], {type: 'application/json'});
         const manifestURL = URL.createObjectURL(blob);
@@ -291,12 +298,14 @@
 
 
         let deferredPrompt;
+        
+        // Handle the PWA Install Prompt
         window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('PWA Event Fired');
             e.preventDefault();
             deferredPrompt = e;
-            if(!localStorage.getItem('pwa_installed')) {
-                document.getElementById('pwa-install-toast').classList.remove('hidden');
-            }
+            // Removed localStorage check to force show for debugging
+            document.getElementById('pwa-install-toast').classList.remove('hidden');
         });
 
 
@@ -304,11 +313,14 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
+                console.log('User choice:', outcome);
                 if (outcome === 'accepted') {
-                    localStorage.setItem('pwa_installed', 'true');
+                    // localStorage.setItem('pwa_installed', 'true');
                 }
                 deferredPrompt = null;
                 document.getElementById('pwa-install-toast').classList.add('hidden');
+            } else {
+                alert('لا يمكن التثبيت حالياً. تأكد من فتح الموقع في متصفح (Chrome/Edge) وليس داخل تطبيق آخر.');
             }
         }
 
@@ -316,6 +328,84 @@
         window.closeInstall = () => {
             document.getElementById('pwa-install-toast').classList.add('hidden');
         }
+
+
+        // === Service Worker (Updated for Better Scope Handling) ===
+        const CACHE_NAME = 'souq-cache-v2'; // Incremented version
+        const STATIC_ASSETS = [
+            currentUrl,
+            'https://cdn.tailwindcss.com',
+            'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap',
+            'https://unpkg.com/lucide@latest',
+            'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js',
+            'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js',
+            'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js'
+        ];
+
+
+        // Service Worker Code (Injected via Blob)
+        const swContent = `
+            const CACHE_NAME = '${CACHE_NAME}';
+            const STATIC_ASSETS = ${JSON.stringify(STATIC_ASSETS)};
+            
+            // Install & Claim immediately
+            self.addEventListener('install', (event) => {
+                self.skipWaiting(); // Force active
+                event.waitUntil(
+                    caches.open(CACHE_NAME).then((cache) => {
+                        return cache.addAll(STATIC_ASSETS).catch(err => console.warn('Cache partial fail', err));
+                    })
+                );
+            });
+
+
+            self.addEventListener('activate', (event) => {
+                event.waitUntil(clients.claim()); // Control page immediately
+                event.waitUntil(
+                    caches.keys().then((cacheNames) => {
+                        return Promise.all(
+                            cacheNames.map((cacheName) => {
+                                if (cacheName !== CACHE_NAME) return caches.delete(cacheName);
+                            })
+                        );
+                    })
+                );
+            });
+
+
+            self.addEventListener('fetch', (event) => {
+                // Simplified fetch strategy for stability
+                if (event.request.url.includes('firestore')) return;
+                
+                event.respondWith(
+                    caches.match(event.request).then(response => {
+                        return response || fetch(event.request);
+                    })
+                );
+            });
+        `;
+
+
+        function registerSW() {
+            if ('serviceWorker' in navigator) {
+                const blob = new Blob([swContent], {type: 'application/javascript'});
+                const swURL = URL.createObjectURL(blob);
+                
+                // Try to register (Scope is tricky with Blobs, but we do our best)
+                navigator.serviceWorker.register(swURL)
+                    .then((reg) => {
+                        console.log('SW Registered', reg);
+                        // Force update
+                        reg.update();
+                    })
+                    .catch((error) => console.log('SW Failed', error));
+            }
+        }
+        // Register immediately
+        registerSW();
+        // === End Service Worker ===
+
+
 
 
         // === Firebase & App Logic ===
@@ -391,102 +481,6 @@
             "منتجات الاطفال": "https://images.pexels.com/photos/26337029/pexels-photo-26337029.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
             "اقمشة": "https://images.pexels.com/photos/34636582/pexels-photo-34636582.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop"
         };
-
-
-        // === Service Worker (Caching) ===
-        const CACHE_NAME = 'souq-cache-v1';
-        const STATIC_ASSETS = [
-            '/', 
-            'https://cdn.tailwindcss.com',
-            'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap',
-            'https://unpkg.com/lucide@latest',
-            'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js',
-            'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js',
-            'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js',
-            'https://cdn-icons-png.flaticon.com/512/641/641813.png'
-        ];
-
-
-        const swContent = `
-            const CACHE_NAME = '${CACHE_NAME}';
-            const STATIC_ASSETS = ${JSON.stringify(STATIC_ASSETS)};
-            const CATEGORY_IMAGES_URLS = ${JSON.stringify(Object.values(CATEGORY_IMAGES))};
-            
-            self.addEventListener('install', (event) => {
-                console.log('SW Install');
-                event.waitUntil(
-                    caches.open(CACHE_NAME).then((cache) => {
-                        console.log('SW: Caching App Shell');
-                        const assetsToCache = [...STATIC_ASSETS, ...CATEGORY_IMAGES_URLS];
-                        return cache.addAll(assetsToCache).catch(err => {
-                            console.warn('SW: Failed to cache some assets during install.', err);
-                        });
-                    })
-                );
-            });
-
-
-            self.addEventListener('activate', (event) => {
-                console.log('SW Activate');
-                const cacheWhitelist = [CACHE_NAME];
-                event.waitUntil(
-                    caches.keys().then((cacheNames) => {
-                        return Promise.all(
-                            cacheNames.map((cacheName) => {
-                                if (cacheWhitelist.indexOf(cacheName) === -1) {
-                                    console.log('SW: Deleting old cache', cacheName);
-                                    return caches.delete(cacheName);
-                                }
-                            })
-                        );
-                    })
-                );
-            });
-
-
-            self.addEventListener('fetch', (event) => {
-                const { request } = event;
-                if (request.url.includes('firestore.googleapis.com')) {
-                    event.respondWith(fetch(request));
-                    return;
-                }
-
-
-                event.respondWith(
-                    caches.open(CACHE_NAME).then((cache) => {
-                        return cache.match(request).then((cachedResponse) => {
-                            const fetchPromise = fetch(request).then((networkResponse) => {
-                                cache.put(request, networkResponse.clone());
-                                return networkResponse;
-                            }).catch(err => {
-                                console.warn('SW: Fetch failed', err, request.url);
-                                return cachedResponse;
-                            });
-                            
-                            return cachedResponse || fetchPromise;
-                        });
-                    })
-                );
-            });
-        `;
-
-
-        function registerSW() {
-            if ('serviceWorker' in navigator) {
-                const blob = new Blob([swContent], {type: 'application/javascript'});
-                const swURL = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swURL)
-                    .then((registration) => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    }).catch((error) => {
-                        console.log('ServiceWorker registration failed: ', error);
-                    });
-            }
-        }
-        window.addEventListener('load', registerSW);
-        // === End Service Worker ===
-
-
 
 
         function preloadCategoryImages() {
@@ -1154,4 +1148,5 @@
     </script>
 </body>
 </html>
+
 
