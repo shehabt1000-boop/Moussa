@@ -36,8 +36,8 @@
             font-family: 'Cairo', sans-serif; 
             -webkit-tap-highlight-color: transparent;
             padding-bottom: 100px;
-            overscroll-behavior-y: none;
             background-color: #f8fafc;
+            /* تم إزالة overflow: hidden من هنا لإصلاح التمرير */
         }
         .dark body { background-color: #0f172a; }
 
@@ -91,14 +91,25 @@
             box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); 
         }
 
+        /* Filter Sheet Animation */
+        @keyframes slideUpFilter { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .filter-sheet-content { animation: slideUpFilter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .install-banner { animation: slideUp 0.3s ease-out forwards; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
+<!-- تم إضافة كلاس overflow-hidden بشكل مبدئي فقط، وسيتم إزالته بالجافاسكربت -->
+<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none overflow-hidden">
+
+    <!-- INITIAL APP LOADER (يظهر أول شيء) -->
+    <div id="app-loader" class="fixed inset-0 z-[10000] bg-slate-50 dark:bg-navy flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+        <h1 class="font-black text-xl text-navy dark:text-white">السوق <span class="text-primary">وياك</span></h1>
+    </div>
 
     <!-- AUTH MODAL (صفحة التسجيل/الدخول) -->
-    <div id="auth-overlay" class="fixed inset-0 z-[200] bg-slate-100 dark:bg-navy flex items-center justify-center p-4 hidden">
+    <div id="auth-overlay" class="fixed inset-0 z-[9999] bg-slate-100 dark:bg-navy flex items-center justify-center p-4 hidden">
         <div class="w-full max-w-md bg-white dark:bg-darkbg p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 relative max-h-[90vh] overflow-y-auto">
             
             <!-- الشعار -->
@@ -110,8 +121,8 @@
                 <p class="text-slate-500 dark:text-slate-400 text-xs font-bold">بوابة الدخول الموحدة</p>
             </div>
 
-            <!-- تبديل الدور (عميل / مسوق) - يظهر فقط عند إنشاء حساب -->
-            <div id="role-switcher" class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-4 border border-slate-200 dark:border-slate-700">
+            <!-- تبديل الدور -->
+            <div id="role-switcher" class="hidden bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-4 border border-slate-200 dark:border-slate-700">
                 <button onclick="setAuthRole('customer')" id="btn-role-customer" class="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all bg-navy text-white shadow-md">
                     <div class="flex items-center justify-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> عميل</div>
                 </button>
@@ -123,11 +134,11 @@
             <!-- نموذج البيانات -->
             <div class="space-y-4">
                 
-                <!-- رفع الصورة (يظهر للكل الآن عند إنشاء الحساب) -->
-                <div id="auth-image-field" class="flex flex-col items-center gap-2 transition-all duration-300">
-                    <div class="relative group cursor-pointer">
+                <!-- رفع الصورة -->
+                <div id="auth-image-field" class="hidden flex-col items-center justify-center gap-2 transition-all duration-300 w-full text-center">
+                    <div class="relative group cursor-pointer mx-auto">
                         <input type="file" id="auth-img-input" accept="image/*" onchange="handleAuthImage(this)" class="absolute inset-0 opacity-0 z-10 cursor-pointer">
-                        <div class="w-24 h-24 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-primary/50 flex items-center justify-center overflow-hidden relative hover:bg-primary/5 transition">
+                        <div class="w-24 h-24 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-primary/50 flex items-center justify-center overflow-hidden relative hover:bg-primary/5 transition mx-auto">
                             <img id="auth-img-preview" src="" class="w-full h-full object-cover hidden">
                             <div id="auth-img-placeholder" class="flex flex-col items-center text-slate-400">
                                 <i data-lucide="camera" class="w-8 h-8 mb-1"></i>
@@ -136,7 +147,7 @@
                         </div>
                         <div class="absolute bottom-0 right-0 bg-navy text-white p-1.5 rounded-full shadow-sm pointer-events-none"><i data-lucide="plus" class="w-3 h-3"></i></div>
                     </div>
-                    <span class="text-[10px] text-slate-400 font-bold">الصورة الشخصية (اختياري)</span>
+                    <span class="text-[10px] text-slate-400 font-bold block text-center w-full">الصورة الشخصية (اختياري)</span>
                 </div>
 
                 <!-- الاسم -->
@@ -161,14 +172,14 @@
                 <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700 mt-4">
                     <span class="text-xs font-bold text-slate-500">حالة الحساب:</span>
                     <div class="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 gap-1">
-                        <button onclick="setAuthType('login')" id="btn-type-login" class="px-4 py-1.5 rounded-md text-[11px] font-bold text-slate-500 transition-all hover:text-navy">تسجيل دخول</button>
-                        <button onclick="setAuthType('signup')" id="btn-type-signup" class="px-4 py-1.5 rounded-md text-[11px] font-bold bg-navy text-white shadow transition-all">حساب جديد</button>
+                        <button onclick="setAuthType('login')" id="btn-type-login" class="px-4 py-1.5 rounded-md text-[11px] font-bold bg-navy text-white shadow transition-all">تسجيل دخول</button>
+                        <button onclick="setAuthType('signup')" id="btn-type-signup" class="px-4 py-1.5 rounded-md text-[11px] font-bold text-slate-500 transition-all hover:text-navy">حساب جديد</button>
                     </div>
                 </div>
 
                 <!-- زر التنفيذ -->
                 <button onclick="processAuth()" id="btn-auth-action" class="w-full bg-navy dark:bg-primary text-white py-3.5 rounded-xl font-bold shadow-lg shadow-navy/20 hover:opacity-90 transition-all active:scale-95 mt-2 flex justify-center items-center gap-2 text-sm">
-                    <span>إنشاء حساب جديد</span> <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>دخول للحساب</span> <i data-lucide="log-in" class="w-4 h-4"></i>
                 </button>
 
             </div>
@@ -184,7 +195,7 @@
             <div class="flex flex-col">
                 <div class="flex items-center gap-1">
                     <span class="text-[10px] text-slate-400 font-bold">مرحباً,</span>
-                    <h1 id="header-username" class="font-bold text-xs text-primary">زائر</h1>
+                    <h1 id="header-username" class="font-bold text-xs text-primary">...</h1>
                 </div>
                 <h1 class="font-bold text-base leading-none">السوق <span class="text-primary">وياك</span></h1>
             </div>
@@ -205,10 +216,17 @@
         </div>
 
 
+        <!-- Search Container -->
         <div id="search-container" class="sticky top-16 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-4 pb-3 -mx-4 px-4">
-            <div class="relative max-w-3xl mx-auto">
-                <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-10 pl-4 !border-2 !border-black dark:!border-slate-500 shadow-lg">
-                <i data-lucide="search" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+            <div class="relative max-w-3xl mx-auto flex gap-2">
+                <div class="relative flex-1">
+                    <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-10 pl-4 !border-2 !border-black dark:!border-slate-500 shadow-lg">
+                    <i data-lucide="search" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                </div>
+                <!-- Filter Button: HIDDEN BY DEFAULT -->
+                <button id="filter-btn-container" onclick="toggleFilterSheet()" class="hidden bg-navy dark:bg-primary text-white px-4 rounded-xl shadow-lg items-center justify-center gap-2 hover:opacity-90 transition active:scale-95">
+                    <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+                </button>
             </div>
         </div>
 
@@ -221,7 +239,7 @@
         <div id="grid-container" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4"></div>
 
 
-        <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
+        <div id="loader" class="text-center py-20 hidden"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
         <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
     </main>
 
@@ -261,16 +279,51 @@
                 <div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-2"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
                 <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="اسم المنتج..."></div>
                 <div class="grid grid-cols-2 gap-2 form-group"><div><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="0"></div><div><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input bg-gray-50 !border-2 !border-black dark:!border-slate-500"></select></div></div>
+                
+                <!-- Dynamic Fields (Clothes) -->
                 <div id="dynamic-fields" class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-xl border border-slate-100 dark:border-slate-700 form-group">
                     <div id="field-condition" class="hidden col-span-2"><label class="form-label text-primary">الحالة</label><select id="in-condition" class="form-input !border-2 !border-black dark:!border-slate-500"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
-                    <div id="field-size" class="col-span-2 hidden"><label class="form-label text-primary">المقاس</label><input id="in-size" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="مثال: XL"></div>
+                    <div id="field-size" class="col-span-2 hidden"><label class="form-label text-primary">المقاس (Size)</label><input id="in-size" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="مثال: XL"></div>
+                    <!-- Weight & Height -->
+                    <div id="field-weight" class="hidden"><label class="form-label text-primary">الوزن (كجم)</label><input id="in-weight" type="number" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="مثال: 75"></div>
+                    <div id="field-height" class="hidden"><label class="form-label text-primary">الطول (سم)</label><input id="in-height" type="number" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="مثال: 170"></div>
                 </div>
+
                 <div class="form-group"><label class="form-label">مواصفات:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value=" كوبي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="فاتورة"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">فاتورة</div></label></div></div>
                 <div class="form-group"><label class="form-label">تمييز:</label><div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg"><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1.5 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1.5 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div>
                 <div class="form-group"><label class="form-label">رقم الهاتف</label><input id="in-phone" type="tel" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="01xxxxxxxxx"></div>
                 <div class="form-group"><label class="form-label">الوصف</label><textarea id="in-desc" rows="2" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="تفاصيل..."></textarea></div>
             </div>
             <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-3"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر الآن</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
+        </div>
+    </div>
+
+    <!-- Filter Sheet Modal -->
+    <div id="filter-sheet" class="hidden fixed inset-0 z-[160] bg-black/50 flex flex-col justify-end" onclick="if(event.target === this) toggleFilterSheet()">
+        <div class="bg-white dark:bg-darkbg w-full rounded-t-2xl p-5 pb-safe filter-sheet-content border-t border-slate-200 dark:border-slate-700 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-navy dark:text-white text-lg">فلترة وترتيب</h3>
+                <button onclick="toggleFilterSheet()" class="p-1 bg-slate-100 dark:bg-slate-800 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-2">
+                <button onclick="applyFilterSort('newest')" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-start font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center">
+                    <span>الأحدث (الافتراضي)</span>
+                    <i data-lucide="clock" class="w-4 h-4 opacity-50"></i>
+                </button>
+                <button onclick="applyFilterSort('price_low')" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-start font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center">
+                    <span>السعر: من الأقل للأعلى</span>
+                    <i data-lucide="arrow-up-0-1" class="w-4 h-4 opacity-50"></i>
+                </button>
+                <button onclick="applyFilterSort('price_high')" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-start font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center">
+                    <span>السعر: من الأعلى للأقل</span>
+                    <i data-lucide="arrow-down-1-0" class="w-4 h-4 opacity-50"></i>
+                </button>
+                <!-- زر إلغاء الفلتر -->
+                <button onclick="applyFilterSort('newest')" class="w-full p-3 rounded-xl bg-red-50 text-red-600 text-start font-bold text-sm hover:bg-red-100 flex justify-between items-center mt-2 border border-red-100">
+                    <span>إلغاء الفلتر / إعادة تعيين</span>
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -295,12 +348,15 @@
 
             <div class="flex-1 overflow-y-auto p-5 bg-white dark:bg-darkbg">
                 
-                <!-- Publisher Info (New) -->
+                <!-- Publisher Info with Trusted Logic -->
                 <div class="flex items-center gap-2 mb-3 p-2 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg">
                     <img id="d-author-img" src="https://cdn-icons-png.flaticon.com/512/641/641813.png" class="w-10 h-10 rounded-full object-cover border border-slate-200">
                     <div>
-                        <p id="d-author-name" class="text-xs font-bold text-navy dark:text-white">اسم الناشر</p>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400">ناشر موثوق <i data-lucide="check-circle" class="w-3 h-3 inline text-primary"></i></p>
+                        <div class="flex items-center gap-1">
+                             <p id="d-author-name" class="text-xs font-bold text-navy dark:text-white">اسم الناشر</p>
+                             <i id="d-author-verify" data-lucide="check-circle" class="w-3 h-3 hidden"></i>
+                        </div>
+                        <p id="d-author-status" class="text-[10px] text-slate-500 dark:text-slate-400">...</p>
                     </div>
                 </div>
 
@@ -434,6 +490,7 @@
             welcomeSent: false, 
             favorites: [], 
             currentFilter: 'all', 
+            currentSort: 'newest', // New sort state
             currentItem: null, 
             currentView: 'home',
             lightboxImages: [], 
@@ -442,7 +499,7 @@
             detailsSliderImages: [],
             // === New Auth State ===
             authRole: 'customer', 
-            authType: 'signup', // 'login' or 'signup'
+            authType: 'login', // DEFAULT IS LOGIN
             authImage: null,
             currentUserProfile: null 
         };
@@ -458,6 +515,7 @@
         const SIZE_CATS = [
             "ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", "ادوات رياضية", "اقمشة"
         ];
+        const CLOTHES_CATS = ["ملابس رجالي", "ملابس حريمي", "ملابس اطفال"];
 
 
          const CATEGORY_IMAGES = {
@@ -591,19 +649,27 @@
                     state.currentUserProfile = JSON.parse(storedProfile);
                     finishLogin();
                 } else {
-                    // If no local profile, check DB only if user thinks they are logged in
-                    // But here we just show login if no local data for simplicity in this immersive
-                    document.getElementById('loader').classList.add('hidden');
+                    // User is technically "authenticated" as anonymous, but no profile
+                    // So we hide the APP LOADER, but SHOW the AUTH OVERLAY
+                    document.getElementById('app-loader').classList.add('opacity-0', 'pointer-events-none');
+                    setTimeout(() => { document.getElementById('app-loader').style.display = 'none'; }, 500);
+                    
                     document.getElementById('auth-overlay').classList.remove('hidden');
-                    // Ensure icons are loaded in modal
+                    
+                    // Ensure icons are loaded inside the modal
                     lucide.createIcons();
                 }
             } 
         });
 
         function finishLogin() {
+            const appLoader = document.getElementById('app-loader');
+            appLoader.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => { appLoader.style.display = 'none'; }, 500);
+
             document.getElementById('loader').classList.add('hidden');
             document.getElementById('auth-overlay').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden'); // Enable scrolling by removing the class
             
             if(state.currentUserProfile && state.currentUserProfile.name) {
                 document.getElementById('header-username').innerText = state.currentUserProfile.name;
@@ -621,10 +687,9 @@
             state.authRole = role;
             const btnCust = document.getElementById('btn-role-customer');
             const btnMark = document.getElementById('btn-role-marketer');
-            // NOTE: Image field is always visible now for both, based on your request
 
             if (role === 'customer') {
-                // Updated colors: Active = Navy, Inactive = Slate
+                // Active = Navy, Inactive = Slate
                 btnCust.className = "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all bg-navy text-white shadow-md";
                 btnMark.className = "flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700";
             } else {
@@ -633,6 +698,7 @@
             }
         }
 
+        // UPDATED: Removed lucide.createIcons() and complex logic for better performance
         window.setAuthType = (type) => {
             state.authType = type;
             const btnLogin = document.getElementById('btn-type-login');
@@ -642,27 +708,31 @@
             const roleSwitcher = document.getElementById('role-switcher');
             
             if (type === 'login') {
-                // Active Button: Navy (Blackish)
-                btnLogin.className = "px-4 py-1.5 rounded-md text-[11px] font-bold bg-navy text-white shadow transition-all";
-                btnSignup.className = "px-4 py-1.5 rounded-md text-[11px] font-bold text-slate-500 transition-all hover:text-navy";
+                // Toggle Classes Only
+                btnLogin.classList.remove('text-slate-500', 'hover:text-navy');
+                btnLogin.classList.add('bg-navy', 'text-white', 'shadow');
                 
-                actionBtn.innerHTML = `<span>دخول للحساب</span> <i data-lucide="log-in" class="w-4 h-4"></i>`;
+                btnSignup.classList.remove('bg-navy', 'text-white', 'shadow');
+                btnSignup.classList.add('text-slate-500', 'hover:text-navy');
                 
-                // Login doesn't need image or role selection (usually)
+                actionBtn.innerHTML = `<span>دخول للحساب</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-in w-4 h-4"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>`;
+                
                 imgField.classList.add('hidden');
                 roleSwitcher.classList.add('hidden');
             } else {
-                // Active Button: Navy (Blackish)
-                btnSignup.className = "px-4 py-1.5 rounded-md text-[11px] font-bold bg-navy text-white shadow transition-all";
-                btnLogin.className = "px-4 py-1.5 rounded-md text-[11px] font-bold text-slate-500 transition-all hover:text-navy";
+                btnSignup.classList.remove('text-slate-500', 'hover:text-navy');
+                btnSignup.classList.add('bg-navy', 'text-white', 'shadow');
                 
-                actionBtn.innerHTML = `<span>إنشاء حساب جديد</span> <i data-lucide="plus-circle" class="w-4 h-4"></i>`;
+                btnLogin.classList.remove('bg-navy', 'text-white', 'shadow');
+                btnLogin.classList.add('text-slate-500', 'hover:text-navy');
                 
-                // Signup needs image and role
+                actionBtn.innerHTML = `<span>إنشاء حساب جديد</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-circle w-4 h-4"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>`;
+                
+                // Flex + Centered for Image Field
                 imgField.classList.remove('hidden');
+                imgField.classList.add('flex');
                 roleSwitcher.classList.remove('hidden');
             }
-            lucide.createIcons();
         }
 
         window.handleAuthImage = async (input) => {
@@ -684,22 +754,33 @@
             if (!name || !pass) return showToast("يرجى ملء الاسم وكلمة المرور", "e");
 
             const btn = document.getElementById('btn-auth-action');
+            const originalText = btn.innerHTML;
             btn.innerHTML = "جاري المعالجة...";
             btn.disabled = true;
 
             try {
                 if (state.authType === 'signup') {
-                    // === SIGNUP LOGIC ===
+                    // === SIGNUP LOGIC (Prevent Duplicates) ===
+                    const q = query(collection(db, "users"), where("name", "==", name));
+                    const querySnapshot = await getDocs(q);
+                    
+                    if (!querySnapshot.empty) {
+                         showToast("اسم المستخدم موجود بالفعل، يرجى اختيار اسم آخر", "e");
+                         btn.innerHTML = originalText;
+                         btn.disabled = false;
+                         return;
+                    }
+
                     const profileData = {
                         name: name,
-                        password: pass, // Note: Storing password in plain text for this demo/template request. In production use Auth.
+                        password: pass, 
                         role: state.authRole,
                         image: state.authImage || 'https://cdn-icons-png.flaticon.com/512/641/641813.png',
                         joinedAt: new Date().toISOString(),
-                        uid: state.user.uid
+                        uid: state.user.uid,
+                        isTrusted: false 
                     };
                     
-                    // Save to Firestore (Using UID as key)
                     await setDoc(doc(db, "users", state.user.uid), profileData);
                     localStorage.setItem('souq_user_profile', JSON.stringify(profileData));
                     
@@ -709,13 +790,10 @@
 
                 } else {
                     // === LOGIN LOGIC ===
-                    // Query Firestore for a user with matching Name and Password
-                    // WARNING: This is not secure for real production but fits the template request
                     const q = query(collection(db, "users"), where("name", "==", name), where("password", "==", pass));
                     const querySnapshot = await getDocs(q);
 
                     if (!querySnapshot.empty) {
-                        // User found!
                         const userData = querySnapshot.docs[0].data();
                         localStorage.setItem('souq_user_profile', JSON.stringify(userData));
                         state.currentUserProfile = userData;
@@ -723,7 +801,7 @@
                         finishLogin();
                     } else {
                         showToast("بيانات الدخول غير صحيحة", "e");
-                        btn.innerHTML = `<span>دخول للحساب</span> <i data-lucide="log-in" class="w-4 h-4"></i>`;
+                        btn.innerHTML = originalText;
                         btn.disabled = false;
                     }
                 }
@@ -732,11 +810,7 @@
                 console.error(error);
                 showToast("حدث خطأ، حاول مرة أخرى", "e");
                 btn.disabled = false;
-                if(state.authType === 'signup') {
-                     btn.innerHTML = `<span>إنشاء حساب جديد</span> <i data-lucide="plus-circle" class="w-4 h-4"></i>`;
-                } else {
-                     btn.innerHTML = `<span>دخول للحساب</span> <i data-lucide="log-in" class="w-4 h-4"></i>`;
-                }
+                btn.innerHTML = originalText;
             }
         }
 
@@ -771,7 +845,7 @@
             const searchContainer = document.getElementById('search-container');
             const viewHeader = document.getElementById('view-header');
             const gridContainer = document.getElementById('grid-container');
-
+            const filterBtn = document.getElementById('filter-btn-container');
 
             if (state.currentView === 'home') {
                 viewHeader.classList.add('hidden');
@@ -779,12 +853,13 @@
                 searchContainer.classList.remove('hidden');
                 gridContainer.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4';
                 searchInput.placeholder = 'ابحث عن قسم...';
+                filterBtn.classList.add('hidden'); // HIDE Filter on Home
+                filterBtn.classList.remove('flex');
                 renderCategoryCards();
             } else if (state.currentView === 'category') {
                 viewHeader.classList.remove('hidden');
                 const title = state.currentFilter === 'all' ? 'كل المنتجات' : (state.currentFilter === 'fav' ? 'المفضلة' : state.currentFilter);
                 document.getElementById('view-title').innerText = title;
-
 
                 if (state.currentFilter === 'fav') {
                     searchContainer.classList.add('hidden');
@@ -794,11 +869,14 @@
                     searchInput.placeholder = 'ابحث عن منتج...';
                     if (state.currentFilter === 'all') {
                         catContainer.classList.remove('hidden');
+                        filterBtn.classList.add('flex'); // SHOW Filter on Products
+                        filterBtn.classList.remove('hidden');
                     } else {
                         catContainer.classList.add('hidden');
+                        filterBtn.classList.add('flex');
+                        filterBtn.classList.remove('hidden');
                     }
                 }
-
 
                 gridContainer.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-10';
                 filter(state.currentFilter);
@@ -881,6 +959,22 @@
             }
         };
 
+        // Filter Sheet Logic
+        window.toggleFilterSheet = () => {
+            const sheet = document.getElementById('filter-sheet');
+            sheet.classList.toggle('hidden');
+        }
+
+        window.applyFilterSort = (sortType) => {
+            state.currentSort = sortType;
+            toggleFilterSheet();
+            renderProducts();
+            let msg = 'تم الترتيب: الأحدث';
+            if(sortType === 'price_low') msg = 'تم الترتيب: الأقل سعراً';
+            if(sortType === 'price_high') msg = 'تم الترتيب: الأعلى سعراً';
+            showToast(msg);
+        }
+
 
         window.filter = (type) => { 
             state.currentFilter = type; 
@@ -906,7 +1000,8 @@
             const q = normalizeText(document.getElementById('search-input').value); 
             const cont = document.getElementById('grid-container'); 
             cont.innerHTML = ''; 
-            const filtered = state.listings.filter(item => { 
+            
+            let filtered = state.listings.filter(item => { 
                 let matchType = true; 
                 if (state.currentFilter === 'fav') {
                     matchType = (state.favorites || []).includes(item.id);
@@ -916,6 +1011,14 @@
                 const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); 
                 return matchType && matchText; 
             }); 
+
+            if (state.currentSort === 'price_low') {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (state.currentSort === 'price_high') {
+                filtered.sort((a, b) => b.price - a.price);
+            } else {
+                filtered.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+            }
 
 
             if(!filtered.length) {
@@ -1001,15 +1104,36 @@
             document.getElementById('d-desc').innerText = item.desc;
             document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
 
-            // Show Author Info
+            // Show Author Info & Verify Status
             document.getElementById('d-author-name').innerText = item.authorName || 'ناشر غير معروف';
             document.getElementById('d-author-img').src = item.authorImage || 'https://cdn-icons-png.flaticon.com/512/641/641813.png';
+            
+            const verifyIcon = document.getElementById('d-author-verify');
+            const statusText = document.getElementById('d-author-status');
+            
+            if (item.authorTrusted === true) {
+                verifyIcon.classList.remove('hidden');
+                verifyIcon.classList.add('text-primary', 'inline');
+                statusText.innerHTML = `ناشر موثوق <span class="text-primary">✓</span>`;
+                statusText.classList.remove('text-slate-500');
+                statusText.classList.add('text-navy', 'font-bold');
+            } else {
+                verifyIcon.classList.add('hidden');
+                verifyIcon.classList.remove('text-primary');
+                statusText.innerText = "عضو جديد / غير موثوق";
+                statusText.classList.add('text-slate-500');
+                statusText.classList.remove('text-navy', 'font-bold');
+            }
 
 
             const amCont = document.getElementById('d-features'); 
             amCont.innerHTML=''; 
             if(item.features) item.features.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1 border border-slate-200 dark:border-slate-600 font-bold">${a}</span>`);
             if(item.size) amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">مقاس: ${item.size}</span>`;
+            
+            // Show Weight & Height if available
+            if(item.weight) amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">الوزن: ${item.weight} كجم</span>`;
+            if(item.height) amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">الطول: ${item.height} سم</span>`;
 
 
             document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; 
@@ -1087,6 +1211,11 @@
             const cat = document.getElementById('in-cat').value;
             document.getElementById('field-condition').classList.toggle('hidden', !USED_CATS.includes(cat));
             document.getElementById('field-size').classList.toggle('hidden', !SIZE_CATS.includes(cat));
+            
+            // Weight & Height for Clothes
+            const isClothes = CLOTHES_CATS.includes(cat);
+            document.getElementById('field-weight').classList.toggle('hidden', !isClothes);
+            document.getElementById('field-height').classList.toggle('hidden', !isClothes);
         }
 
 
@@ -1099,11 +1228,14 @@
             const cond=document.getElementById('in-condition').value;
             const cat=document.getElementById('in-cat').value;
             const size=document.getElementById('in-size').value;
+            const weight=document.getElementById('in-weight').value;
+            const height=document.getElementById('in-height').value;
             const feats=[]; document.querySelectorAll('.chip-checkbox:checked').forEach(c=>feats.push(c.value));
             
-            // Include Author Data (Name & Image) in Listing
+            // Include Author Data & Trusted Status
             const authorName = state.currentUserProfile ? state.currentUserProfile.name : 'مجهول';
             const authorImage = state.currentUserProfile ? state.currentUserProfile.image : 'https://cdn-icons-png.flaticon.com/512/641/641813.png';
+            const authorTrusted = state.currentUserProfile ? (state.currentUserProfile.isTrusted || false) : false;
             
             await addDoc(collection(db,"listings"),{
                 title:document.getElementById('in-title').value,
@@ -1111,6 +1243,8 @@
                 category:cat,
                 condition:cond,
                 size:size,
+                weight:weight, // Added
+                height:height, // Added
                 phone:document.getElementById('in-phone').value,
                 desc:document.getElementById('in-desc').value,
                 features:feats,
@@ -1119,8 +1253,9 @@
                 status:'available',
                 createdAt:serverTimestamp(),
                 authorId:state.user.uid,
-                authorName: authorName, // Added
-                authorImage: authorImage // Added
+                authorName: authorName,
+                authorImage: authorImage,
+                authorTrusted: authorTrusted 
             });
 
             showToast('تم النشر بنجاح');
@@ -1135,7 +1270,12 @@
         window.toggleStatus=async(e,id,currentStatus)=>{e.stopPropagation();let nextStatus=currentStatus==='available'?'sold':'available';await updateDoc(doc(db,"listings",id),{status:nextStatus});showToast(`تم تغيير الحالة إلى: ${nextStatus==='available'?'متاح':'مُباع'}`)};
 
 
-        function checkAdminStatus() { if(localStorage.getItem('souq_admin') === 'true') { state.isAdmin = true; document.getElementById('btn-admin-top').classList.remove('hidden'); } }
+        function checkAdminStatus() { 
+            if(localStorage.getItem('souq_admin') === 'true') { 
+                state.isAdmin = true; 
+                document.getElementById('btn-admin-top').classList.remove('hidden'); 
+            } 
+        }
 
 
         window.toggleDarkMode = () => { 
@@ -1238,6 +1378,8 @@
                 document.getElementById('in-title').value = '';
                 document.getElementById('in-price').value = '';
                 document.getElementById('in-size').value = '';
+                document.getElementById('in-weight').value = '';
+                document.getElementById('in-height').value = '';
                 document.getElementById('in-phone').value = '';
                 document.getElementById('in-desc').value = '';
                 document.getElementById('in-cat').selectedIndex = 0;
@@ -1253,7 +1395,27 @@
         
         function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
         
-        window.toggleChat=()=>{if(toggleModal('chat-modal')){if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){state.welcomeSent=true;setTimeout(()=>botMsg('مرحباً بك 👋<br>اخبرني باسمك لمساعدتك؟'),100)}}};
+        window.toggleChat=()=>{
+            if(toggleModal('chat-modal')){
+                if(!state.chatId && state.chatStep === 0 && !state.welcomeSent){
+                    state.welcomeSent = true;
+                    
+                    // Use User Name if available
+                    let welcomeMsg = 'مرحباً بك 👋<br>كيف يمكنني مساعدتك؟';
+                    if(state.currentUserProfile && state.currentUserProfile.name) {
+                        welcomeMsg = `أهلاً بك يا ${state.currentUserProfile.name} 👋<br>كيف يمكنني مساعدتك؟`;
+                        // Auto-set temp name so we skip the name asking step
+                        state.tempName = state.currentUserProfile.name;
+                        state.chatStep = 1; // Skip asking for name
+                    } else {
+                        // Ask for name if not logged in (guest)
+                        welcomeMsg = 'مرحباً بك 👋<br>اخبرني باسمك لمساعدتك؟';
+                    }
+                    
+                    setTimeout(()=>botMsg(welcomeMsg), 100);
+                }
+            }
+        };
 
 
         window.sendMsg=async()=>{
@@ -1265,10 +1427,12 @@
 
             if(!state.chatId){
                 if(state.chatStep===0){
+                    // User providing name (Guest flow)
                     state.tempName=t;
                     state.chatStep=1;
                     setTimeout(()=>botMsg(`أهلاً بك،  ما استفسارك؟لتحويلك للدعم الفني مباشرة`),200);
                 } else if(state.chatStep===1){
+                    // User asking question
                     state.chatStep=2;
                     try {
                         const r=await addDoc(collection(db,"chats"),{
@@ -1333,4 +1497,5 @@
     </script>
 </body>
 </html>
+
 
