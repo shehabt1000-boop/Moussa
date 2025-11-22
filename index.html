@@ -37,8 +37,7 @@
             -webkit-tap-highlight-color: transparent;
             padding-bottom: 100px;
             background-color: #f8fafc;
-            /* تم إزالة أي قفل للتمرير نهائياً */
-            overflow-x: hidden; 
+            /* تم حذف overflow: hidden نهائياً لضمان التمرير */
         }
         .dark body { background-color: #0f172a; }
 
@@ -53,7 +52,6 @@
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* Modal Styling - Fixed Position but allow internal scroll */
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         @media (min-width: 768px) { 
@@ -150,10 +148,11 @@
             </div>
         </div>
         <div class="flex gap-2 items-center">
-            <a href="https://wa.me/201206244875" target="_blank" class="p-2 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 border border-green-100 dark:border-green-900/50 transition shadow-sm cursor-pointer"><i data-lucide="message-circle" class="w-5 h-5"></i></a>
-            <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition cursor-pointer"><i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i></button>
-            <button onclick="toggleFavView()" class="p-2 rounded-full bg-red-50 dark:bg-slate-800 text-red-500 hover:bg-red-100 relative transition cursor-pointer"><i data-lucide="heart" class="w-5 h-5"></i><span id="fav-count" class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white dark:border-darkbg hidden"></span></button>
-            <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-white cursor-pointer"><i data-lucide="shield" class="w-5 h-5"></i></button>
+            <a href="https://wa.me/201206244875" target="_blank" class="p-2 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 border border-green-100 dark:border-green-900/50 transition shadow-sm"><i data-lucide="message-circle" class="w-5 h-5"></i></a>
+            <!-- Added z-50 and cursor-pointer explicitly to ensure clickability -->
+            <button onclick="window.toggleDarkMode()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition cursor-pointer z-50"><i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i></button>
+            <button onclick="window.toggleFavView()" class="p-2 rounded-full bg-red-50 dark:bg-slate-800 text-red-500 hover:bg-red-100 relative transition cursor-pointer z-50"><i data-lucide="heart" class="w-5 h-5"></i><span id="fav-count" class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white dark:border-darkbg hidden"></span></button>
+            <button onclick="window.toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-white cursor-pointer z-50"><i data-lucide="shield" class="w-5 h-5"></i></button>
         </div>
     </header>
 
@@ -206,7 +205,19 @@
                 
                 <!-- Dynamic Fields Container -->
                 <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 form-group space-y-3 hidden">
-                    <!-- Condition (Not for clothes) -->
+                    
+                    <!-- Device Type Selector (Electronics Only) -->
+                    <div id="field-elec-type" class="hidden">
+                        <label class="form-label text-primary">نوع الجهاز</label>
+                        <select id="in-elec-type" onchange="updateElecFields()" class="form-input !border-2 !border-black dark:!border-slate-500">
+                            <option value="phone">هاتف ذكي (Mobile)</option>
+                            <option value="laptop">كمبيوتر / لابتوب</option>
+                            <option value="tablet">تابلت / آيباد</option>
+                            <option value="accessories">اكسسوارات</option>
+                        </select>
+                    </div>
+
+                    <!-- Condition (Hidden for Clothes/Shoes) -->
                     <div id="field-condition" class="hidden"><label class="form-label text-primary">الحالة</label><select id="in-condition" class="form-input !border-2 !border-black dark:!border-slate-500"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
                     
                     <!-- SIZES -->
@@ -217,28 +228,57 @@
 
                     <!-- CLOTHES RANGES (From - To) -->
                     <div id="field-clothes-ranges" class="hidden grid grid-cols-2 gap-3">
-                        <div class="col-span-2 sm:col-span-1"><label class="form-label text-primary">الوزن (كجم)</label><div class="flex gap-2 items-center"><input id="in-weight-from" type="number" class="form-input text-center !px-1" placeholder="من"><span class="font-bold text-slate-400">-</span><input id="in-weight-to" type="number" class="form-input text-center !px-1" placeholder="إلى"></div></div>
-                        <div class="col-span-2 sm:col-span-1"><label class="form-label text-primary">الطول (سم)</label><div class="flex gap-2 items-center"><input id="in-height-from" type="number" class="form-input text-center !px-1" placeholder="من"><span class="font-bold text-slate-400">-</span><input id="in-height-to" type="number" class="form-input text-center !px-1" placeholder="إلى"></div></div>
-                        <div id="subfield-age" class="col-span-2 hidden"><label class="form-label text-primary">العمر (سنة)</label><div class="flex gap-2 items-center"><input id="in-age-from" type="number" class="form-input text-center !px-1" placeholder="من"><span class="font-bold text-slate-400">-</span><input id="in-age-to" type="number" class="form-input text-center !px-1" placeholder="إلى"></div></div>
+                        <!-- Weight -->
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="form-label text-primary">الوزن (كجم)</label>
+                            <div class="flex gap-2 items-center">
+                                <input id="in-weight-from" type="number" class="form-input text-center !px-1" placeholder="من">
+                                <span class="font-bold text-slate-400">-</span>
+                                <input id="in-weight-to" type="number" class="form-input text-center !px-1" placeholder="إلى">
+                            </div>
+                        </div>
+                        <!-- Height -->
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="form-label text-primary">الطول (سم)</label>
+                            <div class="flex gap-2 items-center">
+                                <input id="in-height-from" type="number" class="form-input text-center !px-1" placeholder="من">
+                                <span class="font-bold text-slate-400">-</span>
+                                <input id="in-height-to" type="number" class="form-input text-center !px-1" placeholder="إلى">
+                            </div>
+                        </div>
+                        <!-- Age (Kids Only) -->
+                        <div id="subfield-age" class="col-span-2 hidden">
+                            <label class="form-label text-primary">العمر (سنة)</label>
+                            <div class="flex gap-2 items-center">
+                                <input id="in-age-from" type="number" class="form-input text-center !px-1" placeholder="من">
+                                <span class="font-bold text-slate-400">-</span>
+                                <input id="in-age-to" type="number" class="form-input text-center !px-1" placeholder="إلى">
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- ELECTRONICS FIELDS (SMART) -->
+                    <!-- ELECTRONICS DYNAMIC SPECS -->
                     <div id="field-elec-specs" class="hidden grid grid-cols-2 gap-2">
-                        <div class="col-span-2"><label class="form-label text-primary">نوع الجهاز</label><select id="in-elec-type" onchange="updateElecFields()" class="form-input bg-white"><option value="phone">هاتف (Mobile)</option><option value="tablet">تابلت / آيباد</option><option value="laptop">لابتوب</option><option value="desktop">كمبيوتر (PC)</option><option value="console">ألعاب (Console)</option><option value="access">اكسسوارات</option></select></div>
-                        
-                        <!-- Fields dependent on Type -->
-                        <div id="elec-sub-storage" class="col-span-1"><label class="form-label text-primary">المساحة</label><select id="in-storage" class="form-input"><option value="">اختر...</option><option value="64GB">64GB</option><option value="128GB">128GB</option><option value="256GB">256GB</option><option value="512GB">512GB</option><option value="1TB">1TB+</option></select></div>
-                        <div id="elec-sub-ram" class="col-span-1"><label class="form-label text-primary">الرام</label><select id="in-ram" class="form-input"><option value="">اختر...</option><option value="4GB">4GB</option><option value="8GB">8GB</option><option value="16GB">16GB</option><option value="32GB">32GB+</option></select></div>
-                        <div id="elec-sub-battery" class="col-span-2"><label class="form-label text-primary">حالة البطارية %</label><input id="in-battery" type="number" class="form-input" placeholder="مثال: 90"></div>
-                        <div id="elec-sub-cpu" class="col-span-2 hidden"><label class="form-label text-primary">المعالج (Processor)</label><input id="in-cpu" type="text" class="form-input" placeholder="مثال: Core i7 / M1"></div>
-                        <div id="elec-sub-gpu" class="col-span-2 hidden"><label class="form-label text-primary">كارت الشاشة</label><input id="in-gpu" type="text" class="form-input" placeholder="مثال: RTX 3060"></div>
+                        <!-- Fields toggled by JS based on sub-type -->
+                        <div class="spec-field" data-for="phone tablet laptop"><label class="form-label text-primary">المساحة (Storage)</label><select id="in-storage" class="form-input"><option value="">اختر...</option><option value="64GB">64GB</option><option value="128GB">128GB</option><option value="256GB">256GB</option><option value="512GB">512GB</option><option value="1TB">1TB</option></select></div>
+                        <div class="spec-field" data-for="phone tablet laptop"><label class="form-label text-primary">الرام (RAM)</label><select id="in-ram" class="form-input"><option value="">اختر...</option><option value="4GB">4GB</option><option value="6GB">6GB</option><option value="8GB">8GB</option><option value="16GB">16GB</option><option value="32GB">32GB</option></select></div>
+                        <div class="spec-field col-span-2" data-for="phone tablet"><label class="form-label text-primary">حالة البطارية %</label><input id="in-battery" type="number" class="form-input" placeholder="مثال: 85"></div>
+                        <div class="spec-field col-span-2" data-for="laptop"><label class="form-label text-primary">المعالج (Processor)</label><input id="in-processor" type="text" class="form-input" placeholder="مثال: Core i5 / M1"></div>
+                        <div class="spec-field col-span-2" data-for="laptop"><label class="form-label text-primary">كارت الشاشة (GPU)</label><input id="in-gpu" type="text" class="form-input" placeholder="مثال: NVIDIA RTX 3050"></div>
                     </div>
 
                     <!-- BEAUTY FIELDS -->
-                    <div id="field-beauty-specs" class="hidden"><label class="form-label text-primary">الحجم (مل)</label><input id="in-volume" type="number" class="form-input" placeholder="مثال: 100"></div>
+                    <div id="field-beauty-specs" class="hidden">
+                        <label class="form-label text-primary">الحجم (مل)</label>
+                        <input id="in-volume" type="number" class="form-input" placeholder="مثال: 100">
+                    </div>
 
                     <!-- FURNITURE FIELDS -->
-                    <div id="field-furniture-specs" class="hidden"><label class="form-label text-primary">الأبعاد (طول x عرض x ارتفاع)</label><input id="in-dimensions" type="text" class="form-input" placeholder="مثال: 200x150x50 سم"></div>
+                    <div id="field-furniture-specs" class="hidden">
+                        <label class="form-label text-primary">الأبعاد (طول x عرض x ارتفاع)</label>
+                        <input id="in-dimensions" type="text" class="form-input" placeholder="مثال: 200x150x50 سم">
+                    </div>
+
                 </div>
 
                 <div class="form-group"><label class="form-label">مواصفات:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value=" كوبي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="فاتورة"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">فاتورة</div></label></div></div>
@@ -316,18 +356,29 @@
         const firebaseConfig = { apiKey: "AIzaSyC7zHuH8LK-yQAKG-Nm7dh31fXtVLxuCLM", authDomain: "sharqia-81030.firebaseapp.com", databaseURL: "https://sharqia-81030-default-rtdb.firebaseio.com", projectId: "sharqia-81030", storageBucket: "sharqia-81030.firebasestorage.app", messagingSenderId: "581888625195", appId: "1:581888625195:web:1667ba1e439e8e6c1fb86e" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app); const auth = getAuth(app);
 
+        // Attach to window for HTML access
+        window.toggleDarkMode = () => { 
+            document.documentElement.classList.toggle('dark'); 
+            localStorage.setItem('souq_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); 
+            lucide.createIcons();
+        };
+        window.toggleFavView = () => { state.currentView='category'; state.currentFilter='fav'; renderView(); showToast("المفضلة ❤️"); };
+        window.toggleAdminPanel = () => { document.getElementById('admin-panel').classList.toggle('hidden'); if(!document.getElementById('admin-panel').classList.contains('hidden')) refreshAdmin(); };
+
+        if(localStorage.getItem('souq_theme') === 'dark') document.documentElement.classList.add('dark');
+
         let state = { user: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, activeAdminUser: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentSort: 'newest', currentItem: null, currentView: 'home', lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImage: null, currentUserProfile: null };
 
         const CATEGORIES = ["ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "برفانات رجالي وحريمي", "الحقائب الشخصية", "النظارات", "مستحضرات التجميل", "ادوات حلاقة للرجال", "مكملات غذائية", "ادوات رياضية", "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة", "أثاث منزلي", "إلكترونيات"];
         
+        // Config for Smart Fields
         const FIELD_CONFIG = {
-            'clothes_adult': { condition:false, sizes:true, clothes_range:true },
-            'clothes_kids': { condition:false, sizes:true, clothes_range:true, age:true },
-            'shoes': { condition:false, sizes:true },
-            'elec': { condition:true, elec_specs:true },
+            'clothes_adult': { condition:false, sizes:true, clothes_range:true }, // No condition for clothes
+            'clothes_kids': { condition:false, sizes:true, clothes_range:true, age:true }, // No condition for clothes
+            'shoes': { condition:false, sizes:true }, // No condition for shoes
+            'elec': { condition:true, elec_specs:true, elec_type:true },
             'beauty': { condition:false, beauty_specs:true },
-            'furniture': { condition:true, furniture_specs:true },
-            'general': { condition:true }
+            'furniture': { condition:true, furniture_specs:true }
         };
 
         const CAT_TYPE_MAP = {
@@ -343,7 +394,11 @@
             'shoes': ['36','37','38','39','40','41','42','43','44','45']
         };
 
-        const CATEGORY_IMAGES = { "ملابس رجالي": "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=300&auto=format&fit=crop", "برفانات رجالي وحريمي": "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=300&auto=format&fit=crop", "النظارات": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=300&auto=format&fit=crop", "مستحضرات التجميل": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=300&auto=format&fit=crop", "ادوات حلاقة للرجال": "https://images.unsplash.com/photo-1621607512214-68297480165e?q=80&w=300&auto=format&fit=crop", "مكملات غذائية": "https://images.unsplash.com/photo-1581009137042-c552e485697a?q=80&w=300&auto=format&fit=crop", "احذية حريمي": "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop", "ادوات رياضية": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=300&auto=format&fit=crop", "ملابس حريمي": "https://images.pexels.com/photos/3772506/pexels-photo-3772506.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "احذية رجالي": "https://images.pexels.com/photos/5264901/pexels-photo-5264901.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "احذية اطفال": "https://images.pexels.com/photos/29737094/pexels-photo-29737094.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "ملابس اطفال": "https://images.pexels.com/photos/1620758/pexels-photo-1620758.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات رجالي": "https://images.pexels.com/photos/3766112/pexels-photo-3766112.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات حريمي": "https://images.pexels.com/photos/17568000/pexels-photo-17568000.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات اطفال": "https://images.pexels.com/photos/2848522/pexels-photo-2848522.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الحقائب الشخصية": "https://images.pexels.com/photos/1986996/pexels-photo-1986996.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الهدايا الشخصية": "https://images.pexels.com/photos/19066549/pexels-photo-19066549.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الهدايا والالعاب": "https://images.pexels.com/photos/4491662/pexels-photo-4491662.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "منتجات العناية بالبشرة": "https://images.pexels.com/photos/10117729/pexels-photo-10117729.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "منتجات الاطفال": "https://images.pexels.com/photos/26337029/pexels-photo-26337029.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اقمشة": "https://images.pexels.com/photos/34636582/pexels-photo-34636582.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "إلكترونيات": "https://images.pexels.com/photos/326503/pexels-photo-326503.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "أثاث منزلي": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=300&auto=format&fit=crop" };
+        // Updated Images
+        const CATEGORY_IMAGES = { 
+            "إلكترونيات": "https://images.pexels.com/photos/3568520/pexels-photo-3568520.jpeg?auto=compress&cs=tinysrgb&w=400",
+            "ملابس رجالي": "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=300&auto=format&fit=crop", "برفانات رجالي وحريمي": "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=300&auto=format&fit=crop", "النظارات": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=300&auto=format&fit=crop", "مستحضرات التجميل": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=300&auto=format&fit=crop", "ادوات حلاقة للرجال": "https://images.unsplash.com/photo-1621607512214-68297480165e?q=80&w=300&auto=format&fit=crop", "مكملات غذائية": "https://images.unsplash.com/photo-1581009137042-c552e485697a?q=80&w=300&auto=format&fit=crop", "احذية حريمي": "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop", "ادوات رياضية": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=300&auto=format&fit=crop", "ملابس حريمي": "https://images.pexels.com/photos/3772506/pexels-photo-3772506.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "احذية رجالي": "https://images.pexels.com/photos/5264901/pexels-photo-5264901.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "احذية اطفال": "https://images.pexels.com/photos/29737094/pexels-photo-29737094.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "ملابس اطفال": "https://images.pexels.com/photos/1620758/pexels-photo-1620758.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات رجالي": "https://images.pexels.com/photos/3766112/pexels-photo-3766112.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات حريمي": "https://images.pexels.com/photos/17568000/pexels-photo-17568000.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات اطفال": "https://images.pexels.com/photos/2848522/pexels-photo-2848522.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الحقائب الشخصية": "https://images.pexels.com/photos/1986996/pexels-photo-1986996.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الهدايا الشخصية": "https://images.pexels.com/photos/19066549/pexels-photo-19066549.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الهدايا والالعاب": "https://images.pexels.com/photos/4491662/pexels-photo-4491662.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "منتجات العناية بالبشرة": "https://images.pexels.com/photos/10117729/pexels-photo-10117729.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "منتجات الاطفال": "https://images.pexels.com/photos/26337029/pexels-photo-26337029.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اقمشة": "https://images.pexels.com/photos/34636582/pexels-photo-34636582.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "أثاث منزلي": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=300&auto=format&fit=crop" 
+        };
 
         function registerSW(){if('serviceWorker'in navigator){const blob=new Blob([`const CACHE_NAME='souq-cache-v1';self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(['/','https://cdn.tailwindcss.com','https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap','https://unpkg.com/lucide@latest'])))})`],{type:'application/javascript'});navigator.serviceWorker.register(URL.createObjectURL(blob))}}window.addEventListener('load',registerSW);
         function preloadCategoryImages(){Object.values(CATEGORY_IMAGES).forEach(u=>{(new Image()).src=u})}preloadCategoryImages();
@@ -373,7 +428,6 @@
         function finishLogin() {
             const l = document.getElementById('app-loader'); l.classList.add('opacity-0','pointer-events-none'); setTimeout(()=>l.style.display='none',500);
             document.getElementById('loader').classList.add('hidden'); document.getElementById('auth-overlay').classList.add('hidden'); 
-            
             if(state.currentUserProfile?.name) document.getElementById('header-username').innerText = state.currentUserProfile.name;
             initCats(); loadListings(); checkUserChat(); initFavs(); checkAdminStatus(); 
         }
@@ -390,7 +444,7 @@
         function renderCategoryCards(){const q=normalizeText(document.getElementById('search-input').value),c=document.getElementById('grid-container');c.innerHTML='';const f=CATEGORIES.filter(x=>normalizeText(x).includes(q));if(!f.length)document.getElementById('empty-state').classList.remove('hidden');else{document.getElementById('empty-state').classList.add('hidden');f.forEach(x=>{c.innerHTML+=`<div onclick="switchToCategoryView('${x}')" class="relative rounded-xl overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 h-28 cursor-pointer active:scale-95 transition-transform group flex items-center justify-center text-center p-2"><img src="${CATEGORY_IMAGES[x]||'https://via.placeholder.com/300'}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"><div class="absolute inset-0 bg-black/50"></div><h3 class="relative z-10 font-bold text-white text-sm drop-shadow-md">${x}</h3></div>`})}};
         function loadListings(){showSkeletons();onSnapshot(query(collection(db,"listings")),s=>{state.listings=[];s.forEach(d=>state.listings.push({id:d.id,...d.data()}));state.listings.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderView()})};
         window.handleSearch=()=>{if(state.currentView==='home')renderCategoryCards();else renderProducts()};
-        window.toggleFilterSheet=()=>{const s=document.getElementById('filter-sheet');s.classList.toggle('hidden')};
+        window.toggleFilterSheet=()=>{const s=document.getElementById('filter-sheet');s.classList.toggle('hidden');};
         window.applyFilterSort=t=>{state.currentSort=t;toggleFilterSheet();renderProducts();showToast("تم الترتيب")};
         window.filter=t=>{state.currentFilter=t;document.querySelectorAll('#categories-container .chip-btn').forEach(b=>b.className="px-4 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition hover:border-primary hover:text-primary chip-btn");const a=document.getElementById(t==='all'?'chip-all':`chip-${t.replace(/\s/g,'')}`);if(a){a.className="px-5 py-1.5 rounded-full bg-navy dark:bg-primary text-white text-xs font-bold shadow whitespace-nowrap transform scale-105 transition chip-btn";a.scrollIntoView({behavior:'smooth',inline:'center'})}if(state.currentView!=='category')state.currentView='category';document.getElementById('view-title').innerText=t;renderProducts()};
         function renderProducts(){const q=normalizeText(document.getElementById('search-input').value),c=document.getElementById('grid-container');c.innerHTML='';let f=state.listings.filter(i=>(state.currentFilter==='fav'?(state.favorites||[]).includes(i.id):(state.currentFilter==='all'||i.category===state.currentFilter))&&(normalizeText(i.title).includes(q)||normalizeText(i.category||'').includes(q)));if(state.currentSort==='price_low')f.sort((a,b)=>a.price-b.price);else if(state.currentSort==='price_high')f.sort((a,b)=>b.price-a.price);else f.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));if(!f.length)document.getElementById('empty-state').classList.remove('hidden');else{document.getElementById('empty-state').classList.add('hidden');f.forEach(i=>c.innerHTML+=createCard(i))}lucide.createIcons()};
@@ -421,33 +475,26 @@
 
             // SPECS GRID
             const sp = document.getElementById('d-specs-area'); sp.innerHTML = '';
-            // Condition only if exists and not clothes/shoes
-            if(i.condition && !['new','used','openbox'].includes(i.condition)) {} // Skip logic handled by category
-            else if(i.condition) {
-                 const condText = i.condition==='new'?'جديد':(i.condition==='openbox'?'كسر زيرو':'مستعمل');
-                 // Don't show for clothes/shoes
-                 if(!['ملابس رجالي','ملابس حريمي','ملابس اطفال','احذية رجالي','احذية حريمي','احذية اطفال'].includes(i.category)) {
-                     sp.innerHTML += `<div><span class="font-bold">الحالة:</span> ${condText}</div>`;
-                 }
-            }
-
             if(i.weightFrom && i.weightTo) sp.innerHTML += `<div><span class="font-bold">الوزن:</span> ${i.weightFrom} - ${i.weightTo} كجم</div>`;
             if(i.heightFrom && i.heightTo) sp.innerHTML += `<div><span class="font-bold">الطول:</span> ${i.heightFrom} - ${i.heightTo} سم</div>`;
             if(i.ageFrom && i.ageTo) sp.innerHTML += `<div><span class="font-bold">العمر:</span> ${i.ageFrom} - ${i.ageTo} سنة</div>`;
-            
-            if(i.elecType) {
-                let typeName = i.elecType;
-                if(i.elecType==='phone') typeName='هاتف'; if(i.elecType==='laptop') typeName='لابتوب';
-                sp.innerHTML += `<div><span class="font-bold">النوع:</span> ${typeName}</div>`;
-            }
             if(i.storage) sp.innerHTML += `<div><span class="font-bold">المساحة:</span> ${i.storage}</div>`;
             if(i.ram) sp.innerHTML += `<div><span class="font-bold">الرام:</span> ${i.ram}</div>`;
             if(i.battery) sp.innerHTML += `<div><span class="font-bold">البطارية:</span> ${i.battery}%</div>`;
-            if(i.cpu) sp.innerHTML += `<div><span class="font-bold">المعالج:</span> ${i.cpu}</div>`;
-            if(i.gpu) sp.innerHTML += `<div><span class="font-bold">كارت الشاشة:</span> ${i.gpu}</div>`;
-            
             if(i.volume) sp.innerHTML += `<div><span class="font-bold">الحجم:</span> ${i.volume} مل</div>`;
             if(i.dimensions) sp.innerHTML += `<div><span class="font-bold">الأبعاد:</span> ${i.dimensions}</div>`;
+            if(i.elecType) sp.innerHTML += `<div><span class="font-bold">النوع:</span> ${i.elecType}</div>`;
+            if(i.processor) sp.innerHTML += `<div><span class="font-bold">المعالج:</span> ${i.processor}</div>`;
+            if(i.gpu) sp.innerHTML += `<div><span class="font-bold">كارت الشاشة:</span> ${i.gpu}</div>`;
+
+            // Show Condition ONLY if available and not N/A
+            const condEl = document.getElementById('d-cond');
+            if(i.condition && i.condition !== 'undefined') {
+                condEl.innerText = i.condition==='new'?'جديد':(i.condition==='openbox'?'كسر زيرو':'مستعمل');
+                condEl.parentElement.classList.remove('hidden');
+            } else {
+                condEl.parentElement.classList.add('hidden');
+            }
 
             document.getElementById('d-wa').href=`https://wa.me/20${i.phone}?text=${i.title}`;document.getElementById('d-call').href=`tel:${i.phone}`;
             state.detailsSliderImages=i.images;goToDetailsSlide(0);document.getElementById('details-arrows').style.display=i.images.length>1?'block':'none';
@@ -457,7 +504,7 @@
         window.updateFormFields=()=>{
             const c=document.getElementById('in-cat').value;
             const type = CAT_TYPE_MAP[c] || 'general';
-            const conf = FIELD_CONFIG[type] || FIELD_CONFIG['general'];
+            const conf = FIELD_CONFIG[type] || {};
 
             // Toggle Dynamic Container
             const dc = document.getElementById('dynamic-fields');
@@ -468,7 +515,11 @@
             document.getElementById('field-sizes').classList.toggle('hidden', !conf.sizes);
             document.getElementById('field-clothes-ranges').classList.toggle('hidden', !conf.clothes_range);
             document.getElementById('subfield-age').classList.toggle('hidden', !conf.age);
+            
+            // Electronics Specifics
+            document.getElementById('field-elec-type').classList.toggle('hidden', !conf.elec_type);
             document.getElementById('field-elec-specs').classList.toggle('hidden', !conf.elec_specs);
+            
             document.getElementById('field-beauty-specs').classList.toggle('hidden', !conf.beauty_specs);
             document.getElementById('field-furniture-specs').classList.toggle('hidden', !conf.furniture_specs);
 
@@ -481,25 +532,19 @@
                     sc.innerHTML += `<label class="cursor-pointer"><input type="checkbox" class="size-checkbox hidden" value="${sz}"><div class="border-2 border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">${sz}</div></label>`;
                 });
             }
+            
+            // Trigger Elec Fields update if elec
+            if(conf.elec_type) window.updateElecFields();
         };
 
         window.updateElecFields = () => {
-            const t = document.getElementById('in-elec-type').value;
-            // Mobile/Tablet: Storage, Ram, Battery
-            // PC/Laptop: Storage, Ram, CPU, GPU
-            const isMobile = ['phone','tablet'].includes(t);
-            const isPC = ['laptop','desktop'].includes(t);
-            
-            document.getElementById('elec-sub-storage').classList.remove('hidden');
-            document.getElementById('elec-sub-ram').classList.remove('hidden');
-            
-            // Battery only for mobile/tablet/laptop(sometimes) - Let's show for mobile/tablet
-            document.getElementById('elec-sub-battery').classList.toggle('hidden', !isMobile);
-            
-            // CPU/GPU for PC
-            document.getElementById('elec-sub-cpu').classList.toggle('hidden', !isPC);
-            document.getElementById('elec-sub-gpu').classList.toggle('hidden', !isPC);
-        }
+            const type = document.getElementById('in-elec-type').value;
+            const fields = document.querySelectorAll('#field-elec-specs .spec-field');
+            fields.forEach(f => {
+                const allowed = f.getAttribute('data-for').split(' ');
+                f.classList.toggle('hidden', !allowed.includes(type));
+            });
+        };
 
         window.submitListing=async()=>{
             if(!state.images.length)return showToast('صورة واحدة ع الأقل','e');
@@ -509,10 +554,14 @@
             const sizes=[]; document.querySelectorAll('.size-checkbox:checked').forEach(c=>sizes.push(c.value));
             const feats=[]; document.querySelectorAll('.chip-checkbox:checked').forEach(c=>feats.push(c.value));
 
+            // Condition check
+            const condEl = document.getElementById('in-condition');
+            const condition = !condEl.parentElement.classList.contains('hidden') ? condEl.value : null;
+
             const d={
                 title:document.getElementById('in-title').value, price:Number(document.getElementById('in-price').value),
                 category:document.getElementById('in-cat').value, 
-                condition:document.getElementById('in-condition').value,
+                condition:condition,
                 phone:document.getElementById('in-phone').value, desc:document.getElementById('in-desc').value,
                 features:feats, images:state.images, badge:document.querySelector('input[name="badge"]:checked').value,
                 status:'available', createdAt:serverTimestamp(), authorId:state.user.uid,
@@ -526,11 +575,9 @@
                 
                 elecType: document.getElementById('in-elec-type').value,
                 storage: document.getElementById('in-storage').value, ram: document.getElementById('in-ram').value,
-                battery: document.getElementById('in-battery').value, 
-                cpu: document.getElementById('in-cpu').value, gpu: document.getElementById('in-gpu').value,
-                
-                volume: document.getElementById('in-volume').value,
-                dimensions: document.getElementById('in-dimensions').value
+                battery: document.getElementById('in-battery').value, volume: document.getElementById('in-volume').value,
+                dimensions: document.getElementById('in-dimensions').value,
+                processor: document.getElementById('in-processor').value, gpu: document.getElementById('in-gpu').value
             };
             await addDoc(collection(db,"listings"),d);
             showToast('تم النشر');toggleAddModal();btn.disabled=false;btn.innerHTML='<span>نشر</span><i data-lucide="arrow-left" class="w-4 h-4"></i>';lucide.createIcons();
@@ -544,8 +591,8 @@
                 document.getElementById('in-price').value = '';
                 document.getElementById('in-phone').value = '';
                 document.getElementById('in-desc').value = '';
-                // Reset new fields
-                ['in-weight-from','in-weight-to','in-height-from','in-height-to','in-age-from','in-age-to','in-battery','in-volume','in-dimensions','in-cpu','in-gpu'].forEach(id=>document.getElementById(id).value='');
+                // Reset fields
+                ['in-weight-from','in-weight-to','in-height-from','in-height-to','in-age-from','in-age-to','in-battery','in-volume','in-dimensions','in-processor','in-gpu'].forEach(id=>document.getElementById(id).value='');
                 
                 const catEl = document.getElementById('in-cat');
                 if(catEl && catEl.options.length > 0) catEl.selectedIndex = 0;
@@ -656,19 +703,14 @@
         // Verify Logic
         window.verifyUser = async (uid) => {
             if(!confirm('هل أنت متأكد من توثيق هذا الحساب؟')) return;
-            // 1. Update User
             await setDoc(doc(db, "users", uid), { isTrusted: true }, { merge: true });
-            
-            // 2. Update All Listings (Ideally server-side, but client-side loop for small app)
             const q = query(collection(db, "listings"), where("authorId", "==", uid));
             const snap = await getDocs(q);
             const batch = writeBatch(db);
             snap.forEach(doc => { batch.update(doc.ref, { authorTrusted: true }); });
             await batch.commit();
-
-            // 3. Notify
             sendAdminMsg("تم قبول طلب التوثيق ✅. حسابك الآن موثوق.");
-            await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'active'}); // Remove verify request tag
+            await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'active'});
             alert("تم التوثيق بنجاح وتحديث المنتجات");
         };
 
@@ -677,7 +719,6 @@
             await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'active'});
         };
 
-        // ... Standard functions (sendAdminMsg, kickUser, etc. from prev code) ...
         window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
         window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
         window.del=async(e,id)=>{e.stopPropagation();if(confirm('حذف؟')){await deleteDoc(doc(db,"listings",id));showToast('تم الحذف')}};
@@ -692,7 +733,6 @@
         function toggleModal(id){const m=document.getElementById(id);m.classList.toggle('hidden');if(!m.classList.contains('hidden'))document.body.classList.add('overflow-hidden');else document.body.classList.remove('overflow-hidden');return !m.classList.contains('hidden')}
         window.handleUpload=async(input)=>{if(input.files.length+state.images.length>7)return showToast('7 صور بحد أقصى','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0">`}}; 
         function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
-        window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
         document.getElementById('logo-trigger').addEventListener('click',()=>{if(prompt('Code:')==='1532'){localStorage.setItem('souq_admin','true');state.isAdmin=true;document.getElementById('btn-admin-top').classList.remove('hidden');renderView();showToast('Admin Mode')}});
         window.showToast=(m,t='s')=>{const d=document.createElement('div');d.className=`toast fixed top-4 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 shadow-xl px-4 py-2 rounded-lg border border-${t==='e'?'red':'primary'}-500 flex items-center gap-2 text-xs font-bold z-[250] text-slate-800 dark:text-white`;d.innerHTML=`<i data-lucide="${t==='e'?'alert-circle':'check-circle'}" class="w-4 h-4 text-${t==='e'?'red':'primary'}-500"></i> ${m}`;document.getElementById('toast-container').appendChild(d);lucide.createIcons();setTimeout(()=>{d.classList.add('hiding');setTimeout(()=>d.remove(),300)},3000)};
         function normalizeText(t){return t.replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLowerCase()}
