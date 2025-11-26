@@ -9,6 +9,7 @@
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="السوق وياك">
     <link id="manifest-link" rel="manifest">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,30 +32,61 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f8fafc; }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
+            background-color: #f8fafc;
+            /* السماح بتحديد النصوص للنسخ */
+        }
         .dark body { background-color: #0f172a; }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .form-input { width: 100%; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 0.75rem; padding: 0.5rem 0.8rem; font-size: 0.85rem; font-weight: 600; color: #1e293b; outline: none; transition: all 0.2s; }
-        .form-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
-        .dark .form-input { background-color: #1e293b; border-color: #475569; color: white; }
-        .dark .form-input:focus { border-color: #10b981; }
-        
-        #login-view { position: fixed; inset: 0; z-index: 200; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-        .dark #login-view { background-color: #0f172a; }
-        .login-scroll { max-height: 65vh; overflow-y: auto; padding: 4px; }
-        
+        .gpu { transform: translateZ(0); will-change: transform; }
+
+        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+        .skeleton { animation: shimmer 2s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
+        .dark .skeleton { background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%); }
+
+        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 600px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; } 
             .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
+
+        @keyframes slideInDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        .toast { animation: slideInDown 0.2s ease-out forwards; }
+        .toast.hiding { animation: fadeOut 0.2s ease-in forwards; }
+
+        .form-label { display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 0.1rem; }
+        .dark .form-label { color: #cbd5e1; }
+        .form-input { width: 100%; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 0.75rem; padding: 0.5rem 0.8rem; font-size: 0.8rem; font-weight: 600; color: #1e293b; outline: none; transition: all 0.2s; }
+        .form-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+        .dark .form-input { background-color: #1e293b; border-color: #475569; color: white; }
+        .dark .form-input:focus { border-color: #10b981; }
+        .chip-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
+
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .install-banner { animation: slideUp 0.3s ease-out forwards; }
+
+        /* --- LOGIN STYLES & FIXES --- */
+        #login-view { position: fixed; inset: 0; z-index: 200; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        #login-view.hidden { display: none !important; } /* FORCE HIDE FIX */
+        .dark #login-view { background-color: #0f172a; }
+        .login-scroll { max-height: 65vh; overflow-y: auto; padding: 4px; }
+        .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
+<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100">
 
     <!-- LOGIN VIEW -->
-    <div id="login-view" class="hidden">
+    <div id="login-view">
         <div class="w-full max-w-md bg-white dark:bg-darkbg p-5 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[95vh]">
             <div class="flex flex-col items-center gap-2 mb-4 shrink-0">
                 <div class="bg-navy dark:bg-primary text-white p-3 rounded-2xl shadow-lg rotate-3">
@@ -93,7 +125,6 @@
                         <input id="auth-username" type="text" class="form-input text-left" placeholder="username" style="direction: ltr;">
                         <i data-lucide="at-sign" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
                     </div>
-                    <p class="text-[9px] text-slate-400 mt-1 mr-1">حروف إنجليزية وأرقام فقط بدون مسافات</p>
                 </div>
 
                 <div>
@@ -146,7 +177,7 @@
         </div>
     </div>
 
-    <!-- APP CONTENT -->
+    <!-- MAIN APP CONTENT -->
     <div id="app-content" class="hidden">
         <div id="toast-container" class="fixed top-4 left-0 right-0 z-[120] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
@@ -158,6 +189,7 @@
             <div class="flex gap-2 items-center">
                 <a href="https://wa.me/201206244875" target="_blank" class="p-2 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 border border-green-100 dark:border-green-900/50 transition shadow-sm"><i data-lucide="message-circle" class="w-5 h-5"></i></a>
                 <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i></button>
+                <button onclick="toggleFavView()" class="p-2 rounded-full bg-red-50 dark:bg-slate-800 text-red-500 hover:bg-red-100 relative transition"><i data-lucide="heart" class="w-5 h-5"></i><span id="fav-count" class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white dark:border-darkbg hidden"></span></button>
                 <button onclick="logout()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600 hover:bg-red-100 transition"><i data-lucide="log-out" class="w-5 h-5"></i></button>
                 <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-5 h-5"></i></button>
             </div>
@@ -176,8 +208,12 @@
                 </div>
             </div>
 
-            <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-2 pb-3 no-scrollbar"></div>
+            <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-2 pb-3 no-scrollbar">
+                <!-- JS will fill this -->
+            </div>
+
             <div id="grid-container" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4"></div>
+
             <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
             <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
         </main>
@@ -187,6 +223,20 @@
             <button id="nav-add-btn" onclick="toggleAddModal()" class="hidden w-14 h-14 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-6 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-7 h-7"></i></button>
             <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-6 h-6 group-hover:scale-110 transition"></i></button>
         </nav>
+
+        <div id="pwa-install-toast" class="hidden fixed bottom-24 left-4 right-4 bg-navy dark:bg-white dark:text-navy text-white p-4 rounded-xl shadow-2xl z-[110] flex items-center justify-between install-banner border dark:border-slate-200">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-6 h-6"></i></div>
+                <div>
+                    <h4 class="font-bold text-sm">تثبيت التطبيق</h4>
+                    <p class="text-xs opacity-80">السوق وياك - تجربة أسرع</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="installPWA()" class="bg-primary text-white px-4 py-2 rounded-lg font-bold text-xs shadow-lg">تثبيت</button>
+                <button onclick="closeInstall()" class="text-white dark:text-navy p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+        </div>
     </div>
 
     <!-- Add Modal -->
@@ -196,6 +246,7 @@
                 <h3 class="font-bold text-slate-800 dark:text-white text-base">إضافة منتج</h3>
                 <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1.5 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
+
             <div class="flex-1 overflow-y-auto p-4 space-y-2 bg-white dark:bg-darkbg">
                 <div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-2"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
                 <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="اسم المنتج..."></div>
@@ -218,16 +269,25 @@
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
                 <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
-                <button onclick="shareListing()" class="absolute top-3 right-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
-                <div id="details-slider-container" class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800"><img id="details-img" src="" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(this.src)"></div>
+                <!-- COPY BUTTON ADDED -->
+                <div class="absolute top-3 right-3 flex gap-2 z-20">
+                    <button onclick="copyDetails()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="copy" class="w-5 h-5"></i></button>
+                    <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
+                </div>
+
+                <div id="details-slider-container" class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800">
+                    <img id="details-img" src="" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(this.src)">
+                </div>
+
                 <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
+
             <div class="flex-1 overflow-y-auto p-5 bg-white dark:bg-darkbg">
-                <div class="flex justify-between items-start mb-2"><h2 id="d-title" class="text-lg font-bold text-slate-900 dark:text-white leading-snug w-3/4"></h2><span id="d-price" class="text-primary font-black text-xl whitespace-nowrap"></span></div>
+                <div class="flex justify-between items-start mb-2"><h2 id="d-title" class="text-lg font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-xl whitespace-nowrap select-text"></span></div>
                 <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700 font-bold"></span></div>
                 <div id="d-features" class="flex flex-wrap gap-2 mb-5"></div>
-                <div class="space-y-2"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 font-medium"></p></div>
+                <div class="space-y-2"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 font-medium select-text"></p></div>
             </div>
             <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-3 shrink-0 pb-8 md:pb-4"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-3 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition"><i data-lucide="message-circle" class="w-5 h-5"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-3 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition"><i data-lucide="phone" class="w-5 h-5"></i> اتصال</a></div>
         </div>
@@ -245,18 +305,25 @@
     <!-- Lightbox -->
     <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center select-none">
         <button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button>
-        <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
-        <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
-        <div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div>
+        <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition">
+            <i data-lucide="chevron-left" class="w-8 h-8"></i>
+        </button>
+        <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition">
+            <i data-lucide="chevron-right" class="w-8 h-8"></i>
+        </button>
+        <div class="relative w-full h-full flex items-center justify-center">
+            <img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain">
+        </div>
     </div>
 
     <!-- Admin Panel -->
     <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] overflow-y-auto p-2" id="admin-users-list"></div><div class="w-2/3 flex flex-col bg-navy relative"><div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38]"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div><div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38]"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div></div></div></div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        // REMOVED signInAnonymously, ADDED standard auth functions
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const EGYPT_DATA = {
             "القاهرة": ["مدينة نصر", "مصر الجديدة", "المعادي", "التجمع الخامس", "شبرا", "عين شمس", "المرج", "حلوان", "وسط البلد", "الزمالك", "المنيل", "العباسية", "الزيتون", "حدائق القبة", "السيدة زينب"],
@@ -288,15 +355,69 @@
             "جنوب سيناء": ["الطور", "شرم الشيخ", "دهب", "نويبع", "طابا", "سانت كاترين", "أبو رديس", "أبو زنيمة", "رأس سدر"]
         };
 
+        // === PWA Configuration ===
+        const pwaManifest = {
+            "name": "السوق وياك",
+            "short_name": "السوق وياك",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#ffffff",
+            "theme_color": "#0f172a",
+            "description": "متجر اكتروني عصري",
+            "icons": [
+                {
+                    "src": "https://cdn-icons-png.flaticon.com/512/641/641813.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                },
+                 {
+                    "src": "https://cdn-icons-png.flaticon.com/512/641/641813.png",
+                    "sizes": "512x512",
+                    "type": "image/png"
+                }
+            ]
+        };
+        const stringManifest = JSON.stringify(pwaManifest);
+        const blob = new Blob([stringManifest], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(blob);
+        document.querySelector('#manifest-link').setAttribute('href', manifestURL);
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if(!localStorage.getItem('pwa_installed')) {
+                document.getElementById('pwa-install-toast').classList.remove('hidden');
+            }
+        });
+
+        window.installPWA = async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    localStorage.setItem('pwa_installed', 'true');
+                }
+                deferredPrompt = null;
+                document.getElementById('pwa-install-toast').classList.add('hidden');
+            }
+        }
+
+        window.closeInstall = () => {
+            document.getElementById('pwa-install-toast').classList.add('hidden');
+        }
+
+        // === Firebase & App Logic ===
+        // !!! CORRECT CONFIG (MATCHING "MODERN" FILE) !!!
         const firebaseConfig = {
-  apiKey: "AIzaSyA5OiTcX95GBgiJoDHnY3y7N23o-j8hsQ8",
-  authDomain: "services-cef84.firebaseapp.com",
-  databaseURL: "https://services-cef84-default-rtdb.firebaseio.com",
-  projectId: "services-cef84",
-  storageBucket: "services-cef84.firebasestorage.app",
-  messagingSenderId: "902396219187",
-  appId: "1:902396219187:web:3ba084a724266afa8bb846"
-};
+            apiKey: "AIzaSyC7zHuH8LK-yQAKG-Nm7dh31fXtVLxuCLM",
+            authDomain: "sharqia-81030.firebaseapp.com",
+            databaseURL: "https://sharqia-81030-default-rtdb.firebaseio.com",
+            projectId: "sharqia-81030",
+            storageBucket: "sharqia-81030.firebasestorage.app",
+            messagingSenderId: "581888625195",
+            appId: "1:581888625195:web:1667ba1e439e8e6c1fb86e"
+        };
 
         const app = initializeApp(firebaseConfig); 
         const db = getFirestore(app); 
@@ -304,7 +425,6 @@
 
         let state = { 
             user: null, 
-            userRole: 'customer', 
             listings: [], 
             images: [], 
             chatId: null, 
@@ -321,11 +441,14 @@
             lightboxIndex: 0,
             detailsSliderIndex: 0, 
             detailsSliderImages: [],
+            // Added Auth State
             authRole: 'customer',
             authType: 'login',
-            authImageBase64: null
+            authImageBase64: null,
+            userRole: 'customer'
         };
 
+        // --- AUTH & LOCATION HELPERS ---
         function initGovs() {
             const govSelect = document.getElementById('auth-gov');
             govSelect.innerHTML = '<option value="">اختر المحافظة</option>';
@@ -346,17 +469,37 @@
             }
         }
 
-        // 1. Monitor Auth State (FIXED: Immediate UI Update)
+        // 1. Force Unregister old Service Workers to prevent caching issues
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+
+        // 2. Helper to force switch UI
+        function forceSwitchToApp() {
+            const loginView = document.getElementById('login-view');
+            const appContent = document.getElementById('app-content');
+            
+            // Add 'hidden' class
+            loginView.classList.add('hidden');
+            // ALSO Force style.display = 'none' to override any CSS issues
+            loginView.style.setProperty('display', 'none', 'important');
+            
+            appContent.classList.remove('hidden');
+            document.getElementById('loader').classList.add('hidden'); 
+        }
+
+        // 3. Auth State Monitor with IMMEDIATE UI Switching
         onAuthStateChanged(auth, async (u) => { 
             if(u) { 
                 state.user = u;
                 
-                // FORCE UI UPDATE IMMEDIATELY
-                document.getElementById('login-view').classList.add('hidden');
-                document.getElementById('app-content').classList.remove('hidden');
-                document.getElementById('loader').classList.add('hidden'); 
+                // FORCE UI SWITCH IMMEDIATELY
+                forceSwitchToApp();
 
-                // Fetch Role in Background
                 try {
                     const userDoc = await getDoc(doc(db, "users", u.uid));
                     if (userDoc.exists()) {
@@ -379,7 +522,10 @@
                 initCats(); 
             } else {
                 state.user = null;
-                document.getElementById('login-view').classList.remove('hidden');
+                // RESET STYLES FOR LOGIN
+                const loginView = document.getElementById('login-view');
+                loginView.classList.remove('hidden');
+                loginView.style.removeProperty('display');
                 document.getElementById('app-content').classList.add('hidden');
             }
         });
@@ -438,6 +584,7 @@
             }
         }
 
+        // 4. Robust Auth Processing Function
         window.processAuth = async () => {
             const username = document.getElementById('auth-username').value.trim().toLowerCase();
             const pass = document.getElementById('auth-pass').value;
@@ -467,8 +614,11 @@
             }
 
             const email = `${username}@souq.local`;
+            
+            // Show Loading Spinner
+            const originalBtnText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = "جاري المعالجة...";
+            btn.innerHTML = `<div class="spinner"></div> جاري المعالجة...`;
 
             try {
                 if (state.authType === 'signup') {
@@ -501,6 +651,17 @@
                 } else {
                     await signInWithEmailAndPassword(auth, email, pass);
                 }
+                
+                // Success Indication
+                btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`;
+                btn.classList.replace('bg-navy', 'bg-green-600');
+                btn.classList.replace('dark:bg-primary', 'dark:bg-green-600');
+                
+                // Manual redirect fallback with stronger enforcement
+                setTimeout(() => {
+                    forceSwitchToApp();
+                }, 500);
+
             } catch (error) {
                 console.error("Auth Error:", error);
                 let msg = `حدث خطأ: ${error.code}`; 
@@ -510,14 +671,14 @@
                 else if(error.code === 'auth/wrong-password') msg = "كلمة المرور غير صحيحة.";
                 else if(error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') msg = "بيانات الدخول غير صحيحة.";
                 else if(error.code === 'auth/network-request-failed') msg = "فشل الاتصال. تأكد من الإنترنت.";
+                else if(error.code === 'auth/operation-not-allowed') msg = "تنبيه: يجب تفعيل خيار الدخول بالإيميل من لوحة تحكم Firebase";
                 else if(error.code === 'permission-denied') msg = "خطأ في الصلاحيات. تأكد من تفعيل Firestore Rules.";
 
                 errDiv.innerText = msg;
                 errDiv.classList.remove('hidden');
                 btn.disabled = false;
-                btn.innerHTML = state.authType === 'login' ? `<span>دخول للحساب</span> <i data-lucide="arrow-left" class="w-4 h-4"></i>` : `<span>إنشاء حساب جديد</span> <i data-lucide="plus-circle" class="w-4 h-4"></i>`;
+                btn.innerHTML = originalBtnText;
                 lucide.createIcons();
-                alert(msg); // Alert for visibility
             }
         }
 
@@ -562,76 +723,8 @@
             "اقمشة": "https://images.pexels.com/photos/34636582/pexels-photo-34636582.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop"
         };
 
-        // === Service Worker (Caching) ===
-        const CACHE_NAME = 'souq-cache-v1';
-        const STATIC_ASSETS = [
-            '/', 
-            'https://cdn.tailwindcss.com',
-            'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap',
-            'https://unpkg.com/lucide@latest',
-            'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js',
-            'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js',
-            'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js',
-            'https://cdn-icons-png.flaticon.com/512/641/641813.png'
-        ];
-
-        const swContent = `
-            const CACHE_NAME = '${CACHE_NAME}';
-            const STATIC_ASSETS = ${JSON.stringify(STATIC_ASSETS)};
-            const CATEGORY_IMAGES_URLS = ${JSON.stringify(Object.values(CATEGORY_IMAGES))};
-            
-            self.addEventListener('install', (event) => {
-                event.waitUntil(
-                    caches.open(CACHE_NAME).then((cache) => {
-                        const assetsToCache = [...STATIC_ASSETS, ...CATEGORY_IMAGES_URLS];
-                        return cache.addAll(assetsToCache).catch(err => console.warn('SW Cache Error', err));
-                    })
-                );
-            });
-
-            self.addEventListener('activate', (event) => {
-                const cacheWhitelist = [CACHE_NAME];
-                event.waitUntil(
-                    caches.keys().then((cacheNames) => {
-                        return Promise.all(
-                            cacheNames.map((cacheName) => {
-                                if (cacheWhitelist.indexOf(cacheName) === -1) {
-                                    return caches.delete(cacheName);
-                                }
-                            })
-                        );
-                    })
-                );
-            });
-
-            self.addEventListener('fetch', (event) => {
-                const { request } = event;
-                if (request.url.includes('firestore.googleapis.com')) {
-                    event.respondWith(fetch(request));
-                    return;
-                }
-                event.respondWith(
-                    caches.open(CACHE_NAME).then((cache) => {
-                        return cache.match(request).then((cachedResponse) => {
-                            const fetchPromise = fetch(request).then((networkResponse) => {
-                                cache.put(request, networkResponse.clone());
-                                return networkResponse;
-                            }).catch(err => cachedResponse);
-                            return cachedResponse || fetchPromise;
-                        });
-                    })
-                );
-            });
-        `;
-
-        function registerSW() {
-            if ('serviceWorker' in navigator) {
-                const blob = new Blob([swContent], {type: 'application/javascript'});
-                const swURL = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swURL).catch(console.error);
-            }
-        }
-        window.addEventListener('load', registerSW);
+        // Cache Name Updated to force refresh
+        const CACHE_NAME = 'souq-cache-v2';
 
         function preloadCategoryImages() {
             Object.values(CATEGORY_IMAGES).forEach(url => {
@@ -834,7 +927,8 @@
             return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-32 sm:h-40 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-4 h-4 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-2 py-0.5 rounded text-[9px] font-bold shadow z-10">${item.category}</span></div><div class="p-2 flex-1 flex flex-col"><div class="flex justify-between items-start mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-xs line-clamp-1">${item.title}</h3><span class="font-black text-primary text-xs whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[10px] text-slate-500 dark:text-slate-400 mb-2 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1.5 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-2 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1.5 rounded flex justify-center items-center gap-1 text-[10px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
         }
 
-        function goToDetailsSlide(index, behavior = 'auto') { 
+        // *** SLIDER SYSTEM ***
+        function goToDetailsSlide(index, behavior = 'auto') {
             const total = state.detailsSliderImages.length;
             if (total === 0) return;
             if (index < 0) index = total - 1;
@@ -850,7 +944,7 @@
         window.scrollDetails = (dir) => { 
             const total = state.detailsSliderImages.length;
             if (total <= 1) return;
-            let dirAmount = -dir; 
+            let dirAmount = -dir;
             let newIndex = state.detailsSliderIndex + dirAmount;
             goToDetailsSlide(newIndex);
         }
@@ -862,9 +956,23 @@
                 if (dot) {
                     dot.className = i === state.detailsSliderIndex 
                         ? 'w-4 h-2 rounded-full bg-white shadow transition-all' 
-                        : 'w-2 h-2 rounded-full bg-white/40 transition-all'; 
+                        : 'w-2 h-2 rounded-full bg-white/40 transition-all';
                 }
             }
+        }
+
+        // --- NEW COPY FUNCTION ---
+        window.copyDetails = () => {
+            if(!state.currentItem) return;
+            
+            const text = `المنتج: ${state.currentItem.title}\nالسعر: ${Number(state.currentItem.price).toLocaleString()} ج.م\nالوصف: ${state.currentItem.desc}\nللتواصل: ${state.currentItem.phone}`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('تم نسخ التفاصيل بنجاح ✅');
+            }).catch(err => {
+                console.error('Async: Could not copy text: ', err);
+                showToast('فشل النسخ', 'e');
+            });
         }
 
         window.openDetails = (id) => {
@@ -891,7 +999,7 @@
             const dotsContainer = document.getElementById('details-dots');
             const imgEl = document.getElementById('details-img');
             if (imgEl) {
-                imgEl.src = imgs.length > 0 ? imgs[0] : 'https://placehold.co/400x300/e2e8f0/94a3b8?text=No+Image'; 
+                imgEl.src = imgs.length > 0 ? imgs[0] : 'https://placehold.co/400x300/e2e8f0/94a3b8?text=No+Image';
                 imgEl.onclick = () => openLightbox(imgEl.src); 
             }
 
@@ -925,7 +1033,7 @@
 
         function initFavs() { try { state.favorites = JSON.parse(localStorage.getItem('souq_favs') || '[]'); } catch(e){ state.favorites = []; } updateFavBadge(); }
         window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); if(state.currentView === 'category') renderProducts(); };
-        function updateFavBadge() { const b = document.getElementById('fav-count'); if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); }
+        function updateFavBadge() { const b = document.getElementById('fav-count'); if(b){ if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); }}
         window.toggleFavView = () => { 
             state.currentView = 'category';
             state.currentFilter = 'fav';
@@ -1119,3 +1227,5 @@
     </script>
 </body>
 </html>
+
+
