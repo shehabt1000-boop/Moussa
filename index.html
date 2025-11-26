@@ -35,14 +35,15 @@
         body { 
             font-family: 'Cairo', sans-serif; 
             -webkit-tap-highlight-color: transparent;
+            padding-bottom: 100px;
             overscroll-behavior-y: none;
             background-color: #f8fafc;
-            /* السماح بتحديد النصوص للنسخ */
         }
         .dark body { background-color: #0f172a; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .gpu { transform: translateZ(0); will-change: transform; }
+        .select-none { user-select: none; }
 
         @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
         .skeleton { animation: shimmer 2s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
@@ -74,18 +75,18 @@
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .install-banner { animation: slideUp 0.3s ease-out forwards; }
 
-        /* --- LOGIN STYLES & FIXES --- */
+        /* --- LOGIN CSS FIX --- */
         #login-view { position: fixed; inset: 0; z-index: 200; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-        #login-view.hidden { display: none !important; } /* FORCE HIDE FIX */
+        #login-view.hidden { display: none !important; } 
         .dark #login-view { background-color: #0f172a; }
         .login-scroll { max-height: 65vh; overflow-y: auto; padding: 4px; }
         .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100">
+<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
 
-    <!-- LOGIN VIEW -->
+    <!-- LOGIN VIEW (MANDATORY) -->
     <div id="login-view">
         <div class="w-full max-w-md bg-white dark:bg-darkbg p-5 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[95vh]">
             <div class="flex flex-col items-center gap-2 mb-4 shrink-0">
@@ -177,7 +178,7 @@
         </div>
     </div>
 
-    <!-- MAIN APP CONTENT -->
+    <!-- APP CONTENT -->
     <div id="app-content" class="hidden">
         <div id="toast-container" class="fixed top-4 left-0 right-0 z-[120] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
@@ -195,7 +196,7 @@
             </div>
         </header>
 
-        <main class="pt-20 container mx-auto px-4 max-w-6xl min-h-screen pb-24">
+        <main class="pt-20 container mx-auto px-4 max-w-6xl min-h-screen">
             <div id="view-header" class="hidden flex items-center gap-3 pb-3">
                 <button onclick="switchToHomeView()" class="bg-white dark:bg-slate-800 p-2 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm"><i data-lucide="arrow-right" class="w-5 h-5 text-slate-600 dark:text-white"></i></button>
                 <h2 id="view-title" class="text-xl font-bold text-slate-800 dark:text-white pt-1"></h2>
@@ -209,7 +210,7 @@
             </div>
 
             <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-2 pb-3 no-scrollbar">
-                <!-- JS will fill this -->
+                 <!-- JS will fill this -->
             </div>
 
             <div id="grid-container" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4"></div>
@@ -218,9 +219,13 @@
             <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
         </main>
 
+        <!-- NAV BAR WITH ADD BUTTON VISIBLE -->
         <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
             <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-6 h-6 group-hover:scale-110 transition"></i></button>
-            <button id="nav-add-btn" onclick="toggleAddModal()" class="hidden w-14 h-14 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-6 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-7 h-7"></i></button>
+            
+            <!-- ADD BUTTON (Always Visible or Controlled by Logic) -->
+            <button id="nav-add-btn" onclick="toggleAddModal()" class="w-14 h-14 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-6 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-7 h-7"></i></button>
+            
             <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-6 h-6 group-hover:scale-110 transition"></i></button>
         </nav>
 
@@ -269,7 +274,7 @@
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
                 <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
-                <!-- COPY BUTTON ADDED -->
+                <!-- COPY BUTTON -->
                 <div class="absolute top-3 right-3 flex gap-2 z-20">
                     <button onclick="copyDetails()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="copy" class="w-5 h-5"></i></button>
                     <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
@@ -408,15 +413,15 @@
         }
 
         // === Firebase & App Logic ===
-        // !!! CORRECT CONFIG (MATCHING "MODERN" FILE) !!!
+        // !!! THIS IS THE CORRECT CONFIG FOR SERVICES-CEF84 (EMAIL ENABLED) !!!
         const firebaseConfig = {
-            apiKey: "AIzaSyC7zHuH8LK-yQAKG-Nm7dh31fXtVLxuCLM",
-            authDomain: "sharqia-81030.firebaseapp.com",
-            databaseURL: "https://sharqia-81030-default-rtdb.firebaseio.com",
-            projectId: "sharqia-81030",
-            storageBucket: "sharqia-81030.firebasestorage.app",
-            messagingSenderId: "581888625195",
-            appId: "1:581888625195:web:1667ba1e439e8e6c1fb86e"
+          apiKey: "AIzaSyA5OiTcX95GBgiJoDHnY3y7N23o-j8hsQ8",
+          authDomain: "services-cef84.firebaseapp.com",
+          databaseURL: "https://services-cef84-default-rtdb.firebaseio.com",
+          projectId: "services-cef84",
+          storageBucket: "services-cef84.firebasestorage.app",
+          messagingSenderId: "902396219187",
+          appId: "1:902396219187:web:3ba084a724266afa8bb846"
         };
 
         const app = initializeApp(firebaseConfig); 
@@ -500,19 +505,22 @@
                 // FORCE UI SWITCH IMMEDIATELY
                 forceSwitchToApp();
 
+                // Fetch user role if exists, default to whatever was set during signup
+                // If user logs in again, we fetch role from Firestore
                 try {
                     const userDoc = await getDoc(doc(db, "users", u.uid));
                     if (userDoc.exists()) {
-                        state.userRole = userDoc.data().role || 'customer';
+                        const data = userDoc.data();
+                        state.userRole = data.role || 'customer';
+                        // Update UI based on fetched role
+                        if(state.userRole === 'marketer') {
+                            document.getElementById('nav-add-btn').classList.remove('hidden');
+                        } else {
+                            document.getElementById('nav-add-btn').classList.add('hidden');
+                        }
                     }
                 } catch(e) {
-                    console.warn("Role fetch failed, defaulting to customer", e);
-                }
-                
-                if(state.userRole === 'marketer') {
-                    document.getElementById('nav-add-btn').classList.remove('hidden');
-                } else {
-                    document.getElementById('nav-add-btn').classList.add('hidden');
+                    console.warn("Role fetch failed", e);
                 }
 
                 loadListings(); 
@@ -636,17 +644,26 @@
                     
                     await updateProfile(user, { displayName: nameAr });
 
+                    // SAVE ROLE HERE
                     await setDoc(doc(db, "users", user.uid), {
                         username: username,
                         name: nameAr,
                         email: email,
-                        role: state.authRole,
+                        role: state.authRole, // Saved here
                         governorate: gov,
                         city: city,
                         address: address,
                         image: state.authImageBase64 || null, 
                         createdAt: serverTimestamp()
                     });
+                    
+                    // Update local state immediately so UI updates
+                    state.userRole = state.authRole;
+                    if(state.userRole === 'marketer') {
+                        document.getElementById('nav-add-btn').classList.remove('hidden');
+                    } else {
+                        document.getElementById('nav-add-btn').classList.add('hidden');
+                    }
 
                 } else {
                     await signInWithEmailAndPassword(auth, email, pass);
