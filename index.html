@@ -22,20 +22,24 @@
                         navy: '#0f172a', 
                         darkbg: '#1e293b', 
                         primary: '#10b981', 
-                        secondary: '#3b82f6' 
-                    } 
+                        secondary: '#3b82f6',
+                        verified: '#3b82f6'
+                    },
+                    fontSize: {
+                        'xxs': '0.65rem'
+                    }
                 } 
             }
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         body { 
             font-family: 'Cairo', sans-serif; 
             -webkit-tap-highlight-color: transparent;
-            padding-bottom: 100px;
+            padding-bottom: 90px;
             overscroll-behavior-y: none;
             background-color: #f8fafc;
         }
@@ -59,38 +63,49 @@
             .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
+        /* --- TOAST STYLES --- */
         @keyframes slideInDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-        .toast { animation: slideInDown 0.2s ease-out forwards; }
-        .toast.hiding { animation: fadeOut 0.2s ease-in forwards; }
+        .toast { animation: slideInDown 0.3s ease-out forwards; }
+        .toast.hiding { animation: fadeOut 0.3s ease-in forwards; }
 
-        .form-label { display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 0.1rem; }
+        /* --- INPUT FIXES (Vertical Alignment) --- */
+        .form-label { display: block; font-size: 0.7rem; font-weight: 700; color: #475569; margin-bottom: 0.2rem; }
         .dark .form-label { color: #cbd5e1; }
         
-        /* Fix 3: Input Text Alignment */
         .form-input { 
             width: 100%; 
             background-color: #ffffff; 
             border: 2px solid #cbd5e1; 
-            border-radius: 0.75rem; 
-            padding: 0.6rem 0.8rem; /* Adjusted padding */
-            font-size: 0.85rem; 
+            border-radius: 0.6rem; 
+            padding: 0 0.8rem; /* Padding X only */
+            height: 2.5rem; /* Fixed Height */
+            display: flex; 
+            align-items: center; /* Vertically Center Text */
+            font-size: 0.8rem; 
             font-weight: 600; 
             color: #1e293b; 
             outline: none; 
             transition: all 0.2s; 
-            line-height: normal; /* Fix vertical align */
         }
+        /* Specifically for Select to handle text indent */
+        select.form-input { padding-top: 0; padding-bottom: 0; }
+        textarea.form-input { height: auto; padding-top: 0.5rem; padding-bottom: 0.5rem; line-height: 1.4; }
+
         .form-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
         .dark .form-input { background-color: #1e293b; border-color: #475569; color: white; }
         .dark .form-input:focus { border-color: #10b981; }
         
+        /* Checkboxes & Chips */
         .chip-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
         .smart-option:checked + div { background-color: #0f172a; color: white; border-color: #0f172a; }
         .dark .smart-option:checked + div { background-color: #10b981; border-color: #10b981; }
+        .ship-check:checked + div { background-color: #e2e8f0; border-color: #94a3b8; color: #0f172a; }
+        .dark .ship-check:checked + div { background-color: #334155; border-color: #475569; color: white; }
 
-        .select-sidebar-container { position: relative; overflow: hidden; border-radius: 0.75rem; }
-        .select-sidebar-container::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 6px; background-color: #0f172a; z-index: 10; pointer-events: none; }
+        /* Sidebar for Selects */
+        .select-sidebar-container { position: relative; overflow: hidden; border-radius: 0.6rem; }
+        .select-sidebar-container::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 5px; background-color: #0f172a; z-index: 10; pointer-events: none; }
         .dark .select-sidebar-container::after { background-color: #10b981; }
 
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -99,7 +114,7 @@
         #login-view { position: fixed; inset: 0; z-index: 200; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
         #login-view.hidden { display: none !important; } 
         .dark #login-view { background-color: #0f172a; }
-        .login-scroll { max-height: 65vh; overflow-y: auto; padding: 4px; }
+        .login-scroll { max-height: 70vh; overflow-y: auto; padding: 4px; }
         .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -109,11 +124,11 @@
     <!-- LOGIN VIEW -->
     <div id="login-view">
         <div class="w-full max-w-md bg-white dark:bg-darkbg p-5 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[95vh]">
-            <div class="flex flex-col items-center gap-2 mb-4 shrink-0">
-                <div class="bg-navy dark:bg-primary text-white p-3 rounded-2xl shadow-lg rotate-3">
+            <div class="flex flex-col items-center gap-1 mb-4 shrink-0">
+                <div class="bg-navy dark:bg-primary text-white p-2.5 rounded-xl shadow-lg rotate-3">
                     <i data-lucide="shopping-bag" class="w-6 h-6"></i>
                 </div>
-                <h1 class="font-black text-xl text-navy dark:text-white">السوق <span class="text-primary">وياك</span></h1>
+                <h1 class="font-black text-lg text-navy dark:text-white">السوق <span class="text-primary">وياك</span></h1>
             </div>
 
             <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-3 border border-slate-200 dark:border-slate-700 shrink-0">
@@ -138,10 +153,10 @@
                 <div id="auth-image-field" class="hidden flex-col items-center gap-2 transition-all duration-300">
                     <div class="relative group cursor-pointer">
                         <input type="file" id="auth-img-input" accept="image/*" onchange="handleAuthImage(this)" class="absolute inset-0 opacity-0 z-10 cursor-pointer">
-                        <div class="w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-primary/50 flex items-center justify-center overflow-hidden relative hover:bg-primary/5 transition">
+                        <div class="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-primary/50 flex items-center justify-center overflow-hidden relative hover:bg-primary/5 transition">
                             <img id="auth-img-preview" src="" class="w-full h-full object-cover hidden">
                             <div id="auth-img-placeholder" class="flex flex-col items-center text-slate-400">
-                                <i data-lucide="camera" class="w-6 h-6 mb-1"></i>
+                                <i data-lucide="camera" class="w-5 h-5 mb-1"></i>
                                 <span class="text-[9px] font-bold">صورة</span>
                             </div>
                         </div>
@@ -150,7 +165,7 @@
                 </div>
 
                 <div>
-                    <label id="lbl-username" class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block mr-1">اسم المستخدم (إنجليزي فقط)</label>
+                    <label id="lbl-username" class="form-label text-right mr-1">اسم المستخدم (إنجليزي)</label>
                     <div class="relative">
                         <input id="auth-username" type="text" class="form-input text-left" placeholder="username" style="direction: ltr;">
                         <i data-lucide="at-sign" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
@@ -158,7 +173,7 @@
                 </div>
 
                 <div>
-                    <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block mr-1">كلمة المرور</label>
+                    <label class="form-label text-right mr-1">كلمة المرور</label>
                     <div class="relative">
                         <input id="auth-pass" type="password" class="form-input" placeholder="******">
                         <i data-lucide="lock" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
@@ -167,33 +182,33 @@
 
                 <div id="signup-fields" class="hidden space-y-3 border-t border-slate-100 dark:border-slate-700 pt-3 mt-2">
                     <div>
-                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block mr-1">الاسم الكامل (عربي)</label>
+                        <label class="form-label text-right mr-1">الاسم الكامل (عربي)</label>
                         <input id="auth-name-ar" type="text" class="form-input" placeholder="مثال: أحمد محمد">
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block mr-1">المحافظة</label>
+                            <label class="form-label text-right mr-1">المحافظة</label>
                             <div class="select-sidebar-container">
-                                <select id="auth-gov" onchange="updateCities()" class="form-input text-xs h-9 pr-2"></select>
+                                <select id="auth-gov" onchange="updateCities()" class="form-input text-xs"></select>
                             </div>
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block mr-1">المركز/المدينة</label>
-                            <select id="auth-city" class="form-input text-xs h-9">
+                            <label class="form-label text-right mr-1">المدينة</label>
+                            <select id="auth-city" class="form-input text-xs">
                                 <option value="">اختر المحافظة أولاً</option>
                             </select>
                         </div>
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block mr-1">العنوان بالتفصيل</label>
-                        <input id="auth-address" type="text" class="form-input" placeholder="الشارع، رقم المنزل، علامة مميزة...">
+                        <label class="form-label text-right mr-1">العنوان بالتفصيل</label>
+                        <input id="auth-address" type="text" class="form-input" placeholder="الشارع، رقم المنزل...">
                     </div>
                 </div>
             </div>
 
             <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-700 shrink-0">
-                <button onclick="processAuth()" id="btn-auth-action" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold shadow-lg shadow-navy/20 hover:opacity-90 transition-all active:scale-95 flex justify-center items-center gap-2 text-sm">
+                <button onclick="processAuth()" id="btn-auth-action" class="w-full bg-navy dark:bg-primary text-white py-2.5 rounded-xl font-bold shadow-lg shadow-navy/20 hover:opacity-90 transition-all active:scale-95 flex justify-center items-center gap-2 text-sm">
                     <span>دخول للحساب</span> <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 </button>
                 <div id="auth-error" class="text-red-600 dark:text-red-400 text-[10px] font-bold text-center hidden bg-red-50 dark:bg-red-900/20 p-2 rounded-lg border border-red-200 dark:border-red-800 mt-2 break-words" dir="ltr"></div>
@@ -203,51 +218,53 @@
 
     <!-- APP CONTENT -->
     <div id="app-content" class="hidden">
-        <div id="toast-container" class="fixed top-4 left-0 right-0 z-[120] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
+        <div id="toast-container" class="fixed top-6 left-0 right-0 z-[120] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
-        <header class="fixed top-0 w-full z-[60] bg-white/90 dark:bg-navy/90 border-b border-slate-200 dark:border-slate-700 flex flex-col justify-center px-4 shadow-sm backdrop-blur-md h-auto py-2">
+        <header class="fixed top-0 w-full z-[60] bg-white/95 dark:bg-navy/95 border-b border-slate-200 dark:border-slate-700 flex flex-col justify-center px-4 shadow-sm backdrop-blur-md h-auto py-2">
             <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-2" id="logo-trigger">
                     <div class="bg-navy dark:bg-primary text-white p-1.5 rounded-lg"><i data-lucide="shopping-bag" class="w-5 h-5"></i></div>
-                    <h1 class="font-bold text-base">السوق <span class="text-primary">وياك</span></h1>
+                    <div class="flex flex-col">
+                         <h1 class="font-bold text-sm leading-none">السوق <span class="text-primary">وياك</span></h1>
+                         <!-- WELCOME TEXT (Issue 3: Modern & Small) -->
+                         <div id="welcome-text" class="hidden text-[9px] text-slate-400 mt-0.5 font-bold">
+                             أهلاً بك: <span id="header-username" class="text-navy dark:text-slate-200"></span> <i id="user-verify-badge" data-lucide="badge-check" class="w-3 h-3 text-blue-500 inline hidden"></i>
+                         </div>
+                    </div>
                 </div>
                 <div class="flex gap-2 items-center">
-                    <a href="https://wa.me/201206244875" target="_blank" class="p-2 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 border border-green-100 dark:border-green-900/50 transition shadow-sm"><i data-lucide="message-circle" class="w-5 h-5"></i></a>
-                    <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i></button>
-                    <!-- Fav button moved to search bar per Req 4 -->
-                    <button onclick="logout()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600 hover:bg-red-100 transition"><i data-lucide="log-out" class="w-5 h-5"></i></button>
-                    <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-5 h-5"></i></button>
+                    <a href="https://wa.me/201206244875" target="_blank" class="p-1.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-900/50"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
+                    <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
+                    <button onclick="logout()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+                    <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
                 </div>
-            </div>
-            <div id="welcome-text" class="text-right w-full mt-1 hidden">
-                <h1 class="text-sm font-bold text-slate-500 dark:text-slate-400">أهلاً بك: <span id="header-username" class="text-navy dark:text-primary font-black"></span></h1>
             </div>
         </header>
 
-        <main class="pt-24 container mx-auto px-4 max-w-6xl min-h-screen">
+        <main class="pt-20 container mx-auto px-4 max-w-6xl min-h-screen">
             <div id="view-header" class="hidden flex items-center gap-3 pb-3">
                 <button onclick="switchToHomeView()" class="bg-white dark:bg-slate-800 p-2 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm"><i data-lucide="arrow-right" class="w-5 h-5 text-slate-600 dark:text-white"></i></button>
                 <h2 id="view-title" class="text-xl font-bold text-slate-800 dark:text-white pt-1"></h2>
             </div>
 
-            <!-- Fix 2 & 4: Filter Icon (Blue, No BG) & Fav Button Inside Search Bar -->
-            <div id="search-container" class="sticky top-20 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-2 pb-3 -mx-4 px-4 transition-all">
+            <!-- SEARCH CONTAINER (Fixed height & vertical align) -->
+            <div id="search-container" class="sticky top-14 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-2 pb-2 -mx-4 px-4 transition-all">
                 <div class="relative max-w-3xl mx-auto flex gap-2 items-center">
                     <div class="relative flex-1">
-                        <!-- pl-20 allows space for buttons on left (RTL) -->
-                        <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-10 pl-24 h-11 !border-2 !border-black dark:!border-slate-500 shadow-lg">
-                        <i data-lucide="search" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                        <!-- pl-24 makes room for buttons -->
+                        <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-10 pl-24 h-10 !border-2 !border-black dark:!border-slate-500 shadow-sm text-sm">
+                        <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
                         
-                        <!-- Internal Buttons Container -->
-                        <div class="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
-                            <!-- Filter Button: Blue, No BG -->
-                            <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden text-secondary dark:text-blue-400 p-1.5 hover:scale-110 transition">
+                        <!-- Internal Buttons -->
+                        <div class="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
+                            <!-- Filter: Blue Icon Only -->
+                            <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden text-secondary dark:text-blue-400 p-1 hover:scale-110 transition">
                                 <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
                             </button>
-                            <!-- Fav Button: Inside Search -->
-                            <button onclick="toggleFavView()" class="relative text-red-500 p-1.5 hover:scale-110 transition">
+                            <!-- Fav: Inside Search -->
+                            <button onclick="toggleFavView()" class="relative text-red-500 p-1 hover:scale-110 transition">
                                 <i data-lucide="heart" class="w-5 h-5"></i>
-                                <span id="fav-count" class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white dark:border-darkbg hidden"></span>
+                                <span id="fav-count" class="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-darkbg hidden"></span>
                             </button>
                         </div>
                     </div>
@@ -260,12 +277,13 @@
                         <button onclick="resetFilters()" class="text-[10px] text-red-500 font-bold underline">إعادة تعيين</button>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
+                        <!-- Select Fix: Ensure text visible -->
                         <div class="select-sidebar-container">
-                             <select id="filter-gov" onchange="applyFilters()" class="form-input text-xs h-8">
+                             <select id="filter-gov" onchange="applyFilters()" class="form-input text-xs h-9">
                                 <option value="">كل المحافظات</option>
                             </select>
                         </div>
-                        <select id="filter-price" onchange="applyFilters()" class="form-input text-xs h-8">
+                        <select id="filter-price" onchange="applyFilters()" class="form-input text-xs h-9">
                             <option value="">كل الأسعار</option>
                             <option value="low">الأقل سعراً</option>
                             <option value="high">الأعلى سعراً</option>
@@ -274,11 +292,11 @@
                 </div>
             </div>
 
-            <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-2 pb-3 no-scrollbar">
+            <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar">
                  <!-- JS will fill this -->
             </div>
 
-            <div id="grid-container" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4"></div>
+            <div id="grid-container" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-2"></div>
 
             <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
             <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
@@ -290,69 +308,72 @@
             <button id="nav-add-btn" onclick="toggleAddModal()" class="w-14 h-14 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-6 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-7 h-7"></i></button>
             <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-6 h-6 group-hover:scale-110 transition"></i></button>
         </nav>
-
-        <div id="pwa-install-toast" class="hidden fixed bottom-24 left-4 right-4 bg-navy dark:bg-white dark:text-navy text-white p-4 rounded-xl shadow-2xl z-[110] flex items-center justify-between install-banner border dark:border-slate-200">
-            <div class="flex items-center gap-3">
-                <div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-6 h-6"></i></div>
-                <div>
-                    <h4 class="font-bold text-sm">تثبيت التطبيق</h4>
-                    <p class="text-xs opacity-80">السوق وياك - تجربة أسرع</p>
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="installPWA()" class="bg-primary text-white px-4 py-2 rounded-lg font-bold text-xs shadow-lg">تثبيت</button>
-                <button onclick="closeInstall()" class="text-white dark:text-navy p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-        </div>
     </div>
 
-    <!-- Add Modal -->
+    <!-- Add Modal (COMPACT Layout) -->
     <div id="add-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0">
-                <h3 class="font-bold text-slate-800 dark:text-white text-base">إضافة منتج</h3>
-                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1.5 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة منتج</h3>
+                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-white dark:bg-darkbg">
-                <div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-2"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
-                <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="اسم المنتج..."></div>
-                <div class="grid grid-cols-2 gap-2 form-group"><div><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="0"></div><div><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input bg-gray-50 !border-2 !border-black dark:!border-slate-500"></select></div></div>
+            <!-- Compact Padding (Issue 7) -->
+            <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-white dark:bg-darkbg">
                 
-                <!-- Fix 7: Smart Chips for Size/Color -->
-                <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 form-group space-y-3">
-                    <div id="field-condition" class="hidden"><label class="form-label text-primary">الحالة</label><select id="in-condition" class="form-input !border-2 !border-black dark:!border-slate-500"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
-                    
-                    <!-- Smart Chips Container -->
-                    <div id="field-size-chips" class="hidden">
-                        <label class="form-label text-primary">المقاسات المتاحة</label>
-                        <div id="size-chips-container" class="flex flex-wrap gap-2"></div>
-                    </div>
+                <!-- Images -->
+                <div><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-5 gap-2"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-4 h-4"></i></label><div id="preview-area" class="col-span-4 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
+                
+                <!-- Title & Price -->
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="col-span-2"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input h-9" placeholder="اسم المنتج..."></div>
+                    <div class="col-span-1"><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input h-9" placeholder="0"></div>
+                </div>
 
+                <!-- Category & Condition -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input bg-gray-50 h-9"></select></div>
+                    <div id="field-condition" class="hidden"><label class="form-label">الحالة</label><select id="in-condition" class="form-input h-9"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
+                </div>
+                
+                <!-- Smart Chips -->
+                <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 hidden">
+                    <div id="field-size-chips" class="hidden mb-2">
+                        <label class="form-label text-primary">المقاسات</label>
+                        <div id="size-chips-container" class="flex flex-wrap gap-1.5"></div>
+                    </div>
                     <div id="field-color-chips" class="hidden">
-                        <label class="form-label text-primary">الألوان المتاحة</label>
-                        <div id="color-chips-container" class="flex flex-wrap gap-2"></div>
+                        <label class="form-label text-primary">الألوان</label>
+                        <div id="color-chips-container" class="flex flex-wrap gap-1.5"></div>
                     </div>
                 </div>
 
-                <!-- Fix 6: Shipping Areas -->
-                <div class="form-group bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                    <label class="form-label mb-2">أماكن الشحن</label>
+                <!-- Shipping (Issue 4: Multi Select) -->
+                <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <label class="form-label mb-1">الشحن</label>
                     <div class="flex gap-2 mb-2">
-                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="all" onchange="toggleShipGov()" checked class="hidden peer"><div class="text-center py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 text-xs font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">جميع المحافظات</div></label>
-                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="specific" onchange="toggleShipGov()" class="hidden peer"><div class="text-center py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 text-xs font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">محافظة محددة</div></label>
+                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="all" onchange="toggleShipGov()" checked class="hidden peer"><div class="text-center py-1.5 rounded-md border border-slate-200 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">جميع المحافظات</div></label>
+                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="specific" onchange="toggleShipGov()" class="hidden peer"><div class="text-center py-1.5 rounded-md border border-slate-200 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">محافظات محددة</div></label>
                     </div>
-                    <div id="ship-gov-container" class="hidden">
-                        <select id="in-ship-gov" class="form-input text-xs"><option value="">اختر المحافظة</option></select>
+                    <!-- Multi Select Container -->
+                    <div id="ship-gov-container" class="hidden max-h-32 overflow-y-auto grid grid-cols-3 gap-1 p-1 bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
+                        <!-- Checkboxes injected by JS -->
                     </div>
                 </div>
 
-                <div class="form-group"><label class="form-label">مواصفات إضافية:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value=" كوبي"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="فاتورة"><div class="border-2 border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">فاتورة</div></label></div></div>
-                <div class="form-group"><label class="form-label">تمييز:</label><div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg"><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1.5 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1.5 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div>
-                <div class="form-group"><label class="form-label">رقم الهاتف</label><input id="in-phone" type="tel" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="01xxxxxxxxx"></div>
-                <div class="form-group"><label class="form-label">الوصف</label><textarea id="in-desc" rows="2" class="form-input !border-2 !border-black dark:!border-slate-500" placeholder="تفاصيل..."></textarea></div>
+                <!-- Features -->
+                <div><label class="form-label">مزايا:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-[9px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="هاي كوبي"><div class="border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-[9px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-[9px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label></div></div>
+                
+                <!-- Badge -->
+                <div><div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg"><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1 rounded text-[10px] font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1 rounded text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div>
+                
+                <!-- Contact & Desc -->
+                <div class="grid grid-cols-1 gap-2">
+                    <div><label class="form-label">الهاتف</label><input id="in-phone" type="tel" class="form-input h-9" placeholder="01xxxxxxxxx"></div>
+                    <div><label class="form-label">الوصف</label><textarea id="in-desc" rows="2" class="form-input" placeholder="تفاصيل..."></textarea></div>
+                </div>
             </div>
-            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-3"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر الآن</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-2.5 rounded-xl font-bold text-sm shadow-lg hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر الآن</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
         </div>
     </div>
 
@@ -372,21 +393,31 @@
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
             <div class="flex-1 overflow-y-auto p-5 bg-white dark:bg-darkbg">
-                <!-- Fix 5: Publisher Info -->
-                <div class="flex items-center gap-3 mb-4 p-2 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
-                     <div id="d-pub-img" class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i></div>
-                     <div>
-                         <p class="text-[10px] text-slate-400">الناشر</p>
-                         <h4 id="d-pub-name" class="font-bold text-sm text-navy dark:text-white">...</h4>
+                <!-- Publisher Info (Modernized) -->
+                <div class="flex items-center justify-between mb-4 p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700 backdrop-blur-sm">
+                     <div class="flex items-center gap-3">
+                        <div id="d-pub-img" class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden border border-slate-300 dark:border-slate-600"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i></div>
+                        <div>
+                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">الناشر</p>
+                            <div class="flex items-center gap-1">
+                                <h4 id="d-pub-name" class="font-bold text-sm text-navy dark:text-white">...</h4>
+                                <i id="d-pub-verified" data-lucide="badge-check" class="w-3.5 h-3.5 text-blue-500 hidden"></i>
+                            </div>
+                        </div>
                      </div>
+                     <span class="text-[10px] bg-white dark:bg-slate-700 px-2 py-1 rounded-lg shadow-sm border border-slate-100 dark:border-slate-600 text-slate-500">موثوق</span>
                 </div>
 
                 <div class="flex justify-between items-start mb-2"><h2 id="d-title" class="text-lg font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-xl whitespace-nowrap select-text"></span></div>
                 <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700 font-bold"></span></div>
                 
-                <div id="d-features" class="flex flex-wrap gap-2 mb-5"></div>
-                <!-- Shipping Info Display -->
-                <div id="d-shipping-info" class="text-xs text-slate-500 mb-4 font-bold flex items-center gap-1"></div>
+                <!-- Aggregated Size/Color Fields -->
+                <div id="d-spec-container" class="space-y-2 mb-4"></div>
+
+                <div id="d-features" class="flex flex-wrap gap-2 mb-4"></div>
+                
+                <!-- Shipping Info with Icon -->
+                <div id="d-shipping-info" class="text-xs text-slate-500 dark:text-slate-400 mb-4 font-bold flex items-center gap-1.5 p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700"></div>
 
                 <div class="space-y-2"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 font-medium select-text"></p></div>
             </div>
@@ -458,16 +489,8 @@
             "theme_color": "#0f172a",
             "description": "متجر اكتروني عصري",
             "icons": [
-                {
-                    "src": "https://cdn-icons-png.flaticon.com/512/641/641813.png",
-                    "sizes": "192x192",
-                    "type": "image/png"
-                },
-                 {
-                    "src": "https://cdn-icons-png.flaticon.com/512/641/641813.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
-                }
+                { "src": "https://cdn-icons-png.flaticon.com/512/641/641813.png", "sizes": "192x192", "type": "image/png" },
+                { "src": "https://cdn-icons-png.flaticon.com/512/641/641813.png", "sizes": "512x512", "type": "image/png" }
             ]
         };
         const stringManifest = JSON.stringify(pwaManifest);
@@ -524,6 +547,7 @@
             tempName: '', 
             activeAdminChat: null, 
             isAdmin: false, 
+            isVerified: false,
             welcomeSent: false, 
             favorites: [], 
             currentFilter: 'all', 
@@ -542,16 +566,13 @@
         function initGovs() {
             const govSelect = document.getElementById('auth-gov');
             const filterGov = document.getElementById('filter-gov');
-            const shipGov = document.getElementById('in-ship-gov'); // Fix 6
-
             govSelect.innerHTML = '<option value="">اختر المحافظة</option>';
             filterGov.innerHTML = '<option value="">كل المحافظات</option>';
-            shipGov.innerHTML = '<option value="">اختر المحافظة</option>';
-
+            
+            // For Shipping Multi-select, we will inject checkboxes dynamically later
             Object.keys(EGYPT_DATA).forEach(gov => {
                 govSelect.innerHTML += `<option value="${gov}">${gov}</option>`;
                 filterGov.innerHTML += `<option value="${gov}">${gov}</option>`;
-                shipGov.innerHTML += `<option value="${gov}">${gov}</option>`;
             });
         }
         initGovs();
@@ -595,8 +616,15 @@
                         state.userData = data;
                         state.userRole = data.role || 'customer';
                         state.isAdmin = data.isAdmin === true;
+                        state.isVerified = data.isVerified === true; // Code 1032
+                        
                         document.getElementById('header-username').innerText = data.name || u.displayName;
                         document.getElementById('welcome-text').classList.remove('hidden');
+                        
+                        // Verification Badge in Header
+                        if(state.isVerified) {
+                            document.getElementById('user-verify-badge').classList.remove('hidden');
+                        }
 
                         if(state.isAdmin) {
                             document.getElementById('btn-admin-top').classList.remove('hidden');
@@ -612,6 +640,9 @@
                 checkUserChat(); 
                 initFavs(); 
                 initCats(); 
+                
+                // Welcome Toast (Neutral Grey)
+                showToast("أهلاً بك مجدداً في السوق وياك", "i");
             } else {
                 state.user = null;
                 const loginView = document.getElementById('login-view');
@@ -650,7 +681,7 @@
                 imgField.classList.add('hidden');
                 imgField.classList.remove('flex');
                 signupFields.classList.add('hidden');
-                usernameLabel.innerText = "اسم المستخدم (إنجليزي فقط - للدخول)";
+                usernameLabel.innerText = "اسم المستخدم (إنجليزي فقط)";
             } else {
                 btnSignup.className = "flex-1 py-2 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md";
                 btnLogin.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white";
@@ -658,7 +689,7 @@
                 imgField.classList.remove('hidden');
                 imgField.classList.add('flex');
                 signupFields.classList.remove('hidden');
-                usernameLabel.innerText = "اسم المستخدم (إنجليزي فقط - لإنشاء الحساب)";
+                usernameLabel.innerText = "اسم المستخدم (إنجليزي لإنشاء الحساب)";
             }
             lucide.createIcons();
         }
@@ -733,6 +764,7 @@
                         city: city,
                         address: address,
                         isAdmin: false,
+                        isVerified: false,
                         image: state.authImageBase64 || null, 
                         createdAt: serverTimestamp()
                     });
@@ -780,12 +812,17 @@
         ];
         const USED_CATS = ["النظارات", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال"];
         
-        // Fix 7: Smart Category Data
+        // Smart Data Arrays
         const CLOTHES_CATS = ["ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "اقمشة"];
         const SHOES_CATS = ["احذية رجالي", "احذية حريمي", "احذية اطفال"];
-        const CLOTHES_SIZES = ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "FreeSize"];
-        const SHOES_SIZES = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45"];
-        const BASIC_COLORS = ["أبيض", "أسود", "رمادي", "كحلي", "أحمر", "أزرق", "بيج", "أخضر"];
+        
+        const ADULT_SIZES = ["S", "M", "L", "XL", "2XL", "3XL", "FreeSize"];
+        const KIDS_SIZES = ["0-3M", "3-6M", "6-12M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "+6Y"];
+        
+        const ADULT_SHOES = ["37", "38", "39", "40", "41", "42", "43", "44", "45"];
+        const KIDS_SHOES = ["20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35"];
+
+        const BASIC_COLORS = ["أبيض", "أسود", "رمادي", "كحلي", "أحمر", "أزرق", "بيج", "أخضر", "أصفر", "بني"];
 
          const CATEGORY_IMAGES = {
             "ملابس رجالي": "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=300&auto=format&fit=crop",
@@ -853,7 +890,7 @@
             if (state.currentView === 'home') {
                 viewHeader.classList.add('hidden');
                 catContainer.classList.add('hidden');
-                filterBtn.classList.add('hidden'); // No filter in home
+                filterBtn.classList.add('hidden'); 
                 searchContainer.classList.remove('hidden');
                 gridContainer.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4';
                 searchInput.placeholder = 'ابحث عن قسم...';
@@ -868,7 +905,7 @@
                     catContainer.classList.add('hidden');
                 } else {
                     searchContainer.classList.remove('hidden');
-                    filterBtn.classList.remove('hidden'); // Show filter in category pages
+                    filterBtn.classList.remove('hidden');
                     searchInput.placeholder = 'ابحث عن منتج...';
                     if (state.currentFilter === 'all') {
                         catContainer.classList.remove('hidden');
@@ -1099,12 +1136,13 @@
             document.getElementById('d-desc').innerText = item.desc;
             document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
 
-            // Fix 5: Fetch Publisher Info
+            // Publisher Info & Badge
             const pubName = document.getElementById('d-pub-name');
             const pubImg = document.getElementById('d-pub-img');
+            const pubBadge = document.getElementById('d-pub-verified');
             pubName.innerText = "جاري التحميل...";
+            pubBadge.classList.add('hidden');
             
-            // Try to fetch author data
             try {
                 const uSnap = await getDoc(doc(db, "users", item.authorId));
                 if(uSnap.exists()) {
@@ -1115,40 +1153,51 @@
                     } else {
                         pubImg.innerHTML = `<i data-lucide="user" class="w-5 h-5 text-slate-400"></i>`;
                     }
+                    if(uData.isVerified) {
+                        pubBadge.classList.remove('hidden');
+                    }
                 } else {
-                    pubName.innerText = "مستخدم غير معروف";
+                    pubName.innerText = "ناشر";
                 }
             } catch(e) {
                 pubName.innerText = "ناشر";
             }
 
-            const amCont = document.getElementById('d-features'); 
-            amCont.innerHTML=''; 
-            
-            // Fix 7: Display Array Sizes/Colors
-            if(item.size) {
-                 if(Array.isArray(item.size)) {
-                      item.size.forEach(s => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">مقاس: ${s}</span>`);
-                 } else {
-                      amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">مقاس: ${item.size}</span>`;
-                 }
-            }
-            if(item.color) {
-                 if(Array.isArray(item.color)) {
-                     item.color.forEach(c => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">لون: ${c}</span>`);
-                 } else {
-                     amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">لون: ${item.color}</span>`;
-                 }
+            const specContainer = document.getElementById('d-spec-container');
+            specContainer.innerHTML = '';
+
+            // Aggregated Sizes
+            if(item.size && item.size.length > 0) {
+                 const sizeVal = Array.isArray(item.size) ? item.size.join(' - ') : item.size;
+                 specContainer.innerHTML += `
+                    <div class="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <span class="text-xs text-slate-500 dark:text-slate-400 font-bold">المقاسات</span>
+                        <span class="text-xs font-bold text-navy dark:text-white">${sizeVal}</span>
+                    </div>`;
             }
 
+            // Aggregated Colors
+            if(item.color && item.color.length > 0) {
+                 const colorVal = Array.isArray(item.color) ? item.color.join(' - ') : item.color;
+                 specContainer.innerHTML += `
+                    <div class="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <span class="text-xs text-slate-500 dark:text-slate-400 font-bold">الألوان</span>
+                        <span class="text-xs font-bold text-navy dark:text-white">${colorVal}</span>
+                    </div>`;
+            }
+
+            const amCont = document.getElementById('d-features'); 
+            amCont.innerHTML=''; 
             if(item.features) item.features.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1 border border-slate-200 dark:border-slate-600 font-bold">${a}</span>`);
             
-            // Fix 6: Shipping Info
+            // Shipping Info
             const shipInfo = document.getElementById('d-shipping-info');
-            if(item.shippingMode === 'specific' && item.shippingGov) {
-                shipInfo.innerHTML = `<i data-lucide="truck" class="w-4 h-4"></i> شحن لـ: ${item.shippingGov} فقط`;
+            if(item.shippingMode === 'specific' && item.shippingGovs && item.shippingGovs.length) {
+                // If list is too long, truncate
+                const govs = item.shippingGovs.join('، ');
+                shipInfo.innerHTML = `<i data-lucide="truck" class="w-4 h-4 text-primary"></i> <span class="truncate">شحن لـ: ${govs}</span>`;
             } else {
-                shipInfo.innerHTML = `<i data-lucide="globe" class="w-4 h-4"></i> شحن لجميع المحافظات`;
+                shipInfo.innerHTML = `<i data-lucide="globe" class="w-4 h-4 text-primary"></i> شحن لجميع المحافظات`;
             }
 
             document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; 
@@ -1203,14 +1252,14 @@
             showToast("عرض المفضلة ❤️"); 
         };
 
-        // Fix 7: Smart Category Data Logic
+        // Smart Category Data Logic
         window.updateFormFields = () => {
             const cat = document.getElementById('in-cat').value;
             document.getElementById('field-condition').classList.toggle('hidden', !USED_CATS.includes(cat));
             
-            // Smart Chips Visibility
             const isClothes = CLOTHES_CATS.includes(cat);
             const isShoes = SHOES_CATS.includes(cat);
+            const isKids = cat.includes("اطفال") || cat.includes("أطفال");
             
             const sizeContainer = document.getElementById('field-size-chips');
             const sizeChips = document.getElementById('size-chips-container');
@@ -1224,7 +1273,13 @@
 
             if (isClothes || isShoes) {
                 sizeContainer.classList.remove('hidden');
-                const sizes = isClothes ? CLOTHES_SIZES : SHOES_SIZES;
+                let sizes = [];
+                if(isShoes) {
+                    sizes = isKids ? KIDS_SHOES : ADULT_SHOES;
+                } else {
+                    sizes = isKids ? KIDS_SIZES : ADULT_SIZES;
+                }
+
                 sizes.forEach(s => {
                     sizeChips.innerHTML += `<label class="cursor-pointer"><input type="checkbox" name="smart-size" value="${s}" class="smart-option hidden"><div class="px-3 py-1.5 rounded-lg border-2 border-slate-200 dark:border-slate-600 font-bold text-xs text-slate-500 hover:border-navy transition">${s}</div></label>`;
                 });
@@ -1238,12 +1293,19 @@
             }
         }
 
-        // Fix 6: Shipping Toggle Logic
         window.toggleShipGov = () => {
              const mode = document.querySelector('input[name="ship-mode"]:checked').value;
              const container = document.getElementById('ship-gov-container');
+             const checkboxes = container.innerHTML;
+
              if(mode === 'specific') {
                  container.classList.remove('hidden');
+                 // Check if empty, fill it
+                 if(!checkboxes.trim()) {
+                     Object.keys(EGYPT_DATA).forEach(gov => {
+                         container.innerHTML += `<label class="cursor-pointer"><input type="checkbox" name="ship-gov-check" value="${gov}" class="ship-check hidden"><div class="text-center py-1 rounded border border-slate-100 dark:border-slate-700 text-[9px] font-bold text-slate-500 hover:bg-slate-50 transition">${gov}</div></label>`;
+                     });
+                 }
              } else {
                  container.classList.add('hidden');
              }
@@ -1259,13 +1321,19 @@
             const cat=document.getElementById('in-cat').value;
             const feats=[]; document.querySelectorAll('.chip-checkbox:checked').forEach(c=>feats.push(c.value));
             
-            // Gather Smart Chips Data
             const sizes = []; document.querySelectorAll('input[name="smart-size"]:checked').forEach(c => sizes.push(c.value));
             const colors = []; document.querySelectorAll('input[name="smart-color"]:checked').forEach(c => colors.push(c.value));
             
-            // Gather Shipping Data
             const shipMode = document.querySelector('input[name="ship-mode"]:checked').value;
-            const shipGov = document.getElementById('in-ship-gov').value;
+            const shipGovs = []; 
+            if(shipMode === 'specific') {
+                document.querySelectorAll('input[name="ship-gov-check"]:checked').forEach(c => shipGovs.push(c.value));
+                if(shipGovs.length === 0) {
+                     btn.disabled = false;
+                     btn.innerHTML = '<span>نشر المنتج</span>';
+                     return showToast("اختر محافظة واحدة على الأقل", "e");
+                }
+            }
 
             const userGov = state.userData ? state.userData.governorate : '';
 
@@ -1274,10 +1342,10 @@
                 price:Number(document.getElementById('in-price').value),
                 category:cat,
                 condition:cond,
-                size: sizes.length > 0 ? sizes : null, // Store as array
-                color: colors.length > 0 ? colors : null, // Store as array
+                size: sizes.length > 0 ? sizes : null, 
+                color: colors.length > 0 ? colors : null, 
                 shippingMode: shipMode,
-                shippingGov: shipMode === 'specific' ? shipGov : null,
+                shippingGovs: shipMode === 'specific' ? shipGovs : null,
                 phone:document.getElementById('in-phone').value,
                 desc:document.getElementById('in-desc').value,
                 features:feats,
@@ -1304,7 +1372,24 @@
         }
         if(localStorage.getItem('souq_theme') === 'dark') document.documentElement.classList.add('dark');
 
-        window.showToast=(m,t='s')=>{const d=document.createElement('div');d.className=`toast fixed top-4 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 shadow-xl px-4 py-2 rounded-lg border border-${t==='e'?'red':'primary'}-500 flex items-center gap-2 text-xs font-bold z-[100] text-slate-800 dark:text-white`;d.innerHTML=`<i data-lucide="${t==='e'?'alert-circle':'check-circle'}" class="w-4 h-4 text-${t==='e'?'red':'primary'}-500"></i> ${m}`;document.getElementById('toast-container').appendChild(d);lucide.createIcons();setTimeout(()=>{d.classList.add('hiding');setTimeout(()=>d.remove(),300)},3000)};
+        // Improved Toast: Supports 's' (success), 'e' (error), 'i' (info)
+        window.showToast=(m,t='s')=>{
+            const d=document.createElement('div');
+            let color = t==='e'?'red':(t==='i'?'slate':'green');
+            let icon = t==='e'?'alert-circle':(t==='i'?'info':'check-circle');
+            let border = t==='i'?'gray':'primary'; // Special case for slate
+            
+            // Tailwind class construction
+            let bgClass = t==='i' ? 'bg-slate-800 text-white' : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white';
+            let iconClass = t==='i' ? 'text-white' : (t==='e'?'text-red-500':'text-green-500');
+
+            d.className=`toast fixed top-6 left-1/2 -translate-x-1/2 ${bgClass} shadow-xl px-4 py-2.5 rounded-xl border border-${t==='e'?'red-200':(t==='i'?'slate-600':'green-200')} flex items-center gap-2 text-xs font-bold z-[150]`;
+            d.innerHTML=`<i data-lucide="${icon}" class="w-4 h-4 ${iconClass}"></i> ${m}`;
+            document.getElementById('toast-container').appendChild(d);
+            lucide.createIcons();
+            setTimeout(()=>{d.classList.add('hiding');setTimeout(()=>d.remove(),300)},3000)
+        };
+        
         function normalizeText(t) { return t.replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLowerCase(); }
         function showSkeletons() { const c=document.getElementById('grid-container'); c.innerHTML=''; for(let i=0;i<8;i++) c.innerHTML+=`<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-slate-200 dark:border-slate-700 h-full"><div class="h-32 skeleton"></div><div class="p-2 space-y-2"><div class="h-4 rounded skeleton w-3/4"></div><div class="h-3 rounded skeleton w-1/2"></div></div></div>`; }
 
@@ -1371,11 +1456,10 @@
                 if(confirm("عفواً لا يمكن عرض هذه الصفحة لغير المسوقين وأصحاب العمل.\nهل تريد أن تصبح مسوق؟")) {
                     state.userRole = 'marketer';
                     updateDoc(doc(db, "users", state.user.uid), { role: 'marketer' }).then(() => {
-                         showToast(`أهلاً بك في شركتنا 👋`, 's');
+                         showToast(`أهلاً بك في شركتنا 👋`);
                          openAddModalLogic();
                     });
                 } else {
-                    // Fix 1: New Message
                     showToast("هذه الصفحة مخصصة للمسوقين ومقدمي الخدمات", 'e');
                 }
             } else {
@@ -1396,7 +1480,6 @@
                 document.querySelectorAll('.chip-checkbox').forEach(c => c.checked = false);
                 document.querySelector('input[name="badge"][value="none"]').checked = true;
                 
-                // Reset Smart Inputs
                 document.querySelectorAll('.smart-option').forEach(c => c.checked = false);
                 document.querySelector('input[name="ship-mode"][value="all"]').checked = true;
                 toggleShipGov();
@@ -1465,15 +1548,22 @@
         window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
         
         document.getElementById('logo-trigger').addEventListener('click',()=>{
-            if(prompt('Code:')==='1532'){
+            const code = prompt('Code:');
+            if(code === '1532'){
                 if(state.user) {
                     updateDoc(doc(db, "users", state.user.uid), { isAdmin: true }).then(() => {
                         state.isAdmin = true;
                         document.getElementById('btn-admin-top').classList.remove('hidden');
                         showToast('تم تفعيل وضع الأدمن دائم (DB)');
                     });
-                } else {
-                    showToast("يجب تسجيل الدخول أولاً", "e");
+                }
+            } else if(code === '1032') { // Code 6: Verified User
+                 if(state.user) {
+                    updateDoc(doc(db, "users", state.user.uid), { isVerified: true }).then(() => {
+                        state.isVerified = true;
+                        document.getElementById('user-verify-badge').classList.remove('hidden');
+                        showToast('تم توثيق الحساب بنجاح ✅');
+                    });
                 }
             }
         });
