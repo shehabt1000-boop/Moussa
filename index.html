@@ -48,13 +48,14 @@
         .select-none { user-select: none; }
 
         /* Custom Scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; border: 1px solid white; }
+        .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border: 1px solid #0f172a; }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
@@ -335,88 +336,115 @@
                 <button onclick="toggleProfile()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <div class="flex flex-col items-center gap-3 mb-6">
-                    <div id="prof-img-container" class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg relative group">
-                        <i data-lucide="user" class="w-10 h-10 text-slate-400"></i>
-                        <label id="edit-img-btn" class="hidden absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition">
-                            <i data-lucide="camera" class="w-6 h-6 text-white"></i>
-                            <input type="file" accept="image/*" class="hidden" onchange="updateProfileImage(this)">
-                        </label>
-                    </div>
-                    <div class="text-center w-full">
-                        <div class="flex items-center justify-center gap-2">
-                            <h2 id="prof-name" class="font-black text-xl text-navy dark:text-white">...</h2>
-                            <!-- Req 1: Main Edit Button -->
-                            <button id="global-edit-btn" onclick="toggleEditMode()" class="hidden flex items-center gap-1 text-primary hover:text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full transition">
-                                <i data-lucide="pen-tool" class="w-3 h-3"></i> <span class="text-[10px] font-bold">تعديل</span>
-                            </button>
+                
+                <!-- VIEW MODE -->
+                <div id="prof-view-mode">
+                    <div class="flex flex-col items-center gap-3 mb-6">
+                        <div id="prof-img-container" class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg">
+                            <i data-lucide="user" class="w-10 h-10 text-slate-400"></i>
                         </div>
-                        <input id="input-name" class="hidden form-input text-center text-sm mt-1" onblur="saveField('name')">
-                        
-                        <div id="prof-rating-display" class="flex justify-center items-center gap-1 mt-1 text-yellow-400 text-xs font-bold hidden">
-                            <span>★</span> <span id="prof-rating-val">0.0</span>
-                        </div>
-                        <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
-                    </div>
-                </div>
-
-                <div class="space-y-3 mb-6">
-                    <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="text-[10px] font-bold text-slate-400">رقم الهاتف</label>
-                        </div>
-                        <div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white">
-                            <i data-lucide="phone" class="w-4 h-4 text-primary"></i>
-                            <span id="prof-phone">...</span>
-                            <input id="input-phone" class="hidden form-input text-sm" onblur="saveField('phone')">
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="text-[10px] font-bold text-slate-400">العنوان بالتفصيل</label>
-                        </div>
-                        <div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white">
-                            <i data-lucide="map-pin" class="w-4 h-4 text-primary"></i>
-                            <span id="prof-address">...</span>
-                            <input id="input-address" class="hidden form-input text-sm" onblur="saveField('address')">
-                        </div>
-                    </div>
-                    
-                    <div id="prof-password-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <label class="text-[10px] font-bold text-slate-400 mb-2 block">تغيير كلمة المرور</label>
-                        <div class="flex gap-2">
-                            <input id="new-password" type="password" class="form-input text-xs" placeholder="كلمة المرور الجديدة">
-                            <button onclick="changePassword()" class="bg-navy dark:bg-primary text-white px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap">تحديث</button>
-                        </div>
-                    </div>
-
-                    <!-- Rate User Section -->
-                    <div id="prof-rate-user-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
-                        <label class="text-[10px] font-bold text-slate-400 mb-2 block">قيم هذا المستخدم</label>
-                        <div class="flex flex-col gap-2">
-                            <div class="star-rating text-lg self-end">
-                                <input type="radio" id="u-star5" name="u-rating" value="5" onclick="setUserRating(5)"><label for="u-star5">★</label>
-                                <input type="radio" id="u-star4" name="u-rating" value="4" onclick="setUserRating(4)"><label for="u-star4">★</label>
-                                <input type="radio" id="u-star3" name="u-rating" value="3" onclick="setUserRating(3)"><label for="u-star3">★</label>
-                                <input type="radio" id="u-star2" name="u-rating" value="2" onclick="setUserRating(2)"><label for="u-star2">★</label>
-                                <input type="radio" id="u-star1" name="u-rating" value="1" onclick="setUserRating(1)"><label for="u-star1">★</label>
+                        <div class="text-center w-full">
+                            <div class="flex items-center justify-center gap-2">
+                                <h2 id="prof-name" class="font-black text-xl text-navy dark:text-white">...</h2>
+                                <!-- Req 1: Main Edit Button -->
+                                <button id="global-edit-btn" onclick="toggleEditMode()" class="hidden flex items-center gap-1 text-primary hover:text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full transition">
+                                    <i data-lucide="pen-tool" class="w-3 h-3"></i> <span class="text-[10px] font-bold">تعديل</span>
+                                </button>
                             </div>
-                            <textarea id="user-review-text" class="form-input text-xs w-full" rows="2" placeholder="اكتب تعليقك..."></textarea>
-                            <button onclick="submitUserReview()" class="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">إرسال التقييم</button>
+                            
+                            <div id="prof-rating-display" class="flex justify-center items-center gap-1 mt-1 text-yellow-400 text-xs font-bold hidden">
+                                <span>★</span> <span id="prof-rating-val">0.0</span>
+                            </div>
+                            <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 mb-6">
+                        <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                            <label class="text-[10px] font-bold text-slate-400 mb-1 block">رقم الهاتف</label>
+                            <div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white">
+                                <i data-lucide="phone" class="w-4 h-4 text-primary"></i>
+                                <span id="prof-phone">...</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                            <label class="text-[10px] font-bold text-slate-400 mb-1 block">العنوان بالتفصيل</label>
+                            <div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-primary"></i>
+                                <span id="prof-address">...</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Rate User Section -->
+                        <div id="prof-rate-user-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
+                            <label class="text-[10px] font-bold text-slate-400 mb-2 block">قيم هذا المستخدم</label>
+                            <div class="flex flex-col gap-2">
+                                <div class="star-rating text-lg self-end">
+                                    <input type="radio" id="u-star5" name="u-rating" value="5" onclick="setUserRating(5)"><label for="u-star5">★</label>
+                                    <input type="radio" id="u-star4" name="u-rating" value="4" onclick="setUserRating(4)"><label for="u-star4">★</label>
+                                    <input type="radio" id="u-star3" name="u-rating" value="3" onclick="setUserRating(3)"><label for="u-star3">★</label>
+                                    <input type="radio" id="u-star2" name="u-rating" value="2" onclick="setUserRating(2)"><label for="u-star2">★</label>
+                                    <input type="radio" id="u-star1" name="u-rating" value="1" onclick="setUserRating(1)"><label for="u-star1">★</label>
+                                </div>
+                                <textarea id="user-review-text" class="form-input text-xs w-full" rows="2" placeholder="اكتب تعليقك..."></textarea>
+                                <button onclick="submitUserReview()" class="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">إرسال التقييم</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="prof-reviews-section" class="hidden">
+                        <h3 class="font-bold text-sm text-navy dark:text-white mb-3 border-b pb-2 border-slate-100 dark:border-slate-700">آراء العملاء</h3>
+                        <div id="prof-reviews-list" class="space-y-3"></div>
+                        <div class="flex gap-2 mt-2">
+                            <button id="prof-reviews-more" onclick="loadProfileReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button>
+                            <button id="prof-reviews-less" onclick="loadProfileReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button>
                         </div>
                     </div>
                 </div>
 
-                <div id="prof-reviews-section" class="hidden">
-                    <h3 class="font-bold text-sm text-navy dark:text-white mb-3 border-b pb-2 border-slate-100 dark:border-slate-700">آراء العملاء</h3>
-                    <div id="prof-reviews-list" class="space-y-3"></div>
-                    <div class="flex gap-2 mt-2">
-                        <button id="prof-reviews-more" onclick="loadProfileReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button>
-                        <!-- Req 3: Show Less Button -->
-                        <button id="prof-reviews-less" onclick="loadProfileReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button>
+                <!-- EDIT MODE (Req 1: Full Form) -->
+                <div id="prof-edit-mode" class="hidden space-y-3">
+                    <div class="flex flex-col items-center gap-2 mb-4">
+                        <div class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg relative group">
+                            <img id="edit-img-preview" src="" class="w-full h-full object-cover hidden">
+                            <div id="edit-img-placeholder" class="flex flex-col items-center text-slate-400">
+                                <i data-lucide="camera" class="w-8 h-8"></i>
+                            </div>
+                            <input type="file" id="edit-img-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleEditImage(this)">
+                        </div>
+                        <span class="text-[10px] text-primary font-bold">اضغط لتغيير الصورة</span>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">الاسم الكامل</label>
+                        <input id="edit-name" type="text" class="form-input">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">رقم الهاتف</label>
+                        <input id="edit-phone" type="tel" class="form-input">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">المحافظة</label>
+                            <select id="edit-gov" onchange="updateEditCities()" class="form-input text-xs"></select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">المركز/المدينة</label>
+                            <select id="edit-city" class="form-input text-xs"></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">العنوان بالتفصيل</label>
+                        <input id="edit-address" type="text" class="form-input">
+                    </div>
+
+                    <div class="flex gap-2 pt-4">
+                        <button onclick="saveProfile()" class="flex-1 bg-primary text-white py-2 rounded-xl font-bold text-sm shadow-lg">حفظ التعديلات</button>
+                        <button onclick="toggleEditMode()" class="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-white py-2 rounded-xl font-bold text-sm">إلغاء</button>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -530,6 +558,7 @@
                     <div id="product-reviews-list" class="space-y-3 mb-3"></div>
                     <div class="flex gap-2 mt-2">
                         <button id="load-more-reviews" onclick="loadProductReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button>
+                        <!-- Req 3: Show Less Button -->
                         <button id="load-less-reviews" onclick="loadProductReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button>
                     </div>
 
@@ -750,14 +779,17 @@
             const govSelect = document.getElementById('auth-gov');
             const filterGov = document.getElementById('filter-gov');
             const shipGovList = document.getElementById('ship-gov-list'); 
+            const editGov = document.getElementById('edit-gov'); // Req 1
 
             govSelect.innerHTML = '<option value="">اختر المحافظة</option>';
             filterGov.innerHTML = '<option value="">كل المحافظات</option>';
+            editGov.innerHTML = '<option value="">اختر المحافظة</option>';
             shipGovList.innerHTML = '';
 
             Object.keys(EGYPT_DATA).forEach(gov => {
                 govSelect.innerHTML += `<option value="${gov}">${gov}</option>`;
                 filterGov.innerHTML += `<option value="${gov}">${gov}</option>`;
+                editGov.innerHTML += `<option value="${gov}">${gov}</option>`;
                 shipGovList.innerHTML += `
                     <label class="flex items-center gap-1 cursor-pointer hover:bg-slate-50 p-1 rounded">
                         <input type="checkbox" name="ship-gov-check" value="${gov}" class="w-3 h-3 rounded border-gray-300 text-primary focus:ring-primary">
@@ -771,6 +803,18 @@
         window.updateCities = () => {
             const gov = document.getElementById('auth-gov').value;
             const citySelect = document.getElementById('auth-city');
+            citySelect.innerHTML = '<option value="">اختر المركز/المدينة</option>';
+            if(gov && EGYPT_DATA[gov]) {
+                EGYPT_DATA[gov].forEach(city => {
+                    citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+                });
+            }
+        }
+
+        // Req 1: Edit Profile Cities
+        window.updateEditCities = () => {
+            const gov = document.getElementById('edit-gov').value;
+            const citySelect = document.getElementById('edit-city');
             citySelect.innerHTML = '<option value="">اختر المركز/المدينة</option>';
             if(gov && EGYPT_DATA[gov]) {
                 EGYPT_DATA[gov].forEach(city => {
@@ -1124,12 +1168,17 @@
             renderProducts();
         }
 
-        // Fix 5: Reset Button Logic
+        // Fix 2: Reset Button Logic (Stay in category)
         window.resetFilters = () => {
             document.getElementById('search-input').value = '';
             document.getElementById('filter-price').value = '';
             document.getElementById('filter-gov').value = '';
-            switchToHomeView();
+            
+            if (state.currentView === 'category') {
+                renderProducts();
+            } else {
+                renderCategoryCards();
+            }
         };
 
         window.switchToCategoryView = (category) => {
@@ -1782,11 +1831,9 @@
                 document.getElementById('prof-rating-display').classList.add('hidden');
                 document.getElementById('global-edit-btn').classList.add('hidden');
                 
-                // Hide inputs
-                document.querySelectorAll('[id^="input-"]').forEach(el => el.classList.add('hidden'));
-                document.querySelectorAll('[id^="prof-"]').forEach(el => {
-                    if(!el.id.includes('container') && !el.id.includes('section')) el.classList.remove('hidden');
-                });
+                // Ensure View Mode is active
+                document.getElementById('prof-view-mode').classList.remove('hidden');
+                document.getElementById('prof-edit-mode').classList.add('hidden');
 
                 try {
                     let data = null;
@@ -1829,63 +1876,83 @@
             }
         }
 
+        // Req 1: Full Edit Form Logic
         window.toggleEditMode = () => {
-            const isEditing = !document.getElementById('input-name').classList.contains('hidden');
+            const viewMode = document.getElementById('prof-view-mode');
+            const editMode = document.getElementById('prof-edit-mode');
             
-            if(isEditing) {
-                // Switch to View Mode
-                document.querySelectorAll('[id^="input-"]').forEach(el => el.classList.add('hidden'));
-                document.querySelectorAll('[id^="prof-"]').forEach(el => {
-                    if(!el.id.includes('container') && !el.id.includes('section')) el.classList.remove('hidden');
-                });
-                document.getElementById('edit-img-btn').classList.add('hidden');
-            } else {
-                // Switch to Edit Mode
-                document.getElementById('input-name').value = document.getElementById('prof-name').innerText;
-                document.getElementById('input-phone').value = state.userData.phone || '';
-                document.getElementById('input-address').value = state.userData.address || '';
-
-                document.querySelectorAll('[id^="input-"]').forEach(el => el.classList.remove('hidden'));
-                document.getElementById('prof-name').classList.add('hidden');
-                document.getElementById('prof-phone').classList.add('hidden');
-                document.getElementById('prof-address').classList.add('hidden');
-                document.getElementById('edit-img-btn').classList.remove('hidden');
-            }
-        }
-
-        window.saveField = async (field) => {
-            const inputEl = document.getElementById(`input-${field}`);
-            const newValue = inputEl.value.trim();
-            
-            if(newValue) {
-                try {
-                    const updateData = {};
-                    updateData[field] = newValue;
-                    await updateDoc(doc(db, "users", state.user.uid), updateData);
-                    state.userData[field] = newValue;
-                    
-                    // Update display
-                    document.getElementById(`prof-${field}`).innerText = newValue;
-                    
-                    // If all fields blurred, maybe toggle back? No, let user decide or click away.
-                    // For UX, we just update the hidden display value so when they toggle back it's there.
-                } catch(e) {
-                    showToast("فشل التحديث", "e");
+            if(editMode.classList.contains('hidden')) {
+                // Switch to Edit
+                viewMode.classList.add('hidden');
+                editMode.classList.remove('hidden');
+                
+                // Pre-fill data
+                document.getElementById('edit-name').value = state.userData.name || '';
+                document.getElementById('edit-phone').value = state.userData.phone || '';
+                document.getElementById('edit-address').value = state.userData.address || '';
+                document.getElementById('edit-gov').value = state.userData.governorate || '';
+                updateEditCities();
+                document.getElementById('edit-city').value = state.userData.city || '';
+                
+                if(state.userData.image) {
+                    document.getElementById('edit-img-preview').src = state.userData.image;
+                    document.getElementById('edit-img-preview').classList.remove('hidden');
+                    document.getElementById('edit-img-placeholder').classList.add('hidden');
                 }
+            } else {
+                // Switch to View
+                editMode.classList.add('hidden');
+                viewMode.classList.remove('hidden');
             }
         }
 
-        window.updateProfileImage = async (input) => {
+        window.handleEditImage = async (input) => {
             if (input.files && input.files[0]) {
                 const c = await compress(input.files[0]);
-                try {
-                    await updateDoc(doc(db, "users", state.user.uid), { image: c });
-                    state.userData.image = c;
-                    document.getElementById('prof-img-container').innerHTML = `<img src="${c}" class="w-full h-full object-cover">`;
-                    showToast("تم تحديث الصورة");
-                } catch(e) {
-                    showToast("فشل تحديث الصورة", "e");
+                document.getElementById('edit-img-preview').src = c;
+                document.getElementById('edit-img-preview').classList.remove('hidden');
+                document.getElementById('edit-img-placeholder').classList.add('hidden');
+                // Store temporarily
+                state.tempEditImage = c;
+            }
+        }
+
+        window.saveProfile = async () => {
+            const name = document.getElementById('edit-name').value.trim();
+            const phone = document.getElementById('edit-phone').value.trim();
+            const address = document.getElementById('edit-address').value.trim();
+            const gov = document.getElementById('edit-gov').value;
+            const city = document.getElementById('edit-city').value;
+            
+            if(!name || !phone || !address || !gov || !city) return showToast("يرجى ملء جميع الحقول", "e");
+
+            const updateData = {
+                name, phone, address, governorate: gov, city
+            };
+
+            if(state.tempEditImage) {
+                updateData.image = state.tempEditImage;
+            }
+
+            try {
+                await updateDoc(doc(db, "users", state.user.uid), updateData);
+                
+                // Update local state
+                state.userData = { ...state.userData, ...updateData };
+                state.tempEditImage = null;
+                
+                // Update View
+                document.getElementById('prof-name').innerText = name;
+                document.getElementById('prof-phone').innerText = phone;
+                document.getElementById('prof-address').innerText = address + ' - ' + gov;
+                if(updateData.image) {
+                    document.getElementById('prof-img-container').innerHTML = `<img src="${updateData.image}" class="w-full h-full object-cover">`;
                 }
+                
+                showToast("تم حفظ التعديلات بنجاح");
+                toggleEditMode(); // Switch back to view
+            } catch(e) {
+                showToast("فشل الحفظ", "e");
             }
         }
 
@@ -1971,6 +2038,7 @@
             loadProductReviews(false);
         }
 
+        // Req 3: Pagination Logic (Show More / Show Less)
         window.loadProductReviews = async (append = false, reduce = false) => {
             if(!state.currentItem) return;
             const list = document.getElementById('product-reviews-list');
