@@ -49,9 +49,10 @@
 
         /* Custom Scrollbar */
         .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; }
+        .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -67,7 +68,7 @@
             .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
-        /* Toast */
+        /* Modern Toast */
         @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         .toast { 
@@ -116,8 +117,8 @@
         .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Splash Screen - High Z-Index */
-        #splash-screen { position: fixed; inset: 0; z-index: 9999; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        /* Splash Screen */
+        #splash-screen { position: fixed; inset: 0; z-index: 300; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
         #splash-screen.fade-out { opacity: 0; pointer-events: none; }
     </style>
 </head>
@@ -125,8 +126,8 @@
 
     <!-- Splash Screen -->
     <div id="splash-screen">
-        <div class="bg-primary text-white p-4 rounded-3xl shadow-2xl mb-4 animate-bounce">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <div class="bg-primary text-white p-4 rounded-full shadow-2xl mb-4 animate-bounce">
+            <i data-lucide="shopping-bag" class="w-12 h-12"></i>
         </div>
         <h1 class="text-3xl font-black text-white mb-2">السوق <span class="text-primary">وياك</span></h1>
         <div class="spinner border-primary"></div>
@@ -299,7 +300,7 @@
 
             <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar"></div>
 
-            <div id="grid-container" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-10 mt-2"></div>
+            <div id="grid-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-10 mt-2"></div>
 
             <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
             <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
@@ -312,8 +313,8 @@
             <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
         </nav>
 
-        <!-- PWA Install Banner -->
-        <div id="install-banner" class="hidden fixed top-14 left-4 right-4 bg-navy dark:bg-white dark:text-navy text-white p-3 rounded-xl shadow-2xl z-[110] flex items-center justify-between install-banner border dark:border-slate-200">
+        <!-- PWA Install Banner (Top) -->
+        <div id="install-banner" class="hidden fixed top-0 left-0 right-0 bg-navy dark:bg-white dark:text-navy text-white p-3 shadow-2xl z-[110] flex items-center justify-between install-banner border-b dark:border-slate-200">
             <div class="flex items-center gap-3">
                 <div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-5 h-5"></i></div>
                 <div>
@@ -355,7 +356,7 @@
                                 <span>★</span> <span id="prof-rating-val">0.0</span>
                             </div>
                             <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
-                            <div id="prof-joined" class="text-[10px] text-slate-400 mt-1"></div>
+                            <p id="prof-joined" class="text-[10px] text-slate-400 mt-1"></p>
                         </div>
                     </div>
 
@@ -456,53 +457,106 @@
         </div>
     </div>
 
-    <!-- Order Modal -->
+    <!-- Order Modal (Req 7) -->
     <div id="order-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-primary p-3 text-white flex justify-between items-center shrink-0">
                 <h3 class="font-bold text-sm">طلب المنتج</h3>
-                <button onclick="toggleModal('order-modal')" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <button onclick="toggleOrderModal()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <div class="flex items-center gap-3 mb-4 bg-slate-50 dark:bg-slate-800 p-2 rounded-lg">
-                    <img id="order-img" src="" class="w-12 h-12 rounded-lg object-cover">
+                <div class="mb-4 p-2 bg-slate-50 dark:bg-slate-800 rounded-lg flex gap-3 items-center">
+                    <img id="ord-img" src="" class="w-12 h-12 rounded object-cover">
                     <div>
-                        <h4 id="order-title" class="font-bold text-xs text-navy dark:text-white line-clamp-1"></h4>
-                        <span id="order-price" class="text-primary font-black text-sm"></span>
+                        <h4 id="ord-title" class="font-bold text-xs text-navy dark:text-white"></h4>
+                        <span id="ord-price" class="text-primary font-black text-sm"></span>
                     </div>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label class="form-label">عدد القطع</label>
-                    <div class="flex items-center gap-3">
-                        <button onclick="updateOrderQty(-1)" class="bg-slate-200 dark:bg-slate-700 p-1 rounded-lg"><i data-lucide="minus" class="w-4 h-4"></i></button>
-                        <span id="order-qty" class="font-bold text-lg w-8 text-center">1</span>
-                        <button onclick="updateOrderQty(1)" class="bg-slate-200 dark:bg-slate-700 p-1 rounded-lg"><i data-lucide="plus" class="w-4 h-4"></i></button>
-                    </div>
+                <div id="order-items-container" class="space-y-3">
+                    <!-- Items will be added here -->
                 </div>
 
-                <div id="order-items-container" class="space-y-3 mb-4"></div>
+                <button onclick="addOrderItem()" class="w-full py-2 mt-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 text-xs font-bold hover:border-primary hover:text-primary transition flex items-center justify-center gap-1">
+                    <i data-lucide="plus" class="w-3 h-3"></i> إضافة قطعة أخرى
+                </button>
 
-                <div class="space-y-2 border-t border-slate-100 dark:border-slate-700 pt-3">
-                    <div class="form-group">
+                <div class="mt-6 space-y-3 border-t border-slate-100 dark:border-slate-700 pt-4">
+                    <div>
+                        <label class="form-label">المحافظة</label>
+                        <select id="ord-gov" class="form-input text-xs"></select>
+                    </div>
+                    <div>
                         <label class="form-label">رقم الهاتف</label>
-                        <input id="order-phone" type="tel" class="form-input text-xs" placeholder="01xxxxxxxxx">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">المحافظة / العنوان</label>
-                        <input id="order-address" type="text" class="form-input text-xs" placeholder="العنوان بالتفصيل...">
+                        <input id="ord-phone" type="tel" class="form-input text-xs" placeholder="01xxxxxxxxx">
                     </div>
                 </div>
             </div>
             <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg shrink-0">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-xs font-bold text-slate-500">الإجمالي:</span>
-                    <span id="order-total" class="text-lg font-black text-primary">0 ج.م</span>
+                    <span id="ord-total" class="text-lg font-black text-primary">0 ج.م</span>
                 </div>
-                <button onclick="sendOrderToWhatsApp()" class="w-full bg-[#25D366] text-white py-3 rounded-xl font-bold text-sm shadow-lg hover:opacity-90 transition flex justify-center items-center gap-2">
-                    <i data-lucide="message-circle" class="w-4 h-4"></i> تأكيد الطلب عبر واتساب
-                </button>
+                <button onclick="confirmOrder()" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg">تأكيد الطلب عبر واتساب</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Add Modal -->
+    <div id="add-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0 h-12">
+                <h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة منتج</h3>
+                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-white dark:bg-darkbg custom-scroll">
+                <div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-2"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input h-9 text-xs" placeholder="اسم المنتج..."></div>
+                    <div class="form-group"><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input h-9 text-xs" placeholder="0"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="form-group"><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input h-9 text-xs bg-gray-50"></select></div>
+                    <div id="field-condition" class="form-group hidden"><label class="form-label">الحالة</label><select id="in-condition" class="form-input h-9 text-xs"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
+                </div>
+                
+                <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group space-y-2 hidden">
+                    <div id="field-size-chips" class="hidden">
+                        <label class="form-label text-primary">المقاسات المتاحة</label>
+                        <div id="size-chips-container" class="flex flex-wrap gap-1.5"></div>
+                    </div>
+                    <div id="field-color-chips" class="hidden">
+                        <label class="form-label text-primary">الألوان المتاحة</label>
+                        <div id="color-chips-container" class="flex flex-wrap gap-1.5"></div>
+                    </div>
+                </div>
+
+                <div class="form-group bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <label class="form-label mb-1">أماكن الشحن</label>
+                    <div class="flex gap-2 mb-2">
+                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="all" onchange="toggleShipGov()" checked class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">كل المحافظات</div></label>
+                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="specific" onchange="toggleShipGov()" class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">محافظات محددة</div></label>
+                    </div>
+                    <div id="ship-gov-container" class="hidden">
+                        <div class="text-[10px] mb-1 text-slate-400">اختر المحافظات المتاحة:</div>
+                        <div id="ship-gov-list" class="max-h-24 overflow-y-auto custom-scroll grid grid-cols-2 gap-1 p-1 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-600 rounded-lg">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group"><label class="form-label">مواصفات إضافية:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="هاي كوبي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label></div></div>
+                
+                <div class="form-group"><label class="form-label">تمييز:</label><div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg"><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div>
+                
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="form-group col-span-1"><label class="form-label">رقم الهاتف</label><input id="in-phone" type="tel" class="form-input h-9 text-xs" placeholder="01xxxxxxxxx"></div>
+                    <div class="form-group col-span-2"><label class="form-label">الوصف</label><textarea id="in-desc" rows="1" class="form-input text-xs" placeholder="تفاصيل..."></textarea></div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-3"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر الآن</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
         </div>
     </div>
 
@@ -522,9 +576,9 @@
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                
-                <button onclick="openOrderModal()" class="w-full bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex justify-center items-center gap-2 animate-pulse">
-                    <i data-lucide="shopping-cart" class="w-4 h-4"></i> طلب المنتج
+                <!-- Req 5: Order Button -->
+                <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج
                 </button>
 
                 <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
@@ -539,10 +593,11 @@
                 </div>
 
                 <div class="flex justify-between items-start mb-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><h2 id="d-title" class="text-base font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-lg whitespace-nowrap select-text"></span></div>
-                
-                <div id="d-time" class="text-[9px] text-slate-400 mb-2 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> <span></span></div>
-
-                <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span></div>
+                <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700">
+                    <span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> 
+                    <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span>
+                    <span id="d-date" class="text-[10px] text-slate-400 mr-auto"></span>
+                </div>
                 
                 <div id="d-variants-container" class="space-y-2 mb-4">
                     <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg">
@@ -587,6 +642,37 @@
             <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-2 shrink-0 pb-8 md:pb-3"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="phone" class="w-4 h-4"></i> اتصال</a></div>
         </div>
     </div>
+
+    <!-- Chat Modal -->
+    <div id="chat-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div>
+                    <div><h4 class="font-bold text-xs">الدعم الفني</h4></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="https://wa.me/201206244875" target="_blank" class="bg-[#25D366] px-2 py-1 rounded-full flex items-center gap-1 text-[10px] font-bold hover:opacity-90 transition">
+                        <i data-lucide="message-circle" class="w-3 h-3"></i> 01206244875
+                    </a>
+                    <button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+            <div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
+            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe"><input id="chat-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب..."><button onclick="sendMsg()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button></div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center select-none">
+        <button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button>
+        <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
+        <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
+        <div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] overflow-y-auto p-2" id="admin-users-list"></div><div class="w-2/3 flex flex-col bg-navy relative"><div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38]"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div><div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38]"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -747,7 +833,7 @@
             profileReviews: [],
             profileReviewsLimit: 3,
             viewingProfileId: null,
-            orderQty: 1
+            orderItems: [] // Req 7
         };
 
         function initGovs() {
@@ -755,16 +841,19 @@
             const filterGov = document.getElementById('filter-gov');
             const shipGovList = document.getElementById('ship-gov-list'); 
             const editGov = document.getElementById('edit-gov'); 
+            const ordGov = document.getElementById('ord-gov'); // Req 7
 
             govSelect.innerHTML = '<option value="">اختر المحافظة</option>';
             filterGov.innerHTML = '<option value="">كل المحافظات</option>';
             editGov.innerHTML = '<option value="">اختر المحافظة</option>';
+            ordGov.innerHTML = '<option value="">اختر المحافظة</option>';
             shipGovList.innerHTML = '';
 
             Object.keys(EGYPT_DATA).forEach(gov => {
                 govSelect.innerHTML += `<option value="${gov}">${gov}</option>`;
                 filterGov.innerHTML += `<option value="${gov}">${gov}</option>`;
                 editGov.innerHTML += `<option value="${gov}">${gov}</option>`;
+                ordGov.innerHTML += `<option value="${gov}">${gov}</option>`;
                 shipGovList.innerHTML += `
                     <label class="flex items-center gap-1 cursor-pointer hover:bg-slate-50 p-1 rounded">
                         <input type="checkbox" name="ship-gov-check" value="${gov}" class="w-3 h-3 rounded border-gray-300 text-primary focus:ring-primary">
@@ -810,7 +899,6 @@
             const appContent = document.getElementById('app-content');
             const splash = document.getElementById('splash-screen');
             
-            // Req 2: Splash Screen Immediate Load
             if(splash) {
                 splash.classList.add('fade-out');
                 setTimeout(() => splash.remove(), 500);
@@ -821,9 +909,6 @@
             appContent.classList.remove('hidden');
             document.getElementById('loader').classList.add('hidden'); 
         }
-
-        // Safety Timeout for Splash Screen
-        setTimeout(forceSwitchToApp, 3000);
 
         onAuthStateChanged(auth, async (u) => { 
             if(u) { 
@@ -1279,18 +1364,17 @@
             lucide.createIcons(); 
         }
 
-        // Req 6: Helper for Timestamps
+        // Req 6: Format Date Helper
         function formatDate(timestamp) {
             if (!timestamp) return '';
             const date = timestamp.toDate();
             const now = new Date();
-            const diff = (now - date) / 1000; 
+            const diff = Math.floor((now - date) / 1000); // seconds
 
-            if (diff < 60) return 'الآن';
+            if (diff < 60) return 'منذ لحظات';
             if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
             if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
             if (diff < 604800) return `منذ ${Math.floor(diff / 86400)} يوم`;
-            
             return date.toLocaleDateString('ar-EG');
         }
 
@@ -1309,8 +1393,8 @@
             const showControls = state.isAdmin || isOwner;
             const controls = showControls ? `<div class="absolute top-1 right-1 z-20 flex gap-1"><button onclick="del(event,'${item.id}')" class="bg-white/80 text-red-500 p-1 rounded shadow"><i data-lucide="trash-2" class="w-3 h-3"></i></button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}')" class="bg-white/80 text-blue-600 p-1 rounded shadow"><i data-lucide="edit-3" class="w-3 h-3"></i></button></div>` : '';
 
-            // Req 6: Smaller Card Height (h-28)
-            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-4 h-4 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-2 py-0.5 rounded text-[9px] font-bold shadow z-10">${item.category}</span></div><div class="p-2 flex-1 flex flex-col"><div class="flex justify-between items-start mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-xs line-clamp-1">${item.title}</h3><span class="font-black text-primary text-xs whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[10px] text-slate-500 dark:text-slate-400 mb-2 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1.5 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-2 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1.5 rounded flex justify-center items-center gap-1 text-[10px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
+            // Req 6: Smaller Card Layout
+            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-3 h-3"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${item.category}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[8px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span><span class="text-[8px] text-slate-300 ml-auto">${formatDate(item.createdAt)}</span></div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
         }
 
         function goToDetailsSlide(index, behavior = 'auto') {
@@ -1366,9 +1450,7 @@
             document.getElementById('d-cat').innerText = item.category; 
             document.getElementById('d-desc').innerText = item.desc;
             document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
-            
-            // Req 6: Posted Time
-            document.getElementById('d-time').querySelector('span').innerText = formatDate(item.createdAt);
+            document.getElementById('d-date').innerText = formatDate(item.createdAt); // Req 6
 
             const pubBar = document.getElementById('d-pub-bar');
             pubBar.onclick = () => toggleProfile(item.authorId);
@@ -1816,6 +1898,7 @@
                 document.getElementById('prof-role').innerText = '...';
                 document.getElementById('prof-phone').innerText = '...';
                 document.getElementById('prof-address').innerText = '...';
+                document.getElementById('prof-joined').innerText = '';
                 document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
                 document.getElementById('prof-password-section').classList.add('hidden');
                 document.getElementById('prof-reviews-section').classList.add('hidden');
@@ -1841,9 +1924,7 @@
                         document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل';
                         document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل';
                         document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || '');
-                        
-                        // Req 6: Joined Date
-                        document.getElementById('prof-joined').innerText = `انضم: ${formatDate(data.createdAt)}`;
+                        document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt); // Req 6
 
                         if(data.image) {
                             document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
@@ -2068,15 +2149,11 @@
 
                     list.innerHTML += `
                         <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
-                            <div class="flex justify-between mb-1">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
-                                    <span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span>
-                                </div>
-                                <div class="flex flex-col items-end">
-                                    <span class="text-yellow-400 text-xs tracking-tighter">${stars}</span>
-                                    <span class="text-[8px] text-slate-400">${formatDate(r.timestamp)}</span>
-                                </div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
+                                <span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span>
+                                <span class="text-yellow-400 text-xs tracking-tighter">${stars}</span>
+                                <span class="text-[8px] text-slate-300 mr-auto">${formatDate(r.timestamp)}</span>
                             </div>
                             <p class="text-[10px] text-slate-600 dark:text-slate-300 pr-8">${r.text || ''}</p>
                         </div>
@@ -2147,6 +2224,7 @@
                                     <span class="text-yellow-400">${stars}</span>
                                 </div>
                                 <p class="text-slate-600 dark:text-slate-300 pr-8">${r.text}</p>
+                                <span class="text-[8px] text-slate-300 block mt-1">${formatDate(r.timestamp)}</span>
                             </div>
                         `;
                     }
@@ -2163,6 +2241,120 @@
                 console.log("Index might be missing for profile reviews", e);
                 list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">جاري تفعيل نظام التقييمات...</p>';
             }
+        }
+
+        // Req 7: Smart Order Logic
+        window.toggleOrderModal = () => {
+            if(toggleModal('order-modal')) {
+                if(!state.currentItem) return;
+                
+                document.getElementById('ord-img').src = Array.isArray(state.currentItem.images) ? state.currentItem.images[0] : state.currentItem.image;
+                document.getElementById('ord-title').innerText = state.currentItem.title;
+                document.getElementById('ord-price').innerText = Number(state.currentItem.price).toLocaleString() + ' ج.م';
+                
+                // Pre-fill user data
+                if(state.userData) {
+                    document.getElementById('ord-phone').value = state.userData.phone || '';
+                    document.getElementById('ord-gov').value = state.userData.governorate || '';
+                }
+
+                state.orderItems = [];
+                document.getElementById('order-items-container').innerHTML = '';
+                addOrderItem(); // Add first item
+            }
+        }
+
+        window.addOrderItem = () => {
+            const index = state.orderItems.length;
+            state.orderItems.push({ qty: 1, size: '', color: '' });
+            
+            const container = document.getElementById('order-items-container');
+            const itemDiv = document.createElement('div');
+            itemDiv.className = "bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-600 relative";
+            itemDiv.id = `ord-item-${index}`;
+            
+            let sizeOptions = '';
+            if(state.currentItem.size && Array.isArray(state.currentItem.size)) {
+                sizeOptions = `<select onchange="updateOrderItem(${index}, 'size', this.value)" class="form-input text-xs h-8 w-full mb-1"><option value="">المقاس</option>${state.currentItem.size.map(s => `<option value="${s}">${s}</option>`).join('')}</select>`;
+            }
+
+            let colorOptions = '';
+            if(state.currentItem.color && Array.isArray(state.currentItem.color)) {
+                colorOptions = `<select onchange="updateOrderItem(${index}, 'color', this.value)" class="form-input text-xs h-8 w-full mb-1"><option value="">اللون</option>${state.currentItem.color.map(c => `<option value="${c}">${c}</option>`).join('')}</select>`;
+            }
+
+            itemDiv.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-primary">قطعة #${index + 1}</span>
+                    ${index > 0 ? `<button onclick="removeOrderItem(${index})" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <input type="number" value="1" min="1" onchange="updateOrderItem(${index}, 'qty', this.value)" class="form-input text-xs h-8 text-center" placeholder="العدد">
+                    <div class="col-span-2 flex gap-1">
+                        ${sizeOptions}
+                        ${colorOptions}
+                    </div>
+                </div>
+            `;
+            container.appendChild(itemDiv);
+            calculateOrderTotal();
+            lucide.createIcons();
+        }
+
+        window.updateOrderItem = (index, field, value) => {
+            if(state.orderItems[index]) {
+                state.orderItems[index][field] = field === 'qty' ? Number(value) : value;
+                calculateOrderTotal();
+            }
+        }
+
+        window.removeOrderItem = (index) => {
+            // Simplified removal: just re-render for now or hide. 
+            // For simplicity in this snippet, we won't implement full re-index logic to keep code short.
+            // Just hide and set qty to 0.
+            document.getElementById(`ord-item-${index}`).classList.add('hidden');
+            state.orderItems[index].qty = 0;
+            calculateOrderTotal();
+        }
+
+        window.calculateOrderTotal = () => {
+            let totalQty = 0;
+            state.orderItems.forEach(i => totalQty += i.qty);
+            const total = totalQty * Number(state.currentItem.price);
+            document.getElementById('ord-total').innerText = total.toLocaleString() + ' ج.م';
+        }
+
+        window.confirmOrder = () => {
+            const phone = document.getElementById('ord-phone').value;
+            const gov = document.getElementById('ord-gov').value;
+            
+            if(!phone || !gov) return showToast("يرجى إكمال البيانات (الهاتف والمحافظة)", "e");
+            
+            let msg = `*طلب جديد من تطبيق السوق وياك* 🛍️\n\n`;
+            msg += `*المنتج:* ${state.currentItem.title}\n`;
+            msg += `*السعر للقطعة:* ${state.currentItem.price}\n\n`;
+            msg += `*التفاصيل:* \n`;
+            
+            let totalQty = 0;
+            state.orderItems.forEach((item, idx) => {
+                if(item.qty > 0) {
+                    msg += `- قطعة ${idx+1}: عدد ${item.qty} | مقاس: ${item.size || '-'} | لون: ${item.color || '-'}\n`;
+                    totalQty += item.qty;
+                }
+            });
+            
+            if(totalQty === 0) return showToast("يرجى إضافة قطعة واحدة على الأقل", "e");
+
+            msg += `\n*الإجمالي:* ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`;
+            msg += `----------------\n`;
+            msg += `*بيانات العميل:*\n`;
+            msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
+            msg += `الهاتف: ${phone}\n`;
+            msg += `المحافظة: ${gov}\n`;
+            
+            const url = `https://wa.me/20${state.currentItem.phone}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+            toggleOrderModal();
         }
 
         lucide.createIcons();
