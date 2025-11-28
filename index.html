@@ -48,7 +48,7 @@
         .gpu { transform: translateZ(0); will-change: transform; }
         .select-none { user-select: none; }
 
-        /* Custom Scrollbar (Req 4) */
+        /* Custom Scrollbar */
         .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #000; border-radius: 10px; }
@@ -69,7 +69,7 @@
             .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
-        /* Toast Animation & Centering (Req 6) */
+        /* Toast Animation */
         @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         .toast { 
@@ -88,14 +88,14 @@
         .form-label { display: block; font-size: 0.7rem; font-weight: 800; color: #334155; margin-bottom: 0.1rem; }
         .dark .form-label { color: #cbd5e1; }
         
-        /* Fix 2, 8, 10: Input Alignment & Borders */
+        /* Input Styling (Black Border) */
         .form-input { 
             width: 100%; 
             background-color: #ffffff; 
-            border: 1px solid #000000 !important; /* Req 10: Black Border */
+            border: 1px solid #000000 !important; 
             border-radius: 0.5rem; 
-            padding: 0 0.75rem; /* Horizontal padding only */
-            height: 2.5rem; /* Fixed height for alignment */
+            padding: 0 0.75rem; 
+            height: 2.5rem; 
             display: flex;
             align-items: center;
             font-size: 0.8rem; 
@@ -103,17 +103,17 @@
             color: #1e293b; 
             outline: none; 
             transition: all 0.2s; 
-            line-height: normal; /* Fix vertical align */
+            line-height: normal; 
         }
         select.form-input {
             padding-top: 0;
             padding-bottom: 0;
-            -webkit-appearance: none; /* Remove default arrow to control padding */
+            -webkit-appearance: none; 
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
             background-position: left 0.5rem center;
             background-repeat: no-repeat;
             background-size: 1.5em 1.5em;
-            padding-left: 2.5rem; /* Space for arrow */
+            padding-left: 2.5rem; 
         }
         textarea.form-input {
             height: auto;
@@ -124,7 +124,6 @@
         .dark .form-input { background-color: #1e293b; border-color: #94a3b8 !important; color: white; }
         .dark .form-input:focus { border-color: #10b981 !important; }
         
-        /* Chips & Options */
         .chip-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
         .smart-option:checked + div { background-color: #0f172a; color: white; border-color: #0f172a; }
         .dark .smart-option:checked + div { background-color: #10b981; border-color: #10b981; }
@@ -158,6 +157,16 @@
                 </button>
                 <button onclick="setAuthType('signup')" id="btn-type-signup" class="flex-1 py-2 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white">
                     إنشاء حساب
+                </button>
+            </div>
+
+            <!-- Fix 3: Role Selection Restored -->
+            <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-4 border border-slate-200 dark:border-slate-700 shrink-0">
+                <button onclick="setAuthRole('customer')" id="btn-role-customer" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all bg-navy text-white shadow-md">
+                    <div class="flex items-center justify-center gap-2"><i data-lucide="user" class="w-3 h-3"></i> عميل</div>
+                </button>
+                <button onclick="setAuthRole('marketer')" id="btn-role-marketer" class="flex-1 py-2 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700">
+                    <div class="flex items-center justify-center gap-2"><i data-lucide="store" class="w-3 h-3"></i> مقدم خدمة</div>
                 </button>
             </div>
 
@@ -232,29 +241,34 @@
 
         <header class="fixed top-0 w-full z-[60] bg-white/95 dark:bg-navy/95 border-b border-slate-200 dark:border-slate-700 flex flex-col justify-center px-4 shadow-sm backdrop-blur-md h-auto py-2">
             <div class="flex items-center justify-between w-full">
-                <div class="flex items-center gap-2" id="logo-trigger">
-                    <div class="bg-navy dark:bg-primary text-white p-1.5 rounded-lg"><i data-lucide="shopping-bag" class="w-5 h-5"></i></div>
-                    <h1 class="font-bold text-base">السوق <span class="text-primary">وياك</span></h1>
+                <div class="flex flex-col" id="logo-trigger">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-navy dark:bg-primary text-white p-1.5 rounded-lg"><i data-lucide="shopping-bag" class="w-5 h-5"></i></div>
+                        <h1 class="font-bold text-base">السوق <span class="text-primary">وياك</span></h1>
+                    </div>
+                    <!-- Fix 5: Welcome Text Below Logo, Larger, Colored -->
+                    <div id="welcome-text" class="hidden text-sm font-bold mt-1">
+                        <span class="text-navy dark:text-white">مرحباً بك: </span>
+                        <span id="header-username" class="text-primary"></span>
+                    </div>
                 </div>
-                <!-- Req 3: Modern Welcome Message -->
-                <div id="welcome-text" class="hidden flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
-                    <span class="text-[10px] text-slate-500 dark:text-slate-400">مرحباً</span>
-                    <span id="header-username" class="text-xs font-bold text-navy dark:text-white truncate max-w-[80px]"></span>
-                </div>
+                
                 <div class="flex gap-2 items-center">
                     <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i></button>
+                    <!-- Fix 6: Admin Button Restored -->
+                    <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-5 h-5"></i></button>
                     <button onclick="logout()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600 hover:bg-red-100 transition"><i data-lucide="log-out" class="w-5 h-5"></i></button>
                 </div>
             </div>
         </header>
 
-        <main class="pt-20 container mx-auto px-4 max-w-6xl min-h-screen">
+        <main class="pt-24 container mx-auto px-4 max-w-6xl min-h-screen">
             <div id="view-header" class="hidden flex items-center gap-3 pb-3">
                 <button onclick="switchToHomeView()" class="bg-white dark:bg-slate-800 p-2 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm"><i data-lucide="arrow-right" class="w-5 h-5 text-slate-600 dark:text-white"></i></button>
                 <h2 id="view-title" class="text-xl font-bold text-slate-800 dark:text-white pt-1"></h2>
             </div>
 
-            <div id="search-container" class="sticky top-16 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-2 pb-3 -mx-4 px-4 transition-all">
+            <div id="search-container" class="sticky top-20 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-2 pb-3 -mx-4 px-4 transition-all">
                 <div class="relative max-w-3xl mx-auto flex gap-2 items-center">
                     <div class="relative flex-1">
                         <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-10 pl-24 h-11 shadow-sm">
@@ -272,7 +286,6 @@
                     </div>
                 </div>
                 
-                <!-- Req 2: Filter Panel Inputs Centered -->
                 <div id="filter-panel" class="hidden mt-2 bg-white dark:bg-darkbg p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl animate-pop">
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-bold text-xs">تصفية النتائج</span>
@@ -307,7 +320,7 @@
         </nav>
     </div>
 
-    <!-- Add Modal (Req 7: Reduced Padding/Spacing) -->
+    <!-- Add Modal -->
     <div id="add-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0 h-14">
@@ -328,7 +341,6 @@
                     <div id="field-condition" class="form-group hidden"><label class="form-label">الحالة</label><select id="in-condition" class="form-input h-9 text-xs"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
                 </div>
                 
-                <!-- Req 5: Smart Chips (Kids/Men/Women) -->
                 <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group space-y-2 hidden">
                     <div id="field-size-chips" class="hidden">
                         <label class="form-label text-primary">المقاسات المتاحة</label>
@@ -340,7 +352,6 @@
                     </div>
                 </div>
 
-                <!-- Req 4: Multi-select Shipping with Scrollbar -->
                 <div class="form-group bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
                     <label class="form-label mb-1">أماكن الشحن</label>
                     <div class="flex gap-2 mb-2">
@@ -350,7 +361,6 @@
                     <div id="ship-gov-container" class="hidden">
                         <div class="text-[10px] mb-1 text-slate-400">اختر المحافظات المتاحة:</div>
                         <div id="ship-gov-list" class="max-h-24 overflow-y-auto custom-scroll grid grid-cols-2 gap-1 p-1 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-600 rounded-lg">
-                            <!-- JS will fill checkboxes here -->
                         </div>
                     </div>
                 </div>
@@ -368,7 +378,7 @@
         </div>
     </div>
 
-    <!-- Details Modal (Req 1: Modern Layout) -->
+    <!-- Details Modal -->
     <div id="details-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
@@ -384,8 +394,7 @@
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg">
-                <!-- Req 1: Modern Publisher Bar -->
-                <div class="flex items-center justify-between mb-3 p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 h-12">
+                <div class="flex items-center justify-between mb-3 p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 h-auto min-h-[3rem]">
                      <div class="flex items-center gap-2">
                          <div id="d-pub-img" class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-4 h-4 text-slate-400"></i></div>
                          <div class="flex flex-col justify-center">
@@ -393,21 +402,22 @@
                              <span class="text-[9px] text-slate-400">الناشر</span>
                          </div>
                      </div>
-                     <div id="d-shipping-info" class="flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-white dark:bg-slate-700 px-2 py-1 rounded border border-slate-200 dark:border-slate-600"></div>
+                     <!-- Fix 1: Shipping Info Wraps Correctly -->
+                     <div id="d-shipping-info" class="flex flex-wrap items-center gap-1 text-[10px] font-bold text-slate-500 bg-white dark:bg-slate-700 px-2 py-1 rounded border border-slate-200 dark:border-slate-600 max-w-[50%] justify-end"></div>
                 </div>
 
                 <div class="flex justify-between items-start mb-2"><h2 id="d-title" class="text-lg font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-xl whitespace-nowrap select-text"></span></div>
                 <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span></div>
                 
-                <!-- Req 1: Consolidated Size/Color Bars -->
+                <!-- Fix 2: Sizes/Colors Wrap instead of scroll -->
                 <div id="d-variants-container" class="space-y-2 mb-4">
-                    <div id="d-sizes-row" class="hidden flex items-center gap-2 overflow-x-auto no-scrollbar">
+                    <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2">
                         <span class="text-[10px] font-bold text-slate-400 shrink-0">المقاسات:</span>
-                        <div id="d-sizes-list" class="flex gap-1"></div>
+                        <div id="d-sizes-list" class="flex flex-wrap gap-1"></div>
                     </div>
-                    <div id="d-colors-row" class="hidden flex items-center gap-2 overflow-x-auto no-scrollbar">
+                    <div id="d-colors-row" class="hidden flex flex-wrap items-center gap-2">
                         <span class="text-[10px] font-bold text-slate-400 shrink-0">الألوان:</span>
-                        <div id="d-colors-list" class="flex gap-1"></div>
+                        <div id="d-colors-list" class="flex flex-wrap gap-1"></div>
                     </div>
                 </div>
 
@@ -435,6 +445,9 @@
         <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
         <div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div>
     </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] overflow-y-auto p-2" id="admin-users-list"></div><div class="w-2/3 flex flex-col bg-navy relative"><div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38]"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div><div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38]"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -536,16 +549,10 @@
             userRole: 'customer'
         };
 
-        // Req 6: Optimization / Cleanup
-        window.cleanup = () => {
-             // Placeholder for memory management if needed
-             state.lightboxImages = [];
-        }
-
         function initGovs() {
             const govSelect = document.getElementById('auth-gov');
             const filterGov = document.getElementById('filter-gov');
-            const shipGovList = document.getElementById('ship-gov-list'); // Req 4
+            const shipGovList = document.getElementById('ship-gov-list'); 
 
             govSelect.innerHTML = '<option value="">اختر المحافظة</option>';
             filterGov.innerHTML = '<option value="">كل المحافظات</option>';
@@ -554,7 +561,6 @@
             Object.keys(EGYPT_DATA).forEach(gov => {
                 govSelect.innerHTML += `<option value="${gov}">${gov}</option>`;
                 filterGov.innerHTML += `<option value="${gov}">${gov}</option>`;
-                // Req 4: Checkboxes for shipping
                 shipGovList.innerHTML += `
                     <label class="flex items-center gap-1 cursor-pointer hover:bg-slate-50 p-1 rounded">
                         <input type="checkbox" name="ship-gov-check" value="${gov}" class="w-3 h-3 rounded border-gray-300 text-primary focus:ring-primary">
@@ -606,7 +612,13 @@
                         state.isAdmin = data.isAdmin === true;
                         document.getElementById('header-username').innerText = data.name || u.displayName;
                         document.getElementById('welcome-text').classList.remove('hidden');
-                        document.getElementById('welcome-text').classList.add('flex');
+                        
+                        // Fix 6: Admin Button Logic
+                        if(state.isAdmin) {
+                            document.getElementById('btn-admin-top').classList.remove('hidden');
+                        } else {
+                             document.getElementById('btn-admin-top').classList.add('hidden');
+                        }
                     }
                 } catch(e) {
                     console.warn("Role fetch failed", e);
@@ -752,7 +764,7 @@
                 
                 setTimeout(() => {
                     forceSwitchToApp();
-                    showToast(`أهلاً بك في السوق وياك 👋`, 's'); // Req 9
+                    showToast(`أهلاً بك في السوق وياك 👋`, 's');
                 }, 500);
 
             } catch (error) {
@@ -783,7 +795,6 @@
             "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة"
         ];
         
-        // Req 5: Smart Category Data
         const USED_CATS = ["النظارات", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال"];
         const CLOTHES_CATS = ["ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "اقمشة"];
         const SHOES_CATS = ["احذية رجالي", "احذية حريمي", "احذية اطفال"];
@@ -1107,7 +1118,6 @@
             document.getElementById('d-desc').innerText = item.desc;
             document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
 
-            // Req 1: Modern Publisher Bar
             const pubName = document.getElementById('d-pub-name');
             const pubImg = document.getElementById('d-pub-img');
             pubName.innerText = "جاري التحميل...";
@@ -1132,7 +1142,7 @@
             const amCont = document.getElementById('d-features'); 
             amCont.innerHTML=''; 
             
-            // Req 1: Consolidated Size/Color Bars
+            // Fix 2: Wrap Sizes/Colors
             const sizeRow = document.getElementById('d-sizes-row');
             const sizeList = document.getElementById('d-sizes-list');
             const colorRow = document.getElementById('d-colors-row');
@@ -1159,15 +1169,13 @@
 
             if(item.features) item.features.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1 border border-slate-200 dark:border-slate-600 font-bold">${a}</span>`);
             
-            // Req 1: Shipping Icon (Truck)
+            // Fix 1: Shipping Info Wrapping
             const shipInfo = document.getElementById('d-shipping-info');
             if(item.shippingMode === 'specific' && item.shippingGov) {
-                 // Handle array of govs
                  let govText = Array.isArray(item.shippingGov) ? item.shippingGov.join('، ') : item.shippingGov;
-                 if(govText.length > 20) govText = govText.substring(0, 20) + '...';
-                 shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3"></i> متاح لـ: ${govText}`;
+                 shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> <span class="whitespace-normal leading-tight text-right">متاح لـ: ${govText}</span>`;
             } else {
-                shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3"></i> شحن لكل المحافظات`;
+                shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> شحن لكل المحافظات`;
             }
 
             document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; 
@@ -1222,7 +1230,6 @@
             showToast("عرض المفضلة ❤️"); 
         };
 
-        // Req 5: Smart Category Data Logic (Updated)
         window.updateFormFields = () => {
             const cat = document.getElementById('in-cat').value;
             document.getElementById('field-condition').classList.toggle('hidden', !USED_CATS.includes(cat));
@@ -1268,7 +1275,6 @@
             }
         }
 
-        // Req 4: Shipping Toggle Logic (Updated for Checkboxes)
         window.toggleShipGov = () => {
              const mode = document.querySelector('input[name="ship-mode"]:checked').value;
              const container = document.getElementById('ship-gov-container');
@@ -1314,7 +1320,7 @@
                 size: sizes.length > 0 ? sizes : null, 
                 color: colors.length > 0 ? colors : null, 
                 shippingMode: shipMode,
-                shippingGov: shipMode === 'specific' ? shipGovs : null, // Save array
+                shippingGov: shipMode === 'specific' ? shipGovs : null, 
                 phone:document.getElementById('in-phone').value,
                 desc:document.getElementById('in-desc').value,
                 features:feats,
@@ -1341,7 +1347,6 @@
         }
         if(localStorage.getItem('souq_theme') === 'dark') document.documentElement.classList.add('dark');
 
-        // Req 6: Improved Toast (Centered, Better Colors)
         window.showToast=(m,t='s')=>{
             const d=document.createElement('div');
             const bgClass = t==='e' ? 'bg-red-500 text-white' : 'bg-navy dark:bg-primary text-white';
@@ -1508,11 +1513,14 @@
         function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
         function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
         
+        window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
+        
         document.getElementById('logo-trigger').addEventListener('click',()=>{
             if(prompt('Code:')==='1532'){
                 if(state.user) {
                     updateDoc(doc(db, "users", state.user.uid), { isAdmin: true }).then(() => {
                         state.isAdmin = true;
+                        document.getElementById('btn-admin-top').classList.remove('hidden');
                         showToast('تم تفعيل وضع الأدمن دائم (DB)');
                     });
                 } else {
@@ -1520,6 +1528,23 @@
                 }
             }
         });
+
+        window.refreshAdmin=()=>{
+            onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{
+                const l=document.getElementById('admin-users-list');
+                l.innerHTML='';
+                let chats = [];
+                s.forEach(d => chats.push({id: d.id, ...d.data()}));
+                chats.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                chats.forEach(dt => {
+                    l.innerHTML+=`<div onclick="loadAdmin('${dt.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>`
+                });
+            })
+        };
+
+        window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'}">${m.t}</span></div>`});b.scrollTop=9999})};
+        window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
+        window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
 
         lucide.createIcons();
     </script>
