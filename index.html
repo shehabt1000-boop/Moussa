@@ -48,14 +48,13 @@
         .select-none { user-select: none; }
 
         /* Custom Scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; border: 1px solid white; }
-        .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
-        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border: 1px solid #0f172a; }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-pop { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
@@ -68,7 +67,7 @@
             .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
-        /* Modern Toast */
+        /* Toast */
         @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         .toast { 
@@ -117,17 +116,16 @@
         .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Splash Screen Fix */
-        #splash-screen { position: fixed; inset: 0; z-index: 300; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        /* Splash Screen - High Z-Index */
+        #splash-screen { position: fixed; inset: 0; z-index: 9999; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
         #splash-screen.fade-out { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
 
-    <!-- Splash Screen (Fixed: Direct SVG) -->
+    <!-- Splash Screen -->
     <div id="splash-screen">
         <div class="bg-primary text-white p-4 rounded-3xl shadow-2xl mb-4 animate-bounce">
-            <!-- Direct SVG to ensure immediate loading -->
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         </div>
         <h1 class="text-3xl font-black text-white mb-2">السوق <span class="text-primary">وياك</span></h1>
@@ -2070,10 +2068,15 @@
 
                     list.innerHTML += `
                         <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
-                            <div class="flex items-center gap-2 mb-1">
-                                <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
-                                <span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span>
-                                <span class="text-yellow-400 text-xs tracking-tighter">${stars}</span>
+                            <div class="flex justify-between mb-1">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
+                                    <span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="text-yellow-400 text-xs tracking-tighter">${stars}</span>
+                                    <span class="text-[8px] text-slate-400">${formatDate(r.timestamp)}</span>
+                                </div>
                             </div>
                             <p class="text-[10px] text-slate-600 dark:text-slate-300 pr-8">${r.text || ''}</p>
                         </div>
@@ -2160,125 +2163,6 @@
                 console.log("Index might be missing for profile reviews", e);
                 list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">جاري تفعيل نظام التقييمات...</p>';
             }
-        }
-
-        // Req 7: Order Logic
-        window.openOrderModal = () => {
-            if(!state.currentItem) return;
-            state.orderQty = 1;
-            
-            document.getElementById('order-img').src = Array.isArray(state.currentItem.images) ? state.currentItem.images[0] : state.currentItem.image;
-            document.getElementById('order-title').innerText = state.currentItem.title;
-            document.getElementById('order-price').innerText = Number(state.currentItem.price).toLocaleString() + ' ج.م';
-            
-            // Pre-fill user data
-            if(state.userData) {
-                document.getElementById('order-phone').value = state.userData.phone || '';
-                document.getElementById('order-address').value = (state.userData.address || '') + ' - ' + (state.userData.governorate || '');
-            }
-            
-            renderOrderItems();
-            toggleModal('order-modal');
-        }
-
-        window.updateOrderQty = (change) => {
-            const newQty = state.orderQty + change;
-            if(newQty >= 1) {
-                state.orderQty = newQty;
-                document.getElementById('order-qty').innerText = newQty;
-                renderOrderItems();
-            }
-        }
-
-        window.renderOrderItems = () => {
-            const container = document.getElementById('order-items-container');
-            container.innerHTML = '';
-            
-            const sizes = state.currentItem.size || [];
-            const colors = state.currentItem.color || [];
-            
-            // Only show selectors if options exist
-            const showSize = Array.isArray(sizes) && sizes.length > 0;
-            const showColor = Array.isArray(colors) && colors.length > 0;
-
-            for(let i = 1; i <= state.orderQty; i++) {
-                let html = `<div class="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-600">
-                    <div class="text-[10px] font-bold mb-1 text-primary">قطعة رقم ${i}</div>
-                    <div class="flex gap-2">`;
-                
-                if(showSize) {
-                    html += `<select id="order-size-${i}" class="form-input text-xs h-8 flex-1">
-                        <option value="">المقاس</option>
-                        ${sizes.map(s => `<option value="${s}">${s}</option>`).join('')}
-                    </select>`;
-                }
-                
-                if(showColor) {
-                    html += `<select id="order-color-${i}" class="form-input text-xs h-8 flex-1">
-                        <option value="">اللون</option>
-                        ${colors.map(c => `<option value="${c}">${c}</option>`).join('')}
-                    </select>`;
-                }
-                
-                html += `</div></div>`;
-                
-                if(showSize || showColor) container.innerHTML += html;
-            }
-            
-            const total = state.orderQty * Number(state.currentItem.price);
-            document.getElementById('order-total').innerText = total.toLocaleString() + ' ج.م';
-        }
-
-        window.sendOrderToWhatsApp = () => {
-            const phone = document.getElementById('order-phone').value;
-            const address = document.getElementById('order-address').value;
-            
-            if(!phone || !address) return showToast("يرجى إكمال البيانات", "e");
-            
-            let details = `*طلب جديد من تطبيق السوق وياك* 🛍️\n\n`;
-            details += `*المنتج:* ${state.currentItem.title}\n`;
-            details += `*السعر:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n`;
-            details += `*العدد:* ${state.orderQty}\n`;
-            details += `*الإجمالي:* ${(state.orderQty * Number(state.currentItem.price)).toLocaleString()} ج.م\n\n`;
-            
-            details += `*التفاصيل:*\n`;
-            for(let i = 1; i <= state.orderQty; i++) {
-                const sizeEl = document.getElementById(`order-size-${i}`);
-                const colorEl = document.getElementById(`order-color-${i}`);
-                
-                if(sizeEl || colorEl) {
-                    details += `- قطعة ${i}: `;
-                    if(sizeEl && sizeEl.value) details += `مقاس (${sizeEl.value}) `;
-                    if(colorEl && colorEl.value) details += `لون (${colorEl.value})`;
-                    details += `\n`;
-                }
-            }
-            
-            details += `\n*بيانات العميل:*\n`;
-            details += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
-            details += `الهاتف: ${phone}\n`;
-            details += `العنوان: ${address}`;
-            
-            const encodedMsg = encodeURIComponent(details);
-            const sellerPhone = "20" + state.currentItem.phone; // Assuming phone stored without country code or handle accordingly
-            
-            window.open(`https://wa.me/${sellerPhone}?text=${encodedMsg}`, '_blank');
-            toggleModal('order-modal');
-        }
-
-        // Helper for Timestamps
-        function formatDate(timestamp) {
-            if (!timestamp) return '';
-            const date = timestamp.toDate();
-            const now = new Date();
-            const diff = (now - date) / 1000; 
-
-            if (diff < 60) return 'الآن';
-            if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
-            if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
-            if (diff < 604800) return `منذ ${Math.floor(diff / 86400)} يوم`;
-            
-            return date.toLocaleDateString('ar-EG');
         }
 
         lucide.createIcons();
