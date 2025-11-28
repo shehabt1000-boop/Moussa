@@ -55,7 +55,7 @@
         .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border: 1px solid #0f172a; }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
@@ -812,6 +812,7 @@
             const appContent = document.getElementById('app-content');
             const splash = document.getElementById('splash-screen');
             
+            // Req 2: Splash Screen Immediate Load
             if(splash) {
                 splash.classList.add('fade-out');
                 setTimeout(() => splash.remove(), 500);
@@ -822,6 +823,9 @@
             appContent.classList.remove('hidden');
             document.getElementById('loader').classList.add('hidden'); 
         }
+
+        // Safety Timeout for Splash Screen
+        setTimeout(forceSwitchToApp, 3000);
 
         onAuthStateChanged(auth, async (u) => { 
             if(u) { 
@@ -2066,15 +2070,10 @@
 
                     list.innerHTML += `
                         <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
-                            <div class="flex justify-between mb-1">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
-                                    <span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span>
-                                </div>
-                                <div class="flex flex-col items-end">
-                                    <span class="text-yellow-400 text-xs tracking-tighter">${stars}</span>
-                                    <span class="text-[8px] text-slate-400">${formatDate(r.timestamp)}</span>
-                                </div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
+                                <span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span>
+                                <span class="text-yellow-400 text-xs tracking-tighter">${stars}</span>
                             </div>
                             <p class="text-[10px] text-slate-600 dark:text-slate-300 pr-8">${r.text || ''}</p>
                         </div>
@@ -2142,10 +2141,7 @@
                                          <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
                                          <span class="font-bold">${r.reviewerName || 'مستخدم'}</span>
                                     </div>
-                                    <div class="flex flex-col items-end">
-                                        <span class="text-yellow-400">${stars}</span>
-                                        <span class="text-[8px] text-slate-400">${formatDate(r.timestamp)}</span>
-                                    </div>
+                                    <span class="text-yellow-400">${stars}</span>
                                 </div>
                                 <p class="text-slate-600 dark:text-slate-300 pr-8">${r.text}</p>
                             </div>
