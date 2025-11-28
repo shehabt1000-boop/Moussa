@@ -48,12 +48,12 @@
         .gpu { transform: translateZ(0); will-change: transform; }
         .select-none { user-select: none; }
 
-        /* Custom Scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #000000; border-radius: 4px; }
+        /* Req 6: Visible Black Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; border: 1px solid white; }
         .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
-        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #ffffff; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border: 1px solid #0f172a; }
 
         @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
         .skeleton { animation: shimmer 2s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
@@ -62,45 +62,23 @@
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* Strict Modal Layering */
-        .mobile-full-modal { 
-            position: fixed; 
-            inset: 0; 
-            background-color: white; /* Solid background prevents merging */
-            display: flex; 
-            flex-direction: column; 
-            height: 100dvh; 
-            overflow: hidden;
-        }
+        .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         
-        /* Z-Index Hierarchy (Strict) */
-        #search-container { z-index: 40; }
-        header { z-index: 50; }
-        nav { z-index: 60; }
-        
-        /* Modals */
-        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; }
-        
-        #add-modal { z-index: 70; }
-        #details-modal { z-index: 80; }
-        #profile-modal { z-index: 100; } /* Highest Modal */
-        
-        #toast-container { z-index: 120; pointer-events: none; }
-        .toast { pointer-events: auto; }
-        
-        #login-view { z-index: 150; }
-        #splash-screen { z-index: 200; }
+        /* Req 4: Profile Modal Higher Z-Index */
+        #profile-modal .mobile-full-modal { z-index: 90; } 
+        #profile-modal.modal-overlay { z-index: 90; }
 
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 600px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; } 
+            .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
         @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         .toast { 
             animation: slideInDown 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; 
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;
             width: max-content; max-width: 90vw; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
         .toast.hiding { animation: fadeOut 0.2s ease-in forwards; }
@@ -110,12 +88,9 @@
         
         .form-input { 
             width: 100%; background-color: #ffffff; border: 1px solid #000000 !important; border-radius: 0.5rem; 
-            padding: 0 0.5rem; height: 2.25rem; display: flex; align-items: center; font-size: 0.75rem; font-weight: 600; 
-            color: #1e293b; outline: none; transition: all 0.2s; line-height: normal; 
+            padding: 0 0.5rem; height: 2.25rem; display: flex; align-items: center; font-size: 0.75rem; 
+            font-weight: 600; color: #1e293b; outline: none; transition: all 0.2s; line-height: normal; 
         }
-        .form-input:disabled { background-color: #f1f5f9; color: #64748b; border-color: #cbd5e1 !important; }
-        .dark .form-input:disabled { background-color: #334155; color: #94a3b8; border-color: #475569 !important; }
-
         select.form-input {
             padding-top: 0; padding-bottom: 0; -webkit-appearance: none; 
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
@@ -137,22 +112,32 @@
 
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .install-banner { animation: slideUp 0.3s ease-out forwards; }
+
+        #login-view { position: fixed; inset: 0; z-index: 200; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        #login-view.hidden { display: none !important; } 
+        .dark #login-view { background-color: #0f172a; }
+        .login-scroll { max-height: 65vh; overflow-y: auto; padding: 2px; }
+        .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Req 8: Splash Screen */
+        #splash-screen { position: fixed; inset: 0; z-index: 300; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        #splash-screen.fade-out { opacity: 0; pointer-events: none; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none overflow-x-hidden">
+<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
 
-    <!-- SPLASH SCREEN (Req 8) -->
-    <div id="splash-screen" class="fixed inset-0 bg-navy dark:bg-navy flex flex-col items-center justify-center transition-opacity duration-500">
-        <div class="bg-white/10 p-4 rounded-3xl mb-4 animate-bounce">
-            <i data-lucide="shopping-bag" class="w-16 h-16 text-primary"></i>
+    <!-- Req 8: Splash Screen -->
+    <div id="splash-screen">
+        <div class="bg-primary text-white p-4 rounded-3xl shadow-2xl mb-4 animate-bounce">
+            <i data-lucide="shopping-bag" class="w-12 h-12"></i>
         </div>
         <h1 class="text-3xl font-black text-white mb-2">السوق <span class="text-primary">وياك</span></h1>
-        <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p id="splash-status" class="text-white/50 text-xs mt-4 font-bold">جاري التحميل...</p>
+        <div class="spinner border-primary"></div>
     </div>
 
     <!-- LOGIN VIEW -->
-    <div id="login-view" class="hidden fixed inset-0 z-[150] bg-[#f1f5f9] dark:bg-[#0f172a] flex items-center justify-center p-4">
+    <div id="login-view">
         <div class="w-full max-w-md bg-white dark:bg-darkbg p-4 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[95vh]">
             <div class="flex flex-col items-center gap-1 mb-3 shrink-0">
                 <div class="bg-navy dark:bg-primary text-white p-2 rounded-xl shadow-lg rotate-3">
@@ -179,7 +164,7 @@
                 </button>
             </div>
 
-            <div class="login-scroll no-scrollbar space-y-2 flex-1 overflow-y-auto">
+            <div class="login-scroll no-scrollbar space-y-2 flex-1">
                 <div id="auth-image-field" class="hidden flex-col items-center gap-2 transition-all duration-300">
                     <div class="relative group cursor-pointer">
                         <input type="file" id="auth-img-input" accept="image/*" onchange="handleAuthImage(this)" class="absolute inset-0 opacity-0 z-10 cursor-pointer">
@@ -252,7 +237,8 @@
     <div id="app-content" class="hidden">
         <div id="toast-container" class="fixed top-4 left-0 right-0 z-[120] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
-        <header class="fixed top-0 w-full z-[50] bg-white/95 dark:bg-navy/95 border-b border-slate-200 dark:border-slate-700 flex flex-col justify-center px-4 shadow-sm backdrop-blur-md h-12">
+        <!-- Header -->
+        <header class="fixed top-0 w-full z-[60] bg-white/95 dark:bg-navy/95 border-b border-slate-200 dark:border-slate-700 flex flex-col justify-center px-4 shadow-sm backdrop-blur-md h-12">
             <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-2" id="logo-trigger">
                     <div class="bg-navy dark:bg-primary text-white p-1 rounded-md"><i data-lucide="shopping-bag" class="w-4 h-4"></i></div>
@@ -265,7 +251,7 @@
                 </div>
                 
                 <div class="flex gap-1.5 items-center">
-                    <button onclick="toggleProfile(state.user ? state.user.uid : null)" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
+                    <button onclick="toggleProfile(null)" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
                     <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
                     <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
                     <button onclick="logout()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600 hover:bg-red-100 transition"><i data-lucide="log-out" class="w-4 h-4"></i></button>
@@ -279,7 +265,7 @@
                 <h2 id="view-title" class="text-base font-bold text-slate-800 dark:text-white pt-0.5"></h2>
             </div>
 
-            <div id="search-container" class="sticky top-12 z-[40] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-1.5 pb-1.5 -mx-4 px-4 transition-all">
+            <div id="search-container" class="sticky top-12 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-1.5 pb-1.5 -mx-4 px-4 transition-all">
                 <div class="relative max-w-3xl mx-auto flex gap-2 items-center">
                     <div class="relative flex-1">
                         <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-9 pl-20 h-8 shadow-sm text-xs">
@@ -319,17 +305,19 @@
 
             <div id="grid-container" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-2"></div>
 
+            <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
             <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
         </main>
 
-        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
+        <!-- NAV BAR -->
+        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
             <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
             <button id="nav-add-btn" onclick="toggleAddModal()" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
             <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
         </nav>
     </div>
 
-    <!-- Profile Modal (Z-Index 100 - Highest) -->
+    <!-- Req 2: Full Screen Profile Modal -->
     <div id="profile-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
@@ -337,42 +325,55 @@
                 <button onclick="toggleProfile()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <div class="flex flex-col items-center gap-3 mb-6 relative">
-                    <div class="relative">
-                        <div id="prof-img-container" class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg">
-                            <i data-lucide="user" class="w-10 h-10 text-slate-400"></i>
-                        </div>
-                        <label id="btn-edit-img" class="hidden absolute bottom-0 right-0 bg-navy text-white p-1.5 rounded-full cursor-pointer shadow-md">
+                <div class="flex flex-col items-center gap-3 mb-6">
+                    <div id="prof-img-container" class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg relative group">
+                        <i data-lucide="user" class="w-10 h-10 text-slate-400"></i>
+                        <!-- Edit Image Button -->
+                        <label id="edit-img-btn" class="hidden absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition">
+                            <i data-lucide="camera" class="w-6 h-6 text-white"></i>
                             <input type="file" accept="image/*" class="hidden" onchange="updateProfileImage(this)">
-                            <i data-lucide="camera" class="w-3 h-3"></i>
                         </label>
                     </div>
                     <div class="text-center w-full">
                         <div class="flex items-center justify-center gap-2">
                             <h2 id="prof-name" class="font-black text-xl text-navy dark:text-white">...</h2>
-                            <button id="btn-edit-profile" onclick="enableEditMode()" class="hidden text-primary"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                            <button id="edit-name-btn" onclick="enableEdit('name')" class="hidden text-slate-400 hover:text-primary"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
                         </div>
+                        <input id="input-name" class="hidden form-input text-center text-sm mt-1" onblur="saveField('name')">
+                        
                         <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
                     </div>
                 </div>
 
                 <div class="space-y-3 mb-6">
-                    <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <label class="text-[10px] font-bold text-slate-400 mb-1 block">الاسم</label>
-                        <input id="in-prof-name" type="text" disabled class="form-input text-sm font-bold bg-transparent border-none !shadow-none !p-0 h-auto text-navy dark:text-white">
+                    <!-- Phone -->
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-[10px] font-bold text-slate-400">رقم الهاتف</label>
+                            <button id="edit-phone-btn" onclick="enableEdit('phone')" class="hidden text-slate-400 hover:text-primary"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+                        </div>
+                        <div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white">
+                            <i data-lucide="phone" class="w-4 h-4 text-primary"></i>
+                            <span id="prof-phone">...</span>
+                            <input id="input-phone" class="hidden form-input text-sm" onblur="saveField('phone')">
+                        </div>
                     </div>
-                    <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <label class="text-[10px] font-bold text-slate-400 mb-1 block">رقم الهاتف</label>
-                        <input id="in-prof-phone" type="tel" disabled class="form-input text-sm font-bold bg-transparent border-none !shadow-none !p-0 h-auto text-navy dark:text-white">
-                    </div>
-                    <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <label class="text-[10px] font-bold text-slate-400 mb-1 block">العنوان</label>
-                        <input id="in-prof-address" type="text" disabled class="form-input text-sm font-bold bg-transparent border-none !shadow-none !p-0 h-auto text-navy dark:text-white">
+
+                    <!-- Address -->
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-[10px] font-bold text-slate-400">العنوان بالتفصيل</label>
+                            <button id="edit-address-btn" onclick="enableEdit('address')" class="hidden text-slate-400 hover:text-primary"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+                        </div>
+                        <div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-primary"></i>
+                            <span id="prof-address">...</span>
+                            <input id="input-address" class="hidden form-input text-sm" onblur="saveField('address')">
+                        </div>
                     </div>
                     
-                    <button id="btn-save-profile" onclick="saveProfile()" class="hidden w-full bg-primary text-white py-2 rounded-xl font-bold shadow-lg">حفظ التغييرات</button>
-
-                    <div id="prof-password-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-4">
+                    <!-- Change Password (Only for Owner) -->
+                    <div id="prof-password-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
                         <label class="text-[10px] font-bold text-slate-400 mb-2 block">تغيير كلمة المرور</label>
                         <div class="flex gap-2">
                             <input id="new-password" type="password" class="form-input text-xs" placeholder="كلمة المرور الجديدة">
@@ -381,6 +382,7 @@
                     </div>
                 </div>
 
+                <!-- Reviews on Profile (Req 2) -->
                 <div id="prof-reviews-section" class="hidden">
                     <h3 class="font-bold text-sm text-navy dark:text-white mb-3 border-b pb-2 border-slate-100 dark:border-slate-700">آراء العملاء</h3>
                     <div id="prof-reviews-list" class="space-y-3"></div>
@@ -448,7 +450,7 @@
         </div>
     </div>
 
-    <!-- Details Modal (Z-Index 80) -->
+    <!-- Details Modal -->
     <div id="details-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
@@ -463,8 +465,8 @@
                 <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
-            
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
+                <!-- Req 4: Clickable Publisher Bar -->
                 <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
                      <div class="flex items-center gap-2">
                          <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
@@ -476,17 +478,16 @@
                      <div id="d-shipping-info" class="flex flex-wrap items-center gap-1 text-[9px] font-bold text-slate-500 bg-white dark:bg-slate-700 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 max-w-[55%] justify-end leading-tight"></div>
                 </div>
 
-                <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl mb-3">
-                    <div class="flex justify-between items-start mb-2"><h2 id="d-title" class="text-base font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-lg whitespace-nowrap select-text"></span></div>
-                    <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 pb-2 border-b border-slate-200 dark:border-slate-700"><span id="d-cat" class="bg-white dark:bg-slate-700 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-600"></span> <span id="d-cond" class="bg-white dark:bg-slate-700 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-600 font-bold"></span></div>
-                </div>
+                <!-- Req 5: Gray Backgrounds -->
+                <div class="flex justify-between items-start mb-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><h2 id="d-title" class="text-base font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-lg whitespace-nowrap select-text"></span></div>
+                <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span></div>
                 
-                <div id="d-variants-container" class="space-y-2 mb-4 bg-slate-100 dark:bg-slate-800 p-3 rounded-xl">
-                    <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2">
+                <div id="d-variants-container" class="space-y-2 mb-4">
+                    <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg">
                         <span class="text-[10px] font-bold text-slate-400 shrink-0">المقاسات:</span>
                         <div id="d-sizes-list" class="flex flex-wrap gap-1"></div>
                     </div>
-                    <div id="d-colors-row" class="hidden flex flex-wrap items-center gap-2">
+                    <div id="d-colors-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg">
                         <span class="text-[10px] font-bold text-slate-400 shrink-0">الألوان:</span>
                         <div id="d-colors-list" class="flex flex-wrap gap-1"></div>
                     </div>
@@ -494,7 +495,7 @@
 
                 <div id="d-features" class="flex flex-wrap gap-2 mb-4"></div>
 
-                <div class="space-y-1 mb-6 bg-slate-100 dark:bg-slate-800 p-3 rounded-xl"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium select-text"></p></div>
+                <div class="space-y-1 mb-6"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium select-text"></p></div>
 
                 <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
                     <h3 class="text-xs font-bold text-slate-900 dark:text-white mb-3">التقييمات</h3>
@@ -656,8 +657,7 @@
             productReviewsLimit: 1,
             profileReviews: [],
             profileReviewsLimit: 3,
-            viewingProfileId: null,
-            isEditingProfile: false
+            viewingProfileId: null
         };
 
         function initGovs() {
@@ -707,10 +707,10 @@
             const splash = document.getElementById('splash-screen');
             
             // Req 8: Splash Screen Logic
-            setTimeout(() => {
-                splash.classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(() => splash.classList.add('hidden'), 500);
-            }, 1000); // 1s delay for effect
+            if(splash) {
+                splash.classList.add('fade-out');
+                setTimeout(() => splash.remove(), 500);
+            }
 
             loginView.classList.add('hidden');
             loginView.style.setProperty('display', 'none', 'important');
@@ -721,7 +721,6 @@
         onAuthStateChanged(auth, async (u) => { 
             if(u) { 
                 state.user = u;
-                // Don't switch yet, wait for data
                 try {
                     const userDoc = await getDoc(doc(db, "users", u.uid));
                     if (userDoc.exists()) {
@@ -741,22 +740,18 @@
                 } catch(e) {
                     console.warn("Role fetch failed", e);
                 }
-
-                // Load listings then switch
-                loadListings().then(() => {
-                    forceSwitchToApp();
-                }); 
+                forceSwitchToApp();
+                loadListings(); 
                 checkUserChat(); 
                 initFavs(); 
                 initCats(); 
             } else {
                 state.user = null;
-                // Show login view after splash
-                setTimeout(() => {
-                    document.getElementById('splash-screen').classList.add('opacity-0', 'pointer-events-none');
-                    setTimeout(() => document.getElementById('splash-screen').classList.add('hidden'), 500);
-                }, 1000);
-                
+                const splash = document.getElementById('splash-screen');
+                if(splash) {
+                    splash.classList.add('fade-out');
+                    setTimeout(() => splash.remove(), 500);
+                }
                 const loginView = document.getElementById('login-view');
                 loginView.classList.remove('hidden');
                 loginView.style.removeProperty('display');
@@ -884,6 +879,7 @@
 
                     await setDoc(doc(db, "users", user.uid), newUser);
                     
+                    // Fix 1: Update state immediately
                     state.userData = newUser;
                     state.userRole = state.authRole;
                     document.getElementById('header-username').innerText = nameAr;
@@ -1102,25 +1098,21 @@
             }
         }
 
-        // Modified loadListings to support Splash Screen
-        async function loadListings() { 
+        function loadListings() { 
             showSkeletons(); 
-            return new Promise((resolve) => {
-                onSnapshot(query(collection(db, "listings")), (snap) => { 
-                    state.listings = []; 
-                    snap.forEach(d => state.listings.push({id: d.id, ...d.data()})); 
-                    state.listings.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); 
+            onSnapshot(query(collection(db, "listings")), (snap) => { 
+                state.listings = []; 
+                snap.forEach(d => state.listings.push({id: d.id, ...d.data()})); 
+                state.listings.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); 
 
-                    const params = new URLSearchParams(window.location.search);
-                    const linkedProdId = params.get('product_id');
-                    if(linkedProdId && !state.currentItem) {
-                       const item = state.listings.find(i => i.id === linkedProdId);
-                       if(item) openDetails(item.id);
-                    }
-                    renderView();
-                    resolve(); // Data loaded
-                }); 
-            });
+                const params = new URLSearchParams(window.location.search);
+                const linkedProdId = params.get('product_id');
+                if(linkedProdId && !state.currentItem) {
+                   const item = state.listings.find(i => i.id === linkedProdId);
+                   if(item) openDetails(item.id);
+                }
+                renderView();
+            }); 
         }
 
         window.handleSearch = () => {
@@ -1262,7 +1254,7 @@
             document.getElementById('d-desc').innerText = item.desc;
             document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
 
-            // Req 5: Clickable Publisher
+            // Req 4: Clickable Publisher
             const pubBar = document.getElementById('d-pub-bar');
             pubBar.onclick = () => toggleProfile(item.authorId);
 
@@ -1347,7 +1339,6 @@
 
             document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
             
-            // Req 4: Load Reviews
             state.productReviewsLimit = 1;
             loadProductReviews(false);
 
@@ -1436,7 +1427,6 @@
              }
         }
 
-        // Req 7: Multi-image select
         window.submitListing=async()=>{
             if(!state.images.length)return showToast('مطلوب صورة واحدة على الأقل','e');
             const btn = document.getElementById('btn-publish');
@@ -1706,25 +1696,20 @@
                 
                 state.viewingProfileId = targetId;
                 const isOwner = state.user && state.user.uid === targetId;
-                state.isEditingProfile = false;
                 
                 // Reset UI
                 document.getElementById('prof-name').innerText = '...';
                 document.getElementById('prof-role').innerText = '...';
-                document.getElementById('in-prof-phone').value = '';
-                document.getElementById('in-prof-address').value = '';
-                document.getElementById('in-prof-name').value = '';
-                
-                // Disable inputs
-                document.querySelectorAll('#profile-modal input').forEach(i => i.disabled = true);
-                document.getElementById('btn-save-profile').classList.add('hidden');
-                document.getElementById('btn-edit-profile').classList.add('hidden');
-                document.getElementById('btn-edit-img').classList.add('hidden');
+                document.getElementById('prof-phone').innerText = '...';
+                document.getElementById('prof-address').innerText = '...';
+                document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
                 document.getElementById('prof-password-section').classList.add('hidden');
                 document.getElementById('prof-reviews-section').classList.add('hidden');
+                
+                // Hide edit buttons if not owner
+                document.querySelectorAll('[id^="edit-"]').forEach(el => el.classList.add('hidden'));
 
                 try {
-                    // Fetch user data
                     let data = null;
                     if(isOwner && state.userData) {
                         data = state.userData;
@@ -1735,27 +1720,39 @@
 
                     if(data) {
                         document.getElementById('prof-name').innerText = data.name || 'مستخدم';
-                        document.getElementById('in-prof-name').value = data.name || '';
                         document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل';
-                        document.getElementById('in-prof-phone').value = data.phone || '';
-                        document.getElementById('in-prof-address').value = (data.address || '') + (data.city ? ' - ' + data.city : '');
+                        document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل';
+                        document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || '');
                         
-                        const imgCont = document.getElementById('prof-img-container');
                         if(data.image) {
-                            imgCont.innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
-                        } else {
-                            imgCont.innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
+                            document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
                         }
 
                         if(isOwner) {
-                            document.getElementById('btn-edit-profile').classList.remove('hidden');
                             document.getElementById('prof-password-section').classList.remove('hidden');
-                            // Show reviews if Marketer (Req 2)
-                            if(data.role === 'marketer') {
-                                document.getElementById('prof-reviews-section').classList.remove('hidden');
-                                state.profileReviewsLimit = 3;
-                                loadProfileReviews(false);
-                            }
+                            // Show edit buttons
+                            document.getElementById('edit-img-btn').classList.remove('hidden');
+                            document.getElementById('edit-name-btn').classList.remove('hidden');
+                            document.getElementById('edit-phone-btn').classList.remove('hidden');
+                            document.getElementById('edit-address-btn').classList.remove('hidden');
+                        }
+
+                        // Req 1: Hide reviews if viewing publisher via product (public view)
+                        // But Req 2 says "Add reviews... to profile page".
+                        // I will show reviews ONLY if it's a Marketer, regardless of who is viewing.
+                        // The prompt 1 said "without reviews in popup". 
+                        // I will follow prompt 1 strictly for the "Publisher Popup" context.
+                        // But since I use the same modal, I need a flag.
+                        // Let's assume if userId is passed (not null), it's public view.
+                        
+                        if(data.role === 'marketer' && isOwner) {
+                             // Show reviews to the owner
+                             document.getElementById('prof-reviews-section').classList.remove('hidden');
+                             state.profileReviewsLimit = 3;
+                             loadProfileReviews(false);
+                        } else if (data.role === 'marketer' && !isOwner) {
+                             // Public view of marketer: Prompt 1 says NO reviews.
+                             document.getElementById('prof-reviews-section').classList.add('hidden');
                         }
                     }
                 } catch(e) {
@@ -1767,48 +1764,53 @@
         }
 
         // Req 3: Edit Profile Logic
-        window.enableEditMode = () => {
-            state.isEditingProfile = true;
-            document.getElementById('in-prof-name').disabled = false;
-            document.getElementById('in-prof-phone').disabled = false;
-            document.getElementById('in-prof-address').disabled = false;
-            document.getElementById('btn-edit-img').classList.remove('hidden');
-            document.getElementById('btn-save-profile').classList.remove('hidden');
-            document.getElementById('btn-edit-profile').classList.add('hidden');
+        window.enableEdit = (field) => {
+            const displayEl = document.getElementById(`prof-${field}`);
+            const inputEl = document.getElementById(`input-${field}`);
+            
+            if(inputEl.classList.contains('hidden')) {
+                inputEl.value = displayEl.innerText;
+                displayEl.classList.add('hidden');
+                inputEl.classList.remove('hidden');
+                inputEl.focus();
+            }
+        }
+
+        window.saveField = async (field) => {
+            const inputEl = document.getElementById(`input-${field}`);
+            const displayEl = document.getElementById(`prof-${field}`);
+            const newValue = inputEl.value.trim();
+            
+            if(newValue && newValue !== displayEl.innerText) {
+                try {
+                    const updateData = {};
+                    updateData[field] = newValue;
+                    await updateDoc(doc(db, "users", state.user.uid), updateData);
+                    
+                    // Update local state
+                    state.userData[field] = newValue;
+                    displayEl.innerText = newValue;
+                    showToast("تم التحديث بنجاح");
+                } catch(e) {
+                    showToast("فشل التحديث", "e");
+                }
+            }
+            
+            inputEl.classList.add('hidden');
+            displayEl.classList.remove('hidden');
         }
 
         window.updateProfileImage = async (input) => {
             if (input.files && input.files[0]) {
                 const c = await compress(input.files[0]);
-                state.authImageBase64 = c; // Temp store
-                document.getElementById('prof-img-container').innerHTML = `<img src="${c}" class="w-full h-full object-cover">`;
-            }
-        }
-
-        window.saveProfile = async () => {
-            const newName = document.getElementById('in-prof-name').value;
-            const newPhone = document.getElementById('in-prof-phone').value;
-            const newAddress = document.getElementById('in-prof-address').value;
-            
-            const updates = {
-                name: newName,
-                phone: newPhone,
-                address: newAddress
-            };
-            if(state.authImageBase64) updates.image = state.authImageBase64;
-
-            try {
-                await updateDoc(doc(db, "users", state.user.uid), updates);
-                if(newName) await updateProfile(auth.currentUser, { displayName: newName });
-                
-                // Update local state
-                state.userData = { ...state.userData, ...updates };
-                state.authImageBase64 = null;
-                
-                showToast("تم تحديث البيانات بنجاح");
-                toggleProfile(state.user.uid); // Refresh view
-            } catch(e) {
-                showToast("فشل التحديث", "e");
+                try {
+                    await updateDoc(doc(db, "users", state.user.uid), { image: c });
+                    state.userData.image = c;
+                    document.getElementById('prof-img-container').innerHTML = `<img src="${c}" class="w-full h-full object-cover">`;
+                    showToast("تم تحديث الصورة");
+                } catch(e) {
+                    showToast("فشل تحديث الصورة", "e");
+                }
             }
         }
 
@@ -1837,7 +1839,7 @@
             
             await addDoc(collection(db, "product_reviews"), {
                 productId: state.currentItem.id,
-                productAuthorId: state.currentItem.authorId, // Added for Profile Reviews
+                productAuthorId: state.currentItem.authorId, 
                 userId: state.user.uid,
                 userName: state.userData.name || 'مستخدم',
                 userImage: state.userData.image || null,
@@ -1863,7 +1865,7 @@
                 collection(db, "product_reviews"), 
                 where("productId", "==", state.currentItem.id),
                 orderBy("timestamp", "desc"),
-                limit(state.productReviewsLimit + 1)
+                limit(state.productReviewsLimit + 1) 
             );
             
             const snap = await getDocs(q);
@@ -1900,7 +1902,6 @@
             lucide.createIcons();
         }
 
-        // Req 2: Profile Reviews (Reviews on Marketer's Products)
         window.loadProfileReviews = async (append = false) => {
             if(!state.viewingProfileId) return;
             const list = document.getElementById('prof-reviews-list');
@@ -1931,7 +1932,7 @@
                         const r = doc.data();
                         const stars = "★".repeat(r.rating);
                         list.innerHTML += `
-                            <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-xs border border-slate-200 dark:border-slate-700">
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-xs">
                                 <div class="flex justify-between mb-1">
                                     <span class="font-bold">${r.userName}</span>
                                     <span class="text-yellow-400">${stars}</span>
