@@ -48,11 +48,11 @@
         .select-none { user-select: none; }
 
         /* Custom Scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; border: 1px solid white; }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; }
         .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
-        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border: 1px solid #0f172a; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -60,8 +60,8 @@
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         
-        #profile-modal .mobile-full-modal { z-index: 90; } 
-        #profile-modal.modal-overlay { z-index: 90; }
+        #profile-modal .mobile-full-modal, #order-modal .mobile-full-modal { z-index: 90; } 
+        #profile-modal.modal-overlay, #order-modal.modal-overlay { z-index: 90; }
 
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 600px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; } 
@@ -107,7 +107,7 @@
         .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }
         .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
 
-        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .install-banner { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         #login-view { position: fixed; inset: 0; z-index: 200; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
@@ -117,7 +117,8 @@
         .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        #splash-screen { position: fixed; inset: 0; z-index: 300; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        /* Req 2: Instant Splash */
+        #splash-screen { position: fixed; inset: 0; z-index: 300; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease-out; }
         #splash-screen.fade-out { opacity: 0; pointer-events: none; }
     </style>
 </head>
@@ -125,7 +126,7 @@
 
     <!-- Splash Screen -->
     <div id="splash-screen">
-        <div class="bg-primary text-white p-4 rounded-3xl shadow-2xl mb-4 animate-bounce">
+        <div class="bg-primary text-white p-4 rounded-3xl shadow-2xl mb-4">
             <i data-lucide="shopping-bag" class="w-12 h-12"></i>
         </div>
         <h1 class="text-3xl font-black text-white mb-2">السوق <span class="text-primary">وياك</span></h1>
@@ -312,8 +313,8 @@
             <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
         </nav>
 
-        <!-- PWA Install Banner -->
-        <div id="install-banner" class="hidden fixed bottom-20 left-4 right-4 bg-navy dark:bg-white dark:text-navy text-white p-3 rounded-xl shadow-2xl z-[110] flex items-center justify-between install-banner border dark:border-slate-200">
+        <!-- Req 5: Install Banner Top -->
+        <div id="install-banner" class="hidden fixed top-14 left-4 right-4 bg-navy dark:bg-white dark:text-navy text-white p-3 rounded-xl shadow-2xl z-[110] flex items-center justify-between install-banner border dark:border-slate-200">
             <div class="flex items-center gap-3">
                 <div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-5 h-5"></i></div>
                 <div>
@@ -346,7 +347,6 @@
                         <div class="text-center w-full">
                             <div class="flex items-center justify-center gap-2">
                                 <h2 id="prof-name" class="font-black text-xl text-navy dark:text-white">...</h2>
-                                <!-- Req 1: Main Edit Button -->
                                 <button id="global-edit-btn" onclick="toggleEditMode()" class="hidden flex items-center gap-1 text-primary hover:text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full transition">
                                     <i data-lucide="pen-tool" class="w-3 h-3"></i> <span class="text-[10px] font-bold">تعديل</span>
                                 </button>
@@ -356,6 +356,8 @@
                                 <span>★</span> <span id="prof-rating-val">0.0</span>
                             </div>
                             <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
+                            <!-- Req 2: Joined Date -->
+                            <div class="text-[10px] text-slate-400 mt-1">انضم منذ: <span id="prof-date">...</span></div>
                         </div>
                     </div>
 
@@ -376,7 +378,6 @@
                             </div>
                         </div>
                         
-                        <!-- Rate User Section -->
                         <div id="prof-rate-user-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
                             <label class="text-[10px] font-bold text-slate-400 mb-2 block">قيم هذا المستخدم</label>
                             <div class="flex flex-col gap-2">
@@ -403,7 +404,7 @@
                     </div>
                 </div>
 
-                <!-- EDIT MODE (Req 1: Full Form) -->
+                <!-- EDIT MODE -->
                 <div id="prof-edit-mode" class="hidden space-y-3">
                     <div class="flex flex-col items-center gap-2 mb-4">
                         <div class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg relative group">
@@ -453,6 +454,38 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+    </div>
+
+    <!-- Req 5: Order Modal -->
+    <div id="order-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+            <div class="bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-sm">طلب المنتج</h3>
+                <button onclick="toggleOrderModal()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
+                <div id="order-items-container" class="space-y-4"></div>
+                <button onclick="addOrderItem()" class="w-full py-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 font-bold text-xs mt-4 hover:border-primary hover:text-primary transition">+ إضافة قطعة أخرى</button>
+                
+                <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-bold text-sm">الإجمالي المتوقع:</span>
+                        <span id="order-total" class="font-black text-xl text-primary">0 ج.م</span>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-400">رقم الهاتف للتواصل</label>
+                        <input id="order-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx">
+                        <label class="text-[10px] font-bold text-slate-400">العنوان / المحافظة</label>
+                        <input id="order-address" type="text" class="form-input" placeholder="العنوان...">
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-2 shrink-0 pb-8 md:pb-3">
+                <button onclick="sendOrderToWhatsApp()" class="flex-1 bg-[#25D366] text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2">
+                    <span>تأكيد الطلب عبر واتساب</span> <i data-lucide="message-circle" class="w-4 h-4"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -531,6 +564,11 @@
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
+                <!-- Req 5: Order Button -->
+                <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg mb-4 flex justify-center items-center gap-2 animate-pop">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج
+                </button>
+
                 <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
                      <div class="flex items-center gap-2">
                          <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
@@ -543,7 +581,12 @@
                 </div>
 
                 <div class="flex justify-between items-start mb-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><h2 id="d-title" class="text-base font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-lg whitespace-nowrap select-text"></span></div>
-                <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span></div>
+                <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700">
+                    <span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> 
+                    <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span>
+                    <!-- Req 2: Posted Date -->
+                    <span id="d-date" class="text-[9px] text-slate-400 mr-auto"></span>
+                </div>
                 
                 <div id="d-variants-container" class="space-y-2 mb-4">
                     <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg">
@@ -569,7 +612,6 @@
                         <button id="load-less-reviews" onclick="loadProductReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button>
                     </div>
 
-                    <!-- Add Review Form (Stuck to list) -->
                     <div id="add-review-form" class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-[10px] font-bold">أضف تقييمك</span>
@@ -779,14 +821,22 @@
             productReviewsLimit: 1,
             profileReviews: [],
             profileReviewsLimit: 3,
-            viewingProfileId: null
+            viewingProfileId: null,
+            orderItems: [] // Req 5: Order Items
         };
+
+        // Helper: Date Formatter
+        function formatDate(ts) {
+            if(!ts) return '';
+            const date = ts.toDate();
+            return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
 
         function initGovs() {
             const govSelect = document.getElementById('auth-gov');
             const filterGov = document.getElementById('filter-gov');
             const shipGovList = document.getElementById('ship-gov-list'); 
-            const editGov = document.getElementById('edit-gov'); // Req 1
+            const editGov = document.getElementById('edit-gov'); 
 
             govSelect.innerHTML = '<option value="">اختر المحافظة</option>';
             filterGov.innerHTML = '<option value="">كل المحافظات</option>';
@@ -818,7 +868,6 @@
             }
         }
 
-        // Req 1: Edit Profile Cities
         window.updateEditCities = () => {
             const gov = document.getElementById('edit-gov').value;
             const citySelect = document.getElementById('edit-city');
@@ -1175,17 +1224,11 @@
             renderProducts();
         }
 
-        // Fix 2: Reset Button Logic (Stay in category)
         window.resetFilters = () => {
             document.getElementById('search-input').value = '';
             document.getElementById('filter-price').value = '';
             document.getElementById('filter-gov').value = '';
-            
-            if (state.currentView === 'category') {
-                renderProducts();
-            } else {
-                renderCategoryCards();
-            }
+            switchToHomeView();
         };
 
         window.switchToCategoryView = (category) => {
@@ -1328,7 +1371,7 @@
             const showControls = state.isAdmin || isOwner;
             const controls = showControls ? `<div class="absolute top-1 right-1 z-20 flex gap-1"><button onclick="del(event,'${item.id}')" class="bg-white/80 text-red-500 p-1 rounded shadow"><i data-lucide="trash-2" class="w-3 h-3"></i></button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}')" class="bg-white/80 text-blue-600 p-1 rounded shadow"><i data-lucide="edit-3" class="w-3 h-3"></i></button></div>` : '';
 
-            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-32 sm:h-40 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-4 h-4 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-2 py-0.5 rounded text-[9px] font-bold shadow z-10">${item.category}</span></div><div class="p-2 flex-1 flex flex-col"><div class="flex justify-between items-start mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-xs line-clamp-1">${item.title}</h3><span class="font-black text-primary text-xs whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[10px] text-slate-500 dark:text-slate-400 mb-2 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1.5 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-2 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1.5 rounded flex justify-center items-center gap-1 text-[10px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
+            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-4 h-4 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-2 py-0.5 rounded text-[9px] font-bold shadow z-10">${item.category}</span></div><div class="p-2 flex-1 flex flex-col"><div class="flex justify-between items-start mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-xs line-clamp-1">${item.title}</h3><span class="font-black text-primary text-xs whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[10px] text-slate-500 dark:text-slate-400 mb-2 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1.5 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-2 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1.5 rounded flex justify-center items-center gap-1 text-[10px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
         }
 
         function goToDetailsSlide(index, behavior = 'auto') {
@@ -1384,6 +1427,7 @@
             document.getElementById('d-cat').innerText = item.category; 
             document.getElementById('d-desc').innerText = item.desc;
             document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
+            document.getElementById('d-date').innerText = formatDate(item.createdAt);
 
             const pubBar = document.getElementById('d-pub-bar');
             pubBar.onclick = () => toggleProfile(item.authorId);
@@ -1481,695 +1525,121 @@
             window.history.replaceState({}, '', url);
         }
 
-        window.closeDetails = () => {
-             toggleModal('details-modal');
-             state.currentItem = null; 
-             document.getElementById('details-dots').innerHTML = ''; 
-             const imgEl = document.getElementById('details-img');
-             if (imgEl) { imgEl.src = ''; }
-             const url = new URL(window.location);
-             url.searchParams.delete('product_id');
-             window.history.replaceState({}, '', url);
+        // Req 5: Order Modal Logic
+        window.toggleOrderModal = () => {
+            if(toggleModal('order-modal')) {
+                state.orderItems = [];
+                addOrderItem(); // Add first item by default
+                document.getElementById('order-phone').value = state.userData ? state.userData.phone || '' : '';
+                document.getElementById('order-address').value = state.userData ? (state.userData.address || '') + ' ' + (state.userData.governorate || '') : '';
+                calculateOrderTotal();
+            }
         }
 
-        function initFavs() { try { state.favorites = JSON.parse(localStorage.getItem('souq_favs') || '[]'); } catch(e){ state.favorites = []; } updateFavBadge(); }
-        window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); if(state.currentView === 'category') renderProducts(); };
-        function updateFavBadge() { const b = document.getElementById('fav-count'); if(b){ if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); }}
-        window.toggleFavView = () => { 
-            state.currentView = 'category';
-            state.currentFilter = 'fav';
-            renderView();
-            showToast("عرض المفضلة ❤️"); 
-        };
+        window.addOrderItem = () => {
+            const id = Date.now();
+            state.orderItems.push({ id, qty: 1, size: '', color: '' });
+            renderOrderItems();
+        }
 
-        window.updateFormFields = () => {
-            const cat = document.getElementById('in-cat').value;
-            document.getElementById('field-condition').classList.toggle('hidden', !USED_CATS.includes(cat));
+        window.removeOrderItem = (id) => {
+            if(state.orderItems.length <= 1) return;
+            state.orderItems = state.orderItems.filter(i => i.id !== id);
+            renderOrderItems();
+        }
+
+        function renderOrderItems() {
+            const container = document.getElementById('order-items-container');
+            container.innerHTML = '';
             
-            const isClothes = CLOTHES_CATS.includes(cat);
-            const isShoes = SHOES_CATS.includes(cat);
-            
-            const sizeContainer = document.getElementById('field-size-chips');
-            const sizeChips = document.getElementById('size-chips-container');
-            const colorContainer = document.getElementById('field-color-chips');
-            const colorChips = document.getElementById('color-chips-container');
-            const dynamicFields = document.getElementById('dynamic-fields');
+            const item = state.currentItem;
+            const hasSizes = item.size && Array.isArray(item.size) && item.size.length > 0;
+            const hasColors = item.color && Array.isArray(item.color) && item.color.length > 0;
 
-            sizeContainer.classList.add('hidden');
-            colorContainer.classList.add('hidden');
-            dynamicFields.classList.add('hidden');
-            sizeChips.innerHTML = '';
-            colorChips.innerHTML = '';
-
-            if (isClothes || isShoes) {
-                dynamicFields.classList.remove('hidden');
-                sizeContainer.classList.remove('hidden');
-                
-                let sizes = [];
-                if (cat.includes("اطفال")) {
-                    sizes = isShoes ? SIZES_SHOES_KIDS : SIZES_KIDS;
-                } else if (cat.includes("حريمي")) {
-                    sizes = isShoes ? SIZES_SHOES_ADULT : SIZES_WOMEN;
-                } else {
-                    sizes = isShoes ? SIZES_SHOES_ADULT : SIZES_MEN;
+            state.orderItems.forEach((orderItem, index) => {
+                let sizeOptions = '';
+                if(hasSizes) {
+                    sizeOptions = `<select onchange="updateOrderItem(${orderItem.id}, 'size', this.value)" class="form-input text-xs h-8 w-full mt-1"><option value="">المقاس</option>${item.size.map(s => `<option value="${s}" ${orderItem.size===s?'selected':''}>${s}</option>`).join('')}</select>`;
                 }
 
-                sizes.forEach(s => {
-                    sizeChips.innerHTML += `<label class="cursor-pointer"><input type="checkbox" name="smart-size" value="${s}" class="smart-option hidden"><div class="px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 font-bold text-[10px] text-slate-500 hover:border-navy transition min-w-[30px] text-center">${s}</div></label>`;
-                });
-            }
-
-            if (isClothes) {
-                colorContainer.classList.remove('hidden');
-                BASIC_COLORS.forEach(c => {
-                    colorChips.innerHTML += `<label class="cursor-pointer"><input type="checkbox" name="smart-color" value="${c}" class="smart-option hidden"><div class="px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 font-bold text-[10px] text-slate-500 hover:border-navy transition">${c}</div></label>`;
-                });
-            }
-        }
-
-        window.toggleShipGov = () => {
-             const mode = document.querySelector('input[name="ship-mode"]:checked').value;
-             const container = document.getElementById('ship-gov-container');
-             if(mode === 'specific') {
-                 container.classList.remove('hidden');
-             } else {
-                 container.classList.add('hidden');
-             }
-        }
-
-        window.submitListing=async()=>{
-            if(!state.images.length)return showToast('مطلوب صورة واحدة على الأقل','e');
-            const btn = document.getElementById('btn-publish');
-            btn.disabled = true;
-            btn.innerHTML = '<span>جاري النشر...</span>';
-            const bdg=document.querySelector('input[name="badge"]:checked').value;
-            const cond=document.getElementById('in-condition').value;
-            const cat=document.getElementById('in-cat').value;
-            const feats=[]; document.querySelectorAll('.chip-checkbox:checked').forEach(c=>feats.push(c.value));
-            
-            const sizes = []; document.querySelectorAll('input[name="smart-size"]:checked').forEach(c => sizes.push(c.value));
-            const colors = []; document.querySelectorAll('input[name="smart-color"]:checked').forEach(c => colors.push(c.value));
-            
-            const shipMode = document.querySelector('input[name="ship-mode"]:checked').value;
-            let shipGovs = [];
-            if(shipMode === 'specific') {
-                document.querySelectorAll('input[name="ship-gov-check"]:checked').forEach(c => shipGovs.push(c.value));
-                if(shipGovs.length === 0) {
-                    showToast('يرجى اختيار محافظة واحدة على الأقل للشحن', 'e');
-                    btn.disabled = false;
-                    btn.innerHTML = '<span>نشر المنتج</span>';
-                    return;
+                let colorOptions = '';
+                if(hasColors) {
+                    colorOptions = `<select onchange="updateOrderItem(${orderItem.id}, 'color', this.value)" class="form-input text-xs h-8 w-full mt-1"><option value="">اللون</option>${item.color.map(c => `<option value="${c}" ${orderItem.color===c?'selected':''}>${c}</option>`).join('')}</select>`;
                 }
-            }
 
-            const userGov = state.userData ? state.userData.governorate : '';
-
-            await addDoc(collection(db,"listings"),{
-                title:document.getElementById('in-title').value,
-                price:Number(document.getElementById('in-price').value),
-                category:cat,
-                condition:cond,
-                size: sizes.length > 0 ? sizes : null, 
-                color: colors.length > 0 ? colors : null, 
-                shippingMode: shipMode,
-                shippingGov: shipMode === 'specific' ? shipGovs : null, 
-                phone:document.getElementById('in-phone').value,
-                desc:document.getElementById('in-desc').value,
-                features:feats,
-                images:state.images,
-                badge:bdg,
-                status:'available',
-                governorate: userGov,
-                createdAt:serverTimestamp(),
-                authorId:state.user.uid
-            });
-            showToast('تم النشر بنجاح');
-            toggleAddModal();
-            btn.disabled = false;
-            btn.innerHTML = '<span>نشر المنتج</span><i data-lucide="arrow-left" class="w-4 h-4"></i>';
-            lucide.createIcons();
-        };
-
-        window.del=async(e,id)=>{e.stopPropagation();if(confirm('هل أنت متأكد من الحذف؟')){await deleteDoc(doc(db,"listings",id));showToast('تم الحذف بنجاح')}};
-        window.toggleStatus=async(e,id,currentStatus)=>{e.stopPropagation();let nextStatus=currentStatus==='available'?'sold':'available';await updateDoc(doc(db,"listings",id),{status:nextStatus});showToast(`تم تغيير الحالة إلى: ${nextStatus==='available'?'متاح':'مُباع'}`)};
-
-        window.toggleDarkMode = () => { 
-            document.documentElement.classList.toggle('dark'); 
-            localStorage.setItem('souq_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); 
-        }
-        if(localStorage.getItem('souq_theme') === 'dark') document.documentElement.classList.add('dark');
-
-        window.showToast=(m,t='s')=>{
-            const d=document.createElement('div');
-            const bgClass = t==='e' ? 'bg-red-600 text-white' : 'bg-green-600 text-white';
-            d.className=`toast px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 text-xs font-bold ${bgClass}`;
-            d.innerHTML=`<i data-lucide="${t==='e'?'alert-circle':'check-circle'}" class="w-4 h-4"></i> ${m}`;
-            document.getElementById('toast-container').appendChild(d);
-            lucide.createIcons();
-            setTimeout(()=>{d.classList.add('hiding');setTimeout(()=>d.remove(),300)},3000)
-        };
-        
-        function normalizeText(t) { return t.replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLowerCase(); }
-        function showSkeletons() { const c=document.getElementById('grid-container'); c.innerHTML=''; for(let i=0;i<8;i++) c.innerHTML+=`<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-slate-200 dark:border-slate-700 h-full"><div class="h-32 skeleton"></div><div class="p-2 space-y-2"><div class="h-4 rounded skeleton w-3/4"></div><div class="h-3 rounded skeleton w-1/2"></div></div></div>`; }
-
-        window.shareListing = async () => { 
-            if(!state.currentItem) return; 
-            const directLink = `${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}`;
-            const d = { title: 'السوق وياك', text: `شاهد المنتج: ${state.currentItem.title}`, url: directLink }; 
-            try { await navigator.share(d); showToast('تمت المشاركة بنجاح'); } catch(e) { navigator.clipboard.writeText(d.url); showToast('تم نسخ الرابط'); } 
-        };
-
-        window.scrollCard = (e, id, dir) => { 
-            e.stopPropagation(); 
-            const s = document.getElementById(`slider-${id}`);
-            if (!s) return;
-            const totalImages = s.children.length;
-            if (totalImages <= 1) return;
-            const imgWidth = s.clientWidth;
-            let currentIndex = Math.round(s.scrollLeft / imgWidth);
-            let nextIndex = currentIndex - dir; 
-            if (nextIndex >= totalImages) { nextIndex = 0; } else if (nextIndex < 0) { nextIndex = totalImages - 1; }
-            s.scrollTo({ left: nextIndex * imgWidth, behavior: 'smooth' });
-        }
-
-        window.openLightbox = (src) => {
-            if (!src || src.endsWith('?text=No+Image')) return; 
-            if(state.currentItem && document.getElementById('details-modal').classList.contains('hidden') === false) {
-                 state.lightboxImages = state.detailsSliderImages;
-            } else {
-                 state.lightboxImages = state.detailsSliderImages.length ? state.detailsSliderImages : [];
-                 if(!state.lightboxImages.length && state.currentItem) {
-                     state.lightboxImages = Array.isArray(state.currentItem.images) ? state.currentItem.images : [state.currentItem.image].filter(Boolean);
-                 }
-            }
-            state.lightboxIndex = state.lightboxImages.indexOf(src);
-            if (state.lightboxIndex === -1) state.lightboxIndex = 0; 
-            if (state.lightboxImages.length > 0) {
-                document.getElementById('lightbox-img').src = state.lightboxImages[state.lightboxIndex];
-                document.getElementById('lightbox').classList.remove('hidden');
-                lucide.createIcons(); 
-            }
-        }
-
-        window.navigateLightbox = (dir) => {
-            if (!state.lightboxImages.length) return;
-            state.lightboxIndex += dir;
-            if (state.lightboxIndex >= state.lightboxImages.length) {
-                state.lightboxIndex = 0;
-            } else if (state.lightboxIndex < 0) {
-                state.lightboxIndex = state.lightboxImages.length - 1;
-            }
-            document.getElementById('lightbox-img').src = state.lightboxImages[state.lightboxIndex];
-        }
-
-        window.closeLightbox = () => {
-            document.getElementById('lightbox').classList.add('hidden');
-            state.lightboxImages = [];
-            state.lightboxIndex = 0;
-        }
-
-        function toggleModal(id) { const m=document.getElementById(id); m.classList.toggle('hidden'); if(!m.classList.contains('hidden')) document.body.style.overflow='hidden'; else document.body.style.overflow=''; return !m.classList.contains('hidden'); }
-
-        window.toggleAddModal=()=>{
-            if(state.userRole !== 'marketer') {
-                if(confirm("عفواً لا يمكن عرض هذه الصفحة لغير المسوقين وأصحاب العمل.\nهل تريد أن تصبح مسوق؟")) {
-                    state.userRole = 'marketer';
-                    updateDoc(doc(db, "users", state.user.uid), { role: 'marketer' }).then(() => {
-                         showToast(`أهلاً بك في شركتنا 👋`, 's');
-                         openAddModalLogic();
-                    });
-                } else {
-                    showToast("هذه الصفحة مخصصة للمسوقين ومقدمي الخدمات", 'e');
-                }
-            } else {
-                openAddModalLogic();
-            }
-        };
-
-        function openAddModalLogic() {
-            if(toggleModal('add-modal')) { 
-                state.images=[];
-                document.getElementById('preview-area').innerHTML='';
-                document.getElementById('in-title').value = '';
-                document.getElementById('in-price').value = '';
-                document.getElementById('in-phone').value = '';
-                document.getElementById('in-desc').value = '';
-                document.getElementById('in-cat').selectedIndex = 0;
-                document.getElementById('in-condition').selectedIndex = 0;
-                document.querySelectorAll('.chip-checkbox').forEach(c => c.checked = false);
-                document.querySelector('input[name="badge"][value="none"]').checked = true;
-                
-                document.querySelectorAll('.smart-option').forEach(c => c.checked = false);
-                document.querySelector('input[name="ship-mode"][value="all"]').checked = true;
-                document.querySelectorAll('input[name="ship-gov-check"]').forEach(c => c.checked = false);
-                toggleShipGov();
-
-                updateFormFields(); 
-            }
-        }
-
-        window.handleUpload=async(input)=>{if(input.files.length+state.images.length>7)return showToast('7 صور بحد أقصى','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0">`}}; 
-        function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
-        
-        window.toggleChat=()=>{
-            if(toggleModal('chat-modal')){
-                if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){
-                    state.welcomeSent=true;
-                    const name = state.user.displayName || 'يا صديقي';
-                    setTimeout(()=>botMsg(`مرحباً ${name} 👋<br>ماهو طلبك حتي اقوم بتحويلك للدعم الفني؟`),100);
-                }
-            }
-        };
-
-        window.sendMsg=async()=>{
-            const t=document.getElementById('chat-msg').value.trim();
-            if(!t)return;
-            document.getElementById('chat-msg').value='';
-            userMsg(t);
-
-            if(!state.chatId){
-                if(state.chatStep===0){
-                    state.chatStep=2;
-                    try {
-                        const r=await addDoc(collection(db,"chats"),{
-                            userId:state.user.uid, 
-                            userName:state.user.displayName || state.user.email,
-                            lastMsg:t,
-                            status:'waiting',
-                            messages:[
-                                {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()},
-                                {s:'user',t,d:new Date()},
-                                {s:'bot',t:'جاري توصيلك بخدمه العملاء',d:new Date()}
-                            ],
-                            createdAt:serverTimestamp()
-                        });
-                        state.chatId=r.id;
-                        listenChat(r.id);
-                    } catch (err) {
-                        console.error("Chat creation failed:", err);
-                        botMsg("عفواً، حدث خطأ أثناء محاولة توصيلك بالدعم.");
-                    }
-                }
-            } else {
-                const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));
-                if(!s.empty){
-                    const m=s.docs[0].data().messages;
-                    m.push({s:'user',t,d:new Date()});
-                    await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'});
-                }
-            }
-        };
-
-        function listenChat(id){onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data();if(d.status==='closed'){state.chatId=null;state.chatStep=0;state.welcomeSent=false;document.getElementById('chat-box').innerHTML='';showToast("تم إنهاء المحادثة");toggleModal('chat-modal');return}document.getElementById('chat-box').innerHTML='';d.messages.forEach(m=>{if(!m.t.startsWith('الاسم'))(m.s==='user'?userMsg:botMsg)(m.t)})}})};
-        function checkUserChat(){onSnapshot(query(collection(db,"chats"),where('userId','==',state.user.uid),where('status','!=','closed')),s=>{if(!s.empty){state.chatId=s.docs[0].id;state.chatStep=2;listenChat(state.chatId)}})};
-        function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
-        function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
-        
-        window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
-        
-        document.getElementById('logo-trigger').addEventListener('click',()=>{
-            if(prompt('Code:')==='1532'){
-                if(state.user) {
-                    state.isAdmin = true;
-                    document.getElementById('btn-admin-top').classList.remove('hidden');
-                    showToast('تم تفعيل وضع الأدمن (محلي)');
-                    updateDoc(doc(db, "users", state.user.uid), { isAdmin: true }).catch(e => console.log("DB Update blocked by rules, local admin active"));
-                } else {
-                    showToast("يجب تسجيل الدخول أولاً", "e");
-                }
-            }
-        });
-
-        window.refreshAdmin=()=>{
-            onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{
-                const l=document.getElementById('admin-users-list');
-                l.innerHTML='';
-                let chats = [];
-                s.forEach(d => chats.push({id: d.id, ...d.data()}));
-                chats.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-                chats.forEach(dt => {
-                    l.innerHTML+=`<div onclick="loadAdmin('${dt.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>`
-                });
-            })
-        };
-
-        window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'}">${m.t}</span></div>`});b.scrollTop=9999})};
-        window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
-        window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
-
-        // Profile Logic (Updated)
-        window.toggleProfile = async (userId = null) => {
-            if(toggleModal('profile-modal')) {
-                const targetId = userId || (auth.currentUser ? auth.currentUser.uid : null);
-                if(!targetId) return;
-                
-                state.viewingProfileId = targetId;
-                const isOwner = auth.currentUser && auth.currentUser.uid === targetId;
-                
-                // Reset UI
-                document.getElementById('prof-name').innerText = '...';
-                document.getElementById('prof-role').innerText = '...';
-                document.getElementById('prof-phone').innerText = '...';
-                document.getElementById('prof-address').innerText = '...';
-                document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
-                document.getElementById('prof-password-section').classList.add('hidden');
-                document.getElementById('prof-reviews-section').classList.add('hidden');
-                document.getElementById('prof-rate-user-section').classList.add('hidden');
-                document.getElementById('prof-rating-display').classList.add('hidden');
-                document.getElementById('global-edit-btn').classList.add('hidden');
-                
-                // Ensure View Mode is active
-                document.getElementById('prof-view-mode').classList.remove('hidden');
-                document.getElementById('prof-edit-mode').classList.add('hidden');
-
-                try {
-                    let data = null;
-                    if(isOwner && state.userData) {
-                        data = state.userData;
-                    } else {
-                        const snap = await getDoc(doc(db, "users", targetId));
-                        if(snap.exists()) data = snap.data();
-                    }
-
-                    if(data) {
-                        document.getElementById('prof-name').innerText = data.name || 'مستخدم';
-                        document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل';
-                        document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل';
-                        document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || '');
-                        
-                        if(data.image) {
-                            document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
-                        }
-
-                        calculateUserRating(targetId);
-
-                        if(isOwner) {
-                            document.getElementById('global-edit-btn').classList.remove('hidden');
-                            document.getElementById('prof-password-section').classList.remove('hidden');
-                        } else {
-                            document.getElementById('prof-rate-user-section').classList.remove('hidden');
-                        }
-
-                        if(data.role === 'marketer') {
-                             document.getElementById('prof-reviews-section').classList.remove('hidden');
-                             state.profileReviewsLimit = 3;
-                             loadProfileReviews(false);
-                        }
-                    }
-                } catch(e) {
-                    console.error(e);
-                }
-                lucide.createIcons();
-            }
-        }
-
-        // Req 1: Full Edit Form Logic
-        window.toggleEditMode = () => {
-            const viewMode = document.getElementById('prof-view-mode');
-            const editMode = document.getElementById('prof-edit-mode');
-            
-            if(editMode.classList.contains('hidden')) {
-                // Switch to Edit
-                viewMode.classList.add('hidden');
-                editMode.classList.remove('hidden');
-                
-                // Pre-fill data
-                document.getElementById('edit-name').value = state.userData.name || '';
-                document.getElementById('edit-phone').value = state.userData.phone || '';
-                document.getElementById('edit-address').value = state.userData.address || '';
-                document.getElementById('edit-gov').value = state.userData.governorate || '';
-                updateEditCities();
-                document.getElementById('edit-city').value = state.userData.city || '';
-                
-                if(state.userData.image) {
-                    document.getElementById('edit-img-preview').src = state.userData.image;
-                    document.getElementById('edit-img-preview').classList.remove('hidden');
-                    document.getElementById('edit-img-placeholder').classList.add('hidden');
-                }
-            } else {
-                // Switch to View
-                editMode.classList.add('hidden');
-                viewMode.classList.remove('hidden');
-            }
-        }
-
-        window.handleEditImage = async (input) => {
-            if (input.files && input.files[0]) {
-                const c = await compress(input.files[0]);
-                document.getElementById('edit-img-preview').src = c;
-                document.getElementById('edit-img-preview').classList.remove('hidden');
-                document.getElementById('edit-img-placeholder').classList.add('hidden');
-                // Store temporarily
-                state.tempEditImage = c;
-            }
-        }
-
-        window.saveProfile = async () => {
-            const name = document.getElementById('edit-name').value.trim();
-            const phone = document.getElementById('edit-phone').value.trim();
-            const address = document.getElementById('edit-address').value.trim();
-            const gov = document.getElementById('edit-gov').value;
-            const city = document.getElementById('edit-city').value;
-            
-            if(!name || !phone || !address || !gov || !city) return showToast("يرجى ملء جميع الحقول", "e");
-
-            const updateData = {
-                name, phone, address, governorate: gov, city
-            };
-
-            if(state.tempEditImage) {
-                updateData.image = state.tempEditImage;
-            }
-
-            try {
-                await updateDoc(doc(db, "users", state.user.uid), updateData);
-                
-                // Update local state
-                state.userData = { ...state.userData, ...updateData };
-                state.tempEditImage = null;
-                
-                // Update View
-                document.getElementById('prof-name').innerText = name;
-                document.getElementById('prof-phone').innerText = phone;
-                document.getElementById('prof-address').innerText = address + ' - ' + gov;
-                if(updateData.image) {
-                    document.getElementById('prof-img-container').innerHTML = `<img src="${updateData.image}" class="w-full h-full object-cover">`;
-                }
-                
-                showToast("تم حفظ التعديلات بنجاح");
-                toggleEditMode(); // Switch back to view
-            } catch(e) {
-                showToast("فشل الحفظ", "e");
-            }
-        }
-
-        window.changePassword = async () => {
-            const newPass = document.getElementById('new-password').value;
-            if(!newPass || newPass.length < 6) return showToast("كلمة المرور قصيرة جداً", "e");
-            try {
-                await updatePassword(auth.currentUser, newPass);
-                showToast("تم تحديث كلمة المرور بنجاح");
-                document.getElementById('new-password').value = '';
-            } catch(e) {
-                showToast("يجب إعادة تسجيل الدخول لتغيير كلمة المرور", "e");
-            }
-        }
-
-        // User Rating Logic
-        window.setUserRating = (n) => { state.currentUserRating = n; }
-
-        window.submitUserReview = async () => {
-            if(!state.user) return showToast("يجب تسجيل الدخول للتقييم", "e");
-            if(!state.viewingProfileId) return;
-            if(state.currentUserRating === 0) return showToast("يرجى تحديد عدد النجوم", "e");
-            
-            const text = document.getElementById('user-review-text').value;
-
-            await addDoc(collection(db, "user_reviews"), {
-                targetUserId: state.viewingProfileId,
-                reviewerId: state.user.uid,
-                reviewerName: state.userData.name || 'مستخدم',
-                reviewerImage: state.userData.image || null,
-                rating: state.currentUserRating,
-                text: text,
-                timestamp: serverTimestamp()
-            });
-            
-            showToast("تم إرسال التقييم");
-            document.getElementById('user-review-text').value = '';
-            calculateUserRating(state.viewingProfileId);
-            
-            // Refresh reviews
-            state.profileReviewsLimit = 3;
-            loadProfileReviews(false);
-        }
-
-        async function calculateUserRating(userId) {
-            const q = query(collection(db, "user_reviews"), where("targetUserId", "==", userId));
-            const snap = await getDocs(q);
-            if(!snap.empty) {
-                let total = 0;
-                snap.forEach(d => total += d.data().rating);
-                const avg = (total / snap.size).toFixed(1);
-                document.getElementById('prof-rating-val').innerText = avg;
-                document.getElementById('prof-rating-display').classList.remove('hidden');
-            } else {
-                document.getElementById('prof-rating-display').classList.add('hidden');
-            }
-        }
-
-        // Product Reviews Logic
-        window.setRating = (n) => { state.currentRating = n; }
-        
-        window.submitProductReview = async () => {
-            if(!state.user) return showToast("يجب تسجيل الدخول للتقييم", "e");
-            if(!state.currentItem) return;
-            if(state.currentRating === 0) return showToast("يرجى تحديد عدد النجوم", "e");
-            
-            const text = document.getElementById('review-text').value;
-            
-            await addDoc(collection(db, "product_reviews"), {
-                productId: state.currentItem.id,
-                productAuthorId: state.currentItem.authorId, 
-                userId: state.user.uid,
-                userName: state.userData.name || 'مستخدم',
-                userImage: state.userData.image || null,
-                rating: state.currentRating,
-                text: text,
-                timestamp: serverTimestamp()
-            });
-            
-            showToast("تم نشر التقييم");
-            document.getElementById('review-text').value = '';
-            state.productReviewsLimit = 1;
-            loadProductReviews(false);
-        }
-
-        // Req 3: Pagination Logic (Show More / Show Less)
-        window.loadProductReviews = async (append = false, reduce = false) => {
-            if(!state.currentItem) return;
-            const list = document.getElementById('product-reviews-list');
-            const btnMore = document.getElementById('load-more-reviews');
-            const btnLess = document.getElementById('load-less-reviews');
-            
-            if(reduce) {
-                state.productReviewsLimit = 1;
-                append = false;
-            } else if(append) {
-                state.productReviewsLimit += 3;
-            }
-            
-            const q = query(
-                collection(db, "product_reviews"), 
-                where("productId", "==", state.currentItem.id),
-                orderBy("timestamp", "desc"),
-                limit(state.productReviewsLimit + 1) 
-            );
-            
-            const snap = await getDocs(q);
-            if(!append) list.innerHTML = '';
-            
-            let count = 0;
-            snap.forEach(doc => {
-                if(count < state.productReviewsLimit) {
-                    const r = doc.data();
-                    const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
-                    const img = r.userImage ? `<img src="${r.userImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`;
-                    
-                    if(append && list.innerHTML.includes(r.text)) return; 
-
-                    list.innerHTML += `
-                        <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
-                            <div class="flex items-center gap-2 mb-1">
-                                <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
-                                <span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span>
-                                <span class="text-yellow-400 text-xs tracking-tighter">${stars}</span>
-                            </div>
-                            <p class="text-[10px] text-slate-600 dark:text-slate-300 pr-8">${r.text || ''}</p>
+                container.innerHTML += `
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 relative">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-bold text-xs text-primary">قطعة رقم ${index + 1}</span>
+                            ${state.orderItems.length > 1 ? `<button onclick="removeOrderItem(${orderItem.id})" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
                         </div>
-                    `;
-                }
-                count++;
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400">العدد</label>
+                                <input type="number" min="1" value="${orderItem.qty}" onchange="updateOrderItem(${orderItem.id}, 'qty', this.value)" class="form-input text-xs h-8 text-center">
+                            </div>
+                            <div class="${!hasSizes ? 'hidden' : ''}">
+                                <label class="text-[10px] font-bold text-slate-400">المقاس</label>
+                                ${sizeOptions}
+                            </div>
+                            <div class="${!hasColors ? 'hidden' : ''}">
+                                <label class="text-[10px] font-bold text-slate-400">اللون</label>
+                                ${colorOptions}
+                            </div>
+                        </div>
+                    </div>
+                `;
             });
-            
-            if(snap.size > state.productReviewsLimit) {
-                btnMore.classList.remove('hidden');
-            } else {
-                btnMore.classList.add('hidden');
-            }
-
-            if(state.productReviewsLimit > 1) {
-                btnLess.classList.remove('hidden');
-            } else {
-                btnLess.classList.add('hidden');
-            }
+            calculateOrderTotal();
             lucide.createIcons();
         }
 
-        window.loadProfileReviews = async (append = false, reduce = false) => {
-            if(!state.viewingProfileId) return;
-            const list = document.getElementById('prof-reviews-list');
-            const btnMore = document.getElementById('prof-reviews-more');
-            const btnLess = document.getElementById('prof-reviews-less');
-            
-            if(reduce) {
-                state.profileReviewsLimit = 3;
-                append = false;
-            } else if(append) {
-                state.profileReviewsLimit += 3;
+        window.updateOrderItem = (id, field, value) => {
+            const item = state.orderItems.find(i => i.id === id);
+            if(item) {
+                item[field] = field === 'qty' ? parseInt(value) : value;
+                calculateOrderTotal();
             }
+        }
+
+        function calculateOrderTotal() {
+            if(!state.currentItem) return;
+            let totalQty = 0;
+            state.orderItems.forEach(i => totalQty += i.qty);
+            const total = totalQty * state.currentItem.price;
+            document.getElementById('order-total').innerText = total.toLocaleString() + ' ج.م';
+        }
+
+        window.sendOrderToWhatsApp = () => {
+            if(!state.currentItem) return;
             
-            const q = query(
-                collection(db, "user_reviews"),
-                where("targetUserId", "==", state.viewingProfileId),
-                orderBy("timestamp", "desc"),
-                limit(state.profileReviewsLimit + 1)
-            );
+            const phone = document.getElementById('order-phone').value;
+            const address = document.getElementById('order-address').value;
             
-            try {
-                const snap = await getDocs(q);
-                if(!append) list.innerHTML = '';
-                
-                if(snap.empty) {
-                    list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">لا توجد تقييمات بعد</p>';
-                    btnMore.classList.add('hidden');
-                    btnLess.classList.add('hidden');
-                    return;
-                }
+            if(!phone || !address) return showToast("يرجى إكمال البيانات (الهاتف والعنوان)", "e");
 
-                let count = 0;
-                snap.forEach(doc => {
-                    if(count < state.profileReviewsLimit) {
-                        const r = doc.data();
-                        const stars = "★".repeat(r.rating);
-                        const img = r.reviewerImage ? `<img src="${r.reviewerImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`;
+            let msg = `*طلب جديد من تطبيق السوق وياك* 🛍️\n\n`;
+            msg += `*المنتج:* ${state.currentItem.title}\n`;
+            msg += `*السعر للقطعة:* ${state.currentItem.price} ج.م\n\n`;
+            
+            let totalQty = 0;
+            state.orderItems.forEach((item, idx) => {
+                msg += `📦 *قطعة ${idx + 1}:*\n`;
+                msg += `   - العدد: ${item.qty}\n`;
+                if(item.size) msg += `   - المقاس: ${item.size}\n`;
+                if(item.color) msg += `   - اللون: ${item.color}\n`;
+                totalQty += item.qty;
+            });
 
-                        list.innerHTML += `
-                            <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-xs">
-                                <div class="flex justify-between mb-1">
-                                    <div class="flex items-center gap-2">
-                                         <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
-                                         <span class="font-bold">${r.reviewerName || 'مستخدم'}</span>
-                                    </div>
-                                    <span class="text-yellow-400">${stars}</span>
-                                </div>
-                                <p class="text-slate-600 dark:text-slate-300 pr-8">${r.text}</p>
-                            </div>
-                        `;
-                    }
-                    count++;
-                });
-                
-                if(snap.size > state.profileReviewsLimit) btnMore.classList.remove('hidden');
-                else btnMore.classList.add('hidden');
+            msg += `\n💰 *الإجمالي:* ${totalQty * state.currentItem.price} ج.م\n`;
+            msg += `------------------\n`;
+            msg += `👤 *بيانات العميل:*\n`;
+            msg += `📞 الهاتف: ${phone}\n`;
+            msg += `📍 العنوان: ${address}`;
 
-                if(state.profileReviewsLimit > 3) btnLess.classList.remove('hidden');
-                else btnLess.classList.add('hidden');
-
-            } catch(e) {
-                console.log("Index might be missing for profile reviews", e);
-                list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">جاري تفعيل نظام التقييمات...</p>';
-            }
+            const url = `https://wa.me/20${state.currentItem.phone}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+            toggleOrderModal();
         }
 
         lucide.createIcons();
