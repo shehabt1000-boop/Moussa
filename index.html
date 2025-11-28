@@ -49,21 +49,18 @@
 
         /* Custom Scrollbar */
         .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; }
-        .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
-        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-pop { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         
-        #profile-modal .mobile-full-modal { z-index: 90; } 
-        #profile-modal.modal-overlay { z-index: 90; }
-        #order-modal .mobile-full-modal { z-index: 95; }
-        #order-modal.modal-overlay { z-index: 95; }
+        #profile-modal .mobile-full-modal, #order-modal .mobile-full-modal { z-index: 90; } 
+        #profile-modal.modal-overlay, #order-modal.modal-overlay { z-index: 90; }
 
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 600px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; } 
@@ -116,23 +113,23 @@
         #login-view.hidden { display: none !important; } 
         .dark #login-view { background-color: #0f172a; }
         .login-scroll { max-height: 65vh; overflow-y: auto; padding: 2px; }
-        .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Req 2: Instant Splash */
-        #splash-screen { position: fixed; inset: 0; z-index: 9999; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        /* Req 2: Splash Screen Immediate Load */
+        #splash-screen { position: fixed; inset: 0; z-index: 300; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
         #splash-screen.fade-out { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
 
-    <!-- Req 2: Splash Screen (Instant Load) -->
+    <!-- Splash Screen -->
     <div id="splash-screen">
-        <div class="bg-primary text-white p-4 rounded-3xl shadow-2xl mb-4">
-            <i data-lucide="shopping-bag" class="w-16 h-16"></i>
+        <div class="bg-primary text-white p-4 rounded-3xl shadow-2xl mb-4 animate-bounce">
+            <i data-lucide="shopping-bag" class="w-12 h-12"></i>
         </div>
         <h1 class="text-3xl font-black text-white mb-2">السوق <span class="text-primary">وياك</span></h1>
-        <div class="spinner border-primary mt-4"></div>
+        <div class="spinner border-primary"></div>
     </div>
 
     <!-- LOGIN VIEW -->
@@ -302,7 +299,8 @@
 
             <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar"></div>
 
-            <div id="grid-container" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-2"></div>
+            <!-- Req 6: Smaller Cards on Mobile -->
+            <div id="grid-container" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-10 mt-2"></div>
 
             <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
             <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
@@ -315,8 +313,8 @@
             <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
         </nav>
 
-        <!-- Req 5: PWA Install Banner (Top) -->
-        <div id="install-banner" class="hidden fixed top-16 left-4 right-4 bg-navy dark:bg-white dark:text-navy text-white p-3 rounded-xl shadow-2xl z-[110] flex items-center justify-between install-banner border dark:border-slate-200">
+        <!-- Req 5: Install Banner Top -->
+        <div id="install-banner" class="hidden fixed top-14 left-4 right-4 bg-navy dark:bg-white dark:text-navy text-white p-3 rounded-xl shadow-2xl z-[110] flex items-center justify-between install-banner border dark:border-slate-200">
             <div class="flex items-center gap-3">
                 <div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-5 h-5"></i></div>
                 <div>
@@ -358,8 +356,8 @@
                                 <span>★</span> <span id="prof-rating-val">0.0</span>
                             </div>
                             <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
-                            <!-- Req 6: Joined Date -->
-                            <div class="text-[10px] text-slate-400 mt-1">انضم منذ: <span id="prof-joined">...</span></div>
+                            <!-- Req 2: Joined Date -->
+                            <div id="prof-joined" class="text-[10px] text-slate-400 mt-1"></div>
                         </div>
                     </div>
 
@@ -460,47 +458,50 @@
         </div>
     </div>
 
-    <!-- Req 7: Order Modal -->
+    <!-- Req 5: Order Modal -->
     <div id="order-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-primary p-3 text-white flex justify-between items-center shrink-0">
                 <h3 class="font-bold text-sm">طلب المنتج</h3>
-                <button onclick="toggleOrderModal()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <button onclick="toggleModal('order-modal')" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <div class="mb-4 p-2 bg-slate-50 dark:bg-slate-800 rounded-lg flex gap-3 items-center">
-                    <img id="ord-img" src="" class="w-12 h-12 rounded-lg object-cover">
+                <div class="flex items-center gap-3 mb-4 bg-slate-50 dark:bg-slate-800 p-2 rounded-lg">
+                    <img id="order-img" src="" class="w-12 h-12 rounded-lg object-cover">
                     <div>
-                        <h4 id="ord-title" class="font-bold text-xs text-navy dark:text-white line-clamp-1">...</h4>
-                        <span id="ord-price" class="text-primary font-black text-sm">...</span>
+                        <h4 id="order-title" class="font-bold text-xs text-navy dark:text-white line-clamp-1"></h4>
+                        <span id="order-price" class="text-primary font-black text-sm"></span>
                     </div>
                 </div>
 
-                <div id="ord-items-container" class="space-y-2 mb-4">
-                    <!-- Dynamic Rows -->
+                <div class="form-group mb-3">
+                    <label class="form-label">عدد القطع</label>
+                    <div class="flex items-center gap-3">
+                        <button onclick="updateOrderQty(-1)" class="bg-slate-200 dark:bg-slate-700 p-1 rounded-lg"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                        <span id="order-qty" class="font-bold text-lg w-8 text-center">1</span>
+                        <button onclick="updateOrderQty(1)" class="bg-slate-200 dark:bg-slate-700 p-1 rounded-lg"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                    </div>
                 </div>
-                
-                <button id="ord-add-row-btn" onclick="addOrderRow()" class="w-full py-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-500 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition mb-4 hidden">
-                    + إضافة قطعة أخرى
-                </button>
+
+                <div id="order-items-container" class="space-y-3 mb-4"></div>
 
                 <div class="space-y-2 border-t border-slate-100 dark:border-slate-700 pt-3">
-                    <div>
-                        <label class="form-label">رقم الهاتف للتواصل</label>
-                        <input id="ord-phone" type="tel" class="form-input text-xs" placeholder="01xxxxxxxxx">
+                    <div class="form-group">
+                        <label class="form-label">رقم الهاتف</label>
+                        <input id="order-phone" type="tel" class="form-input text-xs" placeholder="01xxxxxxxxx">
                     </div>
-                    <div>
-                        <label class="form-label">العنوان / المحافظة</label>
-                        <input id="ord-address" type="text" class="form-input text-xs" placeholder="العنوان...">
+                    <div class="form-group">
+                        <label class="form-label">المحافظة / العنوان</label>
+                        <input id="order-address" type="text" class="form-input text-xs" placeholder="العنوان بالتفصيل...">
                     </div>
                 </div>
             </div>
             <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg shrink-0">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-bold text-slate-500">الإجمالي المتوقع:</span>
-                    <span id="ord-total" class="text-lg font-black text-navy dark:text-white">0 ج.م</span>
+                    <span class="text-xs font-bold text-slate-500">الإجمالي:</span>
+                    <span id="order-total" class="text-lg font-black text-primary">0 ج.م</span>
                 </div>
-                <button onclick="confirmOrder()" class="w-full bg-[#25D366] text-white py-3 rounded-xl font-bold text-sm shadow-lg flex justify-center items-center gap-2">
+                <button onclick="sendOrderToWhatsApp()" class="w-full bg-[#25D366] text-white py-3 rounded-xl font-bold text-sm shadow-lg hover:opacity-90 transition flex justify-center items-center gap-2">
                     <i data-lucide="message-circle" class="w-4 h-4"></i> تأكيد الطلب عبر واتساب
                 </button>
             </div>
@@ -522,15 +523,13 @@
                 <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
-            
-            <!-- Req 7: Order Button at Top of Details -->
-            <div class="p-3 bg-white dark:bg-darkbg border-b border-slate-100 dark:border-slate-700 shrink-0">
-                <button onclick="toggleOrderModal()" class="w-full bg-primary text-white py-2.5 rounded-xl font-bold text-sm shadow-md flex justify-center items-center gap-2 animate-pulse">
+            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
+                
+                <!-- Req 5: Order Button at Top -->
+                <button onclick="openOrderModal()" class="w-full bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex justify-center items-center gap-2 animate-pulse">
                     <i data-lucide="shopping-cart" class="w-4 h-4"></i> طلب المنتج
                 </button>
-            </div>
 
-            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
                 <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
                      <div class="flex items-center gap-2">
                          <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
@@ -544,8 +543,8 @@
 
                 <div class="flex justify-between items-start mb-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><h2 id="d-title" class="text-base font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-lg whitespace-nowrap select-text"></span></div>
                 
-                <!-- Req 6: Posted Date -->
-                <div class="text-[9px] text-slate-400 mb-2 px-1">تم النشر: <span id="d-date">...</span></div>
+                <!-- Req 2: Posted Time -->
+                <div id="d-time" class="text-[9px] text-slate-400 mb-2 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> <span></span></div>
 
                 <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span></div>
                 
@@ -592,37 +591,6 @@
             <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-2 shrink-0 pb-8 md:pb-3"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="phone" class="w-4 h-4"></i> اتصال</a></div>
         </div>
     </div>
-
-    <!-- Chat Modal -->
-    <div id="chat-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2">
-                    <div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div>
-                    <div><h4 class="font-bold text-xs">الدعم الفني</h4></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <a href="https://wa.me/201206244875" target="_blank" class="bg-[#25D366] px-2 py-1 rounded-full flex items-center gap-1 text-[10px] font-bold hover:opacity-90 transition">
-                        <i data-lucide="message-circle" class="w-3 h-3"></i> 01206244875
-                    </a>
-                    <button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
-                </div>
-            </div>
-            <div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
-            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe"><input id="chat-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب..."><button onclick="sendMsg()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button></div>
-        </div>
-    </div>
-
-    <!-- Lightbox -->
-    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center select-none">
-        <button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button>
-        <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
-        <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
-        <div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div>
-    </div>
-
-    <!-- Admin Panel -->
-    <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] overflow-y-auto p-2" id="admin-users-list"></div><div class="w-2/3 flex flex-col bg-navy relative"><div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38]"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div><div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38]"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -783,15 +751,8 @@
             profileReviews: [],
             profileReviewsLimit: 3,
             viewingProfileId: null,
-            orderItems: [] // Req 7
+            orderQty: 1
         };
-
-        // Helper: Format Date
-        function formatDate(ts) {
-            if(!ts) return '';
-            const date = ts.toDate ? ts.toDate() : new Date(ts);
-            return new Intl.DateTimeFormat('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
-        }
 
         function initGovs() {
             const govSelect = document.getElementById('auth-gov');
@@ -1185,7 +1146,6 @@
             renderProducts();
         }
 
-        // Fix 1: Reset Button Logic
         window.resetFilters = () => {
             document.getElementById('search-input').value = '';
             document.getElementById('filter-price').value = '';
@@ -1318,6 +1278,21 @@
             lucide.createIcons(); 
         }
 
+        // Req 6: Helper for Timestamps
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
+            const date = timestamp.toDate();
+            const now = new Date();
+            const diff = (now - date) / 1000; // seconds
+
+            if (diff < 60) return 'الآن';
+            if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
+            if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
+            if (diff < 604800) return `منذ ${Math.floor(diff / 86400)} يوم`;
+            
+            return date.toLocaleDateString('ar-EG');
+        }
+
         function createCard(item) {
             const imgs = Array.isArray(item.images)?item.images:[item.image];
             const isFav = (state.favorites || []).includes(item.id);
@@ -1333,7 +1308,8 @@
             const showControls = state.isAdmin || isOwner;
             const controls = showControls ? `<div class="absolute top-1 right-1 z-20 flex gap-1"><button onclick="del(event,'${item.id}')" class="bg-white/80 text-red-500 p-1 rounded shadow"><i data-lucide="trash-2" class="w-3 h-3"></i></button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}')" class="bg-white/80 text-blue-600 p-1 rounded shadow"><i data-lucide="edit-3" class="w-3 h-3"></i></button></div>` : '';
 
-            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-32 sm:h-40 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-4 h-4 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-2 py-0.5 rounded text-[9px] font-bold shadow z-10">${item.category}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[9px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1.5 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
+            // Req 6: Smaller Card Height (h-28)
+            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-4 h-4 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-2 py-0.5 rounded text-[9px] font-bold shadow z-10">${item.category}</span></div><div class="p-2 flex-1 flex flex-col"><div class="flex justify-between items-start mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-xs line-clamp-1">${item.title}</h3><span class="font-black text-primary text-xs whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[10px] text-slate-500 dark:text-slate-400 mb-2 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1.5 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-2 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1.5 rounded flex justify-center items-center gap-1 text-[10px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
         }
 
         function goToDetailsSlide(index, behavior = 'auto') {
@@ -1390,8 +1366,8 @@
             document.getElementById('d-desc').innerText = item.desc;
             document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
             
-            // Req 5: Posted Date
-            document.getElementById('d-date').innerText = formatDate(item.createdAt);
+            // Req 6: Posted Time
+            document.getElementById('d-time').querySelector('span').innerText = formatDate(item.createdAt);
 
             const pubBar = document.getElementById('d-pub-bar');
             pubBar.onclick = () => toggleProfile(item.authorId);
@@ -1839,7 +1815,6 @@
                 document.getElementById('prof-role').innerText = '...';
                 document.getElementById('prof-phone').innerText = '...';
                 document.getElementById('prof-address').innerText = '...';
-                document.getElementById('prof-joined').innerText = '...';
                 document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
                 document.getElementById('prof-password-section').classList.add('hidden');
                 document.getElementById('prof-reviews-section').classList.add('hidden');
@@ -1865,9 +1840,10 @@
                         document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل';
                         document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل';
                         document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || '');
-                        // Req 5: Joined Date
-                        document.getElementById('prof-joined').innerText = formatDate(data.createdAt);
                         
+                        // Req 6: Joined Date
+                        document.getElementById('prof-joined').innerText = `انضم: ${formatDate(data.createdAt)}`;
+
                         if(data.image) {
                             document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
                         }
@@ -2086,21 +2062,20 @@
                     const r = doc.data();
                     const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
                     const img = r.userImage ? `<img src="${r.userImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`;
-                    const date = formatDate(r.timestamp); // Req 5
-
+                    
                     if(append && list.innerHTML.includes(r.text)) return; 
 
                     list.innerHTML += `
                         <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
-                            <div class="flex justify-between items-start mb-1">
+                            <div class="flex justify-between mb-1">
                                 <div class="flex items-center gap-2">
                                     <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
                                     <span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span>
                                 </div>
-                                <span class="text-[8px] text-slate-400">${date}</span>
-                            </div>
-                            <div class="flex items-center gap-1 mb-1">
-                                <span class="text-yellow-400 text-xs tracking-tighter">${stars}</span>
+                                <div class="flex flex-col items-end">
+                                    <span class="text-yellow-400 text-xs tracking-tighter">${stars}</span>
+                                    <span class="text-[8px] text-slate-400">${formatDate(r.timestamp)}</span>
+                                </div>
                             </div>
                             <p class="text-[10px] text-slate-600 dark:text-slate-300 pr-8">${r.text || ''}</p>
                         </div>
@@ -2160,7 +2135,6 @@
                         const r = doc.data();
                         const stars = "★".repeat(r.rating);
                         const img = r.reviewerImage ? `<img src="${r.reviewerImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`;
-                        const date = formatDate(r.timestamp); // Req 5
 
                         list.innerHTML += `
                             <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-xs">
@@ -2169,10 +2143,10 @@
                                          <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
                                          <span class="font-bold">${r.reviewerName || 'مستخدم'}</span>
                                     </div>
-                                    <span class="text-[8px] text-slate-400">${date}</span>
-                                </div>
-                                <div class="flex items-center gap-1 mb-1">
-                                    <span class="text-yellow-400">${stars}</span>
+                                    <div class="flex flex-col items-end">
+                                        <span class="text-yellow-400">${stars}</span>
+                                        <span class="text-[8px] text-slate-400">${formatDate(r.timestamp)}</span>
+                                    </div>
                                 </div>
                                 <p class="text-slate-600 dark:text-slate-300 pr-8">${r.text}</p>
                             </div>
@@ -2193,127 +2167,123 @@
             }
         }
 
-        // Req 4: Order Logic
-        window.toggleOrderModal = () => {
-            if(toggleModal('order-modal')) {
-                if(!state.currentItem) return;
-                
-                document.getElementById('ord-title').innerText = state.currentItem.title;
-                document.getElementById('ord-price').innerText = Number(state.currentItem.price).toLocaleString() + ' ج.م';
-                document.getElementById('ord-img').src = Array.isArray(state.currentItem.images) ? state.currentItem.images[0] : state.currentItem.image;
-                
-                // Pre-fill user data
-                if(state.userData) {
-                    document.getElementById('ord-phone').value = state.userData.phone || '';
-                    document.getElementById('ord-address').value = (state.userData.address || '') + ' - ' + (state.userData.governorate || '');
-                }
-
-                state.orderItems = [];
-                document.getElementById('ord-items-container').innerHTML = '';
-                addOrderRow(); // Add first row
-                
-                // Show/Hide "Add Row" based on category
-                const cat = state.currentItem.category;
-                const isMulti = CLOTHES_CATS.includes(cat) || SHOES_CATS.includes(cat);
-                if(isMulti) {
-                    document.getElementById('ord-add-row-btn').classList.remove('hidden');
-                } else {
-                    document.getElementById('ord-add-row-btn').classList.add('hidden');
-                }
-            }
-        }
-
-        window.addOrderRow = () => {
-            const container = document.getElementById('ord-items-container');
-            const index = state.orderItems.length;
-            const item = state.currentItem;
+        // Req 7: Order Logic
+        window.openOrderModal = () => {
+            if(!state.currentItem) return;
+            state.orderQty = 1;
             
-            // Determine options
-            let sizeOptions = '';
-            if(item.size && Array.isArray(item.size)) {
-                item.size.forEach(s => sizeOptions += `<option value="${s}">${s}</option>`);
-            } else {
-                sizeOptions = `<option value="Standard">Standard</option>`;
-            }
-
-            let colorOptions = '';
-            if(item.color && Array.isArray(item.color)) {
-                item.color.forEach(c => colorOptions += `<option value="${c}">${c}</option>`);
-            } else {
-                colorOptions = `<option value="Standard">Standard</option>`;
-            }
-
-            const rowHTML = `
-                <div id="ord-row-${index}" class="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700 flex gap-2 items-end">
-                    <div class="flex-1">
-                        <label class="text-[9px] font-bold text-slate-400">اللون</label>
-                        <select id="ord-color-${index}" class="form-input text-xs h-7 p-0 px-1">${colorOptions}</select>
-                    </div>
-                    <div class="flex-1">
-                        <label class="text-[9px] font-bold text-slate-400">المقاس</label>
-                        <select id="ord-size-${index}" class="form-input text-xs h-7 p-0 px-1">${sizeOptions}</select>
-                    </div>
-                    <div class="w-16">
-                        <label class="text-[9px] font-bold text-slate-400">العدد</label>
-                        <input id="ord-qty-${index}" type="number" value="1" min="1" onchange="updateOrderTotal()" class="form-input text-xs h-7 text-center">
-                    </div>
-                    ${index > 0 ? `<button onclick="removeOrderRow(${index})" class="text-red-500 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
-                </div>
-            `;
+            document.getElementById('order-img').src = Array.isArray(state.currentItem.images) ? state.currentItem.images[0] : state.currentItem.image;
+            document.getElementById('order-title').innerText = state.currentItem.title;
+            document.getElementById('order-price').innerText = Number(state.currentItem.price).toLocaleString() + ' ج.م';
             
-            container.insertAdjacentHTML('beforeend', rowHTML);
-            state.orderItems.push({id: index});
-            updateOrderTotal();
-            lucide.createIcons();
+            // Pre-fill user data
+            if(state.userData) {
+                document.getElementById('order-phone').value = state.userData.phone || '';
+                document.getElementById('order-address').value = (state.userData.address || '') + ' - ' + (state.userData.governorate || '');
+            }
+            
+            renderOrderItems();
+            toggleModal('order-modal');
         }
 
-        window.removeOrderRow = (index) => {
-            document.getElementById(`ord-row-${index}`).remove();
-            state.orderItems = state.orderItems.filter(i => i.id !== index);
-            updateOrderTotal();
+        window.updateOrderQty = (change) => {
+            const newQty = state.orderQty + change;
+            if(newQty >= 1) {
+                state.orderQty = newQty;
+                document.getElementById('order-qty').innerText = newQty;
+                renderOrderItems();
+            }
         }
 
-        window.updateOrderTotal = () => {
-            let totalQty = 0;
-            state.orderItems.forEach(i => {
-                const qty = parseInt(document.getElementById(`ord-qty-${i.id}`).value) || 0;
-                totalQty += qty;
-            });
-            const total = totalQty * Number(state.currentItem.price);
-            document.getElementById('ord-total').innerText = total.toLocaleString() + ' ج.م';
+        window.renderOrderItems = () => {
+            const container = document.getElementById('order-items-container');
+            container.innerHTML = '';
+            
+            const sizes = state.currentItem.size || [];
+            const colors = state.currentItem.color || [];
+            
+            // Only show selectors if options exist
+            const showSize = Array.isArray(sizes) && sizes.length > 0;
+            const showColor = Array.isArray(colors) && colors.length > 0;
+
+            for(let i = 1; i <= state.orderQty; i++) {
+                let html = `<div class="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-600">
+                    <div class="text-[10px] font-bold mb-1 text-primary">قطعة رقم ${i}</div>
+                    <div class="flex gap-2">`;
+                
+                if(showSize) {
+                    html += `<select id="order-size-${i}" class="form-input text-xs h-8 flex-1">
+                        <option value="">المقاس</option>
+                        ${sizes.map(s => `<option value="${s}">${s}</option>`).join('')}
+                    </select>`;
+                }
+                
+                if(showColor) {
+                    html += `<select id="order-color-${i}" class="form-input text-xs h-8 flex-1">
+                        <option value="">اللون</option>
+                        ${colors.map(c => `<option value="${c}">${c}</option>`).join('')}
+                    </select>`;
+                }
+                
+                html += `</div></div>`;
+                
+                if(showSize || showColor) container.innerHTML += html;
+            }
+            
+            const total = state.orderQty * Number(state.currentItem.price);
+            document.getElementById('order-total').innerText = total.toLocaleString() + ' ج.م';
         }
 
-        window.confirmOrder = () => {
-            const phone = document.getElementById('ord-phone').value;
-            const address = document.getElementById('ord-address').value;
+        window.sendOrderToWhatsApp = () => {
+            const phone = document.getElementById('order-phone').value;
+            const address = document.getElementById('order-address').value;
             
             if(!phone || !address) return showToast("يرجى إكمال البيانات", "e");
-
-            let details = "";
-            let totalQty = 0;
             
-            state.orderItems.forEach((item, idx) => {
-                const color = document.getElementById(`ord-color-${item.id}`).value;
-                const size = document.getElementById(`ord-size-${item.id}`).value;
-                const qty = document.getElementById(`ord-qty-${item.id}`).value;
-                totalQty += parseInt(qty);
+            let details = `*طلب جديد من تطبيق السوق وياك* 🛍️\n\n`;
+            details += `*المنتج:* ${state.currentItem.title}\n`;
+            details += `*السعر:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n`;
+            details += `*العدد:* ${state.orderQty}\n`;
+            details += `*الإجمالي:* ${(state.orderQty * Number(state.currentItem.price)).toLocaleString()} ج.م\n\n`;
+            
+            details += `*التفاصيل:*\n`;
+            for(let i = 1; i <= state.orderQty; i++) {
+                const sizeEl = document.getElementById(`order-size-${i}`);
+                const colorEl = document.getElementById(`order-color-${i}`);
                 
-                details += `%0A${idx+1}. لون: ${color} | مقاس: ${size} | عدد: ${qty}`;
-            });
-
-            const totalPrice = totalQty * Number(state.currentItem.price);
+                if(sizeEl || colorEl) {
+                    details += `- قطعة ${i}: `;
+                    if(sizeEl && sizeEl.value) details += `مقاس (${sizeEl.value}) `;
+                    if(colorEl && colorEl.value) details += `لون (${colorEl.value})`;
+                    details += `\n`;
+                }
+            }
             
-            const msg = `مرحباً، أريد طلب منتج: ${state.currentItem.title}%0A` +
-                        `السعر للقطعة: ${state.currentItem.price} ج.م%0A` +
-                        `------------------` +
-                        `${details}%0A` +
-                        `------------------%0A` +
-                        `الإجمالي: ${totalPrice} ج.م%0A` +
-                        `العنوان: ${address}%0A` +
-                        `رقمي: ${phone}`;
+            details += `\n*بيانات العميل:*\n`;
+            details += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
+            details += `الهاتف: ${phone}\n`;
+            details += `العنوان: ${address}`;
+            
+            const encodedMsg = encodeURIComponent(details);
+            const sellerPhone = "20" + state.currentItem.phone; // Assuming phone stored without country code or handle accordingly
+            
+            window.open(`https://wa.me/${sellerPhone}?text=${encodedMsg}`, '_blank');
+            toggleModal('order-modal');
+        }
 
-            window.open(`https://wa.me/20${state.currentItem.phone}?text=${msg}`, '_blank');
-            toggleOrderModal();
+        // Helper for Timestamps
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
+            const date = timestamp.toDate();
+            const now = new Date();
+            const diff = (now - date) / 1000; 
+
+            if (diff < 60) return 'الآن';
+            if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
+            if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
+            if (diff < 604800) return `منذ ${Math.floor(diff / 86400)} يوم`;
+            
+            return date.toLocaleDateString('ar-EG');
         }
 
         lucide.createIcons();
