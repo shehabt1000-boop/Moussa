@@ -88,14 +88,13 @@
         .form-label { display: block; font-size: 0.7rem; font-weight: 800; color: #334155; margin-bottom: 0.1rem; }
         .dark .form-label { color: #cbd5e1; }
         
-        /* Input Styling (Black Border) */
         .form-input { 
             width: 100%; 
             background-color: #ffffff; 
             border: 1px solid #000000 !important; 
             border-radius: 0.5rem; 
             padding: 0 0.5rem; 
-            height: 2.25rem; /* Reduced height for compact view */
+            height: 2.25rem; 
             display: flex;
             align-items: center;
             font-size: 0.75rem; 
@@ -128,6 +127,13 @@
         .smart-option:checked + div { background-color: #0f172a; color: white; border-color: #0f172a; }
         .dark .smart-option:checked + div { background-color: #10b981; border-color: #10b981; }
 
+        /* Star Rating */
+        .star-rating input { display: none; }
+        .star-rating label { cursor: pointer; color: #cbd5e1; transition: color 0.2s; }
+        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }
+        .dark .star-rating label { color: #475569; }
+        .dark .star-rating input:checked ~ label, .dark .star-rating label:hover, .dark .star-rating label:hover ~ label { color: #fbbf24; }
+
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .install-banner { animation: slideUp 0.3s ease-out forwards; }
 
@@ -141,7 +147,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
 
-    <!-- LOGIN VIEW (Req 2, 3: Compact & Phone Field) -->
+    <!-- LOGIN VIEW -->
     <div id="login-view">
         <div class="w-full max-w-md bg-white dark:bg-darkbg p-4 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[95vh]">
             <div class="flex flex-col items-center gap-1 mb-3 shrink-0">
@@ -205,7 +211,6 @@
                         <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">الاسم الكامل (عربي)</label>
                         <input id="auth-name-ar" type="text" class="form-input" placeholder="مثال: أحمد محمد">
                     </div>
-                    <!-- Req 2: Phone Field Added -->
                     <div>
                         <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">رقم الهاتف</label>
                         <input id="auth-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx">
@@ -243,7 +248,6 @@
     <div id="app-content" class="hidden">
         <div id="toast-container" class="fixed top-4 left-0 right-0 z-[120] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
-        <!-- Header -->
         <header class="fixed top-0 w-full z-[60] bg-white/95 dark:bg-navy/95 border-b border-slate-200 dark:border-slate-700 flex flex-col justify-center px-4 shadow-sm backdrop-blur-md h-12">
             <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-2" id="logo-trigger">
@@ -257,10 +261,8 @@
                 </div>
                 
                 <div class="flex gap-1.5 items-center">
-                    <!-- Req 5: Profile Button -->
                     <button onclick="toggleProfile()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
                     <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
-                    <!-- Req 1: Fix Admin Button Freeze (Check Z-index & Click Handler) -->
                     <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
                     <button onclick="logout()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600 hover:bg-red-100 transition"><i data-lucide="log-out" class="w-4 h-4"></i></button>
                 </div>
@@ -273,7 +275,6 @@
                 <h2 id="view-title" class="text-base font-bold text-slate-800 dark:text-white pt-0.5"></h2>
             </div>
 
-            <!-- Req 4: Compact Search Bar -->
             <div id="search-container" class="sticky top-12 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-1.5 pb-1.5 -mx-4 px-4 transition-all">
                 <div class="relative max-w-3xl mx-auto flex gap-2 items-center">
                     <div class="relative flex-1">
@@ -292,7 +293,6 @@
                     </div>
                 </div>
                 
-                <!-- Req 6: Fix Reset Button (Ensure Z-index and visibility) -->
                 <div id="filter-panel" class="hidden mt-1 bg-white dark:bg-darkbg p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl animate-pop relative z-50">
                     <div class="flex justify-between items-center mb-1">
                         <span class="font-bold text-[10px]">تصفية النتائج</span>
@@ -327,14 +327,15 @@
         </nav>
     </div>
 
-    <!-- Req 5: Profile Modal -->
-    <div id="profile-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 max-h-[400px] !h-auto rounded-2xl overflow-hidden m-4 w-[90%] max-w-sm">
+    <!-- Profile Modal (Req 2: Centered, Address, Password) -->
+    <div id="profile-modal" class="hidden modal-overlay items-center justify-center">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 !h-auto !max-h-[85vh] rounded-2xl overflow-hidden m-4 w-[90%] max-w-sm relative">
             <div class="bg-navy dark:bg-primary p-4 text-white flex justify-between items-center shrink-0">
                 <h3 class="font-bold text-sm">الملف الشخصي</h3>
-                <button onclick="toggleProfile()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <!-- Req 2: Red Circle Close Button -->
+                <button onclick="toggleProfile()" class="bg-red-600 hover:bg-red-700 p-1.5 rounded-full shadow-md text-white transition"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
-            <div class="p-5 bg-white dark:bg-darkbg flex flex-col items-center gap-3">
+            <div class="p-5 bg-white dark:bg-darkbg flex flex-col items-center gap-3 overflow-y-auto">
                 <div id="prof-img-container" class="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-2 border-primary shadow-md">
                     <i data-lucide="user" class="w-8 h-8 text-slate-400"></i>
                 </div>
@@ -349,13 +350,17 @@
                     </div>
                     <div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                         <i data-lucide="map-pin" class="w-4 h-4 text-primary"></i>
-                        <span id="prof-address" class="font-bold text-slate-700 dark:text-slate-300">...</span>
+                        <div class="flex flex-col">
+                            <span id="prof-gov" class="font-bold text-slate-700 dark:text-slate-300 text-xs">...</span>
+                            <span id="prof-address" class="text-[10px] text-slate-500 dark:text-slate-400">...</span>
+                        </div>
                     </div>
                     <div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                         <i data-lucide="at-sign" class="w-4 h-4 text-primary"></i>
                         <span id="prof-username" class="font-bold text-slate-700 dark:text-slate-300">...</span>
                     </div>
                 </div>
+                <button id="btn-change-pass" onclick="changePassword()" class="w-full mt-2 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-white rounded-lg text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-600 transition">تغيير كلمة المرور</button>
             </div>
         </div>
     </div>
@@ -434,12 +439,13 @@
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg">
-                <div class="flex items-center justify-between mb-2 p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 h-auto">
+                <!-- Req 5: Clickable Publisher Bar -->
+                <div onclick="openPublisherProfile()" class="flex items-center justify-between mb-2 p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
                      <div class="flex items-center gap-2">
                          <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
                          <div class="flex flex-col justify-center">
                              <h4 id="d-pub-name" class="font-bold text-[10px] text-navy dark:text-white leading-tight">...</h4>
-                             <span class="text-[8px] text-slate-400">الناشر</span>
+                             <span class="text-[8px] text-slate-400">الناشر (اضغط للعرض)</span>
                          </div>
                      </div>
                      <div id="d-shipping-info" class="flex flex-wrap items-center gap-1 text-[9px] font-bold text-slate-500 bg-white dark:bg-slate-700 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 max-w-[55%] justify-end leading-tight"></div>
@@ -461,7 +467,29 @@
 
                 <div id="d-features" class="flex flex-wrap gap-2 mb-4"></div>
 
-                <div class="space-y-1"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 font-medium select-text"></p></div>
+                <div class="space-y-1 mb-4"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 font-medium select-text"></p></div>
+
+                <!-- Req 4: Reviews Section -->
+                <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 mb-2">التقييمات</h3>
+                    
+                    <!-- Add Review -->
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl mb-4">
+                        <div class="flex flex-row-reverse justify-end gap-1 star-rating mb-2">
+                            <input type="radio" id="star5" name="rating" value="5"><label for="star5" title="5"><i data-lucide="star" class="w-4 h-4 fill-current"></i></label>
+                            <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4"><i data-lucide="star" class="w-4 h-4 fill-current"></i></label>
+                            <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3"><i data-lucide="star" class="w-4 h-4 fill-current"></i></label>
+                            <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2"><i data-lucide="star" class="w-4 h-4 fill-current"></i></label>
+                            <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1"><i data-lucide="star" class="w-4 h-4 fill-current"></i></label>
+                        </div>
+                        <textarea id="review-text" class="form-input text-xs w-full mb-2 h-16 resize-none pt-2" placeholder="اكتب رأيك هنا..."></textarea>
+                        <button onclick="submitReview()" class="bg-navy dark:bg-primary text-white px-4 py-1.5 rounded-lg text-xs font-bold w-full">نشر التقييم</button>
+                    </div>
+
+                    <!-- Reviews List -->
+                    <div id="reviews-list" class="space-y-3"></div>
+                    <button id="btn-more-reviews" onclick="showMoreReviews()" class="hidden text-primary text-xs font-bold underline mt-2 w-full text-center">عرض المزيد</button>
+                </div>
             </div>
             <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-2 shrink-0 pb-8 md:pb-3"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="phone" class="w-4 h-4"></i> اتصال</a></div>
         </div>
@@ -470,7 +498,17 @@
     <!-- Chat Modal -->
     <div id="chat-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0"><div class="flex items-center gap-2"><div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">الدعم الفني</h4></div></div><button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+            <!-- Req 3: WhatsApp Button in Support Header -->
+            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div>
+                    <div><h4 class="font-bold text-xs">الدعم الفني</h4></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="https://wa.me/201206244875" target="_blank" class="bg-[#25D366] p-1.5 rounded-full hover:opacity-90 transition"><i data-lucide="message-circle" class="w-4 h-4 text-white"></i></a>
+                    <button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+            </div>
             <div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
             <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe"><input id="chat-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب..."><button onclick="sendMsg()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button></div>
         </div>
@@ -489,7 +527,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const EGYPT_DATA = {
@@ -584,7 +622,9 @@
             authRole: 'customer',
             authType: 'login',
             authImageBase64: null,
-            userRole: 'customer'
+            userRole: 'customer',
+            reviews: [],
+            reviewLimit: 1
         };
 
         function initGovs() {
@@ -764,7 +804,7 @@
             try {
                 if (state.authType === 'signup') {
                     const nameAr = document.getElementById('auth-name-ar').value.trim();
-                    const phone = document.getElementById('auth-phone').value.trim(); // Req 2: Phone
+                    const phone = document.getElementById('auth-phone').value.trim(); 
                     const gov = document.getElementById('auth-gov').value;
                     const city = document.getElementById('auth-city').value;
                     const address = document.getElementById('auth-address').value.trim();
@@ -778,10 +818,10 @@
                     
                     await updateProfile(user, { displayName: nameAr });
 
-                    await setDoc(doc(db, "users", user.uid), {
+                    const userDataObj = {
                         username: username,
                         name: nameAr,
-                        phone: phone, // Save Phone
+                        phone: phone,
                         email: email,
                         role: state.authRole,
                         governorate: gov,
@@ -790,9 +830,15 @@
                         isAdmin: false,
                         image: state.authImageBase64 || null, 
                         createdAt: serverTimestamp()
-                    });
+                    };
+
+                    await setDoc(doc(db, "users", user.uid), userDataObj);
                     
+                    // Req 1: Fix Signup Data Lag
+                    state.userData = userDataObj;
                     state.userRole = state.authRole;
+                    document.getElementById('header-username').innerText = nameAr;
+                    document.getElementById('welcome-text').classList.remove('hidden');
 
                 } else {
                     await signInWithEmailAndPassword(auth, email, pass);
@@ -954,13 +1000,12 @@
             document.getElementById('search-input').value = '';
             document.getElementById('filter-price').value = '';
             document.getElementById('filter-gov').value = '';
-            // Force re-render based on current view
+            
             if (state.currentView === 'category') {
                 renderProducts();
             } else {
                 renderCategoryCards();
             }
-            // Ensure panel closes or stays open based on UX preference (here we keep it open or user toggles it)
         };
 
         window.switchToCategoryView = (category) => {
@@ -1242,11 +1287,98 @@
             document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
             toggleModal('details-modal'); 
             goToDetailsSlide(0, 'auto'); 
+            
+            // Req 4: Load Reviews
+            loadReviews(id);
+
             lucide.createIcons();
 
             const url = new URL(window.location);
             url.searchParams.set('product_id', id);
             window.history.replaceState({}, '', url);
+        }
+
+        // Req 4: Review Logic
+        window.submitReview = async () => {
+            const text = document.getElementById('review-text').value.trim();
+            const rating = document.querySelector('input[name="rating"]:checked')?.value;
+            
+            if(!rating) return showToast('يرجى تحديد عدد النجوم', 'e');
+            if(!text) return showToast('يرجى كتابة تعليق', 'e');
+            
+            try {
+                await addDoc(collection(db, "reviews"), {
+                    listingId: state.currentItem.id,
+                    userId: state.user.uid,
+                    userName: state.userData.name,
+                    userImage: state.userData.image,
+                    rating: parseInt(rating),
+                    comment: text,
+                    createdAt: serverTimestamp()
+                });
+                showToast('تم نشر تقييمك');
+                document.getElementById('review-text').value = '';
+                document.querySelectorAll('input[name="rating"]').forEach(r => r.checked = false);
+                loadReviews(state.currentItem.id);
+            } catch(e) {
+                console.error(e);
+                showToast('حدث خطأ', 'e');
+            }
+        }
+
+        window.loadReviews = (listingId) => {
+            onSnapshot(query(collection(db, "reviews"), where("listingId", "==", listingId)), (snap) => {
+                state.reviews = [];
+                snap.forEach(d => state.reviews.push(d.data()));
+                state.reviews.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+                state.reviewLimit = 1;
+                renderReviews();
+            });
+        }
+
+        window.renderReviews = () => {
+            const list = document.getElementById('reviews-list');
+            const btn = document.getElementById('btn-more-reviews');
+            list.innerHTML = '';
+            
+            if(state.reviews.length === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-400 text-center">لا توجد تقييمات بعد</p>';
+                btn.classList.add('hidden');
+                return;
+            }
+
+            constToShow = state.reviews.slice(0, state.reviewLimit);
+            constToShow.forEach(r => {
+                const stars = Array(5).fill(0).map((_, i) => 
+                    `<i data-lucide="star" class="w-3 h-3 ${i < r.rating ? 'fill-yellow-400 text-yellow-400' : 'text-slate-300'}"></i>`
+                ).join('');
+                
+                list.innerHTML += `
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-6 h-6 rounded-full bg-slate-200 overflow-hidden">
+                                ${r.userImage ? `<img src="${r.userImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-3 h-3 m-1.5 text-slate-400"></i>`}
+                            </div>
+                            <span class="text-[10px] font-bold">${r.userName}</span>
+                            <div class="flex gap-0.5 mr-auto">${stars}</div>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 pr-8">${r.comment}</p>
+                    </div>
+                `;
+            });
+            
+            if(state.reviews.length > state.reviewLimit) {
+                btn.classList.remove('hidden');
+                btn.innerText = `عرض المزيد (${state.reviews.length - state.reviewLimit})`;
+            } else {
+                btn.classList.add('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        window.showMoreReviews = () => {
+            state.reviewLimit += 3;
+            renderReviews();
         }
 
         window.closeDetails = () => {
@@ -1586,24 +1718,59 @@
         window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
         window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
 
-        // Req 5: Profile Modal Logic
-        window.toggleProfile = () => {
+        // Req 2 & 5: Profile Modal Logic (Own or Publisher)
+        window.toggleProfile = async (targetUid = null) => {
             if(toggleModal('profile-modal')) {
-                if(state.userData) {
-                    document.getElementById('prof-name').innerText = state.userData.name || 'مستخدم';
-                    document.getElementById('prof-username').innerText = state.userData.username || '-';
-                    document.getElementById('prof-phone').innerText = state.userData.phone || 'غير مسجل';
-                    document.getElementById('prof-address').innerText = (state.userData.governorate || '') + ' - ' + (state.userData.city || '');
-                    document.getElementById('prof-role').innerText = state.userData.role === 'marketer' ? 'مسوق / بائع' : 'عميل';
+                let data = state.userData;
+                let isOwn = true;
+
+                if (targetUid && typeof targetUid === 'string' && targetUid !== state.user.uid) {
+                    isOwn = false;
+                    try {
+                        const snap = await getDoc(doc(db, "users", targetUid));
+                        if(snap.exists()) data = snap.data();
+                        else data = { name: 'مستخدم محذوف' };
+                    } catch(e) { data = { name: 'خطأ' }; }
+                }
+
+                if(data) {
+                    document.getElementById('prof-name').innerText = data.name || 'مستخدم';
+                    document.getElementById('prof-username').innerText = data.username || '-';
+                    document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل';
+                    document.getElementById('prof-gov').innerText = data.governorate || '';
+                    document.getElementById('prof-address').innerText = (data.city || '') + ' - ' + (data.address || '');
+                    document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل';
                     
                     const imgCont = document.getElementById('prof-img-container');
-                    if(state.userData.image) {
-                        imgCont.innerHTML = `<img src="${state.userData.image}" class="w-full h-full object-cover">`;
+                    if(data.image) {
+                        imgCont.innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
                     } else {
                         imgCont.innerHTML = `<i data-lucide="user" class="w-8 h-8 text-slate-400"></i>`;
                     }
+                    
+                    // Hide password change for other users
+                    const btnPass = document.getElementById('btn-change-pass');
+                    if(isOwn) btnPass.classList.remove('hidden');
+                    else btnPass.classList.add('hidden');
+
                     lucide.createIcons();
                 }
+            }
+        }
+
+        // Req 5: Open Publisher Profile
+        window.openPublisherProfile = () => {
+            if(state.currentItem && state.currentItem.authorId) {
+                toggleProfile(state.currentItem.authorId);
+            }
+        }
+
+        // Req 2: Change Password
+        window.changePassword = () => {
+            if(confirm("سيتم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني المسجل. هل أنت متأكد؟")) {
+                sendPasswordResetEmail(auth, state.user.email)
+                .then(() => showToast("تم إرسال الرابط بنجاح"))
+                .catch((error) => showToast("حدث خطأ: " + error.message, "e"));
             }
         }
 
