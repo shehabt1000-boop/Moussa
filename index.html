@@ -1960,8 +1960,7 @@
         window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
         window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
 
-
-                // Profile Logic
+        // Profile Logic - الكود المصحح
         window.toggleProfile = async (userId = null) => {
             if(toggleModal('profile-modal')) {
                 const targetId = userId || (state.user ? state.user.uid : null);
@@ -1970,22 +1969,22 @@
                 state.viewingProfileId = targetId;
                 const isOwner = state.user && state.user.uid === targetId;
                 
-                // Reset UI (تصفير الواجهة)
+                // 1. تصفير الواجهة (Reset UI)
                 document.getElementById('prof-name').innerText = '...';
                 document.getElementById('prof-role').innerText = '...';
                 document.getElementById('prof-phone').innerText = '...';
                 document.getElementById('prof-address').innerText = '...';
                 document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
                 
-                // إخفاء كل العناصر مبدئياً
+                // إخفاء كل العناصر مبدئياً لضمان عدم تداخل البيانات السابقة
                 document.getElementById('prof-password-section').classList.add('hidden');
                 document.getElementById('prof-reviews-section').classList.add('hidden');
                 document.getElementById('prof-rate-user-section').classList.add('hidden');
                 document.getElementById('prof-rating-display').classList.add('hidden');
                 document.querySelectorAll('[id^="edit-"]').forEach(el => el.classList.add('hidden'));
 
-
-                // (TWEAK) إظهار أزرار التعديل فوراً للمالك قبل انتظار تحميل البيانات
+                // 2. (التعديل الهام) إظهار أزرار التعديل فوراً إذا كان المستخدم هو المالك
+                // يتم هذا قبل محاولة جلب البيانات من السيرفر
                 if(isOwner) {
                     document.getElementById('prof-password-section').classList.remove('hidden');
                     document.getElementById('edit-img-btn').classList.remove('hidden');
@@ -1993,20 +1992,21 @@
                     document.getElementById('edit-phone-btn').classList.remove('hidden');
                     document.getElementById('edit-address-btn').classList.remove('hidden');
                 } else {
-                    // إظهار زر التقييم للزوار
+                    // إذا لم يكن المالك، نظهر قسم "قيم هذا المستخدم"
                     document.getElementById('prof-rate-user-section').classList.remove('hidden');
                 }
 
-
+                // 3. جلب البيانات من قاعدة البيانات
                 try {
                     let data = null;
                     if(isOwner && state.userData) {
+                        // إذا كانت البيانات محملة مسبقاً في state، نستخدمها للتسريع
                         data = state.userData;
                     } else {
+                        // جلب البيانات من السيرفر
                         const snap = await getDoc(doc(db, "users", targetId));
                         if(snap.exists()) data = snap.data();
                     }
-
 
                     if(data) {
                         document.getElementById('prof-name').innerText = data.name || 'مستخدم';
@@ -2018,10 +2018,10 @@
                             document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
                         }
 
-
+                        // حساب وعرض التقييمات
                         calculateUserRating(targetId);
 
-
+                        // إذا كان مسوقاً، نعرض آراء العملاء عنه
                         if(data.role === 'marketer') {
                              document.getElementById('prof-reviews-section').classList.remove('hidden');
                              state.profileReviewsLimit = 3;
@@ -2029,12 +2029,11 @@
                         }
                     }
                 } catch(e) {
-                    console.error("Profile load error:", e);
+                    console.error("Error loading profile:", e);
                 }
                 lucide.createIcons();
             }
         }
-
 
 
 
