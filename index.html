@@ -48,12 +48,12 @@
         .gpu { transform: translateZ(0); will-change: transform; }
         .select-none { user-select: none; }
 
-        /* Custom Scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #000; border-radius: 10px; }
+        /* Custom Scrollbar - Req 6: Black Side Bar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #000000; border-radius: 4px; }
         .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
-        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #ffffff; }
 
         @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
         .skeleton { animation: shimmer 2s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
@@ -62,64 +62,48 @@
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
+        /* Modal Layering - Req 4 */
+        .mobile-full-modal { position: fixed; inset: 0; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
+        
+        /* Z-Index Hierarchy */
+        #details-modal { z-index: 80; }
+        #profile-modal { z-index: 90; } /* Higher than details */
+        #splash-screen { z-index: 200; } /* Highest */
+
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 600px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; } 
-            .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
+            .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
+            #details-modal.modal-overlay { z-index: 80; }
+            #profile-modal.modal-overlay { z-index: 90; }
         }
 
-        /* Toast Animation */
         @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         .toast { 
             animation: slideInDown 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; 
-            position: fixed; 
-            top: 20px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            z-index: 9999;
-            width: max-content;
-            max-width: 90vw;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;
+            width: max-content; max-width: 90vw; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
         .toast.hiding { animation: fadeOut 0.2s ease-in forwards; }
 
         .form-label { display: block; font-size: 0.7rem; font-weight: 800; color: #334155; margin-bottom: 0.1rem; }
         .dark .form-label { color: #cbd5e1; }
         
-        /* Input Styling (Black Border) */
         .form-input { 
-            width: 100%; 
-            background-color: #ffffff; 
-            border: 1px solid #000000 !important; 
-            border-radius: 0.5rem; 
-            padding: 0 0.5rem; 
-            height: 2.25rem; 
-            display: flex;
-            align-items: center;
-            font-size: 0.75rem; 
-            font-weight: 600; 
-            color: #1e293b; 
-            outline: none; 
-            transition: all 0.2s; 
-            line-height: normal; 
+            width: 100%; background-color: #ffffff; border: 1px solid #000000 !important; border-radius: 0.5rem; 
+            padding: 0 0.5rem; height: 2.25rem; display: flex; align-items: center; font-size: 0.75rem; font-weight: 600; 
+            color: #1e293b; outline: none; transition: all 0.2s; line-height: normal; 
         }
+        .form-input:disabled { background-color: #f1f5f9; color: #64748b; border-color: #cbd5e1 !important; }
+        .dark .form-input:disabled { background-color: #334155; color: #94a3b8; border-color: #475569 !important; }
+
         select.form-input {
-            padding-top: 0;
-            padding-bottom: 0;
-            -webkit-appearance: none; 
+            padding-top: 0; padding-bottom: 0; -webkit-appearance: none; 
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: left 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.2em 1.2em;
-            padding-left: 2rem; 
+            background-position: left 0.5rem center; background-repeat: no-repeat; background-size: 1.2em 1.2em; padding-left: 2rem; 
         }
-        textarea.form-input {
-            height: auto;
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-        }
+        textarea.form-input { height: auto; padding-top: 0.5rem; padding-bottom: 0.5rem; }
         .form-input:focus { border-color: #10b981 !important; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
         .dark .form-input { background-color: #1e293b; border-color: #94a3b8 !important; color: white; }
         .dark .form-input:focus { border-color: #10b981 !important; }
@@ -128,7 +112,6 @@
         .smart-option:checked + div { background-color: #0f172a; color: white; border-color: #0f172a; }
         .dark .smart-option:checked + div { background-color: #10b981; border-color: #10b981; }
 
-        /* Star Rating */
         .star-rating input { display: none; }
         .star-rating label { cursor: pointer; color: #cbd5e1; transition: color 0.2s; }
         .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }
@@ -137,7 +120,7 @@
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .install-banner { animation: slideUp 0.3s ease-out forwards; }
 
-        #login-view { position: fixed; inset: 0; z-index: 200; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        #login-view { position: fixed; inset: 0; z-index: 150; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
         #login-view.hidden { display: none !important; } 
         .dark #login-view { background-color: #0f172a; }
         .login-scroll { max-height: 65vh; overflow-y: auto; padding: 2px; }
@@ -147,8 +130,17 @@
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
 
+    <!-- Req 8: Splash Screen -->
+    <div id="splash-screen" class="fixed inset-0 bg-navy dark:bg-navy flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="bg-white/10 p-4 rounded-3xl mb-4 animate-bounce">
+            <i data-lucide="shopping-bag" class="w-16 h-16 text-primary"></i>
+        </div>
+        <h1 class="text-3xl font-black text-white mb-2">السوق <span class="text-primary">وياك</span></h1>
+        <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
     <!-- LOGIN VIEW -->
-    <div id="login-view">
+    <div id="login-view" class="hidden">
         <div class="w-full max-w-md bg-white dark:bg-darkbg p-4 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[95vh]">
             <div class="flex flex-col items-center gap-1 mb-3 shrink-0">
                 <div class="bg-navy dark:bg-primary text-white p-2 rounded-xl shadow-lg rotate-3">
@@ -248,7 +240,6 @@
     <div id="app-content" class="hidden">
         <div id="toast-container" class="fixed top-4 left-0 right-0 z-[120] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
-        <!-- Header -->
         <header class="fixed top-0 w-full z-[60] bg-white/95 dark:bg-navy/95 border-b border-slate-200 dark:border-slate-700 flex flex-col justify-center px-4 shadow-sm backdrop-blur-md h-12">
             <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-2" id="logo-trigger">
@@ -320,7 +311,6 @@
             <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
         </main>
 
-        <!-- NAV BAR -->
         <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
             <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
             <button id="nav-add-btn" onclick="toggleAddModal()" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
@@ -328,7 +318,7 @@
         </nav>
     </div>
 
-    <!-- Req 2: Full Screen Profile Modal -->
+    <!-- Req 2: Full Screen Profile Modal (Z-Index 90) -->
     <div id="profile-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
@@ -336,34 +326,45 @@
                 <button onclick="toggleProfile()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg">
-                <div class="flex flex-col items-center gap-3 mb-6">
-                    <div id="prof-img-container" class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg">
-                        <i data-lucide="user" class="w-10 h-10 text-slate-400"></i>
+                <div class="flex flex-col items-center gap-3 mb-6 relative">
+                    <div class="relative">
+                        <div id="prof-img-container" class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg">
+                            <i data-lucide="user" class="w-10 h-10 text-slate-400"></i>
+                        </div>
+                        <!-- Req 3: Edit Image -->
+                        <label id="btn-edit-img" class="hidden absolute bottom-0 right-0 bg-navy text-white p-1.5 rounded-full cursor-pointer shadow-md">
+                            <input type="file" accept="image/*" class="hidden" onchange="updateProfileImage(this)">
+                            <i data-lucide="camera" class="w-3 h-3"></i>
+                        </label>
                     </div>
                     <div class="text-center w-full">
-                        <h2 id="prof-name" class="font-black text-xl text-navy dark:text-white">...</h2>
+                        <div class="flex items-center justify-center gap-2">
+                            <h2 id="prof-name" class="font-black text-xl text-navy dark:text-white">...</h2>
+                            <button id="btn-edit-profile" onclick="enableEditMode()" class="hidden text-primary"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                        </div>
                         <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
                     </div>
                 </div>
 
+                <!-- Req 3 & 7: Editable Fields -->
                 <div class="space-y-3 mb-6">
-                    <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <label class="text-[10px] font-bold text-slate-400 mb-1 block">رقم الهاتف</label>
-                        <div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white">
-                            <i data-lucide="phone" class="w-4 h-4 text-primary"></i>
-                            <span id="prof-phone">...</span>
-                        </div>
+                    <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <label class="text-[10px] font-bold text-slate-400 mb-1 block">الاسم</label>
+                        <input id="in-prof-name" type="text" disabled class="form-input text-sm font-bold bg-transparent border-none !shadow-none !p-0 h-auto text-navy dark:text-white">
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <label class="text-[10px] font-bold text-slate-400 mb-1 block">العنوان بالتفصيل</label>
-                        <div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white">
-                            <i data-lucide="map-pin" class="w-4 h-4 text-primary"></i>
-                            <span id="prof-address">...</span>
-                        </div>
+                    <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <label class="text-[10px] font-bold text-slate-400 mb-1 block">رقم الهاتف</label>
+                        <input id="in-prof-phone" type="tel" disabled class="form-input text-sm font-bold bg-transparent border-none !shadow-none !p-0 h-auto text-navy dark:text-white">
+                    </div>
+                    <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <label class="text-[10px] font-bold text-slate-400 mb-1 block">العنوان</label>
+                        <input id="in-prof-address" type="text" disabled class="form-input text-sm font-bold bg-transparent border-none !shadow-none !p-0 h-auto text-navy dark:text-white">
                     </div>
                     
+                    <button id="btn-save-profile" onclick="saveProfile()" class="hidden w-full bg-primary text-white py-2 rounded-xl font-bold shadow-lg">حفظ التغييرات</button>
+
                     <!-- Change Password (Only for Owner) -->
-                    <div id="prof-password-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                    <div id="prof-password-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-4">
                         <label class="text-[10px] font-bold text-slate-400 mb-2 block">تغيير كلمة المرور</label>
                         <div class="flex gap-2">
                             <input id="new-password" type="password" class="form-input text-xs" placeholder="كلمة المرور الجديدة">
@@ -372,7 +373,7 @@
                     </div>
                 </div>
 
-                <!-- Reviews on Profile (Req 2) -->
+                <!-- Req 1 & 2: Reviews Logic (Hidden if viewed via Publisher link) -->
                 <div id="prof-reviews-section" class="hidden">
                     <h3 class="font-bold text-sm text-navy dark:text-white mb-3 border-b pb-2 border-slate-100 dark:border-slate-700">آراء العملاء</h3>
                     <div id="prof-reviews-list" class="space-y-3"></div>
@@ -440,7 +441,7 @@
         </div>
     </div>
 
-    <!-- Details Modal -->
+    <!-- Details Modal (Z-Index 80) -->
     <div id="details-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
@@ -455,9 +456,11 @@
                 <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
-            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg">
-                <!-- Req 5: Clickable Publisher Bar -->
-                <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/80 transition">
+            
+            <!-- Req 6: Black Scroll Bar (via custom-scroll class) -->
+            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
+                <!-- Req 4: Clickable Publisher Bar -->
+                <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
                      <div class="flex items-center gap-2">
                          <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
                          <div class="flex flex-col justify-center">
@@ -468,10 +471,13 @@
                      <div id="d-shipping-info" class="flex flex-wrap items-center gap-1 text-[9px] font-bold text-slate-500 bg-white dark:bg-slate-700 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 max-w-[55%] justify-end leading-tight"></div>
                 </div>
 
-                <div class="flex justify-between items-start mb-2"><h2 id="d-title" class="text-base font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-lg whitespace-nowrap select-text"></span></div>
-                <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span></div>
+                <!-- Req 5: Gray Background Fields -->
+                <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl mb-3">
+                    <div class="flex justify-between items-start mb-2"><h2 id="d-title" class="text-base font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-lg whitespace-nowrap select-text"></span></div>
+                    <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 pb-2 border-b border-slate-200 dark:border-slate-700"><span id="d-cat" class="bg-white dark:bg-slate-700 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-600"></span> <span id="d-cond" class="bg-white dark:bg-slate-700 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-600 font-bold"></span></div>
+                </div>
                 
-                <div id="d-variants-container" class="space-y-2 mb-4">
+                <div id="d-variants-container" class="space-y-2 mb-4 bg-slate-100 dark:bg-slate-800 p-3 rounded-xl">
                     <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2">
                         <span class="text-[10px] font-bold text-slate-400 shrink-0">المقاسات:</span>
                         <div id="d-sizes-list" class="flex flex-wrap gap-1"></div>
@@ -484,13 +490,12 @@
 
                 <div id="d-features" class="flex flex-wrap gap-2 mb-4"></div>
 
-                <div class="space-y-1 mb-6"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 font-medium select-text"></p></div>
+                <div class="space-y-1 mb-6 bg-slate-100 dark:bg-slate-800 p-3 rounded-xl"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium select-text"></p></div>
 
-                <!-- Req 4: Product Reviews Section -->
+                <!-- Product Reviews Section -->
                 <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
                     <h3 class="text-xs font-bold text-slate-900 dark:text-white mb-3">التقييمات</h3>
                     
-                    <!-- Add Review Form -->
                     <div id="add-review-form" class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl mb-4 border border-slate-100 dark:border-slate-700">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-[10px] font-bold">أضف تقييمك</span>
@@ -506,7 +511,6 @@
                         <button onclick="submitProductReview()" class="bg-navy dark:bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">نشر التقييم</button>
                     </div>
 
-                    <!-- Reviews List -->
                     <div id="product-reviews-list" class="space-y-3"></div>
                     <button id="load-more-reviews" onclick="loadProductReviews(true)" class="hidden w-full text-center text-xs text-primary font-bold mt-2 py-2">عرض المزيد</button>
                 </div>
@@ -650,7 +654,8 @@
             productReviewsLimit: 1,
             profileReviews: [],
             profileReviewsLimit: 3,
-            viewingProfileId: null
+            viewingProfileId: null,
+            isEditingProfile: false
         };
 
         function initGovs() {
@@ -697,6 +702,14 @@
         function forceSwitchToApp() {
             const loginView = document.getElementById('login-view');
             const appContent = document.getElementById('app-content');
+            const splash = document.getElementById('splash-screen');
+            
+            // Req 8: Splash Screen Logic
+            setTimeout(() => {
+                splash.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => splash.classList.add('hidden'), 500);
+            }, 1000);
+
             loginView.classList.add('hidden');
             loginView.style.setProperty('display', 'none', 'important');
             appContent.classList.remove('hidden');
@@ -733,6 +746,12 @@
                 initCats(); 
             } else {
                 state.user = null;
+                // Show login view after splash
+                setTimeout(() => {
+                    document.getElementById('splash-screen').classList.add('opacity-0', 'pointer-events-none');
+                    setTimeout(() => document.getElementById('splash-screen').classList.add('hidden'), 500);
+                }, 1000);
+                
                 const loginView = document.getElementById('login-view');
                 loginView.classList.remove('hidden');
                 loginView.style.removeProperty('display');
@@ -1028,12 +1047,9 @@
             document.getElementById('filter-gov').value = '';
             
             if (state.currentView === 'category') {
-                // If in category view but empty, reset to 'all' in home if needed, or just reload products
                 if(state.currentFilter !== 'all' && state.currentFilter !== 'fav') {
-                     // Keep category but clear filters
                      renderProducts();
                 } else {
-                     // Go home
                      switchToHomeView();
                 }
             } else {
@@ -1682,13 +1698,20 @@
                 
                 state.viewingProfileId = targetId;
                 const isOwner = state.user && state.user.uid === targetId;
+                state.isEditingProfile = false;
                 
                 // Reset UI
                 document.getElementById('prof-name').innerText = '...';
                 document.getElementById('prof-role').innerText = '...';
-                document.getElementById('prof-phone').innerText = '...';
-                document.getElementById('prof-address').innerText = '...';
-                document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
+                document.getElementById('in-prof-phone').value = '';
+                document.getElementById('in-prof-address').value = '';
+                document.getElementById('in-prof-name').value = '';
+                
+                // Disable inputs
+                document.querySelectorAll('#profile-modal input').forEach(i => i.disabled = true);
+                document.getElementById('btn-save-profile').classList.add('hidden');
+                document.getElementById('btn-edit-profile').classList.add('hidden');
+                document.getElementById('btn-edit-img').classList.add('hidden');
                 document.getElementById('prof-password-section').classList.add('hidden');
                 document.getElementById('prof-reviews-section').classList.add('hidden');
 
@@ -1704,23 +1727,27 @@
 
                     if(data) {
                         document.getElementById('prof-name').innerText = data.name || 'مستخدم';
+                        document.getElementById('in-prof-name').value = data.name || '';
                         document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل';
-                        document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل';
-                        document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || '');
+                        document.getElementById('in-prof-phone').value = data.phone || '';
+                        document.getElementById('in-prof-address').value = (data.address || '') + (data.city ? ' - ' + data.city : '');
                         
+                        const imgCont = document.getElementById('prof-img-container');
                         if(data.image) {
-                            document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
+                            imgCont.innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
+                        } else {
+                            imgCont.innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
                         }
 
                         if(isOwner) {
+                            document.getElementById('btn-edit-profile').classList.remove('hidden');
                             document.getElementById('prof-password-section').classList.remove('hidden');
-                        }
-
-                        // Req 2: Show Reviews if Marketer
-                        if(data.role === 'marketer') {
-                            document.getElementById('prof-reviews-section').classList.remove('hidden');
-                            state.profileReviewsLimit = 3;
-                            loadProfileReviews(false);
+                            // Show reviews if Marketer (Req 2)
+                            if(data.role === 'marketer') {
+                                document.getElementById('prof-reviews-section').classList.remove('hidden');
+                                state.profileReviewsLimit = 3;
+                                loadProfileReviews(false);
+                            }
                         }
                     }
                 } catch(e) {
@@ -1728,6 +1755,52 @@
                     showToast("خطأ في تحميل البيانات", "e");
                 }
                 lucide.createIcons();
+            }
+        }
+
+        // Req 3: Edit Profile Logic
+        window.enableEditMode = () => {
+            state.isEditingProfile = true;
+            document.getElementById('in-prof-name').disabled = false;
+            document.getElementById('in-prof-phone').disabled = false;
+            document.getElementById('in-prof-address').disabled = false;
+            document.getElementById('btn-edit-img').classList.remove('hidden');
+            document.getElementById('btn-save-profile').classList.remove('hidden');
+            document.getElementById('btn-edit-profile').classList.add('hidden');
+        }
+
+        window.updateProfileImage = async (input) => {
+            if (input.files && input.files[0]) {
+                const c = await compress(input.files[0]);
+                state.authImageBase64 = c; // Temp store
+                document.getElementById('prof-img-container').innerHTML = `<img src="${c}" class="w-full h-full object-cover">`;
+            }
+        }
+
+        window.saveProfile = async () => {
+            const newName = document.getElementById('in-prof-name').value;
+            const newPhone = document.getElementById('in-prof-phone').value;
+            const newAddress = document.getElementById('in-prof-address').value;
+            
+            const updates = {
+                name: newName,
+                phone: newPhone,
+                address: newAddress
+            };
+            if(state.authImageBase64) updates.image = state.authImageBase64;
+
+            try {
+                await updateDoc(doc(db, "users", state.user.uid), updates);
+                if(newName) await updateProfile(auth.currentUser, { displayName: newName });
+                
+                // Update local state
+                state.userData = { ...state.userData, ...updates };
+                state.authImageBase64 = null;
+                
+                showToast("تم تحديث البيانات بنجاح");
+                toggleProfile(state.user.uid); // Refresh view
+            } catch(e) {
+                showToast("فشل التحديث", "e");
             }
         }
 
@@ -1756,6 +1829,7 @@
             
             await addDoc(collection(db, "product_reviews"), {
                 productId: state.currentItem.id,
+                productAuthorId: state.currentItem.authorId, // Added for Profile Reviews
                 userId: state.user.uid,
                 userName: state.userData.name || 'مستخدم',
                 userImage: state.userData.image || null,
@@ -1766,8 +1840,7 @@
             
             showToast("تم نشر التقييم");
             document.getElementById('review-text').value = '';
-            // Reload reviews
-            state.productReviewsLimit = 1; // Reset to 1 then load
+            state.productReviewsLimit = 1;
             loadProductReviews(false);
         }
 
@@ -1782,7 +1855,7 @@
                 collection(db, "product_reviews"), 
                 where("productId", "==", state.currentItem.id),
                 orderBy("timestamp", "desc"),
-                limit(state.productReviewsLimit + 1) // Fetch one extra to check if more exist
+                limit(state.productReviewsLimit + 1)
             );
             
             const snap = await getDocs(q);
@@ -1795,7 +1868,6 @@
                     const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
                     const img = r.userImage ? `<img src="${r.userImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`;
                     
-                    // Avoid duplicating if appending (simple check)
                     if(append && list.innerHTML.includes(r.text)) return; 
 
                     list.innerHTML += `
@@ -1828,36 +1900,12 @@
             
             if(append) state.profileReviewsLimit += 3;
             
-            // Query reviews where the product author is the profile user
-            // Note: This requires a complex query or storing authorId in review. 
-            // For simplicity/performance in this structure, we'll query reviews where 'userId' is NOT the profile user, 
-            // but we need to know which products belong to this user. 
-            // A better approach for NoSQL is to replicate reviews or have a 'targetUserId' in review.
-            // Assuming we add 'targetUserId' (the seller) to reviews in future. 
-            // For now, let's show reviews *written by* this user as a fallback, or fetch products then reviews (expensive).
-            // Strategy: We will fetch reviews for products authored by this user. 
-            // 1. Get products by author. 2. Get reviews for those products. (Too many reads).
-            // Optimized: We will assume reviews are just displayed for now. 
-            // Let's implement showing reviews *written by* the user for now to demonstrate functionality, 
-            // as linking reviews to sellers requires schema change in `submitProductReview` (adding authorId of product).
-            
-            // *Correction based on prompt*: "تقيمات العملاء علي منتجات المسوق".
-            // I will modify submitProductReview to include productAuthorId to make this efficient.
-            // Since I can't easily change existing data, I'll update submitProductReview above to include it? 
-            // Actually, I can't get product author ID easily inside submit without fetching product again or relying on state.currentItem.
-            // state.currentItem HAS authorId. So I will add `productAuthorId` to the review!
-            
-            // Updated submitProductReview logic: added productAuthorId: state.currentItem.authorId
-            
             const q = query(
                 collection(db, "product_reviews"),
-                where("productAuthorId", "==", state.viewingProfileId), // Requires index
+                where("productAuthorId", "==", state.viewingProfileId),
                 orderBy("timestamp", "desc"),
                 limit(state.profileReviewsLimit + 1)
             );
-            
-            // Note: If index is missing, this might fail in console. Firestore requires composite index.
-            // Fallback: Just show reviews *by* the user if index fails, or handle error.
             
             try {
                 const snap = await getDocs(q);
@@ -1875,7 +1923,7 @@
                         const r = doc.data();
                         const stars = "★".repeat(r.rating);
                         list.innerHTML += `
-                            <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-xs">
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-xs border border-slate-200 dark:border-slate-700">
                                 <div class="flex justify-between mb-1">
                                     <span class="font-bold">${r.userName}</span>
                                     <span class="text-yellow-400">${stars}</span>
@@ -1894,31 +1942,6 @@
                 console.log("Index might be missing for profile reviews", e);
                 list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">جاري تفعيل نظام التقييمات...</p>';
             }
-        }
-
-        // Update submitProductReview to include authorId
-        window.submitProductReview = async () => {
-            if(!state.user) return showToast("يجب تسجيل الدخول للتقييم", "e");
-            if(!state.currentItem) return;
-            if(state.currentRating === 0) return showToast("يرجى تحديد عدد النجوم", "e");
-            
-            const text = document.getElementById('review-text').value;
-            
-            await addDoc(collection(db, "product_reviews"), {
-                productId: state.currentItem.id,
-                productAuthorId: state.currentItem.authorId, // Added for Profile Reviews
-                userId: state.user.uid,
-                userName: state.userData.name || 'مستخدم',
-                userImage: state.userData.image || null,
-                rating: state.currentRating,
-                text: text,
-                timestamp: serverTimestamp()
-            });
-            
-            showToast("تم نشر التقييم");
-            document.getElementById('review-text').value = '';
-            state.productReviewsLimit = 1;
-            loadProductReviews(false);
         }
 
         lucide.createIcons();
