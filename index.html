@@ -45,7 +45,6 @@
         .dark body { background-color: #0f172a; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .gpu { transform: translateZ(0); will-change: transform; }
         .select-none { user-select: none; }
 
         /* Custom Scrollbar */
@@ -54,10 +53,6 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; border: 1px solid white; }
         .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
         .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border: 1px solid #0f172a; }
-
-        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
-        .skeleton { animation: shimmer 2s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
-        .dark .skeleton { background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%); }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -73,14 +68,17 @@
             .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
+        /* Modern Toast */
         @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         .toast { 
-            animation: slideInDown 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; 
+            animation: slideInDown 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; 
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;
-            width: max-content; max-width: 90vw; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            width: max-content; max-width: 90vw; 
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
         }
-        .toast.hiding { animation: fadeOut 0.2s ease-in forwards; }
+        .toast.hiding { animation: fadeOut 0.3s ease-in forwards; }
 
         .form-label { display: block; font-size: 0.7rem; font-weight: 800; color: #334155; margin-bottom: 0.1rem; }
         .dark .form-label { color: #cbd5e1; }
@@ -110,7 +108,7 @@
         .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
 
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .install-banner { animation: slideUp 0.3s ease-out forwards; }
+        .install-banner { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         #login-view { position: fixed; inset: 0; z-index: 200; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
         #login-view.hidden { display: none !important; } 
@@ -313,6 +311,21 @@
             <button id="nav-add-btn" onclick="toggleAddModal()" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
             <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
         </nav>
+
+        <!-- PWA Install Banner -->
+        <div id="install-banner" class="hidden fixed bottom-20 left-4 right-4 bg-navy dark:bg-white dark:text-navy text-white p-3 rounded-xl shadow-2xl z-[110] flex items-center justify-between install-banner border dark:border-slate-200">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-5 h-5"></i></div>
+                <div>
+                    <h4 class="font-bold text-xs">تثبيت التطبيق</h4>
+                    <p class="text-[10px] opacity-80">تجربة أسرع وأسهل</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="installPWA()" class="bg-primary text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow-lg">تثبيت</button>
+                <button onclick="closeInstall()" class="text-white dark:text-navy p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+        </div>
     </div>
 
     <!-- Profile Modal -->
@@ -378,18 +391,19 @@
                         </div>
                     </div>
 
-                    <!-- Req 3: Rate User Section -->
+                    <!-- Rate User Section -->
                     <div id="prof-rate-user-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
                         <label class="text-[10px] font-bold text-slate-400 mb-2 block">قيم هذا المستخدم</label>
-                        <div class="flex justify-between items-center">
-                            <div class="star-rating text-lg">
+                        <div class="flex flex-col gap-2">
+                            <div class="star-rating text-lg self-end">
                                 <input type="radio" id="u-star5" name="u-rating" value="5" onclick="setUserRating(5)"><label for="u-star5">★</label>
                                 <input type="radio" id="u-star4" name="u-rating" value="4" onclick="setUserRating(4)"><label for="u-star4">★</label>
                                 <input type="radio" id="u-star3" name="u-rating" value="3" onclick="setUserRating(3)"><label for="u-star3">★</label>
                                 <input type="radio" id="u-star2" name="u-rating" value="2" onclick="setUserRating(2)"><label for="u-star2">★</label>
                                 <input type="radio" id="u-star1" name="u-rating" value="1" onclick="setUserRating(1)"><label for="u-star1">★</label>
                             </div>
-                            <button onclick="submitUserReview()" class="bg-primary text-white px-3 py-1 rounded-lg text-xs font-bold">إرسال</button>
+                            <textarea id="user-review-text" class="form-input text-xs w-full" rows="2" placeholder="اكتب تعليقك..."></textarea>
+                            <button onclick="submitUserReview()" class="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">إرسال التقييم</button>
                         </div>
                     </div>
                 </div>
@@ -592,6 +606,32 @@
             `;
             const blob = new Blob([swCode], {type: 'application/javascript'});
             navigator.serviceWorker.register(URL.createObjectURL(blob));
+        }
+
+        // PWA Install Logic
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if(!localStorage.getItem('pwa_installed')) {
+                document.getElementById('install-banner').classList.remove('hidden');
+            }
+        });
+
+        window.installPWA = async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    localStorage.setItem('pwa_installed', 'true');
+                }
+                deferredPrompt = null;
+                document.getElementById('install-banner').classList.add('hidden');
+            }
+        }
+
+        window.closeInstall = () => {
+            document.getElementById('install-banner').classList.add('hidden');
         }
 
         const EGYPT_DATA = {
@@ -1525,7 +1565,7 @@
 
         window.showToast=(m,t='s')=>{
             const d=document.createElement('div');
-            const bgClass = t==='e' ? 'bg-red-500 text-white' : 'bg-navy dark:bg-primary text-white';
+            const bgClass = t==='e' ? 'bg-red-600 text-white' : 'bg-green-600 text-white';
             d.className=`toast px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 text-xs font-bold ${bgClass}`;
             d.innerHTML=`<i data-lucide="${t==='e'?'alert-circle':'check-circle'}" class="w-4 h-4"></i> ${m}`;
             document.getElementById('toast-container').appendChild(d);
@@ -1860,14 +1900,18 @@
             if(!state.viewingProfileId) return;
             if(state.currentUserRating === 0) return showToast("يرجى تحديد عدد النجوم", "e");
             
+            const text = document.getElementById('user-review-text').value;
+
             await addDoc(collection(db, "user_reviews"), {
                 targetUserId: state.viewingProfileId,
                 reviewerId: state.user.uid,
                 rating: state.currentUserRating,
+                text: text,
                 timestamp: serverTimestamp()
             });
             
             showToast("تم إرسال التقييم");
+            document.getElementById('user-review-text').value = '';
             calculateUserRating(state.viewingProfileId);
         }
 
