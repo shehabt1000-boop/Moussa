@@ -48,7 +48,7 @@
         .gpu { transform: translateZ(0); will-change: transform; }
         .select-none { user-select: none; }
 
-        /* Req 6: Visible Black Scrollbar */
+        /* Custom Scrollbar */
         .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; border: 1px solid white; }
@@ -65,7 +65,6 @@
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         
-        /* Req 4: Profile Modal Higher Z-Index */
         #profile-modal .mobile-full-modal { z-index: 90; } 
         #profile-modal.modal-overlay { z-index: 90; }
 
@@ -120,14 +119,13 @@
         .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Req 8: Splash Screen */
         #splash-screen { position: fixed; inset: 0; z-index: 300; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
         #splash-screen.fade-out { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
 
-    <!-- Req 8: Splash Screen -->
+    <!-- Splash Screen -->
     <div id="splash-screen">
         <div class="bg-primary text-white p-4 rounded-3xl shadow-2xl mb-4 animate-bounce">
             <i data-lucide="shopping-bag" class="w-12 h-12"></i>
@@ -317,7 +315,7 @@
         </nav>
     </div>
 
-    <!-- Req 2: Full Screen Profile Modal -->
+    <!-- Profile Modal -->
     <div id="profile-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
@@ -328,7 +326,6 @@
                 <div class="flex flex-col items-center gap-3 mb-6">
                     <div id="prof-img-container" class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg relative group">
                         <i data-lucide="user" class="w-10 h-10 text-slate-400"></i>
-                        <!-- Edit Image Button -->
                         <label id="edit-img-btn" class="hidden absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition">
                             <i data-lucide="camera" class="w-6 h-6 text-white"></i>
                             <input type="file" accept="image/*" class="hidden" onchange="updateProfileImage(this)">
@@ -346,7 +343,6 @@
                 </div>
 
                 <div class="space-y-3 mb-6">
-                    <!-- Phone -->
                     <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
                         <div class="flex justify-between items-center mb-1">
                             <label class="text-[10px] font-bold text-slate-400">رقم الهاتف</label>
@@ -359,7 +355,6 @@
                         </div>
                     </div>
 
-                    <!-- Address -->
                     <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
                         <div class="flex justify-between items-center mb-1">
                             <label class="text-[10px] font-bold text-slate-400">العنوان بالتفصيل</label>
@@ -372,7 +367,6 @@
                         </div>
                     </div>
                     
-                    <!-- Change Password (Only for Owner) -->
                     <div id="prof-password-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
                         <label class="text-[10px] font-bold text-slate-400 mb-2 block">تغيير كلمة المرور</label>
                         <div class="flex gap-2">
@@ -382,71 +376,28 @@
                     </div>
                 </div>
 
-                <!-- Reviews on Profile (Req 2) -->
-                <div id="prof-reviews-section" class="hidden">
-                    <h3 class="font-bold text-sm text-navy dark:text-white mb-3 border-b pb-2 border-slate-100 dark:border-slate-700">آراء العملاء</h3>
-                    <div id="prof-reviews-list" class="space-y-3"></div>
-                    <button id="prof-reviews-more" onclick="loadProfileReviews(true)" class="hidden w-full text-center text-xs text-primary font-bold mt-2 py-2">عرض المزيد</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Modal -->
-    <div id="add-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0 h-12">
-                <h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة منتج</h3>
-                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-
-            <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-white dark:bg-darkbg custom-scroll">
-                <div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-2"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
-                
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input h-9 text-xs" placeholder="اسم المنتج..."></div>
-                    <div class="form-group"><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input h-9 text-xs" placeholder="0"></div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="form-group"><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input h-9 text-xs bg-gray-50"></select></div>
-                    <div id="field-condition" class="form-group hidden"><label class="form-label">الحالة</label><select id="in-condition" class="form-input h-9 text-xs"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
-                </div>
-                
-                <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group space-y-2 hidden">
-                    <div id="field-size-chips" class="hidden">
-                        <label class="form-label text-primary">المقاسات المتاحة</label>
-                        <div id="size-chips-container" class="flex flex-wrap gap-1.5"></div>
-                    </div>
-                    <div id="field-color-chips" class="hidden">
-                        <label class="form-label text-primary">الألوان المتاحة</label>
-                        <div id="color-chips-container" class="flex flex-wrap gap-1.5"></div>
-                    </div>
-                </div>
-
-                <div class="form-group bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
-                    <label class="form-label mb-1">أماكن الشحن</label>
-                    <div class="flex gap-2 mb-2">
-                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="all" onchange="toggleShipGov()" checked class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">كل المحافظات</div></label>
-                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="specific" onchange="toggleShipGov()" class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">محافظات محددة</div></label>
-                    </div>
-                    <div id="ship-gov-container" class="hidden">
-                        <div class="text-[10px] mb-1 text-slate-400">اختر المحافظات المتاحة:</div>
-                        <div id="ship-gov-list" class="max-h-24 overflow-y-auto custom-scroll grid grid-cols-2 gap-1 p-1 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-600 rounded-lg">
+                <!-- Req 3: User Rating Section -->
+                <div id="user-rating-section" class="hidden mb-4 border-t border-slate-100 dark:border-slate-700 pt-4">
+                    <h3 class="font-bold text-sm text-navy dark:text-white mb-2">قيم هذا المستخدم</h3>
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <div class="star-rating text-lg mb-2 justify-center">
+                            <input type="radio" id="u-star5" name="u-rating" value="5" onclick="setUserRating(5)"><label for="u-star5">★</label>
+                            <input type="radio" id="u-star4" name="u-rating" value="4" onclick="setUserRating(4)"><label for="u-star4">★</label>
+                            <input type="radio" id="u-star3" name="u-rating" value="3" onclick="setUserRating(3)"><label for="u-star3">★</label>
+                            <input type="radio" id="u-star2" name="u-rating" value="2" onclick="setUserRating(2)"><label for="u-star2">★</label>
+                            <input type="radio" id="u-star1" name="u-rating" value="1" onclick="setUserRating(1)"><label for="u-star1">★</label>
                         </div>
+                        <textarea id="user-review-text" class="form-input text-xs w-full mb-2" rows="2" placeholder="اكتب تعليقك..."></textarea>
+                        <button onclick="submitUserReview()" class="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">إرسال التقييم</button>
                     </div>
                 </div>
 
-                <div class="form-group"><label class="form-label">مواصفات إضافية:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="هاي كوبي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label></div></div>
-                
-                <div class="form-group"><label class="form-label">تمييز:</label><div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg"><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div>
-                
-                <div class="grid grid-cols-3 gap-2">
-                    <div class="form-group col-span-1"><label class="form-label">رقم الهاتف</label><input id="in-phone" type="tel" class="form-input h-9 text-xs" placeholder="01xxxxxxxxx"></div>
-                    <div class="form-group col-span-2"><label class="form-label">الوصف</label><textarea id="in-desc" rows="1" class="form-input text-xs" placeholder="تفاصيل..."></textarea></div>
+                <div id="prof-reviews-section" class="hidden">
+                    <h3 class="font-bold text-sm text-navy dark:text-white mb-3 border-b pb-2 border-slate-100 dark:border-slate-700">التقييمات المستلمة</h3>
+                    <div id="prof-reviews-list" class="space-y-3"></div>
+                    <button id="prof-reviews-more" onclick="loadUserReviews(true)" class="hidden w-full text-center text-xs text-primary font-bold mt-2 py-2">عرض المزيد</button>
                 </div>
             </div>
-            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-3"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر الآن</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
         </div>
     </div>
 
@@ -466,7 +417,6 @@
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <!-- Req 4: Clickable Publisher Bar -->
                 <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
                      <div class="flex items-center gap-2">
                          <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
@@ -478,7 +428,6 @@
                      <div id="d-shipping-info" class="flex flex-wrap items-center gap-1 text-[9px] font-bold text-slate-500 bg-white dark:bg-slate-700 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 max-w-[55%] justify-end leading-tight"></div>
                 </div>
 
-                <!-- Req 5: Gray Backgrounds -->
                 <div class="flex justify-between items-start mb-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><h2 id="d-title" class="text-base font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-lg whitespace-nowrap select-text"></span></div>
                 <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span></div>
                 
@@ -594,26 +543,43 @@
             "short_name": "السوق وياك",
             "start_url": ".",
             "display": "standalone",
-            "background_color": "#ffffff",
+            "background_color": "#0f172a",
             "theme_color": "#0f172a",
             "description": "متجر اكتروني عصري",
             "icons": [
-                {
-                    "src": "https://cdn-icons-png.flaticon.com/512/641/641813.png",
-                    "sizes": "192x192",
-                    "type": "image/png"
-                },
-                 {
-                    "src": "https://cdn-icons-png.flaticon.com/512/641/641813.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
-                }
+                { "src": "https://cdn-icons-png.flaticon.com/512/641/641813.png", "sizes": "192x192", "type": "image/png" },
+                { "src": "https://cdn-icons-png.flaticon.com/512/641/641813.png", "sizes": "512x512", "type": "image/png" }
             ]
         };
         const stringManifest = JSON.stringify(pwaManifest);
         const blob = new Blob([stringManifest], {type: 'application/json'});
         const manifestURL = URL.createObjectURL(blob);
         document.querySelector('#manifest-link').setAttribute('href', manifestURL);
+
+        // Req 4: Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'souq-v1';
+                const ASSETS = [
+                    'https://cdn.tailwindcss.com',
+                    'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap',
+                    'https://unpkg.com/lucide@latest'
+                ];
+                self.addEventListener('install', e => e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS))));
+                self.addEventListener('fetch', e => {
+                    e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(res => {
+                        if(e.request.url.startsWith('http') && e.request.method === 'GET') {
+                            const clone = res.clone();
+                            caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+                        }
+                        return res;
+                    })));
+                });
+            `;
+            const swBlob = new Blob([swCode], {type: 'application/javascript'});
+            const swUrl = URL.createObjectURL(swBlob);
+            navigator.serviceWorker.register(swUrl).catch(console.error);
+        }
 
         const firebaseConfig = {
           apiKey: "AIzaSyA5OiTcX95GBgiJoDHnY3y7N23o-j8hsQ8",
@@ -653,6 +619,7 @@
             authImageBase64: null,
             userRole: 'customer',
             currentRating: 0,
+            currentUserRating: 0,
             productReviews: [],
             productReviewsLimit: 1,
             profileReviews: [],
@@ -693,20 +660,11 @@
             }
         }
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                    registration.unregister();
-                }
-            });
-        }
-
         function forceSwitchToApp() {
             const loginView = document.getElementById('login-view');
             const appContent = document.getElementById('app-content');
             const splash = document.getElementById('splash-screen');
             
-            // Req 8: Splash Screen Logic
             if(splash) {
                 splash.classList.add('fade-out');
                 setTimeout(() => splash.remove(), 500);
@@ -879,7 +837,6 @@
 
                     await setDoc(doc(db, "users", user.uid), newUser);
                     
-                    // Fix 1: Update state immediately
                     state.userData = newUser;
                     state.userRole = state.authRole;
                     document.getElementById('header-username').innerText = nameAr;
@@ -1040,7 +997,6 @@
             renderProducts();
         }
 
-        // Fix 6: Reset Button Logic
         window.resetFilters = () => {
             document.getElementById('search-input').value = '';
             document.getElementById('filter-price').value = '';
@@ -1254,7 +1210,6 @@
             document.getElementById('d-desc').innerText = item.desc;
             document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
 
-            // Req 4: Clickable Publisher
             const pubBar = document.getElementById('d-pub-bar');
             pubBar.onclick = () => toggleProfile(item.authorId);
 
@@ -1688,7 +1643,7 @@
         window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
         window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
 
-        // Req 2 & 5: Profile Modal Logic (Updated)
+        // Req 2 & 3: Profile Logic (Edit & Rate)
         window.toggleProfile = async (userId = null) => {
             if(toggleModal('profile-modal')) {
                 const targetId = userId || (state.user ? state.user.uid : null);
@@ -1705,8 +1660,8 @@
                 document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
                 document.getElementById('prof-password-section').classList.add('hidden');
                 document.getElementById('prof-reviews-section').classList.add('hidden');
+                document.getElementById('user-rating-section').classList.add('hidden');
                 
-                // Hide edit buttons if not owner
                 document.querySelectorAll('[id^="edit-"]').forEach(el => el.classList.add('hidden'));
 
                 try {
@@ -1730,30 +1685,21 @@
 
                         if(isOwner) {
                             document.getElementById('prof-password-section').classList.remove('hidden');
-                            // Show edit buttons
                             document.getElementById('edit-img-btn').classList.remove('hidden');
                             document.getElementById('edit-name-btn').classList.remove('hidden');
                             document.getElementById('edit-phone-btn').classList.remove('hidden');
                             document.getElementById('edit-address-btn').classList.remove('hidden');
+                        } else {
+                            // Req 3: Show Rating Form if not owner
+                            document.getElementById('user-rating-section').classList.remove('hidden');
                         }
 
-                        // Req 1: Hide reviews if viewing publisher via product (public view)
-                        // But Req 2 says "Add reviews... to profile page".
-                        // I will show reviews ONLY if it's a Marketer, regardless of who is viewing.
-                        // The prompt 1 said "without reviews in popup". 
-                        // I will follow prompt 1 strictly for the "Publisher Popup" context.
-                        // But since I use the same modal, I need a flag.
-                        // Let's assume if userId is passed (not null), it's public view.
-                        
-                        if(data.role === 'marketer' && isOwner) {
-                             // Show reviews to the owner
-                             document.getElementById('prof-reviews-section').classList.remove('hidden');
-                             state.profileReviewsLimit = 3;
-                             loadProfileReviews(false);
-                        } else if (data.role === 'marketer' && !isOwner) {
-                             // Public view of marketer: Prompt 1 says NO reviews.
-                             document.getElementById('prof-reviews-section').classList.add('hidden');
-                        }
+                        // Show reviews if Marketer (Owner or Public)
+                        // Or if we want to show reviews for everyone? Prompt says "Customer rates Marketer and Marketer rates Customer".
+                        // So we show reviews for everyone.
+                        document.getElementById('prof-reviews-section').classList.remove('hidden');
+                        state.profileReviewsLimit = 3;
+                        loadUserReviews(false);
                     }
                 } catch(e) {
                     console.error(e);
@@ -1763,7 +1709,6 @@
             }
         }
 
-        // Req 3: Edit Profile Logic
         window.enableEdit = (field) => {
             const displayEl = document.getElementById(`prof-${field}`);
             const inputEl = document.getElementById(`input-${field}`);
@@ -1786,8 +1731,6 @@
                     const updateData = {};
                     updateData[field] = newValue;
                     await updateDoc(doc(db, "users", state.user.uid), updateData);
-                    
-                    // Update local state
                     state.userData[field] = newValue;
                     displayEl.innerText = newValue;
                     showToast("تم التحديث بنجاح");
@@ -1795,7 +1738,6 @@
                     showToast("فشل التحديث", "e");
                 }
             }
-            
             inputEl.classList.add('hidden');
             displayEl.classList.remove('hidden');
         }
@@ -1817,7 +1759,6 @@
         window.changePassword = async () => {
             const newPass = document.getElementById('new-password').value;
             if(!newPass || newPass.length < 6) return showToast("كلمة المرور قصيرة جداً", "e");
-            
             try {
                 await updatePassword(auth.currentUser, newPass);
                 showToast("تم تحديث كلمة المرور بنجاح");
@@ -1827,7 +1768,83 @@
             }
         }
 
-        // Req 4: Product Reviews Logic
+        // Req 3: User Reviews Logic
+        window.setUserRating = (n) => { state.currentUserRating = n; }
+
+        window.submitUserReview = async () => {
+            if(!state.user) return showToast("يجب تسجيل الدخول للتقييم", "e");
+            if(!state.viewingProfileId) return;
+            if(state.currentUserRating === 0) return showToast("يرجى تحديد عدد النجوم", "e");
+            
+            const text = document.getElementById('user-review-text').value;
+            
+            await addDoc(collection(db, "user_reviews"), {
+                targetUserId: state.viewingProfileId,
+                reviewerId: state.user.uid,
+                reviewerName: state.userData.name || 'مستخدم',
+                rating: state.currentUserRating,
+                text: text,
+                timestamp: serverTimestamp()
+            });
+            
+            showToast("تم إرسال التقييم");
+            document.getElementById('user-review-text').value = '';
+            state.profileReviewsLimit = 3;
+            loadUserReviews(false);
+        }
+
+        window.loadUserReviews = async (append = false) => {
+            if(!state.viewingProfileId) return;
+            const list = document.getElementById('prof-reviews-list');
+            const btn = document.getElementById('prof-reviews-more');
+            
+            if(append) state.profileReviewsLimit += 3;
+            
+            const q = query(
+                collection(db, "user_reviews"),
+                where("targetUserId", "==", state.viewingProfileId),
+                orderBy("timestamp", "desc"),
+                limit(state.profileReviewsLimit + 1)
+            );
+            
+            try {
+                const snap = await getDocs(q);
+                if(!append) list.innerHTML = '';
+                
+                if(snap.empty) {
+                    list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">لا توجد تقييمات بعد</p>';
+                    btn.classList.add('hidden');
+                    return;
+                }
+
+                let count = 0;
+                snap.forEach(doc => {
+                    if(count < state.profileReviewsLimit) {
+                        const r = doc.data();
+                        const stars = "★".repeat(r.rating);
+                        list.innerHTML += `
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-xs border border-slate-100 dark:border-slate-700">
+                                <div class="flex justify-between mb-1">
+                                    <span class="font-bold text-navy dark:text-white">${r.reviewerName}</span>
+                                    <span class="text-yellow-400">${stars}</span>
+                                </div>
+                                <p class="text-slate-600 dark:text-slate-300">${r.text || ''}</p>
+                            </div>
+                        `;
+                    }
+                    count++;
+                });
+                
+                if(snap.size > state.profileReviewsLimit) btn.classList.remove('hidden');
+                else btn.classList.add('hidden');
+
+            } catch(e) {
+                console.log("Index might be missing for user reviews", e);
+                list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">جاري تفعيل نظام التقييمات...</p>';
+            }
+        }
+
+        // Product Reviews Logic
         window.setRating = (n) => { state.currentRating = n; }
         
         window.submitProductReview = async () => {
@@ -1900,57 +1917,6 @@
                 btn.classList.add('hidden');
             }
             lucide.createIcons();
-        }
-
-        window.loadProfileReviews = async (append = false) => {
-            if(!state.viewingProfileId) return;
-            const list = document.getElementById('prof-reviews-list');
-            const btn = document.getElementById('prof-reviews-more');
-            
-            if(append) state.profileReviewsLimit += 3;
-            
-            const q = query(
-                collection(db, "product_reviews"),
-                where("productAuthorId", "==", state.viewingProfileId),
-                orderBy("timestamp", "desc"),
-                limit(state.profileReviewsLimit + 1)
-            );
-            
-            try {
-                const snap = await getDocs(q);
-                if(!append) list.innerHTML = '';
-                
-                if(snap.empty) {
-                    list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">لا توجد تقييمات بعد</p>';
-                    btn.classList.add('hidden');
-                    return;
-                }
-
-                let count = 0;
-                snap.forEach(doc => {
-                    if(count < state.profileReviewsLimit) {
-                        const r = doc.data();
-                        const stars = "★".repeat(r.rating);
-                        list.innerHTML += `
-                            <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-xs">
-                                <div class="flex justify-between mb-1">
-                                    <span class="font-bold">${r.userName}</span>
-                                    <span class="text-yellow-400">${stars}</span>
-                                </div>
-                                <p class="text-slate-600 dark:text-slate-300">${r.text}</p>
-                            </div>
-                        `;
-                    }
-                    count++;
-                });
-                
-                if(snap.size > state.profileReviewsLimit) btn.classList.remove('hidden');
-                else btn.classList.add('hidden');
-
-            } catch(e) {
-                console.log("Index might be missing for profile reviews", e);
-                list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">جاري تفعيل نظام التقييمات...</p>';
-            }
         }
 
         lucide.createIcons();
