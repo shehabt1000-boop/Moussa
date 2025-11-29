@@ -2658,56 +2658,71 @@
         }
 
 
-        window.confirmOrder = () => {
+                window.confirmOrder = () => {
             const phone = document.getElementById('ord-phone').value;
             const gov = document.getElementById('ord-gov').value;
             const city = document.getElementById('ord-city').value;
             const address = document.getElementById('ord-address').value;
 
-
             if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e");
 
-
-            // Req 2: Fallback Phone
+            // جلب رقم البائع
             const sellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
             if(!sellerPhone) return showToast("لا يوجد رقم للتواصل مع البائع", "e");
 
+            // 1. تجهيز التاريخ والوقت
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ar-EG');
+            const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 
-            let msg = `*طلب جديد من تطبيق السوق وياك* 🛍️\n\n`;
-            msg += `*اسم المنتج:* ${state.currentItem.title}\n`;
-            msg += `*رابط المنتج:* ${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}\n`; // Req 9
-            msg += `*سعر القطعة الواحده:* ${state.currentItem.price}\n\n`;
-            msg += `*التفاصيل:* \n`;
+            // 2. تجهيز رابط المنتج
+            const productUrl = `${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}`;
 
+            // --- بناء نص الرسالة بالتنسيق المطلوب ---
+            let msg = `طلب جديد من تطبيق السوق وياك🏠📥\n`;
+            msg += `📅 وقت الطلب: ${dateStr} - ${timeStr}\n\n`;
 
+            msg += `📦 معلومات المنتج:\n`;
+            msg += `*الاسم:* ${state.currentItem.title}\n`;
+            msg += `*القسم:* ${state.currentItem.category || 'غير محدد'}\n`;
+            msg += `*سعر القطعة:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n\n`;
+
+            msg += `📝 تفاصيل الطلب:\n`;
+            
             let totalQty = 0;
             state.orderItems.forEach((item, idx) => {
                 if(item.qty > 0) {
-                    // Req 12: Change wording
-                    msg += `- طلبك   #${idx+1}: عدد القطع ${item.qty} | مقاس: ${item.size || '-'} | لون: ${item.color || '-'}\n`;
+                    // تنسيق السطر الواحد لكل خيار
+                    msg += `اختيار #${idx+1}:      (عدد ${item.qty})`;
+                    
+                    if(item.size) msg += ` | مقاس: ${item.size}`;
+                    if(item.color) msg += ` | لون: ${item.color}`;
+                    
+                    msg += `\n`;
                     totalQty += item.qty;
                 }
             });
 
-
             if(totalQty === 0) return showToast("يرجى إضافة قطعة واحدة على الأقل", "e");
 
-
-            msg += `\n*اجمالي الفاتورة:* ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`;
+            msg += `\nاجمالي الفاتورة: ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`;
             msg += `----------------\n`;
-            msg += `*بيانات العميل*\n`;
-            msg += `اسم العميل: ${state.userData ? state.userData.name : 'ضيف'}\n`;
-            msg += `رقم العميل: ${phone}\n`;
-            msg += `عنوان العميل: ${gov} - ${city} - ${address}\n`; // Req 3
+            
+            msg += `👤 بيانات العميل:\n`;
+            msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
+            msg += `رقم الهاتف: ${phone}\n`;
+            msg += `العنوان: ${gov} - ${city} - ${address}\n\n`;
 
+            // وضع الرابط في نهاية الرسالة
+            msg += `🔗 رابط المنتج: ${productUrl}`;
 
+            // فتح واتساب
             const url = `https://wa.me/20${sellerPhone}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
             toggleOrderModal();
         }
 
-
-        lucide.createIcons();
+lucide.createIcons();
     </script>
 </body>
 </html>
