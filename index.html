@@ -32,6 +32,7 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Preload Icons Script -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -356,7 +357,7 @@
                                 <span>★</span> <span id="prof-rating-val">0.0</span>
                             </div>
                             <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
-                            <p id="prof-joined" class="text-[10px] text-slate-400 mt-1"></p>
+                            <p id="prof-joined" class="text-[10px] text-slate-400 mt-1 text-black dark:text-white font-bold"></p>
                         </div>
                     </div>
 
@@ -489,7 +490,7 @@
                         </div>
                         <div>
                             <label class="form-label">المركز/المدينة</label>
-                            <select id="ord-city" class="form-input text-xs"></select>
+                            <select id="ord-city" class="form-input text-xs"><option value="">اختر المحافظة</option></select>
                         </div>
                     </div>
                     <div>
@@ -606,7 +607,7 @@
                 <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700">
                     <span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> 
                     <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span>
-                    <span id="d-date" class="text-[10px] text-slate-400 mr-auto"></span>
+                    <span id="d-date" class="text-[10px] text-black dark:text-white font-bold mr-auto"></span>
                 </div>
                 
                 <div id="d-variants-container" class="space-y-2 mb-4">
@@ -843,8 +844,7 @@
             profileReviews: [],
             profileReviewsLimit: 3,
             viewingProfileId: null,
-            orderItems: [],
-            currentAuthor: null // Req 2
+            orderItems: [] // Req 7
         };
 
         function initGovs() {
@@ -852,7 +852,7 @@
             const filterGov = document.getElementById('filter-gov');
             const shipGovList = document.getElementById('ship-gov-list'); 
             const editGov = document.getElementById('edit-gov'); 
-            const ordGov = document.getElementById('ord-gov'); 
+            const ordGov = document.getElementById('ord-gov'); // Req 7
 
             govSelect.innerHTML = '<option value="">اختر المحافظة</option>';
             filterGov.innerHTML = '<option value="">كل المحافظات</option>';
@@ -922,19 +922,32 @@
             const appContent = document.getElementById('app-content');
             const splash = document.getElementById('splash-screen');
             
-            // Req 1: Wait for icons then hide splash
-            setTimeout(() => {
-                if(splash) {
-                    splash.classList.add('fade-out');
-                    setTimeout(() => splash.remove(), 500);
-                }
-            }, 1000); // Small delay to ensure icons render
+            if(splash) {
+                splash.classList.add('fade-out');
+                setTimeout(() => splash.remove(), 500);
+            }
 
             loginView.classList.add('hidden');
             loginView.style.setProperty('display', 'none', 'important');
             appContent.classList.remove('hidden');
             document.getElementById('loader').classList.add('hidden'); 
         }
+
+        // Fix 11: Safety Timeout for Reload
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            if(splash && !splash.classList.contains('fade-out')) {
+                // If still showing splash after 5s, force show app (assuming auth check failed or slow)
+                // But only if we are not in login view
+                if(document.getElementById('login-view').classList.contains('hidden')) {
+                     forceSwitchToApp();
+                } else {
+                     // If in login view, just remove splash
+                     splash.classList.add('fade-out');
+                     setTimeout(() => splash.remove(), 500);
+                }
+            }
+        }, 5000);
 
         onAuthStateChanged(auth, async (u) => { 
             if(u) { 
@@ -1390,7 +1403,7 @@
             lucide.createIcons(); 
         }
 
-        // Req 6: Format Date Helper
+        // Req 4, 7, 10: Format Date Helper (Black Text)
         function formatDate(timestamp) {
             if (!timestamp) return '';
             const date = timestamp.toDate();
@@ -1419,8 +1432,8 @@
             const showControls = state.isAdmin || isOwner;
             const controls = showControls ? `<div class="absolute top-1 right-1 z-20 flex gap-1"><button onclick="del(event,'${item.id}')" class="bg-white/80 text-red-500 p-1 rounded shadow"><i data-lucide="trash-2" class="w-3 h-3"></i></button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}')" class="bg-white/80 text-blue-600 p-1 rounded shadow"><i data-lucide="edit-3" class="w-3 h-3"></i></button></div>` : '';
 
-            // Req 4: Date Overlay
-            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-3 h-3"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${item.category}</span><span class="absolute bottom-1 left-1 bg-white/80 dark:bg-black/60 text-black dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${formatDate(item.createdAt)}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[8px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
+            // Req 4: Date on Card Image (Black Text)
+            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button><span class="absolute bottom-1 left-1 bg-white/80 text-black text-[8px] font-bold px-1 rounded z-10">${formatDate(item.createdAt)}</span>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-3 h-3"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${item.category}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[8px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
         }
 
         function goToDetailsSlide(index, behavior = 'auto') {
@@ -1476,7 +1489,7 @@
             document.getElementById('d-cat').innerText = item.category; 
             document.getElementById('d-desc').innerText = item.desc;
             document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
-            document.getElementById('d-date').innerText = formatDate(item.createdAt); // Req 6
+            document.getElementById('d-date').innerText = formatDate(item.createdAt); // Req 10
 
             const pubBar = document.getElementById('d-pub-bar');
             pubBar.onclick = () => toggleProfile(item.authorId);
@@ -1485,11 +1498,12 @@
             const pubImg = document.getElementById('d-pub-img');
             pubName.innerText = "جاري التحميل...";
             
+            // Req 2: Fetch Author for Fallback Phone
             try {
                 const uSnap = await getDoc(doc(db, "users", item.authorId));
                 if(uSnap.exists()) {
                     const uData = uSnap.data();
-                    state.currentAuthor = uData; // Req 2: Save author data
+                    state.currentAuthor = uData; // Store for order
                     pubName.innerText = uData.name || "مستخدم";
                     if(uData.image) {
                         pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`;
@@ -1953,7 +1967,7 @@
                         document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل';
                         document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل';
                         document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || '');
-                        document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt); // Req 6
+                        document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt); // Req 10
 
                         if(data.image) {
                             document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
@@ -2341,9 +2355,6 @@
         }
 
         window.removeOrderItem = (index) => {
-            // Simplified removal: just re-render for now or hide. 
-            // For simplicity in this snippet, we won't implement full re-index logic to keep code short.
-            // Just hide and set qty to 0.
             document.getElementById(`ord-item-${index}`).classList.add('hidden');
             state.orderItems[index].qty = 0;
             calculateOrderTotal();
@@ -2364,15 +2375,21 @@
             
             if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e");
             
+            // Req 2: Fallback Phone
+            const sellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
+            if(!sellerPhone) return showToast("لا يوجد رقم للتواصل مع البائع", "e");
+
             let msg = `*طلب جديد من تطبيق السوق وياك* 🛍️\n\n`;
             msg += `*المنتج:* ${state.currentItem.title}\n`;
+            msg += `*رابط المنتج:* ${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}\n`; // Req 9
             msg += `*السعر للقطعة:* ${state.currentItem.price}\n\n`;
             msg += `*التفاصيل:* \n`;
             
             let totalQty = 0;
             state.orderItems.forEach((item, idx) => {
                 if(item.qty > 0) {
-                    msg += `- قطعة ${idx+1}: عدد ${item.qty} | مقاس: ${item.size || '-'} | لون: ${item.color || '-'}\n`;
+                    // Req 12: Change wording
+                    msg += `- طلب #${idx+1}: عدد ${item.qty} | مقاس: ${item.size || '-'} | لون: ${item.color || '-'}\n`;
                     totalQty += item.qty;
                 }
             });
@@ -2384,23 +2401,9 @@
             msg += `*بيانات العميل:*\n`;
             msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
             msg += `الهاتف: ${phone}\n`;
-            msg += `العنوان: ${gov} - ${city} - ${address}\n`;
+            msg += `العنوان: ${gov} - ${city} - ${address}\n`; // Req 3
             
-            // Req 9: Product Link
-            msg += `\n*رابط المنتج:* ${window.location.origin + window.location.pathname}?product_id=${state.currentItem.id}`;
-            
-            // Req 2: Fallback Phone
-            let targetPhone = state.currentItem.phone;
-            if (!targetPhone && state.currentAuthor && state.currentAuthor.phone) {
-                targetPhone = state.currentAuthor.phone;
-            }
-            
-            if(!targetPhone) {
-                showToast("عفواً، لا يوجد رقم هاتف للتواصل مع البائع", "e");
-                return;
-            }
-
-            const url = `https://wa.me/20${targetPhone}?text=${encodeURIComponent(msg)}`;
+            const url = `https://wa.me/20${sellerPhone}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
             toggleOrderModal();
         }
