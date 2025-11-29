@@ -22,18 +22,19 @@
                         navy: '#0f172a', 
                         darkbg: '#1e293b', 
                         primary: '#10b981', 
-                        secondary: '#3b82f6' 
+                        secondary: '#3b82f6',
+                        danger: '#ef4444'
                     },
                     fontFamily: {
                         cairo: ['Cairo', 'sans-serif']
                     },
                     animation: {
-                        'glow': 'glow 2s infinite',
+                        'float': 'float 3s ease-in-out infinite',
                     },
                     keyframes: {
-                        glow: {
-                            '0%, 100%': { boxShadow: '0 0 5px #3b82f6, 0 0 10px #3b82f6' },
-                            '50%': { boxShadow: '0 0 20px #3b82f6, 0 0 25px #3b82f6' },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
                         }
                     }
                 } 
@@ -69,42 +70,35 @@
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         
-        /* Z-Index Management */
-        #profile-modal .mobile-full-modal, #order-modal .mobile-full-modal, #chat-list-modal .mobile-full-modal, #private-chat-modal .mobile-full-modal { z-index: 90; } 
-        .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
-        #profile-modal.modal-overlay, #order-modal.modal-overlay, #chat-list-modal.modal-overlay, #private-chat-modal.modal-overlay { z-index: 90; }
+        /* Z-Index Hierarchy */
+        .z-modal-base { z-index: 80; }
+        .z-modal-high { z-index: 90; }
+        .z-modal-top { z-index: 100; }
+        .z-toast { z-index: 120; }
+        .z-splash { z-index: 200; }
 
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 600px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; } 
+            .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
         /* Modern Toast */
-        @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 20px); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         .toast { 
             animation: slideInDown 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; 
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;
+            position: fixed; top: 0; left: 50%; transform: translateX(-50%); 
             width: max-content; max-width: 90vw; 
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(8px);
         }
         .toast.hiding { animation: fadeOut 0.3s ease-in forwards; }
 
-        .form-label { display: block; font-size: 0.7rem; font-weight: 800; color: #334155; margin-bottom: 0.1rem; }
-        .dark .form-label { color: #cbd5e1; }
-        
         .form-input { 
             width: 100%; background-color: #ffffff; border: 1px solid #000000 !important; border-radius: 0.5rem; 
             padding: 0 0.5rem; height: 2.25rem; display: flex; align-items: center; font-size: 0.75rem; 
             font-weight: 600; color: #1e293b; outline: none; transition: all 0.2s; line-height: normal; 
         }
-        select.form-input {
-            padding-top: 0; padding-bottom: 0; -webkit-appearance: none; 
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: left 0.5rem center; background-repeat: no-repeat; background-size: 1.2em 1.2em; padding-left: 2rem; 
-        }
-        textarea.form-input { height: auto; padding-top: 0.5rem; padding-bottom: 0.5rem; }
-        .form-input:focus { border-color: #10b981 !important; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
         .dark .form-input { background-color: #1e293b; border-color: #94a3b8 !important; color: white; }
         .dark .form-input:focus { border-color: #10b981 !important; }
         
@@ -117,46 +111,33 @@
         .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }
         .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
 
-        @keyframes slideUp { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .install-banner { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-        #login-view { position: fixed; inset: 0; z-index: 200; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-        #login-view.hidden { display: none !important; } 
-        .dark #login-view { background-color: #0f172a; }
-        .login-scroll { max-height: 65vh; overflow-y: auto; padding: 2px; }
-        .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         /* Splash Screen */
-        #splash-screen { position: fixed; inset: 0; z-index: 300; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease-out; }
+        #splash-screen { position: fixed; inset: 0; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
         #splash-screen.fade-out { opacity: 0; pointer-events: none; }
-
-        /* Floating Support Button */
-        .floating-support { position: fixed; left: 0; bottom: 100px; z-index: 75; display: flex; flex-direction: column; align-items: center; background: white; padding: 8px 4px 4px 8px; border-radius: 0 12px 12px 0; box-shadow: 2px 2px 10px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; border-left: none; }
-        .dark .floating-support { background: #1e293b; border-color: #334155; }
+        
+        /* Online Status */
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; position: absolute; bottom: 0; right: 0; }
+        .status-online { background-color: #10b981; }
+        .status-offline { background-color: #94a3b8; }
+        
+        /* Unread Glow */
+        .unread-glow { box-shadow: 0 0 0 2px #3b82f6; border-color: #3b82f6 !important; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
 
-    <!-- Splash Screen -->
-    <div id="splash-screen">
+    <!-- Req 1 & 2: Immediate Splash Screen -->
+    <div id="splash-screen" class="z-splash">
         <div class="bg-primary text-white p-4 rounded-full shadow-2xl mb-4 animate-bounce">
-            <i data-lucide="shopping-bag" class="w-12 h-12"></i>
+            <!-- SVG hardcoded to ensure immediate display -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         </div>
         <h1 class="text-3xl font-black text-white mb-2">السوق <span class="text-primary">وياك</span></h1>
-        <div class="spinner border-primary"></div>
+        <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
     </div>
 
-    <!-- Floating Support Button (Req 6) -->
-    <button onclick="toggleSupportChat()" class="floating-support group active:scale-95 transition">
-        <div class="bg-navy dark:bg-primary text-white p-2 rounded-full shadow-md mb-1">
-            <i data-lucide="bot" class="w-6 h-6"></i>
-        </div>
-        <span class="text-[8px] font-bold text-red-500">الدعم الفني</span>
-    </button>
-
     <!-- LOGIN VIEW -->
-    <div id="login-view">
+    <div id="login-view" class="hidden">
         <div class="w-full max-w-md bg-white dark:bg-darkbg p-4 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[95vh]">
             <div class="flex flex-col items-center gap-1 mb-3 shrink-0">
                 <div class="bg-navy dark:bg-primary text-white p-2 rounded-xl shadow-lg rotate-3">
@@ -166,21 +147,13 @@
             </div>
 
             <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-2 border border-slate-200 dark:border-slate-700 shrink-0">
-                <button onclick="setAuthType('login')" id="btn-type-login" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md">
-                    تسجيل دخول
-                </button>
-                <button onclick="setAuthType('signup')" id="btn-type-signup" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white">
-                    إنشاء حساب
-                </button>
+                <button onclick="setAuthType('login')" id="btn-type-login" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md">تسجيل دخول</button>
+                <button onclick="setAuthType('signup')" id="btn-type-signup" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white">إنشاء حساب</button>
             </div>
 
             <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-3 border border-slate-200 dark:border-slate-700 shrink-0">
-                <button onclick="setAuthRole('customer')" id="btn-role-customer" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy text-white shadow-md">
-                    <div class="flex items-center justify-center gap-2"><i data-lucide="user" class="w-3 h-3"></i> عميل</div>
-                </button>
-                <button onclick="setAuthRole('marketer')" id="btn-role-marketer" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700">
-                    <div class="flex items-center justify-center gap-2"><i data-lucide="store" class="w-3 h-3"></i> مقدم خدمة</div>
-                </button>
+                <button onclick="setAuthRole('customer')" id="btn-role-customer" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy text-white shadow-md"><div class="flex items-center justify-center gap-2"><i data-lucide="user" class="w-3 h-3"></i> عميل</div></button>
+                <button onclick="setAuthRole('marketer')" id="btn-role-marketer" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"><div class="flex items-center justify-center gap-2"><i data-lucide="store" class="w-3 h-3"></i> مقدم خدمة</div></button>
             </div>
 
             <div class="login-scroll no-scrollbar space-y-2 flex-1">
@@ -189,72 +162,32 @@
                         <input type="file" id="auth-img-input" accept="image/*" onchange="handleAuthImage(this)" class="absolute inset-0 opacity-0 z-10 cursor-pointer">
                         <div class="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-primary/50 flex items-center justify-center overflow-hidden relative hover:bg-primary/5 transition">
                             <img id="auth-img-preview" src="" class="w-full h-full object-cover hidden">
-                            <div id="auth-img-placeholder" class="flex flex-col items-center text-slate-400">
-                                <i data-lucide="camera" class="w-5 h-5 mb-1"></i>
-                                <span class="text-[8px] font-bold">صورة</span>
-                            </div>
+                            <div id="auth-img-placeholder" class="flex flex-col items-center text-slate-400"><i data-lucide="camera" class="w-5 h-5 mb-1"></i><span class="text-[8px] font-bold">صورة</span></div>
                         </div>
-                        <div class="absolute bottom-0 right-0 bg-navy dark:bg-primary text-white p-1 rounded-full shadow-sm pointer-events-none"><i data-lucide="plus" class="w-3 h-3"></i></div>
                     </div>
                 </div>
-
-                <div>
-                    <label id="lbl-username" class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">اسم المستخدم (إنجليزي)</label>
-                    <div class="relative">
-                        <input id="auth-username" type="text" class="form-input text-left" placeholder="username" style="direction: ltr;">
-                        <i data-lucide="at-sign" class="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none"></i>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">كلمة المرور</label>
-                    <div class="relative">
-                        <input id="auth-pass" type="password" class="form-input" placeholder="******">
-                        <i data-lucide="lock" class="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none"></i>
-                    </div>
-                </div>
-
+                <div><label class="form-label">اسم المستخدم (إنجليزي)</label><input id="auth-username" type="text" class="form-input text-left" placeholder="username" style="direction: ltr;"></div>
+                <div><label class="form-label">كلمة المرور</label><input id="auth-pass" type="password" class="form-input" placeholder="******"></div>
                 <div id="signup-fields" class="hidden space-y-2 border-t border-slate-100 dark:border-slate-700 pt-2 mt-1">
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">الاسم الكامل (عربي)</label>
-                        <input id="auth-name-ar" type="text" class="form-input" placeholder="مثال: أحمد محمد">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">رقم الهاتف</label>
-                        <input id="auth-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx">
-                    </div>
-
+                    <div><label class="form-label">الاسم الكامل (عربي)</label><input id="auth-name-ar" type="text" class="form-input" placeholder="مثال: أحمد محمد"></div>
+                    <div><label class="form-label">رقم الهاتف</label><input id="auth-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx"></div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">المحافظة</label>
-                            <select id="auth-gov" onchange="updateCities()" class="form-input text-xs"></select>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">المركز/المدينة</label>
-                            <select id="auth-city" class="form-input text-xs">
-                                <option value="">اختر المحافظة</option>
-                            </select>
-                        </div>
+                        <div><label class="form-label">المحافظة</label><select id="auth-gov" onchange="updateCities()" class="form-input text-xs"></select></div>
+                        <div><label class="form-label">المركز/المدينة</label><select id="auth-city" class="form-input text-xs"><option value="">اختر المحافظة</option></select></div>
                     </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">العنوان بالتفصيل</label>
-                        <input id="auth-address" type="text" class="form-input" placeholder="الشارع، رقم المنزل...">
-                    </div>
+                    <div><label class="form-label">العنوان بالتفصيل</label><input id="auth-address" type="text" class="form-input" placeholder="الشارع، رقم المنزل..."></div>
                 </div>
             </div>
-
             <div class="mt-3 pt-2 border-t border-slate-100 dark:border-slate-700 shrink-0">
-                <button onclick="processAuth()" id="btn-auth-action" class="w-full bg-navy dark:bg-primary text-white py-2.5 rounded-xl font-bold shadow-lg shadow-navy/20 hover:opacity-90 transition-all active:scale-95 flex justify-center items-center gap-2 text-sm">
-                    <span>دخول للحساب</span> <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                </button>
-                <div id="auth-error" class="text-red-600 dark:text-red-400 text-[10px] font-bold text-center hidden bg-red-50 dark:bg-red-900/20 p-2 rounded-lg border border-red-200 dark:border-red-800 mt-2 break-words" dir="ltr"></div>
+                <button onclick="processAuth()" id="btn-auth-action" class="w-full bg-navy dark:bg-primary text-white py-2.5 rounded-xl font-bold shadow-lg hover:opacity-90 transition-all"><span>دخول للحساب</span></button>
+                <div id="auth-error" class="text-red-600 dark:text-red-400 text-[10px] font-bold text-center hidden mt-2"></div>
             </div>
         </div>
     </div>
 
     <!-- APP CONTENT -->
     <div id="app-content" class="hidden">
-        <div id="toast-container" class="fixed top-4 left-0 right-0 z-[120] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
+        <div id="toast-container" class="fixed top-4 left-0 right-0 z-toast flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
         <!-- Header -->
         <header class="fixed top-0 w-full z-[60] bg-white/95 dark:bg-navy/95 border-b border-slate-200 dark:border-slate-700 flex flex-col justify-center px-4 shadow-sm backdrop-blur-md h-12">
@@ -263,24 +196,16 @@
                     <div class="bg-navy dark:bg-primary text-white p-1 rounded-md"><i data-lucide="shopping-bag" class="w-4 h-4"></i></div>
                     <div class="flex flex-col leading-none">
                         <h1 class="font-bold text-sm">السوق <span class="text-primary">وياك</span></h1>
-                        <div id="welcome-text" class="hidden text-[10px] font-bold mt-0.5">
-                             <span class="text-navy dark:text-white">أهلاً: </span><span id="header-username" class="text-primary"></span>
-                        </div>
+                        <div id="welcome-text" class="hidden text-[10px] font-bold mt-0.5"><span class="text-navy dark:text-white">أهلاً: </span><span id="header-username" class="text-primary"></span></div>
                     </div>
                 </div>
                 
                 <div class="flex gap-1.5 items-center">
                     <!-- Req 8: Notification Bell -->
-                    <div class="relative">
-                        <button onclick="toggleNotifications()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition relative">
-                            <i data-lucide="bell" class="w-4 h-4"></i>
-                            <span id="notif-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800 animate-pulse"></span>
-                        </button>
-                        <div id="notif-dropdown" class="hidden absolute left-0 top-10 w-64 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-2 z-50 max-h-60 overflow-y-auto custom-scroll">
-                            <div id="notif-list" class="space-y-1"></div>
-                        </div>
-                    </div>
-
+                    <button onclick="toggleNotifications()" class="relative p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition">
+                        <i data-lucide="bell" class="w-4 h-4"></i>
+                        <span id="notif-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800"></span>
+                    </button>
                     <button onclick="toggleProfile(null)" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
                     <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
                     <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
@@ -300,126 +225,59 @@
                     <div class="relative flex-1">
                         <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-9 pl-20 h-8 shadow-sm text-xs">
                         <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
-                        
                         <div class="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
-                            <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden text-secondary dark:text-blue-400 p-1 hover:scale-110 transition">
-                                <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
-                            </button>
-                            <button onclick="toggleFavView()" class="relative text-red-500 p-1 hover:scale-110 transition">
-                                <i data-lucide="heart" class="w-3.5 h-3.5"></i>
-                                <span id="fav-count" class="absolute top-0 right-0 w-1.5 h-1.5 bg-red-600 rounded-full border border-white dark:border-darkbg hidden"></span>
-                            </button>
+                            <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden text-secondary dark:text-blue-400 p-1 hover:scale-110 transition"><i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="toggleFavView()" class="relative text-red-500 p-1 hover:scale-110 transition"><i data-lucide="heart" class="w-3.5 h-3.5"></i><span id="fav-count" class="absolute top-0 right-0 w-1.5 h-1.5 bg-red-600 rounded-full hidden"></span></button>
                         </div>
                     </div>
                 </div>
-                
                 <div id="filter-panel" class="hidden mt-1 bg-white dark:bg-darkbg p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl animate-pop relative z-50">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="font-bold text-[10px]">تصفية النتائج</span>
-                        <button onclick="resetFilters()" class="text-[10px] text-red-500 font-bold underline cursor-pointer p-1">إعادة تعيين</button>
-                    </div>
+                    <div class="flex justify-between items-center mb-1"><span class="font-bold text-[10px]">تصفية النتائج</span><button onclick="resetFilters()" class="text-[10px] text-red-500 font-bold underline cursor-pointer p-1">إعادة تعيين</button></div>
                     <div class="grid grid-cols-2 gap-2">
-                        <select id="filter-gov" onchange="applyFilters()" class="form-input text-xs h-7">
-                            <option value="">كل المحافظات</option>
-                        </select>
-                        <select id="filter-price" onchange="applyFilters()" class="form-input text-xs h-7">
-                            <option value="">كل الأسعار</option>
-                            <option value="low">الأقل سعراً</option>
-                            <option value="high">الأعلى سعراً</option>
-                        </select>
+                        <select id="filter-gov" onchange="applyFilters()" class="form-input text-xs h-7"><option value="">كل المحافظات</option></select>
+                        <select id="filter-price" onchange="applyFilters()" class="form-input text-xs h-7"><option value="">كل الأسعار</option><option value="low">الأقل سعراً</option><option value="high">الأعلى سعراً</option></select>
                     </div>
                 </div>
             </div>
 
             <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar"></div>
-
             <div id="grid-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-10 mt-2"></div>
-
             <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
             <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
         </main>
 
-        <!-- NAV BAR -->
+        <!-- Req 6: Floating Support Button -->
+        <button onclick="toggleChatBot()" class="fixed left-4 bottom-24 z-[70] flex flex-col items-center animate-float group">
+            <div class="bg-white dark:bg-navy p-2 rounded-full shadow-xl border-2 border-primary relative">
+                <i data-lucide="bot" class="w-6 h-6 text-primary"></i>
+                <div class="absolute -top-1 -right-1 bg-red-500 w-3 h-3 rounded-full border-2 border-white"></div>
+            </div>
+            <span class="text-[9px] font-bold text-red-500 bg-white/90 dark:bg-navy/90 px-2 py-0.5 rounded-full shadow mt-1">الدعم الفني</span>
+        </button>
+
+        <!-- NAV BAR (Req 7: Chat Button) -->
         <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
             <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
             <button id="nav-add-btn" onclick="toggleAddModal()" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
-            <!-- Req 7: Chat Button opens Chat List -->
-            <button onclick="toggleChatList()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
+            <button onclick="toggleInbox()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative">
+                <div id="inbox-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-blue-500 rounded-full border border-white dark:border-slate-800"></div>
+                <i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i>
+            </button>
         </nav>
 
         <!-- PWA Install Banner (Top) -->
         <div id="install-banner" class="hidden fixed top-0 left-0 right-0 bg-navy dark:bg-white dark:text-navy text-white p-3 shadow-2xl z-[110] flex items-center justify-between install-banner border-b dark:border-slate-200">
             <div class="flex items-center gap-3">
                 <div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-5 h-5"></i></div>
-                <div>
-                    <h4 class="font-bold text-xs">تثبيت التطبيق</h4>
-                    <p class="text-[10px] opacity-80">تجربة أسرع وأسهل</p>
-                </div>
+                <div><h4 class="font-bold text-xs">تثبيت التطبيق</h4><p class="text-[10px] opacity-80">تجربة أسرع وأسهل</p></div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="installPWA()" class="bg-primary text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow-lg">تثبيت</button>
-                <button onclick="closeInstall()" class="text-white dark:text-navy p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
+            <div class="flex gap-2"><button onclick="installPWA()" class="bg-primary text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow-lg">تثبيت</button><button onclick="closeInstall()" class="text-white dark:text-navy p-1"><i data-lucide="x" class="w-4 h-4"></i></button></div>
         </div>
-    </div>
-
-    <!-- Chat List Modal (Req 7) -->
-    <div id="chat-list-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <h3 class="font-bold text-sm">الرسائل</h3>
-                <button onclick="toggleChatList()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            <div id="chat-list-container" class="flex-1 overflow-y-auto p-3 bg-white dark:bg-darkbg custom-scroll space-y-2">
-                <!-- Chat cards go here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Private Chat Modal (Req 7) -->
-    <div id="private-chat-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="bg-navy dark:bg-primary p-2 text-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2 cursor-pointer" id="chat-header-info">
-                    <div id="chat-user-img" class="w-8 h-8 rounded-full bg-white/20 overflow-hidden"></div>
-                    <div>
-                        <h4 id="chat-user-name" class="font-bold text-xs">...</h4>
-                        <div class="flex items-center gap-1">
-                            <span id="chat-user-status-dot" class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                            <span id="chat-user-status-text" class="text-[9px] opacity-80">غير متصل</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex gap-1">
-                    <button onclick="showChatOptions()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>
-                    <button onclick="closePrivateChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
-                </div>
-                
-                <!-- Chat Options Dropdown -->
-                <div id="chat-options-dropdown" class="hidden absolute top-10 left-2 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg shadow-xl border border-slate-200 dark:border-slate-600 z-50 w-32 overflow-hidden">
-                    <button onclick="deleteChat()" class="w-full text-right px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-red-500"><i data-lucide="trash-2" class="w-3 h-3"></i> حذف</button>
-                    <button onclick="blockUser()" class="w-full text-right px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><i data-lucide="slash" class="w-3 h-3"></i> حظر</button>
-                    <button onclick="rateUserFromChat()" class="w-full text-right px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><i data-lucide="star" class="w-3 h-3"></i> تقييم</button>
-                </div>
-            </div>
-            
-            <div id="private-chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs custom-scroll"></div>
-            
-            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe">
-                <input id="private-chat-input" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-2.5 text-sm outline-none dark:text-white font-bold" placeholder="اكتب رسالة...">
-                <button onclick="sendPrivateMessage()" class="w-9 h-9 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow active:scale-90 transition"><i data-lucide="send" class="w-4 h-4"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Support Chat Modal (Old) - Kept for compatibility if needed, but hidden -->
-    <div id="support-chat-modal" class="hidden modal-overlay">
-        <!-- ... (Same as before, can be removed if fully replaced by floating button) ... -->
     </div>
 
     <!-- Profile Modal -->
     <div id="profile-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-high">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
                 <h3 class="font-bold text-sm">الملف الشخصي</h3>
                 <button onclick="toggleProfile()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
@@ -428,40 +286,20 @@
                 <!-- VIEW MODE -->
                 <div id="prof-view-mode">
                     <div class="flex flex-col items-center gap-3 mb-6">
-                        <div id="prof-img-container" class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg">
-                            <i data-lucide="user" class="w-10 h-10 text-slate-400"></i>
-                        </div>
+                        <div id="prof-img-container" class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg"><i data-lucide="user" class="w-10 h-10 text-slate-400"></i></div>
                         <div class="text-center w-full">
                             <div class="flex items-center justify-center gap-2">
                                 <h2 id="prof-name" class="font-black text-xl text-navy dark:text-white">...</h2>
-                                <button id="global-edit-btn" onclick="toggleEditMode()" class="hidden flex items-center gap-1 text-primary hover:text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full transition">
-                                    <i data-lucide="pen-tool" class="w-3 h-3"></i> <span class="text-[10px] font-bold">تعديل</span>
-                                </button>
+                                <button id="global-edit-btn" onclick="toggleEditMode()" class="hidden flex items-center gap-1 text-primary hover:text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full transition"><i data-lucide="pen-tool" class="w-3 h-3"></i> <span class="text-[10px] font-bold">تعديل</span></button>
                             </div>
-                            <div id="prof-rating-display" class="flex justify-center items-center gap-1 mt-1 text-yellow-400 text-xs font-bold hidden">
-                                <span>★</span> <span id="prof-rating-val">0.0</span>
-                            </div>
+                            <div id="prof-rating-display" class="flex justify-center items-center gap-1 mt-1 text-yellow-400 text-xs font-bold hidden"><span>★</span> <span id="prof-rating-val">0.0</span></div>
                             <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
                             <p id="prof-joined" class="text-[10px] text-slate-400 mt-1 text-black dark:text-white font-bold"></p>
                         </div>
                     </div>
-
                     <div class="space-y-3 mb-6">
-                        <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                            <label class="text-[10px] font-bold text-slate-400 mb-1 block">رقم الهاتف</label>
-                            <div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white">
-                                <i data-lucide="phone" class="w-4 h-4 text-primary"></i>
-                                <span id="prof-phone">...</span>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                            <label class="text-[10px] font-bold text-slate-400 mb-1 block">العنوان بالتفصيل</label>
-                            <div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-primary"></i>
-                                <span id="prof-address">...</span>
-                            </div>
-                        </div>
-                        
+                        <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700"><label class="text-[10px] font-bold text-slate-400 mb-1 block">رقم الهاتف</label><div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white"><i data-lucide="phone" class="w-4 h-4 text-primary"></i><span id="prof-phone">...</span></div></div>
+                        <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700"><label class="text-[10px] font-bold text-slate-400 mb-1 block">العنوان بالتفصيل</label><div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white"><i data-lucide="map-pin" class="w-4 h-4 text-primary"></i><span id="prof-address">...</span></div></div>
                         <div id="prof-rate-user-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
                             <label class="text-[10px] font-bold text-slate-400 mb-2 block">قيم هذا المستخدم</label>
                             <div class="flex flex-col gap-2">
@@ -477,65 +315,27 @@
                             </div>
                         </div>
                     </div>
-
-                    <div id="prof-reviews-section" class="hidden">
-                        <h3 class="font-bold text-sm text-navy dark:text-white mb-3 border-b pb-2 border-slate-100 dark:border-slate-700">آراء العملاء</h3>
-                        <div id="prof-reviews-list" class="space-y-3"></div>
-                        <div class="flex gap-2 mt-2">
-                            <button id="prof-reviews-more" onclick="loadProfileReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button>
-                            <button id="prof-reviews-less" onclick="loadProfileReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button>
-                        </div>
-                    </div>
+                    <div id="prof-reviews-section" class="hidden"><h3 class="font-bold text-sm text-navy dark:text-white mb-3 border-b pb-2 border-slate-100 dark:border-slate-700">آراء العملاء</h3><div id="prof-reviews-list" class="space-y-3"></div><div class="flex gap-2 mt-2"><button id="prof-reviews-more" onclick="loadProfileReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button><button id="prof-reviews-less" onclick="loadProfileReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button></div></div>
                 </div>
-
                 <!-- EDIT MODE -->
                 <div id="prof-edit-mode" class="hidden space-y-3">
                     <div class="flex flex-col items-center gap-2 mb-4">
                         <div class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg relative group">
                             <img id="edit-img-preview" src="" class="w-full h-full object-cover hidden">
-                            <div id="edit-img-placeholder" class="flex flex-col items-center text-slate-400">
-                                <i data-lucide="camera" class="w-8 h-8"></i>
-                            </div>
+                            <div id="edit-img-placeholder" class="flex flex-col items-center text-slate-400"><i data-lucide="camera" class="w-8 h-8"></i></div>
                             <input type="file" id="edit-img-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleEditImage(this)">
                         </div>
                         <span class="text-[10px] text-primary font-bold">اضغط لتغيير الصورة</span>
                     </div>
-
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">الاسم الكامل</label>
-                        <input id="edit-name" type="text" class="form-input">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">رقم الهاتف</label>
-                        <input id="edit-phone" type="tel" class="form-input">
-                    </div>
+                    <div><label class="form-label">الاسم الكامل</label><input id="edit-name" type="text" class="form-input"></div>
+                    <div><label class="form-label">رقم الهاتف</label><input id="edit-phone" type="tel" class="form-input"></div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">المحافظة</label>
-                            <select id="edit-gov" onchange="updateEditCities()" class="form-input text-xs"></select>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">المركز/المدينة</label>
-                            <select id="edit-city" class="form-input text-xs"></select>
-                        </div>
+                        <div><label class="form-label">المحافظة</label><select id="edit-gov" onchange="updateEditCities()" class="form-input text-xs"></select></div>
+                        <div><label class="form-label">المركز/المدينة</label><select id="edit-city" class="form-input text-xs"></select></div>
                     </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">العنوان بالتفصيل</label>
-                        <input id="edit-address" type="text" class="form-input">
-                    </div>
-
-                    <div id="prof-password-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-4">
-                        <label class="text-[10px] font-bold text-slate-400 mb-2 block">تغيير كلمة المرور</label>
-                        <div class="flex gap-2">
-                            <input id="new-password" type="password" class="form-input text-xs" placeholder="كلمة المرور الجديدة">
-                            <button onclick="changePassword()" class="bg-navy dark:bg-primary text-white px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap">تحديث</button>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-2 pt-4">
-                        <button onclick="saveProfile()" class="flex-1 bg-primary text-white py-2 rounded-xl font-bold text-sm shadow-lg">حفظ التعديلات</button>
-                        <button onclick="toggleEditMode()" class="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-white py-2 rounded-xl font-bold text-sm">إلغاء</button>
-                    </div>
+                    <div><label class="form-label">العنوان بالتفصيل</label><input id="edit-address" type="text" class="form-input"></div>
+                    <div id="prof-password-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-4"><label class="form-label">تغيير كلمة المرور</label><div class="flex gap-2"><input id="new-password" type="password" class="form-input text-xs" placeholder="كلمة المرور الجديدة"><button onclick="changePassword()" class="bg-navy dark:bg-primary text-white px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap">تحديث</button></div></div>
+                    <div class="flex gap-2 pt-4"><button onclick="saveProfile()" class="flex-1 bg-primary text-white py-2 rounded-xl font-bold text-sm shadow-lg">حفظ التعديلات</button><button onclick="toggleEditMode()" class="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-white py-2 rounded-xl font-bold text-sm">إلغاء</button></div>
                 </div>
             </div>
         </div>
@@ -543,7 +343,7 @@
 
     <!-- Order Modal -->
     <div id="order-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-high">
             <div class="bg-primary p-3 text-white flex justify-between items-center shrink-0">
                 <h3 class="font-bold text-sm">طلب المنتج</h3>
                 <button onclick="toggleOrderModal()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
@@ -551,68 +351,79 @@
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
                 <div class="mb-4 p-2 bg-slate-50 dark:bg-slate-800 rounded-lg flex gap-3 items-center">
                     <img id="ord-img" src="" class="w-12 h-12 rounded object-cover">
-                    <div>
-                        <h4 id="ord-title" class="font-bold text-xs text-navy dark:text-white"></h4>
-                        <span id="ord-price" class="text-primary font-black text-sm"></span>
-                    </div>
+                    <div><h4 id="ord-title" class="font-bold text-xs text-navy dark:text-white"></h4><span id="ord-price" class="text-primary font-black text-sm"></span></div>
                 </div>
-
                 <div id="order-items-container" class="space-y-3"></div>
-
-                <button onclick="addOrderItem()" class="w-full py-2 mt-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 text-xs font-bold hover:border-primary hover:text-primary transition flex items-center justify-center gap-1">
-                    <i data-lucide="plus" class="w-3 h-3"></i> إضافة قطعة أخرى
-                </button>
-
+                <button onclick="addOrderItem()" class="w-full py-2 mt-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 text-xs font-bold hover:border-primary hover:text-primary transition flex items-center justify-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> إضافة قطعة أخرى</button>
                 <div class="mt-6 space-y-3 border-t border-slate-100 dark:border-slate-700 pt-4">
                     <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="form-label">المحافظة</label>
-                            <select id="ord-gov" onchange="updateOrderCities()" class="form-input text-xs"></select>
-                        </div>
-                        <div>
-                            <label class="form-label">المركز/المدينة</label>
-                            <select id="ord-city" class="form-input text-xs"><option value="">اختر المحافظة</option></select>
-                        </div>
+                        <div><label class="form-label">المحافظة</label><select id="ord-gov" onchange="updateOrderCities()" class="form-input text-xs"></select></div>
+                        <div><label class="form-label">المركز/المدينة</label><select id="ord-city" class="form-input text-xs"><option value="">اختر المحافظة</option></select></div>
                     </div>
-                    <div>
-                        <label class="form-label">العنوان بالتفصيل</label>
-                        <input id="ord-address" type="text" class="form-input text-xs" placeholder="الشارع، رقم المنزل...">
-                    </div>
-                    <div>
-                        <label class="form-label">رقم الهاتف</label>
-                        <input id="ord-phone" type="tel" class="form-input text-xs" placeholder="01xxxxxxxxx">
-                    </div>
+                    <div><label class="form-label">العنوان بالتفصيل</label><input id="ord-address" type="text" class="form-input text-xs" placeholder="الشارع، رقم المنزل..."></div>
+                    <div><label class="form-label">رقم الهاتف</label><input id="ord-phone" type="tel" class="form-input text-xs" placeholder="01xxxxxxxxx"></div>
                 </div>
             </div>
             <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg shrink-0 space-y-2">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-bold text-slate-500">الإجمالي:</span>
-                    <span id="ord-total" class="text-lg font-black text-primary">0 ج.م</span>
-                </div>
-                <button onclick="confirmOrder('whatsapp')" class="w-full bg-[#25D366] text-white py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2">
-                    <i data-lucide="message-circle" class="w-4 h-4"></i> تأكيد الطلب عبر واتساب
-                </button>
-                <!-- Req 9: Order via Chat -->
-                <button onclick="confirmOrder('chat')" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2">
-                    <i data-lucide="message-square" class="w-4 h-4"></i> تأكيد الطلب عبر المحادثة
-                </button>
+                <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-slate-500">الإجمالي:</span><span id="ord-total" class="text-lg font-black text-primary">0 ج.م</span></div>
+                <button onclick="confirmOrder('whatsapp')" class="w-full bg-[#25D366] text-white py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2"><i data-lucide="message-circle" class="w-4 h-4"></i> تأكيد عبر واتساب</button>
+                <!-- Req 9: Confirm via Chat -->
+                <button onclick="confirmOrder('chat')" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2"><i data-lucide="message-square" class="w-4 h-4"></i> تأكيد عبر المحادثة</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Add Modal -->
+    <div id="add-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-base">
+            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0 h-12">
+                <h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة منتج</h3>
+                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-white dark:bg-darkbg custom-scroll">
+                <div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-2"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input h-9 text-xs" placeholder="اسم المنتج..."></div>
+                    <div class="form-group"><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input h-9 text-xs" placeholder="0"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="form-group"><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input h-9 text-xs bg-gray-50"></select></div>
+                    <div id="field-condition" class="form-group hidden"><label class="form-label">الحالة</label><select id="in-condition" class="form-input h-9 text-xs"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
+                </div>
+                <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group space-y-2 hidden">
+                    <div id="field-size-chips" class="hidden"><label class="form-label text-primary">المقاسات المتاحة</label><div id="size-chips-container" class="flex flex-wrap gap-1.5"></div></div>
+                    <div id="field-color-chips" class="hidden"><label class="form-label text-primary">الألوان المتاحة</label><div id="color-chips-container" class="flex flex-wrap gap-1.5"></div></div>
+                </div>
+                <div class="form-group bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <label class="form-label mb-1">أماكن الشحن</label>
+                    <div class="flex gap-2 mb-2">
+                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="all" onchange="toggleShipGov()" checked class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">كل المحافظات</div></label>
+                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="specific" onchange="toggleShipGov()" class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">محافظات محددة</div></label>
+                    </div>
+                    <div id="ship-gov-container" class="hidden"><div class="text-[10px] mb-1 text-slate-400">اختر المحافظات المتاحة:</div><div id="ship-gov-list" class="max-h-24 overflow-y-auto custom-scroll grid grid-cols-2 gap-1 p-1 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-600 rounded-lg"></div></div>
+                </div>
+                <div class="form-group"><label class="form-label">مواصفات إضافية:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="هاي كوبي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label></div></div>
+                <div class="form-group"><label class="form-label">تمييز:</label><div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg"><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="form-group col-span-1"><label class="form-label">رقم الهاتف</label><input id="in-phone" type="tel" class="form-input h-9 text-xs" placeholder="01xxxxxxxxx"></div>
+                    <div class="form-group col-span-2"><label class="form-label">الوصف</label><textarea id="in-desc" rows="1" class="form-input text-xs" placeholder="تفاصيل..."></textarea></div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-3"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر الآن</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
         </div>
     </div>
 
     <!-- Details Modal -->
     <div id="details-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-base">
             <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
                 <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
                 <div class="absolute top-3 right-3 flex gap-2 z-20">
+                    <!-- Req 5: Edit/Delete Buttons Moved Here -->
+                    <button id="btn-edit-product" onclick="editProduct()" class="hidden bg-white/80 dark:bg-black/50 text-blue-600 p-1.5 rounded-full shadow-sm"><i data-lucide="edit-3" class="w-5 h-5"></i></button>
+                    <button id="btn-delete-product" onclick="deleteProduct()" class="hidden bg-white/80 dark:bg-black/50 text-red-600 p-1.5 rounded-full shadow-sm"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                     <button onclick="copyDetails()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="copy" class="w-5 h-5"></i></button>
                     <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
-                    <!-- Req 5: Edit/Delete inside details -->
-                    <div id="product-controls" class="hidden flex gap-2">
-                         <button onclick="editProduct()" class="bg-white/80 dark:bg-black/50 text-blue-600 p-1.5 rounded-full shadow-sm"><i data-lucide="edit-3" class="w-5 h-5"></i></button>
-                         <button onclick="deleteProduct()" class="bg-white/80 dark:bg-black/50 text-red-600 p-1.5 rounded-full shadow-sm"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
-                    </div>
                 </div>
                 <div id="details-slider-container" class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800">
                     <img id="details-img" src="" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(this.src)">
@@ -621,67 +432,101 @@
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse">
-                    <i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج
-                </button>
-
+                <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse"><i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج</button>
                 <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
                      <div class="flex items-center gap-2">
                          <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
-                         <div class="flex flex-col justify-center">
-                             <h4 id="d-pub-name" class="font-bold text-[10px] text-navy dark:text-white leading-tight">...</h4>
-                             <span class="text-[8px] text-slate-400">الناشر (اضغط للعرض)</span>
-                         </div>
+                         <div class="flex flex-col justify-center"><h4 id="d-pub-name" class="font-bold text-[10px] text-navy dark:text-white leading-tight">...</h4><span class="text-[8px] text-slate-400">الناشر (اضغط للعرض)</span></div>
                      </div>
                      <div id="d-shipping-info" class="flex flex-wrap items-center gap-1 text-[9px] font-bold text-slate-500 bg-white dark:bg-slate-700 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 max-w-[55%] justify-end leading-tight"></div>
                 </div>
-
                 <div class="flex justify-between items-start mb-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><h2 id="d-title" class="text-base font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-lg whitespace-nowrap select-text"></span></div>
-                <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700">
-                    <span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> 
-                    <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span>
-                    <span id="d-date" class="text-[10px] text-black dark:text-white font-bold mr-auto"></span>
-                </div>
-                
+                <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span><span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span><span id="d-date" class="text-[10px] text-black dark:text-white font-bold mr-auto"></span></div>
                 <div id="d-variants-container" class="space-y-2 mb-4">
-                    <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg">
-                        <span class="text-[10px] font-bold text-slate-400 shrink-0">المقاسات:</span>
-                        <div id="d-sizes-list" class="flex flex-wrap gap-1"></div>
-                    </div>
-                    <div id="d-colors-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg">
-                        <span class="text-[10px] font-bold text-slate-400 shrink-0">الألوان:</span>
-                        <div id="d-colors-list" class="flex flex-wrap gap-1"></div>
-                    </div>
+                    <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">المقاسات:</span><div id="d-sizes-list" class="flex flex-wrap gap-1"></div></div>
+                    <div id="d-colors-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">الألوان:</span><div id="d-colors-list" class="flex flex-wrap gap-1"></div></div>
                 </div>
-
                 <div id="d-features" class="flex flex-wrap gap-2 mb-4"></div>
-
                 <div class="space-y-1 mb-6"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium select-text"></p></div>
-
                 <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
                     <h3 class="text-xs font-bold text-slate-900 dark:text-white mb-3">التقييمات</h3>
                     <div id="product-reviews-list" class="space-y-3 mb-3"></div>
-                    <div class="flex gap-2 mt-2">
-                        <button id="load-more-reviews" onclick="loadProductReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button>
-                        <button id="load-less-reviews" onclick="loadProductReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button>
-                    </div>
+                    <div class="flex gap-2 mt-2"><button id="load-more-reviews" onclick="loadProductReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button><button id="load-less-reviews" onclick="loadProductReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button></div>
                     <div id="add-review-form" class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-[10px] font-bold">أضف تقييمك</span>
-                            <div class="star-rating text-lg">
-                                <input type="radio" id="star5" name="rating" value="5" onclick="setRating(5)"><label for="star5">★</label>
-                                <input type="radio" id="star4" name="rating" value="4" onclick="setRating(4)"><label for="star4">★</label>
-                                <input type="radio" id="star3" name="rating" value="3" onclick="setRating(3)"><label for="star3">★</label>
-                                <input type="radio" id="star2" name="rating" value="2" onclick="setRating(2)"><label for="star2">★</label>
-                                <input type="radio" id="star1" name="rating" value="1" onclick="setRating(1)"><label for="star1">★</label>
-                            </div>
-                        </div>
+                        <div class="flex justify-between items-center mb-2"><span class="text-[10px] font-bold">أضف تقييمك</span><div class="star-rating text-lg"><input type="radio" id="star5" name="rating" value="5" onclick="setRating(5)"><label for="star5">★</label><input type="radio" id="star4" name="rating" value="4" onclick="setRating(4)"><label for="star4">★</label><input type="radio" id="star3" name="rating" value="3" onclick="setRating(3)"><label for="star3">★</label><input type="radio" id="star2" name="rating" value="2" onclick="setRating(2)"><label for="star2">★</label><input type="radio" id="star1" name="rating" value="1" onclick="setRating(1)"><label for="star1">★</label></div></div>
                         <textarea id="review-text" class="form-input text-xs w-full mb-2" rows="2" placeholder="اكتب رأيك هنا..."></textarea>
                         <button onclick="submitProductReview()" class="bg-navy dark:bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">نشر التقييم</button>
                     </div>
                 </div>
             </div>
             <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-2 shrink-0 pb-8 md:pb-3"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="phone" class="w-4 h-4"></i> اتصال</a></div>
+        </div>
+    </div>
+
+    <!-- Req 7: Inbox Modal -->
+    <div id="inbox-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-base">
+            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-sm">الرسائل</h3>
+                <button onclick="toggleInbox()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div id="inbox-list" class="flex-1 overflow-y-auto p-2 bg-white dark:bg-darkbg custom-scroll space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- Req 7: Private Chat Modal -->
+    <div id="private-chat-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-high">
+            <div class="bg-navy dark:bg-primary p-2 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="openChatUserProfile()">
+                    <div class="relative">
+                        <img id="chat-user-img" src="" class="w-8 h-8 rounded-full object-cover bg-white/10">
+                        <div id="chat-user-status" class="status-dot status-offline"></div>
+                    </div>
+                    <div class="flex flex-col">
+                        <h4 id="chat-user-name" class="font-bold text-xs">...</h4>
+                        <span id="chat-user-seen" class="text-[9px] opacity-80">...</span>
+                    </div>
+                </div>
+                <div class="flex gap-1">
+                    <button onclick="toggleChatMenu()" class="hover:bg-white/20 p-1 rounded-full relative">
+                        <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                        <div id="chat-menu" class="hidden absolute top-8 left-0 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg shadow-xl border border-slate-200 dark:border-slate-600 w-32 py-1 z-50">
+                            <button onclick="blockUser()" class="w-full text-right px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-700">حظر المستخدم</button>
+                            <button onclick="deleteChat()" class="w-full text-right px-3 py-2 text-xs text-red-500 hover:bg-slate-100 dark:hover:bg-slate-700">حذف المحادثة</button>
+                        </div>
+                    </button>
+                    <button onclick="closePrivateChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+            <div id="private-chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
+            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe">
+                <input id="private-chat-input" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب رسالة...">
+                <button onclick="sendPrivateMessage()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Req 8: Notifications Modal -->
+    <div id="notifications-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-high max-h-[400px] !h-auto rounded-2xl m-4 w-[90%] max-w-sm">
+            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-sm">الإشعارات</h3>
+                <button onclick="toggleNotifications()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div id="notif-list" class="flex-1 overflow-y-auto p-2 bg-white dark:bg-darkbg custom-scroll space-y-2 max-h-[300px]"></div>
+        </div>
+    </div>
+
+    <!-- Chat Bot Modal (Support) -->
+    <div id="chatbot-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-high">
+            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2"><div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">الدعم الفني</h4></div></div>
+                <button onclick="toggleChatBot()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="chatbot-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
+            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe"><input id="chatbot-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب..."><button onclick="sendChatBotMsg()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button></div>
         </div>
     </div>
 
@@ -701,7 +546,7 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, limit, orderBy, startAfter } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Req 10: Service Worker Optimization
+        // Req 10: Service Worker Registration
         if ('serviceWorker' in navigator) {
             const swCode = `
                 const CACHE_NAME = 'souq-v2';
@@ -713,20 +558,13 @@
                 self.addEventListener('install', e => e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS))));
                 self.addEventListener('fetch', e => {
                     if(e.request.url.startsWith('http')) {
-                        // Stale-while-revalidate strategy for better performance
-                        e.respondWith(
-                            caches.open(CACHE_NAME).then(cache => {
-                                return cache.match(e.request).then(response => {
-                                    const fetchPromise = fetch(e.request).then(networkResponse => {
-                                        if(e.request.destination === 'image' || e.request.destination === 'font') {
-                                            cache.put(e.request, networkResponse.clone());
-                                        }
-                                        return networkResponse;
-                                    });
-                                    return response || fetchPromise;
-                                });
-                            })
-                        );
+                        e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(res => {
+                            if(e.request.destination === 'image' || e.request.destination === 'font') {
+                                const clone = res.clone();
+                                caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+                            }
+                            return res;
+                        })));
                     }
                 });
             `;
@@ -863,7 +701,8 @@
             profileReviewsLimit: 3,
             viewingProfileId: null,
             orderItems: [],
-            activePrivateChatId: null
+            activePrivateChatId: null,
+            activeChatUser: null
         };
 
         function initGovs() {
@@ -871,7 +710,7 @@
             const filterGov = document.getElementById('filter-gov');
             const shipGovList = document.getElementById('ship-gov-list'); 
             const editGov = document.getElementById('edit-gov'); 
-            const ordGov = document.getElementById('ord-gov');
+            const ordGov = document.getElementById('ord-gov'); 
 
             govSelect.innerHTML = '<option value="">اختر المحافظة</option>';
             filterGov.innerHTML = '<option value="">كل المحافظات</option>';
@@ -951,7 +790,7 @@
             document.getElementById('loader').classList.add('hidden'); 
         }
 
-        // Fix 1 & 2: Smooth Splash Screen & Reload Safety
+        // Safety Timeout for Reload
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
             if(splash && !splash.classList.contains('fade-out')) {
@@ -962,7 +801,7 @@
                      setTimeout(() => splash.remove(), 500);
                 }
             }
-        }, 3000);
+        }, 5000);
 
         onAuthStateChanged(auth, async (u) => { 
             if(u) { 
@@ -982,15 +821,16 @@
                         } else {
                              document.getElementById('btn-admin-top').classList.add('hidden');
                         }
-                        // Req 8: Start listening for notifications
-                        listenNotifications();
+                        
+                        // Update Last Seen
+                        updateDoc(doc(db, "users", u.uid), { lastSeen: serverTimestamp() });
                     }
                 } catch(e) {
                     console.warn("Role fetch failed", e);
                 }
                 forceSwitchToApp();
                 loadListings(); 
-                // checkUserChat(); // Replaced by new chat system
+                checkNotifications(); // Req 8
                 initFavs(); 
                 initCats(); 
             } else {
@@ -1122,7 +962,8 @@
                         address: address,
                         isAdmin: false,
                         image: state.authImageBase64 || null, 
-                        createdAt: serverTimestamp()
+                        createdAt: serverTimestamp(),
+                        lastSeen: serverTimestamp()
                     };
 
                     await setDoc(doc(db, "users", user.uid), newUser);
@@ -1287,7 +1128,7 @@
             renderProducts();
         }
 
-        // Fix 3: Reset Button Logic
+        // Fix 3: Reset Button Logic (Stay in category)
         window.resetFilters = () => {
             document.getElementById('search-input').value = '';
             document.getElementById('filter-price').value = '';
@@ -1451,7 +1292,7 @@
                 statusOverlay=`<div class="absolute inset-0 z-20 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center"><span class="bg-red-600 text-white font-bold px-4 py-2 rounded-xl shadow-xl transform -rotate-12 text-sm">${txt}</span></div>`; 
             }
             const showControls = state.isAdmin || isOwner;
-            // Fix 5: Remove controls from here
+            const controls = showControls ? `<div class="absolute top-1 right-1 z-20 flex gap-1"><button onclick="del(event,'${item.id}')" class="bg-white/80 text-red-500 p-1 rounded shadow"><i data-lucide="trash-2" class="w-3 h-3"></i></button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}')" class="bg-white/80 text-blue-600 p-1 rounded shadow"><i data-lucide="edit-3" class="w-3 h-3"></i></button></div>` : '';
 
             return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button><span class="absolute bottom-1 left-1 bg-white/80 text-black text-[8px] font-bold px-1 rounded z-10">${formatDate(item.createdAt)}</span>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-3 h-3"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${item.category}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[8px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
         }
@@ -1501,12 +1342,12 @@
             });
         }
 
-        // Fix 4: Optimize Details Opening
+        // Fix 4: Optimized Open Details
         window.openDetails = async (id) => {
             const item = state.listings.find(i => i.id === id); if(!item) return;
             state.currentItem = item; 
             
-            // DOM Updates
+            // Immediate UI update with available data
             document.getElementById('d-title').innerText = item.title; 
             document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; 
             document.getElementById('d-cat').innerText = item.category; 
@@ -1514,34 +1355,43 @@
             document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
             document.getElementById('d-date').innerText = formatDate(item.createdAt);
 
-            // Reset Publisher
             const pubBar = document.getElementById('d-pub-bar');
             pubBar.onclick = () => toggleProfile(item.authorId);
-            document.getElementById('d-pub-name').innerText = "جاري التحميل...";
+
+            const pubName = document.getElementById('d-pub-name');
+            const pubImg = document.getElementById('d-pub-img');
+            pubName.innerText = "جاري التحميل...";
             
-            // Fix 5: Controls Logic
-            const controlsDiv = document.getElementById('product-controls');
-            if(state.user && (state.user.uid === item.authorId || state.isAdmin)) {
-                controlsDiv.classList.remove('hidden');
+            // Req 5: Edit/Delete inside modal
+            const isOwner = state.user && state.user.uid === item.authorId;
+            if(isOwner || state.isAdmin) {
+                document.getElementById('btn-edit-product').classList.remove('hidden');
+                document.getElementById('btn-delete-product').classList.remove('hidden');
             } else {
-                controlsDiv.classList.add('hidden');
+                document.getElementById('btn-edit-product').classList.add('hidden');
+                document.getElementById('btn-delete-product').classList.add('hidden');
             }
 
-            // Fetch Author (Async)
+            // Async fetch author
             getDoc(doc(db, "users", item.authorId)).then(uSnap => {
                 if(uSnap.exists()) {
                     const uData = uSnap.data();
-                    state.currentAuthor = uData;
-                    document.getElementById('d-pub-name').innerText = uData.name || "مستخدم";
+                    state.currentAuthor = uData; 
+                    pubName.innerText = uData.name || "مستخدم";
                     if(uData.image) {
-                        document.getElementById('d-pub-img').innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`;
+                        pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`;
                     } else {
-                        document.getElementById('d-pub-img').innerHTML = `<i data-lucide="user" class="w-3 h-3 text-slate-400"></i>`;
+                        pubImg.innerHTML = `<i data-lucide="user" class="w-3 h-3 text-slate-400"></i>`;
                     }
+                } else {
+                    pubName.innerText = "مستخدم غير معروف";
+                    state.currentAuthor = null;
                 }
+            }).catch(() => {
+                pubName.innerText = "ناشر";
+                state.currentAuthor = null;
             });
 
-            // Variants & Features
             const amCont = document.getElementById('d-features'); 
             amCont.innerHTML=''; 
             
@@ -1743,25 +1593,6 @@
             lucide.createIcons();
         };
 
-        // Fix 5: Delete Product Logic
-        window.deleteProduct = async () => {
-            if(!state.currentItem) return;
-            if(confirm('هل أنت متأكد من الحذف؟')){
-                await deleteDoc(doc(db,"listings",state.currentItem.id));
-                showToast('تم الحذف بنجاح');
-                closeDetails();
-            }
-        };
-
-        // Fix 5: Edit Product Logic (Simplified)
-        window.editProduct = async () => {
-            if(!state.currentItem) return;
-            // For simplicity, we just delete and re-open add modal with data
-            // A full edit would require populating the add modal
-            // Here we just show a toast for now as full edit logic is complex
-            showToast('ميزة التعديل الكامل قادمة قريباً', 's');
-        };
-
         window.del=async(e,id)=>{e.stopPropagation();if(confirm('هل أنت متأكد من الحذف؟')){await deleteDoc(doc(db,"listings",id));showToast('تم الحذف بنجاح')}};
         window.toggleStatus=async(e,id,currentStatus)=>{e.stopPropagation();let nextStatus=currentStatus==='available'?'sold':'available';await updateDoc(doc(db,"listings",id),{status:nextStatus});showToast(`تم تغيير الحالة إلى: ${nextStatus==='available'?'متاح':'مُباع'}`)};
 
@@ -1774,7 +1605,7 @@
         window.showToast=(m,t='s')=>{
             const d=document.createElement('div');
             const bgClass = t==='e' ? 'bg-red-600 text-white' : 'bg-green-600 text-white';
-            d.className=`toast px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 text-xs font-bold ${bgClass}`;
+            d.className=`toast px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 text-xs font-bold ${bgClass} z-toast`;
             d.innerHTML=`<i data-lucide="${t==='e'?'alert-circle':'check-circle'}" class="w-4 h-4"></i> ${m}`;
             document.getElementById('toast-container').appendChild(d);
             lucide.createIcons();
@@ -1883,56 +1714,218 @@
         window.handleUpload=async(input)=>{if(input.files.length+state.images.length>7)return showToast('7 صور بحد أقصى','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0">`}}; 
         function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
         
-        // Req 6: Floating Support Button
-        window.toggleSupportChat = () => {
-            // For now, open WhatsApp support directly or open a special chat
-            window.open('https://wa.me/201206244875', '_blank');
-        };
-
-        window.sendMsg=async()=>{
-            const t=document.getElementById('chat-msg').value.trim();
-            if(!t)return;
-            document.getElementById('chat-msg').value='';
-            userMsg(t);
-
-            if(!state.chatId){
-                if(state.chatStep===0){
-                    state.chatStep=2;
-                    try {
-                        const r=await addDoc(collection(db,"chats"),{
-                            userId:state.user.uid, 
-                            userName:state.user.displayName || state.user.email,
-                            lastMsg:t,
-                            status:'waiting',
-                            messages:[
-                                {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()},
-                                {s:'user',t,d:new Date()},
-                                {s:'bot',t:'جاري توصيلك بخدمه العملاء',d:new Date()}
-                            ],
-                            createdAt:serverTimestamp()
-                        });
-                        state.chatId=r.id;
-                        listenChat(r.id);
-                    } catch (err) {
-                        console.error("Chat creation failed:", err);
-                        botMsg("عفواً، حدث خطأ أثناء محاولة توصيلك بالدعم.");
-                    }
-                }
-            } else {
-                const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));
-                if(!s.empty){
-                    const m=s.docs[0].data().messages;
-                    m.push({s:'user',t,d:new Date()});
-                    await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'});
-                }
+        // Req 6: Floating Support Chat Bot
+        window.toggleChatBot = () => {
+            toggleModal('chatbot-modal');
+            // Simple bot logic
+            const box = document.getElementById('chatbot-box');
+            if(box.children.length === 0) {
+                box.innerHTML = `<div class="flex justify-start"><div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">مرحباً بك في الدعم الفني الآلي 👋<br>كيف يمكنني مساعدتك؟</div></div>`;
             }
-        };
+        }
 
-        function listenChat(id){onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data();if(d.status==='closed'){state.chatId=null;state.chatStep=0;state.welcomeSent=false;document.getElementById('chat-box').innerHTML='';showToast("تم إنهاء المحادثة");toggleModal('chat-modal');return}document.getElementById('chat-box').innerHTML='';d.messages.forEach(m=>{if(!m.t.startsWith('الاسم'))(m.s==='user'?userMsg:botMsg)(m.t)})}})};
-        function checkUserChat(){onSnapshot(query(collection(db,"chats"),where('userId','==',state.user.uid),where('status','!=','closed')),s=>{if(!s.empty){state.chatId=s.docs[0].id;state.chatStep=2;listenChat(state.chatId)}})};
-        function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
-        function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
+        window.sendChatBotMsg = () => {
+            const input = document.getElementById('chatbot-msg');
+            const text = input.value.trim();
+            if(!text) return;
+            
+            const box = document.getElementById('chatbot-box');
+            box.innerHTML += `<div class="flex justify-end"><div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%]">${text}</div></div>`;
+            input.value = '';
+            
+            setTimeout(() => {
+                box.innerHTML += `<div class="flex justify-start"><div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">سيتم الرد عليك قريباً من أحد ممثلي الخدمة.</div></div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 1000);
+        }
+
+        // Req 7: Chat System (Inbox & Private)
+        window.toggleInbox = () => {
+            if(toggleModal('inbox-modal')) {
+                loadInbox();
+            }
+        }
+
+        window.loadInbox = () => {
+            const list = document.getElementById('inbox-list');
+            list.innerHTML = '<div class="spinner border-primary mx-auto"></div>';
+            
+            // Query chats where user is participant
+            const q = query(collection(db, "chats"), where("participants", "array-contains", state.user.uid), orderBy("lastMessageTime", "desc"));
+            
+            onSnapshot(q, (snap) => {
+                list.innerHTML = '';
+                if(snap.empty) {
+                    list.innerHTML = '<p class="text-center text-slate-400 text-xs mt-4">لا توجد رسائل بعد</p>';
+                    return;
+                }
+                
+                snap.forEach(async docSnap => {
+                    const chat = docSnap.data();
+                    const otherId = chat.participants.find(id => id !== state.user.uid);
+                    
+                    // Fetch other user details
+                    const uSnap = await getDoc(doc(db, "users", otherId));
+                    const uData = uSnap.exists() ? uSnap.data() : { name: "مستخدم", image: null };
+                    
+                    const isUnread = chat.unreadCount && chat.unreadCount[state.user.uid] > 0;
+                    const time = chat.lastMessageTime ? formatDate(chat.lastMessageTime) : '';
+                    const img = uData.image ? `<img src="${uData.image}" class="w-10 h-10 rounded-full object-cover">` : `<div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i></div>`;
+                    
+                    // Online status simulation (based on lastSeen < 5min)
+                    const isOnline = uData.lastSeen && (new Date() - uData.lastSeen.toDate()) < 300000;
+                    const statusDot = isOnline ? `<div class="status-dot status-online"></div>` : `<div class="status-dot status-offline"></div>`;
+
+                    const div = document.createElement('div');
+                    div.className = `flex items-center gap-3 p-2 rounded-xl cursor-pointer transition hover:bg-slate-50 dark:hover:bg-slate-800 border ${isUnread ? 'border-blue-500 unread-glow' : 'border-transparent'}`;
+                    div.onclick = () => openPrivateChat(otherId, uData);
+                    
+                    div.innerHTML = `
+                        <div class="relative">
+                            ${img}
+                            ${statusDot}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center mb-0.5">
+                                <h4 class="font-bold text-xs text-navy dark:text-white truncate">${uData.name}</h4>
+                                <span class="text-[9px] text-slate-400">${time}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 truncate ${isUnread ? 'font-bold text-blue-600' : ''}">${chat.lastMessage || 'صورة'}</p>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+                lucide.createIcons();
+            });
+        }
+
+        window.openPrivateChat = async (otherId, otherData) => {
+            state.activeChatUser = otherId;
+            const chatId = [state.user.uid, otherId].sort().join('_');
+            state.activePrivateChatId = chatId;
+            
+            // Setup UI
+            document.getElementById('chat-user-name').innerText = otherData.name || 'مستخدم';
+            document.getElementById('chat-user-img').src = otherData.image || '';
+            const isOnline = otherData.lastSeen && (new Date() - otherData.lastSeen.toDate()) < 300000;
+            document.getElementById('chat-user-status').className = `status-dot ${isOnline ? 'status-online' : 'status-offline'}`;
+            document.getElementById('chat-user-seen').innerText = isOnline ? 'متصل الآن' : (otherData.lastSeen ? 'آخر ظهور ' + formatDate(otherData.lastSeen) : '');
+            
+            toggleModal('private-chat-modal');
+            
+            // Mark as read
+            const chatRef = doc(db, "chats", chatId);
+            const chatSnap = await getDoc(chatRef);
+            if(chatSnap.exists()) {
+                 const update = {};
+                 update[`unreadCount.${state.user.uid}`] = 0;
+                 updateDoc(chatRef, update);
+            }
+
+            // Listen to messages
+            const msgRef = collection(db, "chats", chatId, "messages");
+            const q = query(msgRef, orderBy("timestamp", "asc"));
+            
+            onSnapshot(q, (snap) => {
+                const box = document.getElementById('private-chat-box');
+                box.innerHTML = '';
+                snap.forEach(d => {
+                    const m = d.data();
+                    const isMe = m.senderId === state.user.uid;
+                    let content = m.text;
+                    if(m.image) content = `<img src="${m.image}" class="rounded-lg max-w-[150px] cursor-pointer" onclick="openLightbox(this.src)"><p>${m.text}</p>`;
+                    
+                    box.innerHTML += `<div class="flex ${isMe ? 'justify-start' : 'justify-end'}"><div class="${isMe ? 'bg-primary text-white' : 'bg-white dark:bg-slate-700 dark:text-white text-slate-800'} px-3 py-2 rounded-xl ${isMe ? 'rounded-tr-none' : 'rounded-tl-none'} shadow-sm text-xs max-w-[85%]">${content}</div></div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        window.sendPrivateMessage = async (text = null, image = null) => {
+            const input = document.getElementById('private-chat-input');
+            const msgText = text || input.value.trim();
+            
+            if(!msgText && !image) return;
+            if(!text) input.value = '';
+            
+            const chatId = state.activePrivateChatId;
+            const otherId = state.activeChatUser;
+            
+            // Ensure chat doc exists
+            const chatRef = doc(db, "chats", chatId);
+            const chatSnap = await getDoc(chatRef);
+            
+            if(!chatSnap.exists()) {
+                await setDoc(chatRef, {
+                    participants: [state.user.uid, otherId],
+                    lastMessage: msgText || 'صورة',
+                    lastMessageTime: serverTimestamp(),
+                    unreadCount: { [otherId]: 1, [state.user.uid]: 0 }
+                });
+            } else {
+                // Increment unread for other
+                const currentUnread = chatSnap.data().unreadCount?.[otherId] || 0;
+                const update = {
+                    lastMessage: msgText || 'صورة',
+                    lastMessageTime: serverTimestamp()
+                };
+                update[`unreadCount.${otherId}`] = currentUnread + 1;
+                await updateDoc(chatRef, update);
+            }
+
+            // Add message
+            await addDoc(collection(db, "chats", chatId, "messages"), {
+                text: msgText,
+                image: image,
+                senderId: state.user.uid,
+                timestamp: serverTimestamp()
+            });
+        }
+
+        window.toggleChatMenu = () => {
+            document.getElementById('chat-menu').classList.toggle('hidden');
+        }
+
+        window.closePrivateChat = () => {
+            toggleModal('private-chat-modal');
+            state.activePrivateChatId = null;
+        }
         
+        window.openChatUserProfile = () => {
+            toggleProfile(state.activeChatUser);
+        }
+
+        // Req 8: Notifications
+        window.toggleNotifications = () => {
+            if(toggleModal('notifications-modal')) {
+                // Mark badge as read
+                document.getElementById('notif-badge').classList.add('hidden');
+            }
+        }
+
+        function checkNotifications() {
+            // Listen for new messages/ratings where target is me
+            // Simplified: Listen to chats where I have unread > 0
+            const q = query(collection(db, "chats"), where("participants", "array-contains", state.user.uid));
+            
+            onSnapshot(q, (snap) => {
+                let hasUnread = false;
+                const list = document.getElementById('notif-list');
+                list.innerHTML = '';
+                
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    if(d.unreadCount && d.unreadCount[state.user.uid] > 0) {
+                        hasUnread = true;
+                        list.innerHTML += `<div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-xs border border-blue-100 dark:border-blue-800 mb-1">رسالة جديدة: ${d.lastMessage}</div>`;
+                    }
+                });
+                
+                if(hasUnread) document.getElementById('notif-badge').classList.remove('hidden');
+                else document.getElementById('notif-badge').classList.add('hidden');
+            });
+        }
+
         window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
         
         document.getElementById('logo-trigger').addEventListener('click',()=>{
@@ -2005,7 +1998,7 @@
                         document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل';
                         document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل';
                         document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || '');
-                        document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt);
+                        document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt); // Req 10
 
                         if(data.image) {
                             document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
@@ -2405,132 +2398,7 @@
             document.getElementById('ord-total').innerText = total.toLocaleString() + ' ج.م';
         }
 
-        // Req 7: Chat System (Chat List, Private Chat, Notifications)
-        window.toggleChatList = () => {
-            if(toggleModal('chat-list-modal')) {
-                loadChatList();
-            }
-        }
-
-        window.loadChatList = () => {
-            if(!state.user) return;
-            const container = document.getElementById('chat-list-container');
-            container.innerHTML = '<div class="spinner border-primary mx-auto"></div>';
-
-            // Query chats where user is participant
-            // Firestore array-contains is needed. Assuming 'participants' array in chat doc
-            const q = query(collection(db, "chats"), where("participants", "array-contains", state.user.uid), orderBy("lastMessageTime", "desc"));
-            
-            onSnapshot(q, (snap) => {
-                container.innerHTML = '';
-                if(snap.empty) {
-                    container.innerHTML = '<p class="text-center text-slate-400 text-xs mt-4">لا توجد محادثات</p>';
-                    return;
-                }
-
-                snap.forEach(doc => {
-                    const chat = doc.data();
-                    const otherUserId = chat.participants.find(id => id !== state.user.uid);
-                    const otherUserName = chat.participantNames ? chat.participantNames[otherUserId] : 'مستخدم';
-                    const otherUserImg = chat.participantImages ? chat.participantImages[otherUserId] : null;
-                    const isUnread = chat.unreadCount && chat.unreadCount[state.user.uid] > 0;
-                    const time = chat.lastMessageTime ? formatDate(chat.lastMessageTime) : '';
-
-                    // Online status simulation (random for demo, real needs RTDB)
-                    const isOnline = Math.random() > 0.7; 
-
-                    container.innerHTML += `
-                        <div onclick="openPrivateChat('${doc.id}', '${otherUserId}', '${otherUserName}', '${otherUserImg}')" class="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition hover:bg-slate-50 dark:hover:bg-slate-800 ${isUnread ? 'border border-blue-500 shadow-lg shadow-blue-500/20' : 'border border-slate-100 dark:border-slate-700'}">
-                            <div class="relative">
-                                <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
-                                    ${otherUserImg ? `<img src="${otherUserImg}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-5 h-5 text-slate-400"></i>`}
-                                </div>
-                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-darkbg ${isOnline ? 'bg-green-500' : 'bg-gray-400'}"></span>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between items-center mb-0.5">
-                                    <h4 class="font-bold text-sm text-navy dark:text-white truncate">${otherUserName}</h4>
-                                    <span class="text-[9px] text-slate-400">${time}</span>
-                                </div>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 truncate ${isUnread ? 'font-bold text-navy dark:text-white' : ''}">${chat.lastMessage}</p>
-                                ${isUnread ? '<span class="text-[9px] text-blue-500 font-bold">رسالة غير مقروءة</span>' : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-                lucide.createIcons();
-            });
-        }
-
-        window.openPrivateChat = async (chatId, otherUserId, otherUserName, otherUserImg) => {
-            state.activePrivateChatId = chatId;
-            state.activeChatOtherUser = otherUserId; // For blocking/rating
-
-            // Update UI
-            document.getElementById('chat-user-name').innerText = otherUserName;
-            document.getElementById('chat-user-img').innerHTML = otherUserImg ? `<img src="${otherUserImg}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`;
-            document.getElementById('chat-header-info').onclick = () => toggleProfile(otherUserId);
-            
-            // Mark as read
-            updateDoc(doc(db, "chats", chatId), {
-                [`unreadCount.${state.user.uid}`]: 0
-            });
-
-            toggleModal('private-chat-modal');
-            
-            // Listen for messages
-            const q = query(collection(db, `chats/${chatId}/messages`), orderBy("timestamp", "asc"));
-            onSnapshot(q, (snap) => {
-                const box = document.getElementById('private-chat-box');
-                box.innerHTML = '';
-                snap.forEach(d => {
-                    const msg = d.data();
-                    const isMe = msg.senderId === state.user.uid;
-                    // Check if image
-                    let content = msg.text;
-                    if(msg.type === 'image') {
-                        content = `<img src="${msg.text}" class="rounded-lg max-w-[150px] cursor-pointer" onclick="openLightbox(this.src)">`;
-                    } else if (msg.type === 'order') {
-                        content = `<div class="bg-white/10 p-2 rounded border border-white/20 text-[10px] whitespace-pre-wrap">${msg.text}</div>`;
-                    }
-
-                    box.innerHTML += `
-                        <div class="flex ${isMe ? 'justify-start' : 'justify-end'} mb-2">
-                            <div class="${isMe ? 'bg-primary text-white' : 'bg-white dark:bg-slate-700 dark:text-white text-slate-800'} px-3 py-2 rounded-xl ${isMe ? 'rounded-tr-none' : 'rounded-tl-none'} shadow-sm text-xs max-w-[85%]">
-                                ${content}
-                                <span class="text-[8px] opacity-60 block text-right mt-1">${formatDate(msg.timestamp)}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-                box.scrollTop = box.scrollHeight;
-            });
-        }
-
-        window.sendPrivateMessage = async (type = 'text', content = null) => {
-            const input = document.getElementById('private-chat-input');
-            const text = content || input.value.trim();
-            if(!text) return;
-            
-            if(!content) input.value = '';
-
-            await addDoc(collection(db, `chats/${state.activePrivateChatId}/messages`), {
-                senderId: state.user.uid,
-                text: text,
-                type: type,
-                timestamp: serverTimestamp()
-            });
-
-            // Update chat metadata
-            await updateDoc(doc(db, "chats", state.activePrivateChatId), {
-                lastMessage: type === 'image' ? '📷 صورة' : (type === 'order' ? '🛍️ طلب جديد' : text),
-                lastMessageTime: serverTimestamp(),
-                [`unreadCount.${state.activeChatOtherUser}`]: increment(1) // Requires import increment
-            });
-        }
-
-        // Req 9: Confirm Order via Chat
-        window.confirmOrder = async (method) => {
+        window.confirmOrder = (method) => {
             const phone = document.getElementById('ord-phone').value;
             const gov = document.getElementById('ord-gov').value;
             const city = document.getElementById('ord-city').value;
@@ -2538,10 +2406,15 @@
             
             if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e");
             
-            // Construct Message
-            let msg = `*طلب جديد* 🛍️\n`;
+            // Fallback Phone
+            const sellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
+            if(method === 'whatsapp' && !sellerPhone) return showToast("لا يوجد رقم للتواصل مع البائع", "e");
+
+            let msg = `*طلب جديد من تطبيق السوق وياك* 🛍️\n\n`;
             msg += `*المنتج:* ${state.currentItem.title}\n`;
-            msg += `*السعر:* ${state.currentItem.price}\n`;
+            msg += `*رابط المنتج:* ${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}\n`; 
+            msg += `*السعر للقطعة:* ${state.currentItem.price}\n\n`;
+            msg += `*التفاصيل:* \n`;
             
             let totalQty = 0;
             state.orderItems.forEach((item, idx) => {
@@ -2554,136 +2427,39 @@
             if(totalQty === 0) return showToast("يرجى إضافة قطعة واحدة على الأقل", "e");
 
             msg += `\n*الإجمالي:* ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`;
-            msg += `*العميل:* ${state.userData ? state.userData.name : 'ضيف'}\n`;
-            msg += `*الهاتف:* ${phone}\n`;
-            msg += `*العنوان:* ${gov} - ${city} - ${address}\n`;
-
+            msg += `----------------\n`;
+            msg += `*بيانات العميل:*\n`;
+            msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
+            msg += `الهاتف: ${phone}\n`;
+            msg += `العنوان: ${gov} - ${city} - ${address}\n`; 
+            
             if(method === 'whatsapp') {
-                const sellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
-                if(!sellerPhone) return showToast("لا يوجد رقم للتواصل", "e");
                 const url = `https://wa.me/20${sellerPhone}?text=${encodeURIComponent(msg)}`;
                 window.open(url, '_blank');
-            } else {
-                // Chat Method
-                if(!state.user) return showToast("يجب تسجيل الدخول للطلب عبر المحادثة", "e");
+            } else if(method === 'chat') {
+                // Req 9: Send via Internal Chat
+                const sellerId = state.currentItem.authorId;
+                const productImg = Array.isArray(state.currentItem.images) ? state.currentItem.images[0] : state.currentItem.image;
                 
-                // Create or Get Chat
-                const authorId = state.currentItem.authorId;
-                const chatId = [state.user.uid, authorId].sort().join('_'); // Simple ID generation
+                // Open chat with seller
+                state.activeChatUser = sellerId;
+                const chatId = [state.user.uid, sellerId].sort().join('_');
+                state.activePrivateChatId = chatId;
                 
-                // Check if chat exists, if not create
-                const chatRef = doc(db, "chats", chatId);
-                const chatSnap = await getDoc(chatRef);
-                
-                if(!chatSnap.exists()) {
-                    await setDoc(chatRef, {
-                        participants: [state.user.uid, authorId],
-                        participantNames: {
-                            [state.user.uid]: state.userData.name,
-                            [authorId]: state.currentAuthor ? state.currentAuthor.name : 'ناشر'
-                        },
-                        participantImages: {
-                            [state.user.uid]: state.userData.image,
-                            [authorId]: state.currentAuthor ? state.currentAuthor.image : null
-                        },
-                        lastMessage: 'بداية المحادثة',
-                        lastMessageTime: serverTimestamp(),
-                        unreadCount: { [authorId]: 0, [state.user.uid]: 0 }
-                    });
-                }
-
-                // Send Image first if available
-                const img = Array.isArray(state.currentItem.images) ? state.currentItem.images[0] : state.currentItem.image;
-                if(img) {
-                    await addDoc(collection(db, `chats/${chatId}/messages`), {
-                        senderId: state.user.uid,
-                        text: img,
-                        type: 'image',
-                        timestamp: serverTimestamp()
-                    });
-                }
-
-                // Send Order Text
-                await addDoc(collection(db, `chats/${chatId}/messages`), {
-                    senderId: state.user.uid,
-                    text: msg,
-                    type: 'order',
-                    timestamp: serverTimestamp()
+                // Send message with image
+                sendPrivateMessage(msg, productImg).then(() => {
+                    toggleOrderModal(); // Close order
+                    toggleDetailsModal(); // Close details
+                    openPrivateChat(sellerId, state.currentAuthor || {name: 'البائع'}); // Open chat
+                    showToast("تم إرسال الطلب بنجاح");
                 });
-
-                // Update Chat
-                await updateDoc(chatRef, {
-                    lastMessage: '🛍️ طلب جديد',
-                    lastMessageTime: serverTimestamp(),
-                    // Using a workaround for increment since I didn't import it at top level for brevity in this snippet
-                    // In real code: import { increment } from ...
-                });
-
-                showToast("تم إرسال الطلب بنجاح ✅");
-                toggleOrderModal();
-                toggleChatList(); // Open chat list to show the new chat
+                return;
             }
+            toggleOrderModal();
         }
-
-        // Req 8: Notifications
-        window.toggleNotifications = () => {
-            const dropdown = document.getElementById('notif-dropdown');
-            dropdown.classList.toggle('hidden');
-            // Mark as read logic here
-            document.getElementById('notif-badge').classList.add('hidden');
-        }
-
-        function listenNotifications() {
-            if(!state.user) return;
-            const q = query(collection(db, "notifications"), where("recipientId", "==", state.user.uid), orderBy("timestamp", "desc"), limit(10));
-            onSnapshot(q, (snap) => {
-                const list = document.getElementById('notif-list');
-                list.innerHTML = '';
-                let hasUnread = false;
-                
-                if(snap.empty) {
-                    list.innerHTML = '<p class="text-[10px] text-center text-slate-400 p-2">لا توجد إشعارات</p>';
-                    return;
-                }
-
-                snap.forEach(d => {
-                    const n = d.data();
-                    if(!n.read) hasUnread = true;
-                    list.innerHTML += `
-                        <div class="p-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded cursor-pointer border-b border-slate-100 dark:border-slate-600 last:border-0">
-                            <p class="text-[10px] font-bold text-navy dark:text-white">${n.title}</p>
-                            <p class="text-[9px] text-slate-500 dark:text-slate-400">${n.body}</p>
-                            <span class="text-[8px] text-slate-300 block text-left">${formatDate(n.timestamp)}</span>
-                        </div>
-                    `;
-                });
-
-                if(hasUnread) document.getElementById('notif-badge').classList.remove('hidden');
-            });
-        }
-
-        // Chat Options
-        window.showChatOptions = () => {
-            document.getElementById('chat-options-dropdown').classList.toggle('hidden');
-        }
-        window.closePrivateChat = () => {
-            toggleModal('private-chat-modal');
-            state.activePrivateChatId = null;
-        }
-        window.deleteChat = async () => {
-            if(confirm("حذف المحادثة؟")) {
-                // In real app, use a cloud function or just hide it for this user
-                showToast("تم الحذف");
-                closePrivateChat();
-            }
-        }
-        window.blockUser = () => {
-            showToast("تم حظر المستخدم");
-            closePrivateChat();
-        }
-        window.rateUserFromChat = () => {
-            closePrivateChat();
-            toggleProfile(state.activeChatOtherUser);
+        
+        function toggleDetailsModal() {
+             document.getElementById('details-modal').classList.toggle('hidden');
         }
 
         lucide.createIcons();
