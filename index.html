@@ -54,7 +54,7 @@
         .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
         .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border: 1px solid #0f172a; }
 
-        /* Static Modal (No Animation) */
+        /* Removed Animations except Pulse */
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         
@@ -66,12 +66,11 @@
             .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
-        /* Toast (Static Fade) */
         .toast { 
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;
             width: max-content; max-width: 90vw; 
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2);
-            transition: opacity 0.3s;
+            transition: opacity 0.3s ease;
         }
         .toast.hiding { opacity: 0; }
 
@@ -109,9 +108,9 @@
         .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Splash Screen (Static) */
-        #splash-screen { position: fixed; inset: 0; z-index: 300; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #splash-screen.hidden { display: none; }
+        /* Splash Screen - No Animation */
+        #splash-screen { position: fixed; inset: 0; z-index: 300; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease-out; }
+        #splash-screen.fade-out { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
@@ -226,6 +225,21 @@
     <div id="app-content" class="hidden">
         <div id="toast-container" class="fixed top-4 left-0 right-0 z-[120] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
+        <!-- PWA Install Banner (Top) -->
+        <div id="install-banner" class="hidden fixed top-0 left-0 right-0 bg-navy dark:bg-white dark:text-navy text-white p-3 shadow-2xl z-[110] flex items-center justify-between install-banner border-b dark:border-slate-200">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-5 h-5"></i></div>
+                <div>
+                    <h4 class="font-bold text-xs">تثبيت التطبيق</h4>
+                    <p class="text-[10px] opacity-80">تجربة أسرع وأسهل</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="installPWA()" class="bg-primary text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow-lg">تثبيت</button>
+                <button onclick="closeInstall()" class="text-white dark:text-navy p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+        </div>
+
         <!-- Header -->
         <header class="fixed top-0 w-full z-[60] bg-white/95 dark:bg-navy/95 border-b border-slate-200 dark:border-slate-700 flex flex-col justify-center px-4 shadow-sm backdrop-blur-md h-12">
             <div class="flex items-center justify-between w-full">
@@ -304,21 +318,6 @@
             <button id="nav-add-btn" onclick="toggleAddModal()" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
             <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
         </nav>
-
-        <!-- PWA Install Banner (Top) -->
-        <div id="install-banner" class="hidden fixed top-0 left-0 right-0 bg-navy dark:bg-white dark:text-navy text-white p-3 shadow-2xl z-[110] flex items-center justify-between install-banner border-b dark:border-slate-200">
-            <div class="flex items-center gap-3">
-                <div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-5 h-5"></i></div>
-                <div>
-                    <h4 class="font-bold text-xs">تثبيت التطبيق</h4>
-                    <p class="text-[10px] opacity-80">تجربة أسرع وأسهل</p>
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="installPWA()" class="bg-primary text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow-lg">تثبيت</button>
-                <button onclick="closeInstall()" class="text-white dark:text-navy p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-        </div>
     </div>
 
     <!-- Profile Modal -->
@@ -348,7 +347,7 @@
                                 <span>★</span> <span id="prof-rating-val">0.0</span>
                             </div>
                             <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
-                            <p id="prof-joined" class="text-[10px] text-slate-400 mt-1"></p>
+                            <p id="prof-joined" class="text-[10px] text-slate-400 mt-1 font-bold"></p>
                         </div>
                     </div>
 
@@ -369,6 +368,7 @@
                             </div>
                         </div>
                         
+                        <!-- Rate User Section -->
                         <div id="prof-rate-user-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
                             <label class="text-[10px] font-bold text-slate-400 mb-2 block">قيم هذا المستخدم</label>
                             <div class="flex flex-col gap-2">
@@ -449,7 +449,7 @@
         </div>
     </div>
 
-    <!-- Order Modal -->
+    <!-- Order Modal (Req 3) -->
     <div id="order-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal border border-slate-200 dark:border-slate-700">
             <div class="bg-primary p-3 text-white flex justify-between items-center shrink-0">
@@ -465,7 +465,9 @@
                     </div>
                 </div>
 
-                <div id="order-items-container" class="space-y-3"></div>
+                <div id="order-items-container" class="space-y-3">
+                    <!-- Items will be added here -->
+                </div>
 
                 <button onclick="addOrderItem()" class="w-full py-2 mt-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 text-xs font-bold hover:border-primary hover:text-primary transition flex items-center justify-center gap-1">
                     <i data-lucide="plus" class="w-3 h-3"></i> إضافة قطعة أخرى
@@ -497,66 +499,8 @@
                     <span class="text-xs font-bold text-slate-500">الإجمالي:</span>
                     <span id="ord-total" class="text-lg font-black text-primary">0 ج.م</span>
                 </div>
-                <button onclick="confirmOrder()" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg">تأكيد الطلب عبر واتساب</button>
+                <button onclick="confirmOrder()" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg animate-pulse">تأكيد الطلب عبر واتساب</button>
             </div>
-        </div>
-    </div>
-
-    <!-- Add Modal -->
-    <div id="add-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal border border-slate-200 dark:border-slate-700">
-            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0 h-12">
-                <h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة منتج</h3>
-                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-
-            <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-white dark:bg-darkbg custom-scroll">
-                <div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-2"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
-                
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input h-9 text-xs" placeholder="اسم المنتج..."></div>
-                    <div class="form-group"><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input h-9 text-xs" placeholder="0"></div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="form-group"><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input h-9 text-xs bg-gray-50"></select></div>
-                    <div id="field-condition" class="form-group hidden"><label class="form-label">الحالة</label><select id="in-condition" class="form-input h-9 text-xs"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
-                </div>
-                
-                <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group space-y-2 hidden">
-                    <div id="field-size-chips" class="hidden">
-                        <label class="form-label text-primary">المقاسات المتاحة</label>
-                        <div id="size-chips-container" class="flex flex-wrap gap-1.5"></div>
-                    </div>
-                    <div id="field-color-chips" class="hidden">
-                        <label class="form-label text-primary">الألوان المتاحة</label>
-                        <div id="color-chips-container" class="flex flex-wrap gap-1.5"></div>
-                    </div>
-                </div>
-
-                <div class="form-group bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
-                    <label class="form-label mb-1">أماكن الشحن</label>
-                    <div class="flex gap-2 mb-2">
-                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="all" onchange="toggleShipGov()" checked class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">كل المحافظات</div></label>
-                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="specific" onchange="toggleShipGov()" class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">محافظات محددة</div></label>
-                    </div>
-                    <div id="ship-gov-container" class="hidden">
-                        <div class="text-[10px] mb-1 text-slate-400">اختر المحافظات المتاحة:</div>
-                        <div id="ship-gov-list" class="max-h-24 overflow-y-auto custom-scroll grid grid-cols-2 gap-1 p-1 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-600 rounded-lg">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group"><label class="form-label">مواصفات إضافية:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="هاي كوبي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label></div></div>
-                
-                <div class="form-group"><label class="form-label">تمييز:</label><div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg"><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div>
-                
-                <div class="grid grid-cols-3 gap-2">
-                    <div class="form-group col-span-1"><label class="form-label">رقم الهاتف</label><input id="in-phone" type="tel" class="form-input h-9 text-xs" placeholder="01xxxxxxxxx"></div>
-                    <div class="form-group col-span-2"><label class="form-label">الوصف</label><textarea id="in-desc" rows="1" class="form-input text-xs" placeholder="تفاصيل..."></textarea></div>
-                </div>
-            </div>
-            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-3"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر الآن</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
         </div>
     </div>
 
@@ -569,16 +513,20 @@
                     <button onclick="copyDetails()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="copy" class="w-5 h-5"></i></button>
                     <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
                 </div>
+                <!-- Req 4: Date on Image -->
+                <div class="absolute top-3 right-14 z-20 bg-black/60 text-white px-2 py-1 rounded-lg text-[10px] font-bold backdrop-blur-sm">
+                    <i data-lucide="clock" class="w-3 h-3 inline-block ml-1"></i> <span id="d-date-img"></span>
+                </div>
+
                 <div id="details-slider-container" class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800">
                     <img id="details-img" src="" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(this.src)">
                 </div>
                 <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
-                <!-- Date on Image -->
-                <div id="d-date" class="absolute top-3 left-1/2 -translate-x-1/2 bg-white/90 px-2 py-0.5 rounded-full text-[10px] font-bold text-black z-10 shadow-sm"></div>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2">
+                <!-- Req 5: Order Button -->
+                <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse">
                     <i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج
                 </button>
 
@@ -715,16 +663,6 @@
             }
         });
 
-        // iOS Detection for PWA
-        const isIos = () => {
-            const userAgent = window.navigator.userAgent.toLowerCase();
-            return /iphone|ipad|ipod/.test(userAgent);
-        }
-        if (isIos() && !window.navigator.standalone && !localStorage.getItem('pwa_installed')) {
-             // Show banner for iOS too
-             document.getElementById('install-banner').classList.remove('hidden');
-        }
-
         window.installPWA = async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -734,8 +672,6 @@
                 }
                 deferredPrompt = null;
                 document.getElementById('install-banner').classList.add('hidden');
-            } else if (isIos()) {
-                alert("لتثبيت التطبيق على الآيفون: اضغط على زر المشاركة (Share) ثم اختر 'إضافة إلى الشاشة الرئيسية' (Add to Home Screen)");
             }
         }
 
@@ -743,15 +679,16 @@
             document.getElementById('install-banner').classList.add('hidden');
         }
 
+        // Req 5: Expanded Data
         const EGYPT_DATA = {
-            "القاهرة": ["مدينة نصر", "مصر الجديدة", "المعادي", "التجمع الخامس", "شبرا", "عين شمس", "المرج", "حلوان", "وسط البلد", "الزمالك", "المنيل", "العباسية", "الزيتون", "حدائق القبة", "السيدة زينب", "المقطم", "الرحاب", "مدينتي", "الشروق", "بدر", "15 مايو"],
+            "القاهرة": ["مدينة نصر", "مصر الجديدة", "المعادي", "التجمع الخامس", "شبرا", "عين شمس", "المرج", "حلوان", "وسط البلد", "الزمالك", "المنيل", "العباسية", "الزيتون", "حدائق القبة", "السيدة زينب", "المقطم", "الرحاب", "مدينتي", "الشروق", "بدر", "العاصمة الإدارية"],
             "الجيزة": ["الهرم", "فيصل", "6 أكتوبر", "الشيخ زايد", "الدقي", "المهندسين", "العجوزة", "إمبابة", "الوراق", "بولاق الدكرور", "العمرانية", "المنيب", "البدرشين", "الحوامدية", "الصف", "أطفيح", "العياط", "أوسيم", "كرداسة"],
             "الإسكندرية": ["سموحة", "ميامي", "المنتزه", "سيدي بشر", "العصافرة", "المندرة", "فيكتوريا", "جليم", "ستانلي", "رشدي", "كفر عبده", "محرم بك", "العجمي", "البيطاش", "الهانوفيل", "برج العرب", "العامرية", "اللبان", "المنشية"],
-            "الدقهلية": ["المنصورة", "طلخا", "ميت غمر", "دكرنس", "شربين", "السنبلاوين", "أجا", "بلقاس", "منية النصر", "المطرية", "الجمالية", "بني عبيد", "تمي الأمديد", "ميت سلسيل", "نبروه"],
+            "الدقهلية": ["المنصورة", "طلخا", "ميت غمر", "دكرنس", "شربين", "السنبلاوين", "أجا", "بلقاس", "منية النصر", "المطرية", "الجمالية", "بني عبيد", "نبروه", "تمى الأمديد", "ميت سلسيل"],
             "الشرقية": ["الزقازيق", "العشر من رمضان", "منيا القمح", "بلبيس", "فاقوس", "أبو حماد", "الحسينية", "كفر صقر", "أبو كبير", "ديرب نجم", "مشتول السوق", "ههيا", "الإبراهيمية", "القنايات", "أولاد صقر"],
             "المنوفية": ["شبين الكوم", "مدينة السادات", "منوف", "أشمون", "قويسنا", "بركة السبع", "تلا", "الشهداء", "الباجور", "سرس الليان"],
             "القليوبية": ["بنها", "شبرا الخيمة", "قليوب", "القناطر الخيرية", "الخانكة", "كفر شكر", "طوخ", "العبور", "شبين القناطر", "الخصوص", "قها"],
-            "البحيرة": ["دمنهور", "كفر الدوار", "إيتاي البارود", "أبو حمص", "كوم حمادة", "الدلنجات", "حوش عيسى", "رشيد", "إدكو", "المحمودية", "الرحمانية", "النوبارية", "وادي النطرون", "بدر", "شبراخيت"],
+            "البحيرة": ["دمنهور", "كفر الدوار", "إيتاي البارود", "أبو حمص", "كوم حمادة", "الدلنجات", "حوش عيسى", "رشيد", "إدكو", "المحمودية", "الرحمانية", "النوبارية", "وادي النطرون", "بدر"],
             "الغربية": ["طنطا", "المحلة الكبرى", "كفر الزيات", "زفتى", "السنطة", "قطور", "بسيون", "سمنود"],
             "بورسعيد": ["حي الشرق", "حي العرب", "حي المناخ", "حي الضواحي", "حي الجنوب", "حي الزهور", "بورفؤاد"],
             "دمياط": ["دمياط", "رأس البر", "دمياط الجديدة", "فارسكور", "الزرقا", "كفر سعد", "الروضة", "السرو", "عزبة البرج", "ميت أبو غالب", "كفر البطيخ"],
@@ -846,7 +783,7 @@
             profileReviewsLimit: 3,
             viewingProfileId: null,
             orderItems: [],
-            currentAuthorPhone: null // Req 2
+            currentAuthor: null // Req 2
         };
 
         function initGovs() {
@@ -926,7 +863,7 @@
             
             if(splash) {
                 splash.classList.add('fade-out');
-                setTimeout(() => splash.remove(), 500);
+                setTimeout(() => splash.remove(), 300);
             }
 
             loginView.classList.add('hidden');
@@ -967,7 +904,7 @@
                 const splash = document.getElementById('splash-screen');
                 if(splash) {
                     splash.classList.add('fade-out');
-                    setTimeout(() => splash.remove(), 500);
+                    setTimeout(() => splash.remove(), 300);
                 }
                 const loginView = document.getElementById('login-view');
                 loginView.classList.remove('hidden');
@@ -1389,12 +1326,12 @@
             lucide.createIcons(); 
         }
 
-        // Req 4: Format Date Helper
+        // Req 4 & 7: Format Date Helper (Black Text)
         function formatDate(timestamp) {
             if (!timestamp) return '';
             const date = timestamp.toDate();
             const now = new Date();
-            const diff = Math.floor((now - date) / 1000); // seconds
+            const diff = Math.floor((now - date) / 1000); 
 
             if (diff < 60) return 'منذ لحظات';
             if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
@@ -1419,7 +1356,7 @@
             const controls = showControls ? `<div class="absolute top-1 right-1 z-20 flex gap-1"><button onclick="del(event,'${item.id}')" class="bg-white/80 text-red-500 p-1 rounded shadow"><i data-lucide="trash-2" class="w-3 h-3"></i></button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}')" class="bg-white/80 text-blue-600 p-1 rounded shadow"><i data-lucide="edit-3" class="w-3 h-3"></i></button></div>` : '';
 
             // Req 6: Smaller Card Layout
-            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-3 h-3"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${item.category}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[8px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span><span class="text-[8px] text-slate-300 ml-auto">${formatDate(item.createdAt)}</span></div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
+            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-3 h-3"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${item.category}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[8px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span><span class="text-[8px] text-black dark:text-slate-200 ml-auto font-bold">${formatDate(item.createdAt)}</span></div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
         }
 
         function goToDetailsSlide(index, behavior = 'auto') {
@@ -1475,7 +1412,7 @@
             document.getElementById('d-cat').innerText = item.category; 
             document.getElementById('d-desc').innerText = item.desc;
             document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
-            document.getElementById('d-date').innerText = formatDate(item.createdAt); // Req 6
+            document.getElementById('d-date-img').innerText = formatDate(item.createdAt); // Req 4
 
             const pubBar = document.getElementById('d-pub-bar');
             pubBar.onclick = () => toggleProfile(item.authorId);
@@ -1488,9 +1425,8 @@
                 const uSnap = await getDoc(doc(db, "users", item.authorId));
                 if(uSnap.exists()) {
                     const uData = uSnap.data();
+                    state.currentAuthor = uData; // Req 2: Store author data
                     pubName.innerText = uData.name || "مستخدم";
-                    // Req 2: Store author phone for fallback
-                    state.currentAuthorPhone = uData.phone;
                     if(uData.image) {
                         pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`;
                     } else {
@@ -1498,9 +1434,11 @@
                     }
                 } else {
                     pubName.innerText = "مستخدم غير معروف";
+                    state.currentAuthor = null;
                 }
             } catch(e) {
                 pubName.innerText = "ناشر";
+                state.currentAuthor = null;
             }
 
             const amCont = document.getElementById('d-features'); 
@@ -2180,7 +2118,7 @@
                                 <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
                                 <span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span>
                                 <span class="text-yellow-400 text-xs tracking-tighter">${stars}</span>
-                                <span class="text-[8px] text-slate-300 mr-auto">${formatDate(r.timestamp)}</span>
+                                <span class="text-[8px] text-black dark:text-slate-200 mr-auto font-bold">${formatDate(r.timestamp)}</span>
                             </div>
                             <p class="text-[10px] text-slate-600 dark:text-slate-300 pr-8">${r.text || ''}</p>
                         </div>
@@ -2251,7 +2189,7 @@
                                     <span class="text-yellow-400">${stars}</span>
                                 </div>
                                 <p class="text-slate-600 dark:text-slate-300 pr-8">${r.text}</p>
-                                <span class="text-[8px] text-slate-300 block mt-1">${formatDate(r.timestamp)}</span>
+                                <span class="text-[8px] text-black dark:text-slate-200 block mt-1 font-bold">${formatDate(r.timestamp)}</span>
                             </div>
                         `;
                     }
@@ -2359,10 +2297,6 @@
             
             if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e");
             
-            // Req 2: Fallback Phone
-            const targetPhone = state.currentItem.phone || state.currentAuthorPhone;
-            if(!targetPhone) return showToast("رقم المسوق غير متوفر", "e");
-
             let msg = `*طلب جديد من تطبيق السوق وياك* 🛍️\n\n`;
             msg += `*المنتج:* ${state.currentItem.title}\n`;
             msg += `*السعر للقطعة:* ${state.currentItem.price}\n\n`;
@@ -2385,6 +2319,17 @@
             msg += `الهاتف: ${phone}\n`;
             msg += `العنوان: ${gov} - ${city} - ${address}\n`;
             
+            // Req 2: Use Author Phone if Listing Phone Missing
+            let targetPhone = state.currentItem.phone;
+            if (!targetPhone && state.currentAuthor) {
+                targetPhone = state.currentAuthor.phone;
+            }
+            
+            if(!targetPhone) {
+                showToast("عفواً، لا يوجد رقم هاتف للتواصل مع البائع", "e");
+                return;
+            }
+
             const url = `https://wa.me/20${targetPhone}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
             toggleOrderModal();
