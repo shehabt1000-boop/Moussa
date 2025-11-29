@@ -356,7 +356,7 @@
                                 <span>★</span> <span id="prof-rating-val">0.0</span>
                             </div>
                             <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
-                            <p id="prof-joined" class="text-[10px] text-slate-400 mt-1 text-black dark:text-white"></p>
+                            <p id="prof-joined" class="text-[10px] text-slate-400 mt-1"></p>
                         </div>
                     </div>
 
@@ -489,7 +489,7 @@
                         </div>
                         <div>
                             <label class="form-label">المركز/المدينة</label>
-                            <select id="ord-city" class="form-input text-xs"><option value="">اختر المحافظة</option></select>
+                            <select id="ord-city" class="form-input text-xs"></select>
                         </div>
                     </div>
                     <div>
@@ -569,6 +569,120 @@
             <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-3"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر الآن</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
         </div>
     </div>
+
+    <!-- Details Modal -->
+    <div id="details-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+            <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
+                <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="absolute top-3 right-3 flex gap-2 z-20">
+                    <button onclick="copyDetails()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="copy" class="w-5 h-5"></i></button>
+                    <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
+                </div>
+                <div id="details-slider-container" class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800">
+                    <img id="details-img" src="" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(this.src)">
+                </div>
+                <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
+                <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
+                <!-- Req 5: Order Button -->
+                <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج
+                </button>
+
+                <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
+                     <div class="flex items-center gap-2">
+                         <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
+                         <div class="flex flex-col justify-center">
+                             <h4 id="d-pub-name" class="font-bold text-[10px] text-navy dark:text-white leading-tight">...</h4>
+                             <span class="text-[8px] text-slate-400">الناشر (اضغط للعرض)</span>
+                         </div>
+                     </div>
+                     <div id="d-shipping-info" class="flex flex-wrap items-center gap-1 text-[9px] font-bold text-slate-500 bg-white dark:bg-slate-700 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 max-w-[55%] justify-end leading-tight"></div>
+                </div>
+
+                <div class="flex justify-between items-start mb-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><h2 id="d-title" class="text-base font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-lg whitespace-nowrap select-text"></span></div>
+                <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700">
+                    <span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> 
+                    <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span>
+                    <span id="d-date" class="text-[10px] text-slate-400 mr-auto"></span>
+                </div>
+                
+                <div id="d-variants-container" class="space-y-2 mb-4">
+                    <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg">
+                        <span class="text-[10px] font-bold text-slate-400 shrink-0">المقاسات:</span>
+                        <div id="d-sizes-list" class="flex flex-wrap gap-1"></div>
+                    </div>
+                    <div id="d-colors-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg">
+                        <span class="text-[10px] font-bold text-slate-400 shrink-0">الألوان:</span>
+                        <div id="d-colors-list" class="flex flex-wrap gap-1"></div>
+                    </div>
+                </div>
+
+                <div id="d-features" class="flex flex-wrap gap-2 mb-4"></div>
+
+                <div class="space-y-1 mb-6"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium select-text"></p></div>
+
+                <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-white mb-3">التقييمات</h3>
+                    
+                    <div id="product-reviews-list" class="space-y-3 mb-3"></div>
+                    <div class="flex gap-2 mt-2">
+                        <button id="load-more-reviews" onclick="loadProductReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button>
+                        <button id="load-less-reviews" onclick="loadProductReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button>
+                    </div>
+
+                    <div id="add-review-form" class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold">أضف تقييمك</span>
+                            <div class="star-rating text-lg">
+                                <input type="radio" id="star5" name="rating" value="5" onclick="setRating(5)"><label for="star5">★</label>
+                                <input type="radio" id="star4" name="rating" value="4" onclick="setRating(4)"><label for="star4">★</label>
+                                <input type="radio" id="star3" name="rating" value="3" onclick="setRating(3)"><label for="star3">★</label>
+                                <input type="radio" id="star2" name="rating" value="2" onclick="setRating(2)"><label for="star2">★</label>
+                                <input type="radio" id="star1" name="rating" value="1" onclick="setRating(1)"><label for="star1">★</label>
+                            </div>
+                        </div>
+                        <textarea id="review-text" class="form-input text-xs w-full mb-2" rows="2" placeholder="اكتب رأيك هنا..."></textarea>
+                        <button onclick="submitProductReview()" class="bg-navy dark:bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">نشر التقييم</button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-2 shrink-0 pb-8 md:pb-3"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="phone" class="w-4 h-4"></i> اتصال</a></div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chat-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div>
+                    <div><h4 class="font-bold text-xs">الدعم الفني</h4></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="https://wa.me/201206244875" target="_blank" class="bg-[#25D366] px-2 py-1 rounded-full flex items-center gap-1 text-[10px] font-bold hover:opacity-90 transition">
+                        <i data-lucide="message-circle" class="w-3 h-3"></i> 01206244875
+                    </a>
+                    <button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+            <div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
+            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe"><input id="chat-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب..."><button onclick="sendMsg()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button></div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center select-none">
+        <button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button>
+        <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
+        <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
+        <div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] overflow-y-auto p-2" id="admin-users-list"></div><div class="w-2/3 flex flex-col bg-navy relative"><div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38]"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div><div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38]"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -730,7 +844,7 @@
             profileReviewsLimit: 3,
             viewingProfileId: null,
             orderItems: [],
-            currentAuthor: null // To store author data for fallback phone
+            currentAuthor: null // Req 2
         };
 
         function initGovs() {
@@ -808,30 +922,19 @@
             const appContent = document.getElementById('app-content');
             const splash = document.getElementById('splash-screen');
             
-            if(splash) {
-                splash.classList.add('fade-out');
-                setTimeout(() => splash.remove(), 500);
-            }
+            // Req 1: Wait for icons then hide splash
+            setTimeout(() => {
+                if(splash) {
+                    splash.classList.add('fade-out');
+                    setTimeout(() => splash.remove(), 500);
+                }
+            }, 1000); // Small delay to ensure icons render
 
             loginView.classList.add('hidden');
             loginView.style.setProperty('display', 'none', 'important');
             appContent.classList.remove('hidden');
             document.getElementById('loader').classList.add('hidden'); 
         }
-
-        // Fix 5: Failsafe for splash screen
-        setTimeout(() => {
-            const splash = document.getElementById('splash-screen');
-            if(splash && !splash.classList.contains('fade-out')) {
-                // If still showing after 3s, force check auth or show login
-                if(!state.user) {
-                    splash.classList.add('fade-out');
-                    setTimeout(() => splash.remove(), 500);
-                    document.getElementById('login-view').classList.remove('hidden');
-                    document.getElementById('login-view').style.removeProperty('display');
-                }
-            }
-        }, 3000);
 
         onAuthStateChanged(auth, async (u) => { 
             if(u) { 
@@ -1006,12 +1109,8 @@
                 btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`;
                 btn.classList.replace('bg-navy', 'bg-green-600');
                 
-                // Fix 1: Clear URL params and force Home view
-                window.history.replaceState({}, '', '/');
-                
                 setTimeout(() => {
                     forceSwitchToApp();
-                    switchToHomeView(); // Ensure home view
                     showToast(`أهلاً بك في السوق وياك 👋`, 's');
                 }, 500);
 
@@ -1320,8 +1419,8 @@
             const showControls = state.isAdmin || isOwner;
             const controls = showControls ? `<div class="absolute top-1 right-1 z-20 flex gap-1"><button onclick="del(event,'${item.id}')" class="bg-white/80 text-red-500 p-1 rounded shadow"><i data-lucide="trash-2" class="w-3 h-3"></i></button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}')" class="bg-white/80 text-blue-600 p-1 rounded shadow"><i data-lucide="edit-3" class="w-3 h-3"></i></button></div>` : '';
 
-            // Req 6: Smaller Card Layout
-            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-3 h-3"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${item.category}</span><span class="absolute top-1 right-1 bg-black/50 text-white px-1.5 py-0.5 rounded text-[8px] font-bold z-10">${formatDate(item.createdAt)}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[8px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
+            // Req 4: Date Overlay
+            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-3 h-3"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${item.category}</span><span class="absolute bottom-1 left-1 bg-white/80 dark:bg-black/60 text-black dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${formatDate(item.createdAt)}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[8px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
         }
 
         function goToDetailsSlide(index, behavior = 'auto') {
@@ -1390,7 +1489,7 @@
                 const uSnap = await getDoc(doc(db, "users", item.authorId));
                 if(uSnap.exists()) {
                     const uData = uSnap.data();
-                    state.currentAuthor = uData; // Store for fallback phone
+                    state.currentAuthor = uData; // Req 2: Save author data
                     pubName.innerText = uData.name || "مستخدم";
                     if(uData.image) {
                         pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`;
@@ -1399,9 +1498,11 @@
                     }
                 } else {
                     pubName.innerText = "مستخدم غير معروف";
+                    state.currentAuthor = null;
                 }
             } catch(e) {
                 pubName.innerText = "ناشر";
+                state.currentAuthor = null;
             }
 
             const amCont = document.getElementById('d-features'); 
@@ -1464,26 +1565,6 @@
 
             document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
             
-            // Req 4: Inject Controls inside Details
-            const isOwner = state.user && state.user.uid === item.authorId;
-            const controlsDiv = document.getElementById('d-controls');
-            if(controlsDiv) controlsDiv.remove(); // Clear old if exists
-            
-            if(state.isAdmin || isOwner) {
-                const controlsHTML = `
-                    <div id="d-controls" class="flex gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-                        <button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}')" class="flex-1 bg-blue-100 text-blue-600 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1">
-                            <i data-lucide="edit-3" class="w-4 h-4"></i> ${item.status==='sold'?'إعادة للعرض':'تمييز كمباع'}
-                        </button>
-                        <button onclick="del(event,'${item.id}')" class="flex-1 bg-red-100 text-red-600 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i> حذف المنتج
-                        </button>
-                    </div>
-                `;
-                // Insert before reviews
-                document.querySelector('#details-modal .flex-1').insertAdjacentHTML('beforeend', controlsHTML);
-            }
-
             state.productReviewsLimit = 1;
             loadProductReviews(false);
 
@@ -1625,8 +1706,8 @@
             lucide.createIcons();
         };
 
-        window.del=async(e,id)=>{e.stopPropagation();if(confirm('هل أنت متأكد من الحذف؟')){await deleteDoc(doc(db,"listings",id));showToast('تم الحذف بنجاح'); closeDetails();}};
-        window.toggleStatus=async(e,id,currentStatus)=>{e.stopPropagation();let nextStatus=currentStatus==='available'?'sold':'available';await updateDoc(doc(db,"listings",id),{status:nextStatus});showToast(`تم تغيير الحالة إلى: ${nextStatus==='available'?'متاح':'مُباع'}`); closeDetails();};
+        window.del=async(e,id)=>{e.stopPropagation();if(confirm('هل أنت متأكد من الحذف؟')){await deleteDoc(doc(db,"listings",id));showToast('تم الحذف بنجاح')}};
+        window.toggleStatus=async(e,id,currentStatus)=>{e.stopPropagation();let nextStatus=currentStatus==='available'?'sold':'available';await updateDoc(doc(db,"listings",id),{status:nextStatus});showToast(`تم تغيير الحالة إلى: ${nextStatus==='available'?'متاح':'مُباع'}`)};
 
         window.toggleDarkMode = () => { 
             document.documentElement.classList.toggle('dark'); 
@@ -2101,7 +2182,7 @@
                                 <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div>
                                 <span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span>
                                 <span class="text-yellow-400 text-xs tracking-tighter">${stars}</span>
-                                <span class="text-[8px] text-black dark:text-white mr-auto font-bold">${formatDate(r.timestamp)}</span>
+                                <span class="text-[8px] text-slate-300 mr-auto">${formatDate(r.timestamp)}</span>
                             </div>
                             <p class="text-[10px] text-slate-600 dark:text-slate-300 pr-8">${r.text || ''}</p>
                         </div>
@@ -2172,7 +2253,7 @@
                                     <span class="text-yellow-400">${stars}</span>
                                 </div>
                                 <p class="text-slate-600 dark:text-slate-300 pr-8">${r.text}</p>
-                                <span class="text-[8px] text-black dark:text-white block mt-1 font-bold">${formatDate(r.timestamp)}</span>
+                                <span class="text-[8px] text-slate-300 block mt-1">${formatDate(r.timestamp)}</span>
                             </div>
                         `;
                     }
@@ -2236,7 +2317,7 @@
 
             itemDiv.innerHTML = `
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-bold text-primary">طلب #${index + 1}</span>
+                    <span class="text-xs font-bold text-primary">قطعة #${index + 1}</span>
                     ${index > 0 ? `<button onclick="removeOrderItem(${index})" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
                 </div>
                 <div class="grid grid-cols-3 gap-2">
@@ -2260,6 +2341,9 @@
         }
 
         window.removeOrderItem = (index) => {
+            // Simplified removal: just re-render for now or hide. 
+            // For simplicity in this snippet, we won't implement full re-index logic to keep code short.
+            // Just hide and set qty to 0.
             document.getElementById(`ord-item-${index}`).classList.add('hidden');
             state.orderItems[index].qty = 0;
             calculateOrderTotal();
@@ -2282,14 +2366,13 @@
             
             let msg = `*طلب جديد من تطبيق السوق وياك* 🛍️\n\n`;
             msg += `*المنتج:* ${state.currentItem.title}\n`;
-            msg += `*السعر للقطعة:* ${state.currentItem.price}\n`;
-            msg += `*رابط المنتج:* ${window.location.origin}?product_id=${state.currentItem.id}\n\n`;
+            msg += `*السعر للقطعة:* ${state.currentItem.price}\n\n`;
             msg += `*التفاصيل:* \n`;
             
             let totalQty = 0;
             state.orderItems.forEach((item, idx) => {
                 if(item.qty > 0) {
-                    msg += `- طلب ${idx+1}: عدد ${item.qty} | مقاس: ${item.size || '-'} | لون: ${item.color || '-'}\n`;
+                    msg += `- قطعة ${idx+1}: عدد ${item.qty} | مقاس: ${item.size || '-'} | لون: ${item.color || '-'}\n`;
                     totalQty += item.qty;
                 }
             });
@@ -2303,9 +2386,12 @@
             msg += `الهاتف: ${phone}\n`;
             msg += `العنوان: ${gov} - ${city} - ${address}\n`;
             
-            // Req 2: Fallback Phone Logic
+            // Req 9: Product Link
+            msg += `\n*رابط المنتج:* ${window.location.origin + window.location.pathname}?product_id=${state.currentItem.id}`;
+            
+            // Req 2: Fallback Phone
             let targetPhone = state.currentItem.phone;
-            if(!targetPhone && state.currentAuthor && state.currentAuthor.phone) {
+            if (!targetPhone && state.currentAuthor && state.currentAuthor.phone) {
                 targetPhone = state.currentAuthor.phone;
             }
             
@@ -2314,17 +2400,8 @@
                 return;
             }
 
-            // Clean phone number
-            targetPhone = targetPhone.replace(/\D/g, '');
-            if(targetPhone.startsWith('0')) targetPhone = '2' + targetPhone;
-
-            const url = `https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`;
-            window.open(url, '_blank'); // Try blank first
-            // Fallback for PWA if blocked
-            setTimeout(() => {
-                 window.location.href = url;
-            }, 500);
-            
+            const url = `https://wa.me/20${targetPhone}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
             toggleOrderModal();
         }
 
