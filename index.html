@@ -22,20 +22,10 @@
                         navy: '#0f172a', 
                         darkbg: '#1e293b', 
                         primary: '#10b981', 
-                        secondary: '#3b82f6',
-                        danger: '#ef4444'
+                        secondary: '#3b82f6' 
                     },
                     fontFamily: {
                         cairo: ['Cairo', 'sans-serif']
-                    },
-                    animation: {
-                        'float': 'float 3s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        }
                     }
                 } 
             }
@@ -58,8 +48,8 @@
         .select-none { user-select: none; }
 
         /* Custom Scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; }
         .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
         .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; }
@@ -67,22 +57,24 @@
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
+        /* Z-Index System (Fix for Frozen Buttons) */
+        .z-splash { z-index: 9999; }
+        .z-toast { z-index: 9000; }
+        .z-login { z-index: 8000; }
+        .z-modal-overlay { z-index: 5000; }
+        .z-modal-content { z-index: 5001; }
+        .z-nav { z-index: 1000; }
+        .z-header { z-index: 900; }
+
+        .mobile-full-modal { position: fixed; inset: 0; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         
-        /* Z-Index Hierarchy Fixed */
-        .z-modal-base { z-index: 80; }
-        .z-modal-high { z-index: 90; }
-        .z-toast { z-index: 120; }
-        .z-login { z-index: 200; } /* Login above everything */
-        .z-splash { z-index: 300; } /* Splash top most */
-
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 600px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; } 
-            .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
+            .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
-        /* Modern Toast */
+        /* Toast */
         @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 20px); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         .toast { 
@@ -96,28 +88,23 @@
 
         .form-input { 
             width: 100%; background-color: #ffffff; border: 1px solid #000000 !important; border-radius: 0.5rem; 
-            padding: 0 0.5rem; height: 2.25rem; display: flex; align-items: center; font-size: 0.75rem; 
-            font-weight: 600; color: #1e293b; outline: none; transition: all 0.2s; line-height: normal; 
+            padding: 0 0.5rem; height: 2.5rem; display: flex; align-items: center; font-size: 0.8rem; 
+            font-weight: 600; color: #1e293b; outline: none; transition: all 0.2s; 
         }
         .dark .form-input { background-color: #1e293b; border-color: #94a3b8 !important; color: white; }
         .dark .form-input:focus { border-color: #10b981 !important; }
         
-        .chip-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
-        .smart-option:checked + div { background-color: #0f172a; color: white; border-color: #0f172a; }
-        .dark .smart-option:checked + div { background-color: #10b981; border-color: #10b981; }
-
-        .star-rating input { display: none; }
-        .star-rating label { cursor: pointer; color: #cbd5e1; transition: color 0.2s; }
-        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }
         .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
+        .star-rating input { display: none; }
+        .star-rating label { cursor: pointer; color: #cbd5e1; font-size: 1.5rem; transition: color 0.2s; }
+        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }
 
-        /* Splash Screen */
+        /* Splash Screen Logic */
         #splash-screen { position: fixed; inset: 0; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
-        #splash-screen.fade-out { opacity: 0; pointer-events: none; }
+        #splash-screen.fade-out { opacity: 0; pointer-events: none; } /* pointer-events-none is CRITICAL */
         
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; position: absolute; bottom: 0; right: 0; }
-        .status-online { background-color: #10b981; }
-        .status-offline { background-color: #94a3b8; }
+        /* Login View Centering */
+        #login-view { position: fixed; inset: 0; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
@@ -125,56 +112,58 @@
     <!-- Splash Screen -->
     <div id="splash-screen" class="z-splash">
         <div class="bg-primary text-white p-4 rounded-full shadow-2xl mb-4 animate-bounce">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <i data-lucide="shopping-bag" class="w-12 h-12"></i>
         </div>
         <h1 class="text-3xl font-black text-white mb-2">السوق <span class="text-primary">وياك</span></h1>
         <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
     </div>
 
-    <!-- LOGIN VIEW (Fixed Position) -->
-    <div id="login-view" class="fixed inset-0 z-login bg-[#f8fafc] dark:bg-[#0f172a] flex items-center justify-center p-4 hidden">
-        <div class="w-full max-w-md bg-white dark:bg-darkbg p-4 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[95vh]">
-            <div class="flex flex-col items-center gap-1 mb-3 shrink-0">
+    <!-- LOGIN VIEW (Fix 1: Centered & High Z-Index) -->
+    <div id="login-view" class="z-login hidden">
+        <div class="w-full max-w-md bg-white dark:bg-darkbg p-5 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[90vh]">
+            <div class="flex flex-col items-center gap-1 mb-4 shrink-0">
                 <div class="bg-navy dark:bg-primary text-white p-2 rounded-xl shadow-lg rotate-3">
-                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    <i data-lucide="shopping-bag" class="w-6 h-6"></i>
                 </div>
-                <h1 class="font-black text-lg text-navy dark:text-white">السوق <span class="text-primary">وياك</span></h1>
-            </div>
-
-            <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-2 border border-slate-200 dark:border-slate-700 shrink-0">
-                <button onclick="setAuthType('login')" id="btn-type-login" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md">تسجيل دخول</button>
-                <button onclick="setAuthType('signup')" id="btn-type-signup" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white">إنشاء حساب</button>
+                <h1 class="font-black text-xl text-navy dark:text-white">السوق <span class="text-primary">وياك</span></h1>
             </div>
 
             <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-3 border border-slate-200 dark:border-slate-700 shrink-0">
-                <button onclick="setAuthRole('customer')" id="btn-role-customer" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy text-white shadow-md"><div class="flex items-center justify-center gap-2"><i data-lucide="user" class="w-3 h-3"></i> عميل</div></button>
-                <button onclick="setAuthRole('marketer')" id="btn-role-marketer" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"><div class="flex items-center justify-center gap-2"><i data-lucide="store" class="w-3 h-3"></i> مقدم خدمة</div></button>
+                <button onclick="setAuthType('login')" id="btn-type-login" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md">تسجيل دخول</button>
+                <button onclick="setAuthType('signup')" id="btn-type-signup" class="flex-1 py-2 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white">إنشاء حساب</button>
             </div>
 
-            <div class="login-scroll no-scrollbar space-y-2 flex-1">
-                <div id="auth-image-field" class="hidden flex-col items-center gap-2 transition-all duration-300">
+            <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-3 border border-slate-200 dark:border-slate-700 shrink-0">
+                <button onclick="setAuthRole('customer')" id="btn-role-customer" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all bg-navy text-white shadow-md"><div class="flex items-center justify-center gap-2"><i data-lucide="user" class="w-3 h-3"></i> عميل</div></button>
+                <button onclick="setAuthRole('marketer')" id="btn-role-marketer" class="flex-1 py-2 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"><div class="flex items-center justify-center gap-2"><i data-lucide="store" class="w-3 h-3"></i> مقدم خدمة</div></button>
+            </div>
+
+            <div class="overflow-y-auto custom-scroll space-y-3 flex-1 px-1">
+                <div id="auth-image-field" class="hidden flex-col items-center gap-2">
                     <div class="relative group cursor-pointer">
                         <input type="file" id="auth-img-input" accept="image/*" onchange="handleAuthImage(this)" class="absolute inset-0 opacity-0 z-10 cursor-pointer">
-                        <div class="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-primary/50 flex items-center justify-center overflow-hidden relative hover:bg-primary/5 transition">
+                        <div class="w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-primary/50 flex items-center justify-center overflow-hidden relative hover:bg-primary/5 transition">
                             <img id="auth-img-preview" src="" class="w-full h-full object-cover hidden">
-                            <div id="auth-img-placeholder" class="flex flex-col items-center text-slate-400"><i data-lucide="camera" class="w-5 h-5 mb-1"></i><span class="text-[8px] font-bold">صورة</span></div>
+                            <div id="auth-img-placeholder" class="flex flex-col items-center text-slate-400"><i data-lucide="camera" class="w-6 h-6 mb-1"></i><span class="text-[9px] font-bold">صورة</span></div>
                         </div>
                     </div>
                 </div>
-                <div><label class="form-label">اسم المستخدم (إنجليزي)</label><input id="auth-username" type="text" class="form-input text-left" placeholder="username" style="direction: ltr;"></div>
-                <div><label class="form-label">كلمة المرور</label><input id="auth-pass" type="password" class="form-input" placeholder="******"></div>
-                <div id="signup-fields" class="hidden space-y-2 border-t border-slate-100 dark:border-slate-700 pt-2 mt-1">
-                    <div><label class="form-label">الاسم الكامل (عربي)</label><input id="auth-name-ar" type="text" class="form-input" placeholder="مثال: أحمد محمد"></div>
-                    <div><label class="form-label">رقم الهاتف</label><input id="auth-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx"></div>
+                <div><label class="text-xs font-bold mb-1 block">اسم المستخدم (إنجليزي)</label><input id="auth-username" type="text" class="form-input text-left" placeholder="username" style="direction: ltr;"></div>
+                <div><label class="text-xs font-bold mb-1 block">كلمة المرور</label><input id="auth-pass" type="password" class="form-input" placeholder="******"></div>
+                
+                <div id="signup-fields" class="hidden space-y-3 border-t border-slate-100 dark:border-slate-700 pt-3">
+                    <div><label class="text-xs font-bold mb-1 block">الاسم الكامل (عربي)</label><input id="auth-name-ar" type="text" class="form-input" placeholder="مثال: أحمد محمد"></div>
+                    <div><label class="text-xs font-bold mb-1 block">رقم الهاتف</label><input id="auth-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx"></div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div><label class="form-label">المحافظة</label><select id="auth-gov" onchange="updateCities()" class="form-input text-xs"></select></div>
-                        <div><label class="form-label">المركز/المدينة</label><select id="auth-city" class="form-input text-xs"><option value="">اختر المحافظة</option></select></div>
+                        <div><label class="text-xs font-bold mb-1 block">المحافظة</label><select id="auth-gov" onchange="updateCities()" class="form-input text-xs"></select></div>
+                        <div><label class="text-xs font-bold mb-1 block">المركز</label><select id="auth-city" class="form-input text-xs"><option value="">اختر المحافظة</option></select></div>
                     </div>
-                    <div><label class="form-label">العنوان بالتفصيل</label><input id="auth-address" type="text" class="form-input" placeholder="الشارع، رقم المنزل..."></div>
+                    <div><label class="text-xs font-bold mb-1 block">العنوان بالتفصيل</label><input id="auth-address" type="text" class="form-input" placeholder="الشارع، رقم المنزل..."></div>
                 </div>
             </div>
-            <div class="mt-3 pt-2 border-t border-slate-100 dark:border-slate-700 shrink-0">
-                <button onclick="processAuth()" id="btn-auth-action" class="w-full bg-navy dark:bg-primary text-white py-2.5 rounded-xl font-bold shadow-lg hover:opacity-90 transition-all"><span>دخول للحساب</span></button>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 shrink-0">
+                <button onclick="processAuth()" id="btn-auth-action" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold shadow-lg hover:opacity-90 transition-all"><span>دخول للحساب</span></button>
                 <div id="auth-error" class="text-red-600 dark:text-red-400 text-[10px] font-bold text-center hidden mt-2"></div>
             </div>
         </div>
@@ -182,9 +171,82 @@
 
     <!-- APP CONTENT -->
     <div id="app-content" class="hidden">
-        <div id="toast-container" class="fixed top-4 left-0 right-0 z-toast flex flex-col items-center gap-2 pointer-events-none px-4"></div>
+        <div id="toast-container" class="z-toast pointer-events-none"></div>
 
-        <!-- PWA Install Banner (Top) -->
+        <!-- Header -->
+        <header class="fixed top-0 w-full z-header bg-white/95 dark:bg-navy/95 border-b border-slate-200 dark:border-slate-700 flex flex-col justify-center px-4 shadow-sm backdrop-blur-md h-14">
+            <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2" id="logo-trigger">
+                    <div class="bg-navy dark:bg-primary text-white p-1.5 rounded-lg"><i data-lucide="shopping-bag" class="w-5 h-5"></i></div>
+                    <div class="flex flex-col leading-none">
+                        <h1 class="font-bold text-base">السوق <span class="text-primary">وياك</span></h1>
+                        <div id="welcome-text" class="hidden text-[10px] font-bold mt-0.5 text-slate-500 dark:text-slate-400">أهلاً: <span id="header-username" class="text-navy dark:text-white"></span></div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-2 items-center">
+                    <button onclick="toggleNotifications()" class="relative p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                        <span id="notif-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-800"></span>
+                    </button>
+                    <button onclick="toggleProfile(null)" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-5 h-5"></i></button>
+                    <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <main class="pt-16 container mx-auto px-4 max-w-6xl min-h-screen">
+            <div id="view-header" class="hidden flex items-center gap-2 pb-2">
+                <button onclick="switchToHomeView()" class="bg-white dark:bg-slate-800 p-2 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm"><i data-lucide="arrow-right" class="w-5 h-5 text-slate-600 dark:text-white"></i></button>
+                <h2 id="view-title" class="text-lg font-bold text-slate-800 dark:text-white"></h2>
+            </div>
+
+            <div id="search-container" class="sticky top-14 z-40 bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-2 pb-2 -mx-4 px-4 transition-all">
+                <div class="relative max-w-3xl mx-auto flex gap-2 items-center">
+                    <div class="relative flex-1">
+                        <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-10 pl-24 h-10 shadow-sm text-sm">
+                        <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <div class="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
+                            <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden text-secondary dark:text-blue-400 p-1.5 hover:scale-110 transition"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
+                            <button onclick="toggleFavView()" class="relative text-red-500 p-1.5 hover:scale-110 transition"><i data-lucide="heart" class="w-4 h-4"></i><span id="fav-count" class="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-darkbg hidden"></span></button>
+                        </div>
+                    </div>
+                </div>
+                <div id="filter-panel" class="hidden mt-2 bg-white dark:bg-darkbg p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl animate-pop relative z-50">
+                    <div class="flex justify-between items-center mb-2"><span class="font-bold text-xs">تصفية النتائج</span><button onclick="resetFilters()" class="text-xs text-red-500 font-bold underline cursor-pointer p-1">إعادة تعيين</button></div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="filter-gov" onchange="applyFilters()" class="form-input text-xs h-8"><option value="">كل المحافظات</option></select>
+                        <select id="filter-price" onchange="applyFilters()" class="form-input text-xs h-8"><option value="">كل الأسعار</option><option value="low">الأقل سعراً</option><option value="high">الأعلى سعراً</option></select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-2 pb-3 no-scrollbar"></div>
+            <div id="grid-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-2"></div>
+            <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
+            <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
+        </main>
+
+        <!-- Floating Support Button -->
+        <button onclick="toggleChatBot()" class="fixed left-4 bottom-24 z-nav flex flex-col items-center animate-float group">
+            <div class="bg-white dark:bg-navy p-2.5 rounded-full shadow-xl border-2 border-primary relative">
+                <i data-lucide="bot" class="w-6 h-6 text-primary"></i>
+                <div class="absolute -top-1 -right-1 bg-red-500 w-3 h-3 rounded-full border-2 border-white"></div>
+            </div>
+            <span class="text-[10px] font-bold text-red-500 bg-white/90 dark:bg-navy/90 px-2 py-0.5 rounded-full shadow mt-1">الدعم الفني</span>
+        </button>
+
+        <!-- NAV BAR -->
+        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-nav bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105 backdrop-blur-md">
+            <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-6 h-6 group-hover:scale-110 transition"></i></button>
+            <button id="nav-add-btn" onclick="toggleAddModal()" class="w-14 h-14 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-6 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-7 h-7"></i></button>
+            <button onclick="toggleInbox()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative">
+                <div id="inbox-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-blue-500 rounded-full border border-white dark:border-slate-800"></div>
+                <i data-lucide="message-circle" class="w-6 h-6 group-hover:scale-110 transition"></i>
+            </button>
+        </nav>
+
+        <!-- PWA Install Banner -->
         <div id="install-banner" class="hidden fixed top-0 left-0 right-0 bg-navy dark:bg-white dark:text-navy text-white p-3 shadow-2xl z-[110] flex items-center justify-between install-banner border-b dark:border-slate-200">
             <div class="flex items-center gap-3">
                 <div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-5 h-5"></i></div>
@@ -192,89 +254,14 @@
             </div>
             <div class="flex gap-2"><button onclick="installPWA()" class="bg-primary text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow-lg">تثبيت</button><button onclick="closeInstall()" class="text-white dark:text-navy p-1"><i data-lucide="x" class="w-4 h-4"></i></button></div>
         </div>
-
-        <!-- Header -->
-        <header class="fixed top-0 w-full z-[60] bg-white/95 dark:bg-navy/95 border-b border-slate-200 dark:border-slate-700 flex flex-col justify-center px-4 shadow-sm backdrop-blur-md h-12 mt-0 transition-all" id="main-header">
-            <div class="flex items-center justify-between w-full">
-                <div class="flex items-center gap-2" id="logo-trigger">
-                    <div class="bg-navy dark:bg-primary text-white p-1 rounded-md"><i data-lucide="shopping-bag" class="w-4 h-4"></i></div>
-                    <div class="flex flex-col leading-none">
-                        <h1 class="font-bold text-sm">السوق <span class="text-primary">وياك</span></h1>
-                        <div id="welcome-text" class="hidden text-[10px] font-bold mt-0.5"><span class="text-navy dark:text-white">أهلاً: </span><span id="header-username" class="text-primary"></span></div>
-                    </div>
-                </div>
-                
-                <div class="flex gap-1.5 items-center">
-                    <button onclick="toggleNotifications()" class="relative p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition">
-                        <i data-lucide="bell" class="w-4 h-4"></i>
-                        <span id="notif-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800"></span>
-                    </button>
-                    <button onclick="toggleProfile(null)" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
-                    <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
-                    <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
-                    <button onclick="logout()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600 hover:bg-red-100 transition"><i data-lucide="log-out" class="w-4 h-4"></i></button>
-                </div>
-            </div>
-        </header>
-
-        <main class="pt-14 container mx-auto px-4 max-w-6xl min-h-screen">
-            <div id="view-header" class="hidden flex items-center gap-2 pb-1">
-                <button onclick="switchToHomeView()" class="bg-white dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm"><i data-lucide="arrow-right" class="w-4 h-4 text-slate-600 dark:text-white"></i></button>
-                <h2 id="view-title" class="text-base font-bold text-slate-800 dark:text-white pt-0.5"></h2>
-            </div>
-
-            <div id="search-container" class="sticky top-12 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-1.5 pb-1.5 -mx-4 px-4 transition-all">
-                <div class="relative max-w-3xl mx-auto flex gap-2 items-center">
-                    <div class="relative flex-1">
-                        <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-9 pl-20 h-8 shadow-sm text-xs">
-                        <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
-                        <div class="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
-                            <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden text-secondary dark:text-blue-400 p-1 hover:scale-110 transition"><i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i></button>
-                            <button onclick="toggleFavView()" class="relative text-red-500 p-1 hover:scale-110 transition"><i data-lucide="heart" class="w-3.5 h-3.5"></i><span id="fav-count" class="absolute top-0 right-0 w-1.5 h-1.5 bg-red-600 rounded-full hidden"></span></button>
-                        </div>
-                    </div>
-                </div>
-                <div id="filter-panel" class="hidden mt-1 bg-white dark:bg-darkbg p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl animate-pop relative z-50">
-                    <div class="flex justify-between items-center mb-1"><span class="font-bold text-[10px]">تصفية النتائج</span><button onclick="resetFilters()" class="text-[10px] text-red-500 font-bold underline cursor-pointer p-1">إعادة تعيين</button></div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <select id="filter-gov" onchange="applyFilters()" class="form-input text-xs h-7"><option value="">كل المحافظات</option></select>
-                        <select id="filter-price" onchange="applyFilters()" class="form-input text-xs h-7"><option value="">كل الأسعار</option><option value="low">الأقل سعراً</option><option value="high">الأعلى سعراً</option></select>
-                    </div>
-                </div>
-            </div>
-
-            <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar"></div>
-            <div id="grid-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-10 mt-2"></div>
-            <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
-            <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
-        </main>
-
-        <!-- Req 6: Floating Support Button -->
-        <button onclick="toggleChatBot()" class="fixed left-4 bottom-24 z-[70] flex flex-col items-center animate-float group">
-            <div class="bg-white dark:bg-navy p-2 rounded-full shadow-xl border-2 border-primary relative">
-                <i data-lucide="bot" class="w-6 h-6 text-primary"></i>
-                <div class="absolute -top-1 -right-1 bg-red-500 w-3 h-3 rounded-full border-2 border-white"></div>
-            </div>
-            <span class="text-[9px] font-bold text-red-500 bg-white/90 dark:bg-navy/90 px-2 py-0.5 rounded-full shadow mt-1">الدعم الفني</span>
-        </button>
-
-        <!-- NAV BAR -->
-        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
-            <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
-            <button id="nav-add-btn" onclick="toggleAddModal()" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
-            <button onclick="toggleInbox()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative">
-                <div id="inbox-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-blue-500 rounded-full border border-white dark:border-slate-800"></div>
-                <i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i>
-            </button>
-        </nav>
     </div>
 
     <!-- Profile Modal -->
-    <div id="profile-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-high">
+    <div id="profile-modal" class="hidden modal-overlay z-modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-content">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
                 <h3 class="font-bold text-sm">الملف الشخصي</h3>
-                <button onclick="toggleProfile()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <button onclick="toggleProfile()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
                 <!-- VIEW MODE -->
@@ -335,64 +322,12 @@
         </div>
     </div>
 
-    <!-- Inbox Modal -->
-    <div id="inbox-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-base">
-            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <h3 class="font-bold text-sm">الرسائل</h3>
-                <button onclick="toggleInbox()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            <div id="inbox-list" class="flex-1 overflow-y-auto p-2 bg-white dark:bg-darkbg custom-scroll space-y-2"></div>
-        </div>
-    </div>
-
-    <!-- Private Chat Modal -->
-    <div id="private-chat-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-high">
-            <div class="bg-navy dark:bg-primary p-2 text-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2 cursor-pointer" onclick="openChatUserProfile()">
-                    <div class="relative"><img id="chat-user-img" src="" class="w-8 h-8 rounded-full object-cover bg-white/10"><div id="chat-user-status" class="status-dot status-offline"></div></div>
-                    <div class="flex flex-col"><h4 id="chat-user-name" class="font-bold text-xs">...</h4><span id="chat-user-seen" class="text-[9px] opacity-80">...</span></div>
-                </div>
-                <div class="flex gap-1">
-                    <button onclick="toggleChatMenu()" class="hover:bg-white/20 p-1 rounded-full relative"><i data-lucide="more-vertical" class="w-4 h-4"></i><div id="chat-menu" class="hidden absolute top-8 left-0 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg shadow-xl border border-slate-200 dark:border-slate-600 w-32 py-1 z-50"><button onclick="blockUser()" class="w-full text-right px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-700">حظر المستخدم</button><button onclick="deleteChat()" class="w-full text-right px-3 py-2 text-xs text-red-500 hover:bg-slate-100 dark:hover:bg-slate-700">حذف المحادثة</button></div></button>
-                    <button onclick="closePrivateChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
-                </div>
-            </div>
-            <div id="private-chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
-            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe"><input id="private-chat-input" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب رسالة..."><button onclick="sendPrivateMessage()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button></div>
-        </div>
-    </div>
-
-    <!-- Notifications Modal -->
-    <div id="notifications-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-high max-h-[400px] !h-auto rounded-2xl m-4 w-[90%] max-w-sm">
-            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <h3 class="font-bold text-sm">الإشعارات</h3>
-                <button onclick="toggleNotifications()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            <div id="notif-list" class="flex-1 overflow-y-auto p-2 bg-white dark:bg-darkbg custom-scroll space-y-2 max-h-[300px]"></div>
-        </div>
-    </div>
-
-    <!-- Chat Bot Modal (Support) -->
-    <div id="chatbot-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-high">
-            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2"><div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">الدعم الفني</h4></div></div>
-                <button onclick="toggleChatBot()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div id="chatbot-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
-            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe"><input id="chatbot-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب..."><button onclick="sendChatBotMsg()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button></div>
-        </div>
-    </div>
-
     <!-- Order Modal -->
-    <div id="order-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-high">
+    <div id="order-modal" class="hidden modal-overlay z-modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-content">
             <div class="bg-primary p-3 text-white flex justify-between items-center shrink-0">
                 <h3 class="font-bold text-sm">طلب المنتج</h3>
-                <button onclick="toggleOrderModal()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <button onclick="toggleOrderModal()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
                 <div class="mb-4 p-2 bg-slate-50 dark:bg-slate-800 rounded-lg flex gap-3 items-center">
@@ -418,15 +353,54 @@
         </div>
     </div>
 
+    <!-- Add Modal -->
+    <div id="add-modal" class="hidden modal-overlay z-modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-content">
+            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0 h-12">
+                <h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة منتج</h3>
+                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-white dark:bg-darkbg custom-scroll">
+                <div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-2"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input h-9 text-xs" placeholder="اسم المنتج..."></div>
+                    <div class="form-group"><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input h-9 text-xs" placeholder="0"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="form-group"><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input h-9 text-xs bg-gray-50"></select></div>
+                    <div id="field-condition" class="form-group hidden"><label class="form-label">الحالة</label><select id="in-condition" class="form-input h-9 text-xs"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
+                </div>
+                <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group space-y-2 hidden">
+                    <div id="field-size-chips" class="hidden"><label class="form-label text-primary">المقاسات المتاحة</label><div id="size-chips-container" class="flex flex-wrap gap-1.5"></div></div>
+                    <div id="field-color-chips" class="hidden"><label class="form-label text-primary">الألوان المتاحة</label><div id="color-chips-container" class="flex flex-wrap gap-1.5"></div></div>
+                </div>
+                <div class="form-group bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <label class="form-label mb-1">أماكن الشحن</label>
+                    <div class="flex gap-2 mb-2">
+                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="all" onchange="toggleShipGov()" checked class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">كل المحافظات</div></label>
+                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="specific" onchange="toggleShipGov()" class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">محافظات محددة</div></label>
+                    </div>
+                    <div id="ship-gov-container" class="hidden"><div class="text-[10px] mb-1 text-slate-400">اختر المحافظات المتاحة:</div><div id="ship-gov-list" class="max-h-24 overflow-y-auto custom-scroll grid grid-cols-2 gap-1 p-1 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-600 rounded-lg"></div></div>
+                </div>
+                <div class="form-group"><label class="form-label">مواصفات إضافية:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="هاي كوبي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">هاي كوبي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label></div></div>
+                <div class="form-group"><label class="form-label">تمييز:</label><div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg"><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="form-group col-span-1"><label class="form-label">رقم الهاتف</label><input id="in-phone" type="tel" class="form-input h-9 text-xs" placeholder="01xxxxxxxxx"></div>
+                    <div class="form-group col-span-2"><label class="form-label">الوصف</label><textarea id="in-desc" rows="1" class="form-input text-xs" placeholder="تفاصيل..."></textarea></div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-3"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر الآن</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
+        </div>
+    </div>
+
     <!-- Details Modal -->
-    <div id="details-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-base">
+    <div id="details-modal" class="hidden modal-overlay z-modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-content">
             <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
                 <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
                 <div class="absolute top-3 right-3 flex gap-2 z-20">
-                    <!-- Fixed Buttons (Z-Index) -->
-                    <button id="btn-edit-product" onclick="editProduct()" class="hidden bg-white/80 dark:bg-black/50 text-blue-600 p-1.5 rounded-full shadow-sm z-50 relative"><i data-lucide="edit-3" class="w-5 h-5"></i></button>
-                    <button id="btn-delete-product" onclick="deleteProduct()" class="hidden bg-white/80 dark:bg-black/50 text-red-600 p-1.5 rounded-full shadow-sm z-50 relative"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    <button id="btn-edit-product" onclick="editProduct()" class="hidden bg-white/80 dark:bg-black/50 text-blue-600 p-1.5 rounded-full shadow-sm z-30"><i data-lucide="edit-3" class="w-5 h-5"></i></button>
+                    <button id="btn-delete-product" onclick="deleteProduct()" class="hidden bg-white/80 dark:bg-black/50 text-red-600 p-1.5 rounded-full shadow-sm z-30"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                     <button onclick="copyDetails()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="copy" class="w-5 h-5"></i></button>
                     <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
                 </div>
@@ -468,6 +442,58 @@
         </div>
     </div>
 
+    <!-- Inbox Modal -->
+    <div id="inbox-modal" class="hidden modal-overlay z-modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-content">
+            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-sm">الرسائل</h3>
+                <button onclick="toggleInbox()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div id="inbox-list" class="flex-1 overflow-y-auto p-2 bg-white dark:bg-darkbg custom-scroll space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- Private Chat Modal -->
+    <div id="private-chat-modal" class="hidden modal-overlay z-modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-content">
+            <div class="bg-navy dark:bg-primary p-2 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="openChatUserProfile()">
+                    <div class="relative"><img id="chat-user-img" src="" class="w-8 h-8 rounded-full object-cover bg-white/10"><div id="chat-user-status" class="status-dot status-offline"></div></div>
+                    <div class="flex flex-col"><h4 id="chat-user-name" class="font-bold text-xs">...</h4><span id="chat-user-seen" class="text-[9px] opacity-80">...</span></div>
+                </div>
+                <div class="flex gap-1">
+                    <button onclick="toggleChatMenu()" class="hover:bg-white/20 p-1 rounded-full relative"><i data-lucide="more-vertical" class="w-4 h-4"></i><div id="chat-menu" class="hidden absolute top-8 left-0 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg shadow-xl border border-slate-200 dark:border-slate-600 w-32 py-1 z-50"><button onclick="blockUser()" class="w-full text-right px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-700">حظر المستخدم</button><button onclick="deleteChat()" class="w-full text-right px-3 py-2 text-xs text-red-500 hover:bg-slate-100 dark:hover:bg-slate-700">حذف المحادثة</button></div></button>
+                    <button onclick="closePrivateChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+            <div id="private-chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
+            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe"><input id="private-chat-input" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب رسالة..."><button onclick="sendPrivateMessage()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button></div>
+        </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div id="notifications-modal" class="hidden modal-overlay z-modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-content max-h-[400px] !h-auto rounded-2xl m-4 w-[90%] max-w-sm">
+            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-sm">الإشعارات</h3>
+                <button onclick="toggleNotifications()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div id="notif-list" class="flex-1 overflow-y-auto p-2 bg-white dark:bg-darkbg custom-scroll space-y-2 max-h-[300px]"></div>
+        </div>
+    </div>
+
+    <!-- Chat Bot Modal -->
+    <div id="chatbot-modal" class="hidden modal-overlay z-modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700 z-modal-content">
+            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2"><div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">الدعم الفني</h4></div></div>
+                <button onclick="toggleChatBot()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="chatbot-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
+            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe"><input id="chatbot-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب..."><button onclick="sendChatBotMsg()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button></div>
+        </div>
+    </div>
+
     <!-- Lightbox -->
     <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center select-none">
         <button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button>
@@ -484,7 +510,7 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, limit, orderBy, startAfter } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Req 10: Service Worker Registration
+        // Req 4: Service Worker Registration
         if ('serviceWorker' in navigator) {
             const swCode = `
                 const CACHE_NAME = 'souq-v2';
@@ -640,8 +666,7 @@
             viewingProfileId: null,
             orderItems: [],
             activePrivateChatId: null,
-            activeChatUser: null,
-            currentAuthor: null
+            activeChatUser: null
         };
 
         function initGovs() {
@@ -761,7 +786,6 @@
                              document.getElementById('btn-admin-top').classList.add('hidden');
                         }
                         
-                        // Update Last Seen
                         updateDoc(doc(db, "users", u.uid), { lastSeen: serverTimestamp() });
                     }
                 } catch(e) {
@@ -769,7 +793,7 @@
                 }
                 forceSwitchToApp();
                 loadListings(); 
-                checkNotifications(); // Req 8
+                checkNotifications(); 
                 initFavs(); 
                 initCats(); 
             } else {
@@ -1067,12 +1091,16 @@
             renderProducts();
         }
 
-        // Fix 5: Reset Button Logic
         window.resetFilters = () => {
             document.getElementById('search-input').value = '';
             document.getElementById('filter-price').value = '';
             document.getElementById('filter-gov').value = '';
-            switchToHomeView();
+            
+            if (state.currentView === 'category') {
+                renderProducts();
+            } else {
+                renderCategoryCards();
+            }
         };
 
         window.switchToCategoryView = (category) => {
@@ -1200,7 +1228,6 @@
             lucide.createIcons(); 
         }
 
-        // Req 6: Format Date Helper
         function formatDate(timestamp) {
             if (!timestamp) return '';
             const date = timestamp.toDate();
@@ -1229,7 +1256,6 @@
             const showControls = state.isAdmin || isOwner;
             const controls = showControls ? `<div class="absolute top-1 right-1 z-20 flex gap-1"><button onclick="del(event,'${item.id}')" class="bg-white/80 text-red-500 p-1 rounded shadow"><i data-lucide="trash-2" class="w-3 h-3"></i></button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}')" class="bg-white/80 text-blue-600 p-1 rounded shadow"><i data-lucide="edit-3" class="w-3 h-3"></i></button></div>` : '';
 
-            // Req 6: Smaller Card Layout
             return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${controls} ${!showControls && !statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button><span class="absolute bottom-1 left-1 bg-white/80 text-black text-[8px] font-bold px-1 rounded z-10">${formatDate(item.createdAt)}</span>${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-right" class="w-3 h-3"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}<div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${item.category}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[8px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center"><span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span></div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
         }
 
@@ -1278,12 +1304,10 @@
             });
         }
 
-        // Fix 4: Optimized Open Details
         window.openDetails = async (id) => {
             const item = state.listings.find(i => i.id === id); if(!item) return;
             state.currentItem = item; 
             
-            // Immediate UI update with available data
             document.getElementById('d-title').innerText = item.title; 
             document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; 
             document.getElementById('d-cat').innerText = item.category; 
@@ -1298,7 +1322,6 @@
             const pubImg = document.getElementById('d-pub-img');
             pubName.innerText = "جاري التحميل...";
             
-            // Req 5: Edit/Delete inside modal
             const isOwner = state.user && state.user.uid === item.authorId;
             if(isOwner || state.isAdmin) {
                 document.getElementById('btn-edit-product').classList.remove('hidden');
@@ -1308,7 +1331,6 @@
                 document.getElementById('btn-delete-product').classList.add('hidden');
             }
 
-            // Async fetch author
             getDoc(doc(db, "users", item.authorId)).then(uSnap => {
                 if(uSnap.exists()) {
                     const uData = uSnap.data();
@@ -1541,7 +1563,7 @@
         window.showToast=(m,t='s')=>{
             const d=document.createElement('div');
             const bgClass = t==='e' ? 'bg-red-600 text-white' : 'bg-green-600 text-white';
-            d.className=`toast px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 text-xs font-bold ${bgClass}`;
+            d.className=`toast px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 text-xs font-bold ${bgClass} z-toast`;
             d.innerHTML=`<i data-lucide="${t==='e'?'alert-circle':'check-circle'}" class="w-4 h-4"></i> ${m}`;
             document.getElementById('toast-container').appendChild(d);
             lucide.createIcons();
@@ -1650,13 +1672,12 @@
         window.handleUpload=async(input)=>{if(input.files.length+state.images.length>7)return showToast('7 صور بحد أقصى','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0">`}}; 
         function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
         
-        // Req 6: Floating Support Chat Bot
+        // Req 6: Floating Support Chat Bot (Real DB)
         window.toggleChatBot = () => {
             toggleModal('chatbot-modal');
-            // Simple bot logic
             const box = document.getElementById('chatbot-box');
             if(box.children.length === 0) {
-                box.innerHTML = `<div class="flex justify-start"><div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">مرحباً بك في الدعم الفني الآلي 👋<br>كيف يمكنني مساعدتك؟</div></div>`;
+                box.innerHTML = `<div class="flex justify-start"><div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">مرحباً بك في الدعم الفني 👋<br>كيف يمكنني مساعدتك؟</div></div>`;
             }
         }
 
@@ -1669,40 +1690,39 @@
             box.innerHTML += `<div class="flex justify-end"><div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%]">${text}</div></div>`;
             input.value = '';
             
-            // Create real support chat in DB
-            if(state.user) {
-                const chatId = `support_${state.user.uid}`;
-                const chatRef = doc(db, "chats", chatId);
+            // Send to DB as a chat with type 'support' or special flag
+            // For simplicity, we treat it as a chat with Admin (assuming Admin ID is known or we query)
+            // Here we create a chat document with a 'support' flag
+            
+            try {
+                const supportChatId = `support_${state.user.uid}`;
+                const chatRef = doc(db, "chats", supportChatId);
                 const chatSnap = await getDoc(chatRef);
                 
                 if(!chatSnap.exists()) {
                     await setDoc(chatRef, {
-                        participants: [state.user.uid, 'admin'],
+                        participants: [state.user.uid], // Admin will query all
                         type: 'support',
                         lastMessage: text,
                         lastMessageTime: serverTimestamp(),
-                        userName: state.userData.name || 'مستخدم',
-                        status: 'waiting'
+                        unreadCount: { 'admin': 1 }
                     });
                 } else {
                     await updateDoc(chatRef, {
                         lastMessage: text,
                         lastMessageTime: serverTimestamp(),
-                        status: 'waiting'
+                        'unreadCount.admin': (chatSnap.data().unreadCount?.admin || 0) + 1
                     });
                 }
                 
-                await addDoc(collection(db, "chats", chatId, "messages"), {
+                await addDoc(collection(db, "chats", supportChatId, "messages"), {
                     text: text,
                     senderId: state.user.uid,
                     timestamp: serverTimestamp()
                 });
+            } catch(e) {
+                console.error("Support msg failed", e);
             }
-
-            setTimeout(() => {
-                box.innerHTML += `<div class="flex justify-start"><div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">سيتم الرد عليك قريباً من أحد ممثلي الخدمة.</div></div>`;
-                box.scrollTop = box.scrollHeight;
-            }, 1000);
         }
 
         // Req 7: Chat System (Inbox & Private)
@@ -1716,7 +1736,6 @@
             const list = document.getElementById('inbox-list');
             list.innerHTML = '<div class="spinner border-primary mx-auto"></div>';
             
-            // Query chats where user is participant
             const q = query(collection(db, "chats"), where("participants", "array-contains", state.user.uid), orderBy("lastMessageTime", "desc"));
             
             onSnapshot(q, (snap) => {
@@ -1728,12 +1747,8 @@
                 
                 snap.forEach(async docSnap => {
                     const chat = docSnap.data();
-                    // Skip support chats in inbox if desired, or show them
-                    if(chat.type === 'support') return;
-
                     const otherId = chat.participants.find(id => id !== state.user.uid);
                     
-                    // Fetch other user details
                     const uSnap = await getDoc(doc(db, "users", otherId));
                     const uData = uSnap.exists() ? uSnap.data() : { name: "مستخدم", image: null };
                     
@@ -1741,7 +1756,6 @@
                     const time = chat.lastMessageTime ? formatDate(chat.lastMessageTime) : '';
                     const img = uData.image ? `<img src="${uData.image}" class="w-10 h-10 rounded-full object-cover">` : `<div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i></div>`;
                     
-                    // Online status simulation (based on lastSeen < 5min)
                     const isOnline = uData.lastSeen && (new Date() - uData.lastSeen.toDate()) < 300000;
                     const statusDot = isOnline ? `<div class="status-dot status-online"></div>` : `<div class="status-dot status-offline"></div>`;
 
@@ -1773,7 +1787,6 @@
             const chatId = [state.user.uid, otherId].sort().join('_');
             state.activePrivateChatId = chatId;
             
-            // Setup UI
             document.getElementById('chat-user-name').innerText = otherData.name || 'مستخدم';
             document.getElementById('chat-user-img').src = otherData.image || '';
             const isOnline = otherData.lastSeen && (new Date() - otherData.lastSeen.toDate()) < 300000;
@@ -1782,7 +1795,6 @@
             
             toggleModal('private-chat-modal');
             
-            // Mark as read
             const chatRef = doc(db, "chats", chatId);
             const chatSnap = await getDoc(chatRef);
             if(chatSnap.exists()) {
@@ -1791,7 +1803,6 @@
                  updateDoc(chatRef, update);
             }
 
-            // Listen to messages
             const msgRef = collection(db, "chats", chatId, "messages");
             const q = query(msgRef, orderBy("timestamp", "asc"));
             
@@ -1804,9 +1815,7 @@
                     let content = m.text;
                     if(m.image) content = `<img src="${m.image}" class="rounded-lg max-w-[150px] cursor-pointer" onclick="openLightbox(this.src)"><p>${m.text}</p>`;
                     
-                    // Fix: Correct Alignment for RTL
-                    // Me (Right/Start) -> justify-start
-                    // Other (Left/End) -> justify-end
+                    // Fix: Chat Direction
                     box.innerHTML += `<div class="flex ${isMe ? 'justify-start' : 'justify-end'}"><div class="${isMe ? 'bg-primary text-white' : 'bg-white dark:bg-slate-700 dark:text-white text-slate-800'} px-3 py-2 rounded-xl ${isMe ? 'rounded-tr-none' : 'rounded-tl-none'} shadow-sm text-xs max-w-[85%]">${content}</div></div>`;
                 });
                 box.scrollTop = box.scrollHeight;
@@ -1823,7 +1832,6 @@
             const chatId = state.activePrivateChatId;
             const otherId = state.activeChatUser;
             
-            // Ensure chat doc exists
             const chatRef = doc(db, "chats", chatId);
             const chatSnap = await getDoc(chatRef);
             
@@ -1835,7 +1843,6 @@
                     unreadCount: { [otherId]: 1, [state.user.uid]: 0 }
                 });
             } else {
-                // Increment unread for other
                 const currentUnread = chatSnap.data().unreadCount?.[otherId] || 0;
                 const update = {
                     lastMessage: msgText || 'صورة',
@@ -1845,7 +1852,6 @@
                 await updateDoc(chatRef, update);
             }
 
-            // Add message
             await addDoc(collection(db, "chats", chatId, "messages"), {
                 text: msgText,
                 image: image,
@@ -1870,14 +1876,11 @@
         // Req 8: Notifications
         window.toggleNotifications = () => {
             if(toggleModal('notifications-modal')) {
-                // Mark badge as read
                 document.getElementById('notif-badge').classList.add('hidden');
             }
         }
 
         function checkNotifications() {
-            // Listen for new messages/ratings where target is me
-            // Simplified: Listen to chats where I have unread > 0
             const q = query(collection(db, "chats"), where("participants", "array-contains", state.user.uid));
             
             onSnapshot(q, (snap) => {
@@ -1914,20 +1917,39 @@
         });
 
         window.refreshAdmin=()=>{
-            onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{
+            // Admin sees all chats (including support)
+            // Note: In production, use a separate collection or field for support chats
+            onSnapshot(query(collection(db,"chats")),s=>{
                 const l=document.getElementById('admin-users-list');
                 l.innerHTML='';
                 let chats = [];
                 s.forEach(d => chats.push({id: d.id, ...d.data()}));
                 chats.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
                 chats.forEach(dt => {
-                    l.innerHTML+=`<div onclick="loadAdmin('${dt.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>`
+                    const name = dt.type === 'support' ? 'دعم فني' : (dt.participants ? 'محادثة' : 'غير معروف');
+                    l.innerHTML+=`<div onclick="loadAdmin('${dt.id}','${name}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${name}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMessage}</div></div>`
                 });
             })
         };
 
-        window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'}">${m.t}</span></div>`});b.scrollTop=9999})};
-        window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
+        window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;
+             // Fetch messages subcollection
+             const msgQ = query(collection(db, "chats", id, "messages"), orderBy("timestamp", "asc"));
+             getDocs(msgQ).then(msgs => {
+                 msgs.forEach(m => {
+                     const data = m.data();
+                     b.innerHTML+=`<div class="${data.senderId===state.user.uid?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${data.senderId===state.user.uid?'bg-primary text-white':'bg-white/10'}">${data.text}</span></div>`;
+                 });
+                 b.scrollTop=9999;
+             });
+        })};
+        window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';
+            await addDoc(collection(db,"chats",state.activeAdminChat, "messages"),{
+                text: t,
+                senderId: state.user.uid,
+                timestamp: serverTimestamp()
+            });
+        };
         window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
 
         // Profile Logic (Updated)
@@ -2422,11 +2444,7 @@
                 sendPrivateMessage(msg, productImg).then(() => {
                     toggleOrderModal(); // Close order
                     toggleDetailsModal(); // Close details
-                    // Fetch user data before opening chat to ensure UI is correct
-                    getDoc(doc(db, "users", sellerId)).then(snap => {
-                         const uData = snap.exists() ? snap.data() : { name: 'البائع' };
-                         openPrivateChat(sellerId, uData); 
-                    });
+                    openPrivateChat(sellerId, state.currentAuthor || {name: 'البائع'}); // Open chat
                     showToast("تم إرسال الطلب بنجاح");
                 });
                 return;
@@ -2436,36 +2454,6 @@
         
         function toggleDetailsModal() {
              document.getElementById('details-modal').classList.toggle('hidden');
-        }
-        
-        // Expose functions globally
-        window.editProduct = () => {
-             // Simple edit: just alert for now, or redirect to add modal with data pre-filled
-             // For full edit, we need to populate add-modal fields.
-             // Implementing basic pre-fill:
-             if(!state.currentItem) return;
-             toggleDetailsModal(); // Close details
-             
-             // Open Add Modal
-             toggleAddModal();
-             
-             // Fill fields
-             document.getElementById('in-title').value = state.currentItem.title;
-             document.getElementById('in-price').value = state.currentItem.price;
-             document.getElementById('in-cat').value = state.currentItem.category;
-             updateFormFields();
-             // ... fill other fields ...
-             // Note: Images and complex fields require more logic not fully implemented in this snippet
-             showToast("وضع التعديل: قم بتحديث البيانات واضغط نشر");
-        }
-        
-        window.deleteProduct = async () => {
-            if(!state.currentItem) return;
-            if(confirm("هل أنت متأكد من حذف هذا المنتج نهائياً؟")) {
-                await deleteDoc(doc(db, "listings", state.currentItem.id));
-                showToast("تم حذف المنتج");
-                toggleDetailsModal();
-            }
         }
 
         lucide.createIcons();
