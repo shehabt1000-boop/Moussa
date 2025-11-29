@@ -48,15 +48,13 @@
         .select-none { user-select: none; }
 
         /* Custom Scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; border: 1px solid white; }
         .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
-        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border: 1px solid #0f172a; }
 
-        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
+        /* Static Modal (No Animation) */
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         
@@ -68,17 +66,14 @@
             .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; } 
         }
 
-        /* Modern Toast */
-        @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        /* Toast (Static Fade) */
         .toast { 
-            animation: slideInDown 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; 
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;
             width: max-content; max-width: 90vw; 
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(8px);
+            transition: opacity 0.3s;
         }
-        .toast.hiding { animation: fadeOut 0.3s ease-in forwards; }
+        .toast.hiding { opacity: 0; }
 
         .form-label { display: block; font-size: 0.7rem; font-weight: 800; color: #334155; margin-bottom: 0.1rem; }
         .dark .form-label { color: #cbd5e1; }
@@ -107,9 +102,6 @@
         .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }
         .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
 
-        @keyframes slideUp { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .install-banner { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
         #login-view { position: fixed; inset: 0; z-index: 200; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
         #login-view.hidden { display: none !important; } 
         .dark #login-view { background-color: #0f172a; }
@@ -117,16 +109,16 @@
         .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Splash Screen */
-        #splash-screen { position: fixed; inset: 0; z-index: 300; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
-        #splash-screen.fade-out { opacity: 0; pointer-events: none; }
+        /* Splash Screen (Static) */
+        #splash-screen { position: fixed; inset: 0; z-index: 300; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #splash-screen.hidden { display: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
 
     <!-- Splash Screen -->
     <div id="splash-screen">
-        <div class="bg-primary text-white p-4 rounded-full shadow-2xl mb-4 animate-bounce">
+        <div class="bg-primary text-white p-4 rounded-full shadow-2xl mb-4">
             <i data-lucide="shopping-bag" class="w-12 h-12"></i>
         </div>
         <h1 class="text-3xl font-black text-white mb-2">السوق <span class="text-primary">وياك</span></h1>
@@ -280,7 +272,7 @@
                     </div>
                 </div>
                 
-                <div id="filter-panel" class="hidden mt-1 bg-white dark:bg-darkbg p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl animate-pop relative z-50">
+                <div id="filter-panel" class="hidden mt-1 bg-white dark:bg-darkbg p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl relative z-50">
                     <div class="flex justify-between items-center mb-1">
                         <span class="font-bold text-[10px]">تصفية النتائج</span>
                         <button onclick="resetFilters()" class="text-[10px] text-red-500 font-bold underline cursor-pointer p-1">إعادة تعيين</button>
@@ -331,7 +323,7 @@
 
     <!-- Profile Modal -->
     <div id="profile-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+        <div class="mobile-full-modal border border-slate-200 dark:border-slate-700">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
                 <h3 class="font-bold text-sm">الملف الشخصي</h3>
                 <button onclick="toggleProfile()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
@@ -457,9 +449,9 @@
         </div>
     </div>
 
-    <!-- Order Modal (Req 7) -->
+    <!-- Order Modal -->
     <div id="order-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+        <div class="mobile-full-modal border border-slate-200 dark:border-slate-700">
             <div class="bg-primary p-3 text-white flex justify-between items-center shrink-0">
                 <h3 class="font-bold text-sm">طلب المنتج</h3>
                 <button onclick="toggleOrderModal()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
@@ -473,18 +465,26 @@
                     </div>
                 </div>
 
-                <div id="order-items-container" class="space-y-3">
-                    <!-- Items will be added here -->
-                </div>
+                <div id="order-items-container" class="space-y-3"></div>
 
                 <button onclick="addOrderItem()" class="w-full py-2 mt-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 text-xs font-bold hover:border-primary hover:text-primary transition flex items-center justify-center gap-1">
                     <i data-lucide="plus" class="w-3 h-3"></i> إضافة قطعة أخرى
                 </button>
 
                 <div class="mt-6 space-y-3 border-t border-slate-100 dark:border-slate-700 pt-4">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="form-label">المحافظة</label>
+                            <select id="ord-gov" onchange="updateOrderCities()" class="form-input text-xs"></select>
+                        </div>
+                        <div>
+                            <label class="form-label">المركز/المدينة</label>
+                            <select id="ord-city" class="form-input text-xs"></select>
+                        </div>
+                    </div>
                     <div>
-                        <label class="form-label">المحافظة</label>
-                        <select id="ord-gov" class="form-input text-xs"></select>
+                        <label class="form-label">العنوان بالتفصيل</label>
+                        <input id="ord-address" type="text" class="form-input text-xs" placeholder="الشارع، رقم المنزل...">
                     </div>
                     <div>
                         <label class="form-label">رقم الهاتف</label>
@@ -504,7 +504,7 @@
 
     <!-- Add Modal -->
     <div id="add-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+        <div class="mobile-full-modal border border-slate-200 dark:border-slate-700">
             <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0 h-12">
                 <h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة منتج</h3>
                 <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
@@ -562,7 +562,7 @@
 
     <!-- Details Modal -->
     <div id="details-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+        <div class="mobile-full-modal border border-slate-200 dark:border-slate-700">
             <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
                 <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
                 <div class="absolute top-3 right-3 flex gap-2 z-20">
@@ -574,10 +574,11 @@
                 </div>
                 <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
                 <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
+                <!-- Date on Image -->
+                <div id="d-date" class="absolute top-3 left-1/2 -translate-x-1/2 bg-white/90 px-2 py-0.5 rounded-full text-[10px] font-bold text-black z-10 shadow-sm"></div>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <!-- Req 5: Order Button -->
-                <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse">
+                <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2">
                     <i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج
                 </button>
 
@@ -596,7 +597,6 @@
                 <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700">
                     <span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> 
                     <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span>
-                    <span id="d-date" class="text-[10px] text-slate-400 mr-auto"></span>
                 </div>
                 
                 <div id="d-variants-container" class="space-y-2 mb-4">
@@ -645,7 +645,7 @@
 
     <!-- Chat Modal -->
     <div id="chat-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+        <div class="mobile-full-modal border border-slate-200 dark:border-slate-700">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-2">
                     <div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div>
@@ -715,6 +715,16 @@
             }
         });
 
+        // iOS Detection for PWA
+        const isIos = () => {
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            return /iphone|ipad|ipod/.test(userAgent);
+        }
+        if (isIos() && !window.navigator.standalone && !localStorage.getItem('pwa_installed')) {
+             // Show banner for iOS too
+             document.getElementById('install-banner').classList.remove('hidden');
+        }
+
         window.installPWA = async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -724,6 +734,8 @@
                 }
                 deferredPrompt = null;
                 document.getElementById('install-banner').classList.add('hidden');
+            } else if (isIos()) {
+                alert("لتثبيت التطبيق على الآيفون: اضغط على زر المشاركة (Share) ثم اختر 'إضافة إلى الشاشة الرئيسية' (Add to Home Screen)");
             }
         }
 
@@ -732,24 +744,24 @@
         }
 
         const EGYPT_DATA = {
-            "القاهرة": ["مدينة نصر", "مصر الجديدة", "المعادي", "التجمع الخامس", "شبرا", "عين شمس", "المرج", "حلوان", "وسط البلد", "الزمالك", "المنيل", "العباسية", "الزيتون", "حدائق القبة", "السيدة زينب"],
-            "الجيزة": ["الهرم", "فيصل", "6 أكتوبر", "الشيخ زايد", "الدقي", "المهندسين", "العجوزة", "إمبابة", "الوراق", "بولاق الدكرور", "العمرانية", "المنيب", "البدرشين", "الحوامدية", "الصف", "أطفيح"],
-            "الإسكندرية": ["سموحة", "ميامي", "المنتزه", "سيدي بشر", "العصافرة", "المندرة", "فيكتوريا", "جليم", "ستانلي", "رشدي", "كفر عبده", "محرم بك", "العجمي", "البيطاش", "الهانوفيل", "برج العرب"],
-            "الدقهلية": ["المنصورة", "طلخا", "ميت غمر", "دكرنس", "شربين", "السنبلاوين", "أجا", "بلقاس", "منية النصر", "المطرية", "الجمالية", "بني عبيد"],
-            "الشرقية": ["الزقازيق", "العشر من رمضان", "منيا القمح", "بلبيس", "فاقوس", "أبو حماد", "الحسينية", "كفر صقر", "أبو كبير", "ديرب نجم", "مشتول السوق", "ههيا"],
+            "القاهرة": ["مدينة نصر", "مصر الجديدة", "المعادي", "التجمع الخامس", "شبرا", "عين شمس", "المرج", "حلوان", "وسط البلد", "الزمالك", "المنيل", "العباسية", "الزيتون", "حدائق القبة", "السيدة زينب", "المقطم", "الرحاب", "مدينتي", "الشروق", "بدر", "15 مايو"],
+            "الجيزة": ["الهرم", "فيصل", "6 أكتوبر", "الشيخ زايد", "الدقي", "المهندسين", "العجوزة", "إمبابة", "الوراق", "بولاق الدكرور", "العمرانية", "المنيب", "البدرشين", "الحوامدية", "الصف", "أطفيح", "العياط", "أوسيم", "كرداسة"],
+            "الإسكندرية": ["سموحة", "ميامي", "المنتزه", "سيدي بشر", "العصافرة", "المندرة", "فيكتوريا", "جليم", "ستانلي", "رشدي", "كفر عبده", "محرم بك", "العجمي", "البيطاش", "الهانوفيل", "برج العرب", "العامرية", "اللبان", "المنشية"],
+            "الدقهلية": ["المنصورة", "طلخا", "ميت غمر", "دكرنس", "شربين", "السنبلاوين", "أجا", "بلقاس", "منية النصر", "المطرية", "الجمالية", "بني عبيد", "تمي الأمديد", "ميت سلسيل", "نبروه"],
+            "الشرقية": ["الزقازيق", "العشر من رمضان", "منيا القمح", "بلبيس", "فاقوس", "أبو حماد", "الحسينية", "كفر صقر", "أبو كبير", "ديرب نجم", "مشتول السوق", "ههيا", "الإبراهيمية", "القنايات", "أولاد صقر"],
             "المنوفية": ["شبين الكوم", "مدينة السادات", "منوف", "أشمون", "قويسنا", "بركة السبع", "تلا", "الشهداء", "الباجور", "سرس الليان"],
-            "القليوبية": ["بنها", "شبرا الخيمة", "قليوب", "القناطر الخيرية", "الخانكة", "كفر شكر", "طوخ", "العبور", "شبين القناطر", "الخصوص"],
-            "البحيرة": ["دمنهور", "كفر الدوار", "إيتاي البارود", "أبو حمص", "كوم حمادة", "الدلنجات", "حوش عيسى", "رشيد", "إدكو", "المحمودية", "الرحمانية", "النوبارية"],
+            "القليوبية": ["بنها", "شبرا الخيمة", "قليوب", "القناطر الخيرية", "الخانكة", "كفر شكر", "طوخ", "العبور", "شبين القناطر", "الخصوص", "قها"],
+            "البحيرة": ["دمنهور", "كفر الدوار", "إيتاي البارود", "أبو حمص", "كوم حمادة", "الدلنجات", "حوش عيسى", "رشيد", "إدكو", "المحمودية", "الرحمانية", "النوبارية", "وادي النطرون", "بدر", "شبراخيت"],
             "الغربية": ["طنطا", "المحلة الكبرى", "كفر الزيات", "زفتى", "السنطة", "قطور", "بسيون", "سمنود"],
             "بورسعيد": ["حي الشرق", "حي العرب", "حي المناخ", "حي الضواحي", "حي الجنوب", "حي الزهور", "بورفؤاد"],
-            "دمياط": ["دمياط", "رأس البر", "دمياط الجديدة", "فارسكور", "الزرقا", "كفر سعد", "الروضة", "السرو", "عزبة البرج", "ميت أبو غالب"],
+            "دمياط": ["دمياط", "رأس البر", "دمياط الجديدة", "فارسكور", "الزرقا", "كفر سعد", "الروضة", "السرو", "عزبة البرج", "ميت أبو غالب", "كفر البطيخ"],
             "الإسماعيلية": ["الإسماعيلية", "القصاصين", "التل الكبير", "فايد", "القنطرة شرق", "القنطرة غرب", "أبو صوير"],
             "السويس": ["حي السويس", "حي الأربعين", "حي عتاقة", "حي الجناين", "حي فيصل"],
             "كفر الشيخ": ["كفر الشيخ", "دسوق", "فوه", "مطوبس", "بلطيم", "مصيف بلطيم", "الحامول", "بيلا", "الرياض", "سيدي سالم", "قلين"],
             "الفيوم": ["الفيوم", "الفيوم الجديدة", "طامية", "سنورس", "إطسا", "إبشواي", "يوسف الصديق"],
             "بني سويف": ["بني سويف", "بني سويف الجديدة", "الواسطى", "ناصر", "إهناسيا", "ببا", "الفشن", "سمسطا"],
             "المنيا": ["المنيا", "المنيا الجديدة", "العدوة", "مغاغة", "بني مزار", "مطاي", "سمالوط", "أبو قرقاص", "ملوي", "دير مواس"],
-            "أسيوط": ["أسيوط", "أسيوط الجديدة", "ديروط", "القوصية", "أبنوب", "منفلوط", "أبو تيج", "الغنايم", "ساحل سليم", "البداري", "صدفا"],
+            "أسيوط": ["أسيوط", "أسيوط الجديدة", "ديروط", "القوصية", "أبنوب", "منفلوط", "أبو تيج", "الغنايم", "ساحل سليم", "البداري", "صدفا", "الفتح"],
             "سوهاج": ["سوهاج", "سوهاج الجديدة", "أخميم", "أخميم الجديدة", "البلينا", "المراغة", "المنشأة", "دار السلام", "جرجا", "جهينة", "ساقلتة", "طما", "طهطا"],
             "قنا": ["قنا", "قنا الجديدة", "أبو تشت", "نجع حمادي", "دشنا", "الوقف", "قفط", "قوص", "نقادة", "فرشوط"],
             "الأقصر": ["الأقصر", "إسنا", "أرمنت", "القرنة", "البياضية", "الزينية", "الطود"],
@@ -833,7 +845,8 @@
             profileReviews: [],
             profileReviewsLimit: 3,
             viewingProfileId: null,
-            orderItems: [] // Req 7
+            orderItems: [],
+            currentAuthorPhone: null // Req 2
         };
 
         function initGovs() {
@@ -841,7 +854,7 @@
             const filterGov = document.getElementById('filter-gov');
             const shipGovList = document.getElementById('ship-gov-list'); 
             const editGov = document.getElementById('edit-gov'); 
-            const ordGov = document.getElementById('ord-gov'); // Req 7
+            const ordGov = document.getElementById('ord-gov'); 
 
             govSelect.innerHTML = '<option value="">اختر المحافظة</option>';
             filterGov.innerHTML = '<option value="">كل المحافظات</option>';
@@ -878,6 +891,18 @@
         window.updateEditCities = () => {
             const gov = document.getElementById('edit-gov').value;
             const citySelect = document.getElementById('edit-city');
+            citySelect.innerHTML = '<option value="">اختر المركز/المدينة</option>';
+            if(gov && EGYPT_DATA[gov]) {
+                EGYPT_DATA[gov].forEach(city => {
+                    citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+                });
+            }
+        }
+
+        // Req 3: Order Cities
+        window.updateOrderCities = () => {
+            const gov = document.getElementById('ord-gov').value;
+            const citySelect = document.getElementById('ord-city');
             citySelect.innerHTML = '<option value="">اختر المركز/المدينة</option>';
             if(gov && EGYPT_DATA[gov]) {
                 EGYPT_DATA[gov].forEach(city => {
@@ -1364,7 +1389,7 @@
             lucide.createIcons(); 
         }
 
-        // Req 6: Format Date Helper
+        // Req 4: Format Date Helper
         function formatDate(timestamp) {
             if (!timestamp) return '';
             const date = timestamp.toDate();
@@ -1464,6 +1489,8 @@
                 if(uSnap.exists()) {
                     const uData = uSnap.data();
                     pubName.innerText = uData.name || "مستخدم";
+                    // Req 2: Store author phone for fallback
+                    state.currentAuthorPhone = uData.phone;
                     if(uData.image) {
                         pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`;
                     } else {
@@ -2256,6 +2283,9 @@
                 if(state.userData) {
                     document.getElementById('ord-phone').value = state.userData.phone || '';
                     document.getElementById('ord-gov').value = state.userData.governorate || '';
+                    updateOrderCities();
+                    document.getElementById('ord-city').value = state.userData.city || '';
+                    document.getElementById('ord-address').value = state.userData.address || '';
                 }
 
                 state.orderItems = [];
@@ -2309,9 +2339,6 @@
         }
 
         window.removeOrderItem = (index) => {
-            // Simplified removal: just re-render for now or hide. 
-            // For simplicity in this snippet, we won't implement full re-index logic to keep code short.
-            // Just hide and set qty to 0.
             document.getElementById(`ord-item-${index}`).classList.add('hidden');
             state.orderItems[index].qty = 0;
             calculateOrderTotal();
@@ -2327,9 +2354,15 @@
         window.confirmOrder = () => {
             const phone = document.getElementById('ord-phone').value;
             const gov = document.getElementById('ord-gov').value;
+            const city = document.getElementById('ord-city').value;
+            const address = document.getElementById('ord-address').value;
             
-            if(!phone || !gov) return showToast("يرجى إكمال البيانات (الهاتف والمحافظة)", "e");
+            if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e");
             
+            // Req 2: Fallback Phone
+            const targetPhone = state.currentItem.phone || state.currentAuthorPhone;
+            if(!targetPhone) return showToast("رقم المسوق غير متوفر", "e");
+
             let msg = `*طلب جديد من تطبيق السوق وياك* 🛍️\n\n`;
             msg += `*المنتج:* ${state.currentItem.title}\n`;
             msg += `*السعر للقطعة:* ${state.currentItem.price}\n\n`;
@@ -2350,9 +2383,9 @@
             msg += `*بيانات العميل:*\n`;
             msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
             msg += `الهاتف: ${phone}\n`;
-            msg += `المحافظة: ${gov}\n`;
+            msg += `العنوان: ${gov} - ${city} - ${address}\n`;
             
-            const url = `https://wa.me/20${state.currentItem.phone}?text=${encodeURIComponent(msg)}`;
+            const url = `https://wa.me/20${targetPhone}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
             toggleOrderModal();
         }
