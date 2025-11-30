@@ -1886,173 +1886,132 @@ setTimeout(() => {
         	});
     	}
 
-
-
-
-    	window.openDetails = async (id) => {
-        	const item = state.listings.find(i => i.id === id); if(!item) return;
-        	state.currentItem = item; 
-        	document.getElementById('d-title').innerText = item.title; 
-        	document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; 
-        	document.getElementById('d-cat').innerText = item.category; 
-        	document.getElementById('d-desc').innerText = item.desc;
-        	document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
-        	document.getElementById('d-date').innerText = formatDate(item.createdAt); // Req 10
-
-
-
-
-        	const pubBar = document.getElementById('d-pub-bar');
-        	pubBar.onclick = () => toggleProfile(item.authorId);
-
-
-
-
-        	const pubName = document.getElementById('d-pub-name');
-        	const pubImg = document.getElementById('d-pub-img');
-        	pubName.innerText = "جاري التحميل...";
-
-
-
-
-        	// Req 2: Fetch Author for Fallback Phone
-        	try {
-            	const uSnap = await getDoc(doc(db, "users", item.authorId));
-            	if(uSnap.exists()) {
-                	const uData = uSnap.data();
-                	state.currentAuthor = uData; // Store for order
-                	pubName.innerText = uData.name || "مستخدم";
-                	if(uData.image) {
-                    	pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`;
-                	} else {
-                    	pubImg.innerHTML = `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`;
-                	}
-            	} else {
-                	pubName.innerText = "مستخدم غير معروف";
-                	state.currentAuthor = null;
-            	}
-        	} catch(e) {
-            	pubName.innerText = "ناشر";
-            	state.currentAuthor = null;
-        	}
-
-
-
-
-        	const amCont = document.getElementById('d-features'); 
-        	amCont.innerHTML=''; 
-
-
-
-
-        	const sizeRow = document.getElementById('d-sizes-row');
-        	const sizeList = document.getElementById('d-sizes-list');
-        	const colorRow = document.getElementById('d-colors-row');
-        	const colorList = document.getElementById('d-colors-list');
-
-
-
-
-        	sizeRow.classList.add('hidden');
-        	colorRow.classList.add('hidden');
-        	sizeList.innerHTML = '';
-        	colorList.innerHTML = '';
-
-
-
-
-        	if(item.size && Array.isArray(item.size) && item.size.length > 0) {
-             	sizeRow.classList.remove('hidden');
-             	item.size.forEach(s => {
-                 	sizeList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm min-w-[30px] text-center">${s}</span>`;
-             	});
-        	}
-
-
-
-
-        	if(item.color && Array.isArray(item.color) && item.color.length > 0) {
-             	colorRow.classList.remove('hidden');
-             	item.color.forEach(c => {
-                 	colorList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm">${c}</span>`;
-             	});
-        	}
-
-
-
-
-        	if(item.features) item.features.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1 border border-slate-200 dark:border-slate-600 font-bold">${a}</span>`);
-
-
-
-
-        	const shipInfo = document.getElementById('d-shipping-info');
-        	if(item.shippingMode === 'specific' && item.shippingGov) {
-             	let govText = Array.isArray(item.shippingGov) ? item.shippingGov.join('، ') : item.shippingGov;
-             	shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> <span class="whitespace-normal leading-tight text-right">الشحن متاح لـ: ${govText}</span>`;
-        	} else {
-            	shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> شحن لكل المحافظات`;
-        	}
-
-
-
-
-        	document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; 
-        	document.getElementById('d-call').href = `tel:${item.phone}`;
-
-
-
-
-        	const imgs = Array.isArray(item.images) ? item.images : [item.image]; 
-        	state.detailsSliderImages = imgs; 
-        	state.detailsSliderIndex = 0;   
-
-
-
-
-        	const dotsContainer = document.getElementById('details-dots');
-        	const imgEl = document.getElementById('details-img');
-        	if (imgEl) {
-            	imgEl.src = imgs.length > 0 ? imgs[0] : 'https://placehold.co/400x300/e2e8f0/94a3b8?text=No+Image';
-            	imgEl.onclick = () => openLightbox(imgEl.src); 
-        	}
-
-
-
-
-        	dotsContainer.innerHTML = ''; 
-        	if (imgs.length > 1) {
-            	dotsContainer.innerHTML = imgs.map((_, index) => 
-                	`<span id="dot-${index}" class="w-2 h-2 rounded-full bg-white/40 transition-all"></span>`
-            	).join('');
-        	}
-
-
-
-
-        	document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
-
-
-
-
-        	state.productReviewsLimit = 1;
-        	loadProductReviews(false);
-
-
-
-
-        	toggleModal('details-modal'); 
-        	goToDetailsSlide(0, 'auto'); 
-        	lucide.createIcons();
-
-
-
-
-        	const url = new URL(window.location);
-        	url.searchParams.set('product_id', id);
-        	window.history.replaceState({}, '', url);
-    	}
-
+   window.openDetails = (id) => {
+        // 1. العثور على المنتج فوراً
+        const item = state.listings.find(i => i.id === id); 
+        if(!item) return;
+        state.currentItem = item; 
+
+        // 2. تحديث البيانات الأساسية (تظهر فوراً)
+        document.getElementById('d-title').innerText = item.title; 
+        document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; 
+        document.getElementById('d-cat').innerText = item.category; 
+        document.getElementById('d-desc').innerText = item.desc;
+        document.getElementById('d-cond').innerText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
+        document.getElementById('d-date').innerText = formatDate(item.createdAt);
+
+        // 3. وضع "جاري التحميل" لبيانات البائع مؤقتاً
+        const pubName = document.getElementById('d-pub-name');
+        const pubImg = document.getElementById('d-pub-img');
+        pubName.innerText = "جاري التحميل...";
+        pubImg.innerHTML = `<div class="animate-pulse bg-slate-300 w-full h-full"></div>`; // Skeleton loader
+        
+        // تجهيز زر البروفايل
+        document.getElementById('d-pub-bar').onclick = () => toggleProfile(item.authorId);
+
+        // 4. معالجة المميزات والألوان والمقاسات
+        const amCont = document.getElementById('d-features'); 
+        amCont.innerHTML=''; 
+        const sizeRow = document.getElementById('d-sizes-row');
+        const sizeList = document.getElementById('d-sizes-list');
+        const colorRow = document.getElementById('d-colors-row');
+        const colorList = document.getElementById('d-colors-list');
+
+        sizeRow.classList.add('hidden');
+        colorRow.classList.add('hidden');
+        sizeList.innerHTML = '';
+        colorList.innerHTML = '';
+
+        if(item.size && Array.isArray(item.size) && item.size.length > 0) {
+             sizeRow.classList.remove('hidden');
+             item.size.forEach(s => {
+                 sizeList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm min-w-[30px] text-center">${s}</span>`;
+             });
+        }
+
+        if(item.color && Array.isArray(item.color) && item.color.length > 0) {
+             colorRow.classList.remove('hidden');
+             item.color.forEach(c => {
+                 colorList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm">${c}</span>`;
+             });
+        }
+
+        if(item.features) item.features.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1 border border-slate-200 dark:border-slate-600 font-bold">${a}</span>`);
+
+        // 5. معلومات الشحن والاتصال
+        const shipInfo = document.getElementById('d-shipping-info');
+        if(item.shippingMode === 'specific' && item.shippingGov) {
+             let govText = Array.isArray(item.shippingGov) ? item.shippingGov.join('، ') : item.shippingGov;
+             shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> <span class="whitespace-normal leading-tight text-right">الشحن متاح لـ: ${govText}</span>`;
+        } else {
+            shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> شحن لكل المحافظات`;
+        }
+
+        document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; 
+        document.getElementById('d-call').href = `tel:${item.phone}`;
+
+        // 6. إعداد الصور والسلايدر
+        const imgs = Array.isArray(item.images) ? item.images : [item.image]; 
+        state.detailsSliderImages = imgs; 
+        state.detailsSliderIndex = 0;   
+
+        const dotsContainer = document.getElementById('details-dots');
+        const imgEl = document.getElementById('details-img');
+        if (imgEl) {
+            imgEl.src = imgs.length > 0 ? imgs[0] : 'https://placehold.co/400x300/e2e8f0/94a3b8?text=No+Image';
+            imgEl.onclick = () => openLightbox(imgEl.src); 
+        }
+
+        dotsContainer.innerHTML = ''; 
+        if (imgs.length > 1) {
+            dotsContainer.innerHTML = imgs.map((_, index) => 
+                `<span id="dot-${index}" class="w-2 h-2 rounded-full bg-white/40 transition-all"></span>`
+            ).join('');
+        }
+        document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
+
+        // 7. فتح المودال فورااااً (ده اللي بيخليها سريعة)
+        toggleModal('details-modal'); 
+        goToDetailsSlide(0, 'auto'); 
+        lucide.createIcons();
+
+        // تحديث الرابط
+        const url = new URL(window.location);
+        url.searchParams.set('product_id', id);
+        window.history.replaceState({}, '', url);
+
+        // 8. جلب بيانات البائع والتقييمات في الخلفية (Lazy Loading)
+        (async () => {
+            try {
+                // جلب بيانات البائع
+                const uSnap = await getDoc(doc(db, "users", item.authorId));
+                if(uSnap.exists()) {
+                    const uData = uSnap.data();
+                    state.currentAuthor = uData;
+                    // تحديث الواجهة لما البيانات توصل
+                    if(document.getElementById('details-modal').classList.contains('hidden')) return; // لو قفل المودال قبل ما تخلص
+                    
+                    pubName.innerText = uData.name || "مستخدم";
+                    if(uData.image) {
+                        pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`;
+                    } else {
+                        pubImg.innerHTML = `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`;
+                        lucide.createIcons();
+                    }
+                } else {
+                    pubName.innerText = "مستخدم غير معروف";
+                    state.currentAuthor = null;
+                }
+            } catch(e) {
+                pubName.innerText = "ناشر";
+                state.currentAuthor = null;
+            }
+            
+            // جلب التقييمات
+            state.productReviewsLimit = 1;
+            loadProductReviews(false);
+        })();
+    }
 
 
 
