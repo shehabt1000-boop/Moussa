@@ -178,7 +178,7 @@
 
 
 	<!-- LOGIN VIEW -->
-	<div id="login-view">
+	<div id="login-view" class="hidden">
     	<div class="w-full max-w-md bg-white dark:bg-darkbg p-4 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[95vh]">
         	<div class="flex flex-col items-center gap-1 mb-3 shrink-0">
             	<div class="bg-navy dark:bg-primary text-white p-2 rounded-xl shadow-lg rotate-3">
@@ -186,9 +186,6 @@
             	</div>
             	<h1 class="font-black text-lg text-navy dark:text-white">السوق <span class="text-primary">وياك</span></h1>
         	</div>
-
-
-
 
         	<div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-2 border border-slate-200 dark:border-slate-700 shrink-0">
             	<button onclick="setAuthType('login')" id="btn-type-login" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md">
@@ -1057,8 +1054,7 @@
 
 
 
-
-    	let state = { 
+   	let state = { 
         	user: null, 
         	userData: null,
         	listings: [], 
@@ -1070,9 +1066,13 @@
         	isAdmin: false, 
         	welcomeSent: false, 
         	favorites: [], 
-        	currentFilter: 'all', 
+            
+            // --- التعديل هنا: بنقرأ آخر مكان من الذاكرة ---
+        	currentFilter: localStorage.getItem('last_filter') || 'all', 
+        	currentView: localStorage.getItem('last_view') || 'home', 
+            // -------------------------------------------
+
         	currentItem: null, 
-        	currentView: 'home',
         	lightboxImages: [], 
         	lightboxIndex: 0,
         	detailsSliderIndex: 0, 
@@ -1090,7 +1090,6 @@
         	viewingProfileId: null,
         	orderItems: [] // Req 7
     	};
-
 
 
 
@@ -1170,9 +1169,7 @@
             	});
         	}
     	}
-
-
-        	onAuthStateChanged(auth, async (u) => { 
+   	onAuthStateChanged(auth, async (u) => { 
         	if(u) { 
             	state.user = u;
             	try {
@@ -1217,6 +1214,7 @@
             	document.getElementById('app-content').classList.add('hidden');
         	}
     	});
+
 
 
 
@@ -1531,9 +1529,12 @@ setTimeout(() => {
     	}
 
 
+   	function renderView() {
+            // --- إضافة: حفظ المكان الحالي والفلتر في الذاكرة ---
+            localStorage.setItem('last_view', state.currentView);
+            localStorage.setItem('last_filter', state.currentFilter);
+            // ------------------------------------------------
 
-
-    	function renderView() {
         	const searchInput = document.getElementById('search-input');
         	const catContainer = document.getElementById('categories-container');
         	const searchContainer = document.getElementById('search-container');
@@ -1542,13 +1543,7 @@ setTimeout(() => {
         	const filterBtn = document.getElementById('btn-filter-toggle');
         	const filterPanel = document.getElementById('filter-panel');
 
-
-
-
         	filterPanel.classList.add('hidden');
-
-
-
 
         	if (state.currentView === 'home') {
             	viewHeader.classList.add('hidden');
@@ -1562,9 +1557,6 @@ setTimeout(() => {
             	viewHeader.classList.remove('hidden');
             	const title = state.currentFilter === 'all' ? 'كل المنتجات' : (state.currentFilter === 'fav' ? 'المفضلة' : state.currentFilter);
             	document.getElementById('view-title').innerText = title;
-
-
-
 
             	if (state.currentFilter === 'fav') {
                 	searchContainer.classList.add('hidden');
@@ -1580,15 +1572,11 @@ setTimeout(() => {
                 	}
             	}
 
-
-
-
             	gridContainer.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-10';
             	filter(state.currentFilter);
         	}
         	lucide.createIcons();
     	}
-
 
 
 
