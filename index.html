@@ -1720,86 +1720,70 @@ setTimeout(() => {
         	renderProducts(); 
     	};
 
+   function renderProducts() {
+        const q = normalizeText(document.getElementById('search-input').value);
+        const priceFilter = document.getElementById('filter-price').value;
+        const govFilter = document.getElementById('filter-gov').value;
+
+        const cont = document.getElementById('grid-container'); 
+        
+        // 1. التصفية (Filtering)
+        let filtered = state.listings.filter(item => { 
+            let matchType = true; 
+            if (state.currentFilter === 'fav') {
+                matchType = (state.favorites || []).includes(item.id);
+            } else {
+                matchType = state.currentFilter === 'all' || item.category === state.currentFilter; 
+            }
+            
+            const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); 
+            
+            let matchGov = true;
+            if(govFilter && item.governorate) {
+                matchGov = item.governorate === govFilter;
+            }
+
+            return matchType && matchText && matchGov; 
+        }); 
+
+        // 2. الترتيب (Sorting)
+        if (priceFilter === 'low') {
+            filtered.sort((a, b) => a.price - b.price);
+        } else if (priceFilter === 'high') {
+            filtered.sort((a, b) => b.price - a.price);
+        }
+
+        // 3. الرسم (Rendering) - التحسين الكبير هنا 🚀
+        if(!filtered.length) {
+            cont.innerHTML = ''; 
+            document.getElementById('empty-state').classList.remove('hidden'); 
+        } else { 
+            document.getElementById('empty-state').classList.add('hidden'); 
+            
+            // استخدام map و join أسرع بكتير من forEach و innerHTML+=
+            // ده بيخلي المتصفح يرسم الصفحة مرة واحدة بس بدل ما يرسمها مع كل منتج
+            const cardsHTML = filtered.map(item => createCard(item)).join('');
+            cont.innerHTML = cardsHTML;
+        } 
+        
+        lucide.createIcons(); 
+    }
+
+    // دالة تنسيق التاريخ (سيبها زي ما هي)
+    function formatDate(timestamp) {
+        if (!timestamp) return '';
+        const date = timestamp.toDate();
+        const now = new Date();
+        const diff = Math.floor((now - date) / 1000); // seconds
+
+        if (diff < 60) return 'منذ لحظات';
+        if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
+        if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
+        if (diff < 604800) return `منذ ${Math.floor(diff / 86400)} يوم`;
+        return date.toLocaleDateString('ar-EG');
+    }
 
 
-
-    	function renderProducts() {
-        	const q = normalizeText(document.getElementById('search-input').value);
-        	const priceFilter = document.getElementById('filter-price').value;
-        	const govFilter = document.getElementById('filter-gov').value;
-
-
-
-
-        	const cont = document.getElementById('grid-container'); 
-        	cont.innerHTML = ''; 
-
-
-
-
-        	let filtered = state.listings.filter(item => { 
-            	let matchType = true; 
-            	if (state.currentFilter === 'fav') {
-                	matchType = (state.favorites || []).includes(item.id);
-            	} else {
-                	matchType = state.currentFilter === 'all' || item.category === state.currentFilter; 
-            	}
-            	const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); 
-
-
-
-
-            	let matchGov = true;
-            	if(govFilter && item.governorate) {
-                	matchGov = item.governorate === govFilter;
-            	}
-
-
-
-
-            	return matchType && matchText && matchGov; 
-        	}); 
-
-
-
-
-        	if (priceFilter === 'low') {
-            	filtered.sort((a, b) => a.price - b.price);
-        	} else if (priceFilter === 'high') {
-            	filtered.sort((a, b) => b.price - a.price);
-        	}
-
-
-
-
-        	if(!filtered.length) {
-            	document.getElementById('empty-state').classList.remove('hidden'); 
-        	} else { 
-            	document.getElementById('empty-state').classList.add('hidden'); 
-            	filtered.forEach(item => cont.innerHTML += createCard(item)); 
-        	} 
-        	lucide.createIcons(); 
-    	}
-
-
-
-
-    	// Req 4, 7, 10: Format Date Helper (Black Text)
-    	function formatDate(timestamp) {
-        	if (!timestamp) return '';
-        	const date = timestamp.toDate();
-        	const now = new Date();
-        	const diff = Math.floor((now - date) / 1000); // seconds
-
-
-
-
-        	if (diff < 60) return 'منذ لحظات';
-        	if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
-        	if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
-        	if (diff < 604800) return `منذ ${Math.floor(diff / 86400)} يوم`;
-        	return date.toLocaleDateString('ar-EG');
-    	}
 
        function createCard(item) {
         const imgs = Array.isArray(item.images) ? item.images : [item.image];
