@@ -385,23 +385,15 @@
         	</div>
 
 
+       <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar"></div>
 
+        <div id="home-grid" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4"></div>
 
-        	<div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar"></div>
+        <div id="grid-container" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-10 mt-2"></div>
 
-
-
-
-        	<div id="grid-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-10 mt-2"></div>
-
-
-
-
-        	<div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
-        	<div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
-    	</main>
-
-
+        <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
+        <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
+    </main>
 
 
     	<!-- NAV BAR -->
@@ -1530,63 +1522,82 @@ setTimeout(() => {
         	});
     	}
 
+function renderView() {
+    // حفظ الحالة في الذاكرة
+    localStorage.setItem('last_view', state.currentView);
+    localStorage.setItem('last_filter', state.currentFilter);
 
-   	function renderView() {
-            // --- إضافة: حفظ المكان الحالي والفلتر في الذاكرة ---
-            localStorage.setItem('last_view', state.currentView);
-            localStorage.setItem('last_filter', state.currentFilter);
-            // ------------------------------------------------
+    // تعريف العناصر
+    const searchInput = document.getElementById('search-input');
+    const catContainer = document.getElementById('categories-container');
+    const searchContainer = document.getElementById('search-container');
+    const viewHeader = document.getElementById('view-header');
+    const filterBtn = document.getElementById('btn-filter-toggle');
+    const filterPanel = document.getElementById('filter-panel');
+    
+    // 👇 التعديل الأساسي: تعريف الحاويتين المنفصلتين
+    const homeGrid = document.getElementById('home-grid');       // للأقسام (جديد)
+    const prodGrid = document.getElementById('grid-container');   // للمنتجات (قديم)
 
-        	const searchInput = document.getElementById('search-input');
-        	const catContainer = document.getElementById('categories-container');
-        	const searchContainer = document.getElementById('search-container');
-        	const viewHeader = document.getElementById('view-header');
-        	const gridContainer = document.getElementById('grid-container');
-        	const filterBtn = document.getElementById('btn-filter-toggle');
-        	const filterPanel = document.getElementById('filter-panel');
+    // إغلاق بانل الفلتر دائماً عند التنقل
+    filterPanel.classList.add('hidden');
 
-        	filterPanel.classList.add('hidden');
+    if (state.currentView === 'home') {
+        // === وضع الصفحة الرئيسية ===
+        
+        // 1. التعامل مع الحاويات (السرعة هنا 🚀)
+        if(homeGrid) homeGrid.classList.remove('hidden'); // إظهار الأقسام فوراً
+        prodGrid.classList.add('hidden');                 // إخفاء المنتجات
+        
+        // 2. إخفاء عناصر الهيدر غير المطلوبة
+        viewHeader.classList.add('hidden');
+        catContainer.classList.add('hidden');
+        filterBtn.classList.add('hidden'); 
+        
+        // 3. إعداد البحث
+        searchContainer.classList.remove('hidden');
+        searchInput.placeholder = 'ابحث عن قسم...';
+        
+        // ⛔ لاحظ: حذفنا سطر renderCategoryCards() من هنا
+        // لأننا استدعيناها مرة واحدة عند تشغيل الموقع، فلا داعي لإعادة الرسم
 
-        	if (state.currentView === 'home') {
-            	viewHeader.classList.add('hidden');
-            	catContainer.classList.add('hidden');
-            	filterBtn.classList.add('hidden'); 
-            	searchContainer.classList.remove('hidden');
-            	gridContainer.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4';
-            	searchInput.placeholder = 'ابحث عن قسم...';
-            	renderCategoryCards();
-        	} else if (state.currentView === 'category') {
-            	viewHeader.classList.remove('hidden');
-            	const title = state.currentFilter === 'all' ? 'كل المنتجات' : (state.currentFilter === 'fav' ? 'المفضلة' : state.currentFilter);
-            	document.getElementById('view-title').innerText = title;
+    } else if (state.currentView === 'category') {
+        // === وضع عرض المنتجات ===
 
-            	if (state.currentFilter === 'fav') {
-                	searchContainer.classList.add('hidden');
-                	catContainer.classList.add('hidden');
-            	} else {
-                	searchContainer.classList.remove('hidden');
-                	filterBtn.classList.remove('hidden'); 
-                	searchInput.placeholder = 'ابحث عن منتج...';
-                	if (state.currentFilter === 'all') {
-                    	catContainer.classList.remove('hidden');
-                	} else {
-                    	catContainer.classList.add('hidden');
-                	}
-            	}
+        // 1. التعامل مع الحاويات
+        if(homeGrid) homeGrid.classList.add('hidden');    // إخفاء الأقسام
+        prodGrid.classList.remove('hidden');              // إظهار المنتجات
 
-            	gridContainer.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-10';
-            	filter(state.currentFilter);
-        	}
-        	lucide.createIcons();
-    	}
+        // 2. إظهار الهيدر والعنوان
+        viewHeader.classList.remove('hidden');
+        const title = state.currentFilter === 'all' ? 'كل المنتجات' : (state.currentFilter === 'fav' ? 'المفضلة' : state.currentFilter);
+        document.getElementById('view-title').innerText = title;
 
+        // 3. منطق الفلتر والمفضلة
+        if (state.currentFilter === 'fav') {
+            searchContainer.classList.add('hidden');
+            catContainer.classList.add('hidden');
+        } else {
+            searchContainer.classList.remove('hidden');
+            filterBtn.classList.remove('hidden'); 
+            searchInput.placeholder = 'ابحث عن منتج...';
+            
+            if (state.currentFilter === 'all') {
+                catContainer.classList.remove('hidden');
+            } else {
+                catContainer.classList.add('hidden');
+            }
+        }
 
-
-    	window.toggleFilterPanel = () => {
-         	document.getElementById('filter-panel').classList.toggle('hidden');
-    	}
-
-
+        // ضبط كلاسات الشبكة للمنتجات
+        prodGrid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-10';
+        
+        // استدعاء دالة رسم المنتجات
+        filter(state.currentFilter);
+    }
+    
+    lucide.createIcons();
+}
 
 
     	window.applyFilters = () => {
@@ -1635,34 +1646,40 @@ setTimeout(() => {
         	window.history.replaceState({}, '', url);
     	}
 
+function renderCategoryCards() {
+    // 👇 التعديل الأول: نستهدف الديف الجديد المخصص للأقسام
+    const cont = document.getElementById('home-grid'); 
+    
+    const q = normalizeText(document.getElementById('search-input').value);
+    
+    // 👇 التعديل الثاني: التحقق من وجود العنصر لتجنب الأخطاء
+    if (!cont) return;
 
+    cont.innerHTML = '';
+    const filteredCats = CATEGORIES.filter(c => normalizeText(c).includes(q));
 
+    if (!filteredCats.length) {
+        document.getElementById('empty-state').classList.remove('hidden');
+    } else {
+        document.getElementById('empty-state').classList.add('hidden');
+        
+        // بناء الكروت (نفس الكود القديم ولكن داخل الحاوية الجديدة)
+        // استخدام map و join أسرع للأداء من innerHTML +=
+        cont.innerHTML = filteredCats.map(cat => {
+            const imageUrl = CATEGORY_IMAGES[cat] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=300&auto=format&fit=crop';
+            return `
+                <div onclick="switchToCategoryView('${cat}')" class="relative rounded-xl overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 h-28 cursor-pointer active:scale-95 transition-transform group flex items-center justify-center text-center p-2">
+                    <img src="${imageUrl}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy">
+                    <div class="absolute inset-0 bg-black/50"></div>
+                    <h3 class="relative z-10 font-bold text-white text-sm drop-shadow-md">${cat}</h3>
+                </div>`;
+        }).join('');
+    }
+}
 
-    	function renderCategoryCards() {
-        	const cont = document.getElementById('grid-container');
-        	const q = normalizeText(document.getElementById('search-input').value);
-        	cont.innerHTML = '';
-        	const filteredCats = CATEGORIES.filter(c => normalizeText(c).includes(q));
-
-
-
-
-        	if (!filteredCats.length) {
-            	document.getElementById('empty-state').classList.remove('hidden');
-        	} else {
-            	document.getElementById('empty-state').classList.add('hidden');
-            	filteredCats.forEach(cat => {
-                	const imageUrl = CATEGORY_IMAGES[cat] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=300&auto=format&fit=crop';
-                	cont.innerHTML += `
-                    	<div onclick="switchToCategoryView('${cat}')" class="relative rounded-xl overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 h-28 cursor-pointer active:scale-95 transition-transform group flex items-center justify-center text-center p-2">
-                        	<img src="${imageUrl}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy">
-                        	<div class="absolute inset-0 bg-black/50"></div>
-                        	<h3 class="relative z-10 font-bold text-white text-sm drop-shadow-md">${cat}</h3>
-                    	</div>`;
-            	});
-        	}
-    	}
-
+// 👇 هام جداً: استدعاء الدالة مرة واحدة عند تشغيل الموقع لرسم الأقسام
+// ضع هذا السطر في نهاية ملف السكريبت أو بعد تعريف الدالة مباشرة
+renderCategoryCards();
 
 
 
