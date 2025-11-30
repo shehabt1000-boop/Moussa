@@ -1172,51 +1172,7 @@
     	}
 
 
-    	function forceSwitchToApp() {
-        	const loginView = document.getElementById('login-view');
-        	const appContent = document.getElementById('app-content');
-        	const splash = document.getElementById('splash-screen');
-
-
-
-
-        	if(splash) {
-            	splash.classList.add('fade-out');
-            	setTimeout(() => splash.remove(), 500);
-        	}
-
-
-
-
-        	loginView.classList.add('hidden');
-        	loginView.style.setProperty('display', 'none', 'important');
-        	appContent.classList.remove('hidden');
-        	document.getElementById('loader').classList.add('hidden'); 
-    	}
-
-
-
-
-    	// Fix 11: Safety Timeout for Reload
-    	setTimeout(() => {
-        	const splash = document.getElementById('splash-screen');
-        	if(splash && !splash.classList.contains('fade-out')) {
-            	// If still showing splash after 5s, force show app (assuming auth check failed or slow)
-            	// But only if we are not in login view
-            	if(document.getElementById('login-view').classList.contains('hidden')) {
-                 	forceSwitchToApp();
-            	} else {
-                 	// If in login view, just remove splash
-                 	splash.classList.add('fade-out');
-                 	setTimeout(() => splash.remove(), 500);
-            	}
-        	}
-    	}, 5000);
-
-
-
-
-    	onAuthStateChanged(auth, async (u) => { 
+        	onAuthStateChanged(auth, async (u) => { 
         	if(u) { 
             	state.user = u;
             	try {
@@ -1229,9 +1185,6 @@
                     	document.getElementById('header-username').innerText = data.name || u.displayName;
                     	document.getElementById('welcome-text').classList.remove('hidden');
 
-
-
-
                     	if(state.isAdmin) {
                         	document.getElementById('btn-admin-top').classList.remove('hidden');
                     	} else {
@@ -1241,25 +1194,29 @@
             	} catch(e) {
                 	console.warn("Role fetch failed", e);
             	}
-            	forceSwitchToApp();
+            	
+                // التبديل المباشر للشاشات (بديل forceSwitchToApp)
+            	const loginView = document.getElementById('login-view');
+            	loginView.classList.add('hidden');
+            	loginView.style.setProperty('display', 'none', 'important');
+            	document.getElementById('app-content').classList.remove('hidden');
+                const loader = document.getElementById('loader');
+                if(loader) loader.classList.add('hidden');
+
             	loadListings(); 
             	checkUserChat(); 
             	initFavs(); 
             	initCats(); 
         	} else {
             	state.user = null;
-            	const splash = document.getElementById('splash-screen');
-            	if(splash) {
-                	splash.classList.add('fade-out');
-                	setTimeout(() => splash.remove(), 500);
-            	}
+                
+                // إظهار شاشة تسجيل الدخول مباشرة (بدون سبلاش سكرين)
             	const loginView = document.getElementById('login-view');
             	loginView.classList.remove('hidden');
             	loginView.style.removeProperty('display');
             	document.getElementById('app-content').classList.add('hidden');
         	}
     	});
-
 
 
 
@@ -1450,14 +1407,12 @@
             	btn.classList.replace('bg-navy', 'bg-green-600');
 
 
-
-
-            	setTimeout(() => {
-                	forceSwitchToApp();
-                	showToast(`أهلاً بك في السوق وياك 👋`, 's');
-            	}, 500);
-
-
+setTimeout(() => {
+    // التبديل اليدوي
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('app-content').classList.remove('hidden');
+    showToast(`أهلاً بك في السوق وياك 👋`, 's');
+}, 500);
 
 
         	} catch (error) {
