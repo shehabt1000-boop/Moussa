@@ -899,80 +899,77 @@
 	<!-- Admin Panel -->
 	<div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] overflow-y-auto p-2" id="admin-users-list"></div><div class="w-2/3 flex flex-col bg-navy relative"><div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38]"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div><div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38]"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div></div></div></div>
 
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    // 👇 التعديل الأول: ضفنا enableIndexedDbPersistence
+    import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, limit, orderBy, startAfter, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // Req 4: Service Worker Registration (نسخة التخزين القوي v2)
+    if ('serviceWorker' in navigator) {
+        const swCode = `
+            const CACHE_NAME = 'souq-v2'; // غيرنا الاسم عشان نحدث الكاش
+            const ASSETS = [
+                'https://cdn.tailwindcss.com',
+                'https://unpkg.com/lucide@latest',
+                'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap'
+            ];
 
+            self.addEventListener('install', e => e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS))));
+            
+            self.addEventListener('fetch', e => {
+                const url = new URL(e.request.url);
+                
+                // استراتيجية: الكاش أولاً (للصور والملفات الثابتة)
+                // ده اللي هيخلي الصور تظهر فوراً حتى لو النت ضعيف أو مقطوع
+                if (e.request.destination === 'image' || e.request.destination === 'style' || e.request.destination === 'script' || e.request.destination === 'font') {
+                    e.respondWith(
+                        caches.match(e.request).then(cachedResponse => {
+                            if (cachedResponse) return cachedResponse;
+                            return fetch(e.request).then(networkResponse => {
+                                return caches.open(CACHE_NAME).then(cache => {
+                                    cache.put(e.request, networkResponse.clone());
+                                    return networkResponse;
+                                });
+                            });
+                        })
+                    );
+                } 
+                // استراتيجية: الشبكة أولاً (لأي حاجة تانية زي البيانات الحية)
+                else {
+                    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+                }
+            });
+        `;
+        const blob = new Blob([swCode], {type: 'application/javascript'});
+        navigator.serviceWorker.register(URL.createObjectURL(blob));
+    }
 
-	<script type="module">
-    	import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    	import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    	import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, limit, orderBy, startAfter } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    // PWA Install Logic
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if(!localStorage.getItem('pwa_installed')) {
+            document.getElementById('install-banner').classList.remove('hidden');
+        }
+    });
 
+    window.installPWA = async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                localStorage.setItem('pwa_installed', 'true');
+            }
+            deferredPrompt = null;
+            document.getElementById('install-banner').classList.add('hidden');
+        }
+    }
 
-
-
-    	// Req 4: Service Worker Registration
-    	if ('serviceWorker' in navigator) {
-        	const swCode = `
-            	const CACHE_NAME = 'souq-v1';
-            	const ASSETS = [
-                	'https://cdn.tailwindcss.com',
-                	'https://unpkg.com/lucide@latest',
-                	'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap'
-            	];
-            	self.addEventListener('install', e => e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS))));
-            	self.addEventListener('fetch', e => {
-                	if(e.request.url.startsWith('http')) {
-                    	e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(res => {
-                        	if(e.request.destination === 'image') {
-                            	const clone = res.clone();
-                            	caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-                        	}
-                        	return res;
-                    	})));
-                	}
-            	});
-        	`;
-        	const blob = new Blob([swCode], {type: 'application/javascript'});
-        	navigator.serviceWorker.register(URL.createObjectURL(blob));
-    	}
-
-
-
-
-    	// PWA Install Logic
-    	let deferredPrompt;
-    	window.addEventListener('beforeinstallprompt', (e) => {
-        	e.preventDefault();
-        	deferredPrompt = e;
-        	if(!localStorage.getItem('pwa_installed')) {
-            	document.getElementById('install-banner').classList.remove('hidden');
-        	}
-    	});
-
-
-
-
-    	window.installPWA = async () => {
-        	if (deferredPrompt) {
-            	deferredPrompt.prompt();
-            	const { outcome } = await deferredPrompt.userChoice;
-            	if (outcome === 'accepted') {
-                	localStorage.setItem('pwa_installed', 'true');
-            	}
-            	deferredPrompt = null;
-            	document.getElementById('install-banner').classList.add('hidden');
-        	}
-    	}
-
-
-
-
-    	window.closeInstall = () => {
-        	document.getElementById('install-banner').classList.add('hidden');
-    	}
-
-
-
+    window.closeInstall = () => {
+        document.getElementById('install-banner').classList.add('hidden');
+    }
 
     	const EGYPT_DATA = {
         	"القاهرة": ["مدينة نصر", "مصر الجديدة", "المعادي", "التجمع الخامس", "شبرا", "عين شمس", "المرج", "حلوان", "وسط البلد", "الزمالك", "المنيل", "العباسية", "الزيتون", "حدائق القبة", "السيدة زينب"],
@@ -1035,9 +1032,6 @@
     	const manifestURL = URL.createObjectURL(blob);
     	document.querySelector('#manifest-link').setAttribute('href', manifestURL);
 
-
-
-
     	const firebaseConfig = {
       	apiKey: "AIzaSyA5OiTcX95GBgiJoDHnY3y7N23o-j8hsQ8",
       	authDomain: "services-cef84.firebaseapp.com",
@@ -1048,13 +1042,18 @@
       	appId: "1:902396219187:web:3ba084a724266afa8bb846"
     	};
 
-
-
-
     	const app = initializeApp(firebaseConfig); 
     	const db = getFirestore(app); 
     	const auth = getAuth(app);
 
+        // 🔥 كود تفعيل الذاكرة (عشان الموقع يبقى طيارة)
+        enableIndexedDbPersistence(db).catch((err) => {
+            if (err.code == 'failed-precondition') {
+                console.log('Multiple tabs open, persistence can only be enabled in one tab at a a time.');
+            } else if (err.code == 'unimplemented') {
+                console.log('The current browser does not support all of the features required to enable persistence');
+            }
+        });
 
 
    	let state = { 
