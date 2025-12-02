@@ -9,9 +9,7 @@
         <meta property="og:title" content="السوق وياك">
         <meta property="og:description" content="تصفح أفضل المنتجات والعروض الحصرية">
         <meta property="og:type" content="website">
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:image" content="https://raw.githubusercontent.com/shehabt1000-boop/Moussa/main/647557c3-c686-4ae6-925e-9fd3765180a7.jpeg">
-
+        
         <meta name="theme-color" content="#0f172a">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -122,6 +120,11 @@
             .login-scroll { max-height: 65vh; overflow-y: auto; padding: 2px; }
             .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
             @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+            /* Skeleton Loading Animation */
+            .skeleton { background: #e2e8f0; animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+            .dark .skeleton { background: #334155; }
+            @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
 
     </style>
 </head>
@@ -252,26 +255,27 @@
 
             <main class="pt-14 container mx-auto px-4 max-w-6xl min-h-screen">
                 <div id="view-header" class="hidden flex items-center gap-2 pb-1">
-                    <button onclick="switchToHomeView()" class="bg-white dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm"><i data-lucide="arrow-right" class="w-4 h-4 text-slate-600 dark:text-white"></i></button>
+                    <!-- Fix 1: Back Button Logic -->
+                    <button onclick="goBack()" class="bg-white dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm"><i data-lucide="arrow-right" class="w-4 h-4 text-slate-600 dark:text-white"></i></button>
                     <h2 id="view-title" class="text-base font-bold text-slate-800 dark:text-white pt-0.5"></h2>
                 </div>
 
+                <!-- Fix 5: Search Layout (Buttons Outside) -->
                 <div id="search-container" class="sticky top-12 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-1.5 pb-1.5 -mx-4 px-4 transition-all">
                     <div class="relative max-w-3xl mx-auto flex gap-2 items-center">
                         <div class="relative flex-1">
-                            <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-9 pl-20 h-8 shadow-sm text-xs">
-                            <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
-
-                            <div class="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
-                                <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden text-secondary dark:text-blue-400 p-2 hover:scale-110 transition">
-                                    <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
-                                </button>
-                                <button onclick="toggleFavView()" class="relative text-red-500 p-2hover:scale-110 transition">
-                                    <i data-lucide="heart" class="w-3.5 h-3.5"></i>
-                                    <span id="fav-count" class="absolute top-0 right-0 w-1.5 h-1.5 bg-red-600 rounded-full border border-white dark:border-darkbg hidden"></span>
-                                </button>
-                            </div>
+                            <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-9 pl-9 h-10 shadow-sm text-xs">
+                            <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
                         </div>
+                        
+                        <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden w-10 h-10 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-center text-secondary dark:text-blue-400 shadow-sm hover:scale-105 transition">
+                            <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+                        </button>
+                        
+                        <button onclick="toggleFavView()" class="w-10 h-10 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-center text-red-500 shadow-sm hover:scale-105 transition relative">
+                            <i data-lucide="heart" class="w-5 h-5"></i>
+                            <span id="fav-count" class="absolute top-1 right-1 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-darkbg hidden"></span>
+                        </button>
                     </div>
 
                     <div id="filter-panel" class="hidden mt-1 bg-white dark:bg-darkbg p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl animate-pop relative z-50">
@@ -294,12 +298,27 @@
 
        <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar"></div>
 
-        <div id="home-grid" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4"></div>
+        <!-- Fix 3: Initial Skeleton Loading -->
+        <div id="home-grid" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4">
+             <!-- Static Skeletons to prevent white screen -->
+             <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
+             <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
+             <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
+             <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
+             <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
+             <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
+        </div>
 
         <div id="grid-container" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-10 mt-2"></div>
 
         <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
-        <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
+        
+        <!-- Fix 6: Empty State Text -->
+        <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center">
+            <div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="package-open" class="w-8 h-8 text-slate-400"></i></div>
+            <p id="empty-text" class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p>
+            <button id="btn-reset-empty" onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button>
+        </div>
     </main>
 
             <!-- NAV BAR -->
@@ -571,7 +590,7 @@
             <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
                 <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
                     <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
-
+                    
            <div class="absolute top-3 right-3 flex gap-2 z-20">
                 <div id="d-admin-controls" class="flex gap-2"></div>
 
@@ -707,7 +726,7 @@
             });
 
             if (!response.ok) throw new Error('فشل الرفع');
-
+            
             const data = await response.json();
             return data.secure_url; // إرجاع رابط الصورة HTTPS
         } catch (error) {
@@ -723,19 +742,19 @@
     window.handleAuthImage = async (input) => {
         if (input.files && input.files[0]) {
             const file = input.files[0];
-
+            
             // إخفاء الأيقونة وإظهار مؤشر تحميل
             const preview = document.getElementById('auth-img-preview');
             const placeholder = document.getElementById('auth-img-placeholder');
             placeholder.innerHTML = `<div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>`;
-
+            
             // رفع الصورة
             const url = await uploadToCloudinary(file);
-
+            
             if (url) {
                 // نخزن الرابط في المتغير الموجود أصلاً في الكود لضمان عمل باقي الدوال
                 state.authImageBase64 = url; 
-
+                
                 preview.src = url;
                 preview.classList.remove('hidden');
                 placeholder.classList.add('hidden');
@@ -753,18 +772,18 @@
     window.handleEditImage = async (input) => {
         if (input.files && input.files[0]) {
             const file = input.files[0];
-
+            
             // تجهيز واجهة التحميل
             const placeholder = document.getElementById('edit-img-placeholder');
             const preview = document.getElementById('edit-img-preview');
-
+            
             preview.classList.add('hidden');
             placeholder.classList.remove('hidden');
             placeholder.innerHTML = `<div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>`;
 
             // رفع الصورة
             const url = await uploadToCloudinary(file);
-
+            
             if (url) {
                 preview.src = url;
                 preview.classList.remove('hidden');
@@ -778,7 +797,7 @@
     }
 
     // ==========================================
-    // 3. تعديل رفع صور المنتجات (Add Product)
+    // 3. تعديل رفع صور المنتجات (Add Product) - Fix 4: Parallel Upload
     // ==========================================
     window.handleUpload = async (input) => {
         // التحقق من العدد المسموح
@@ -787,31 +806,37 @@
         }
 
         const previewArea = document.getElementById('preview-area');
+        
+        // إنشاء عناصر تحميل مؤقتة
+        const loadingIds = [];
+        for(let i=0; i<input.files.length; i++) {
+            const id = `loader-${Date.now()}-${i}`;
+            loadingIds.push(id);
+            previewArea.insertAdjacentHTML('beforeend', `
+                <div id="${id}" class="w-14 h-14 rounded-xl border border-gray-200 shrink-0 flex items-center justify-center bg-gray-50">
+                    <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            `);
+        }
 
-        // إنشاء عنصر تحميل مؤقت ليراه المستخدم
-        const loaderId = `loader-${Date.now()}`;
-        const loaderHTML = `
-            <div id="${loaderId}" class="w-14 h-14 rounded-xl border border-gray-200 shrink-0 flex items-center justify-center bg-gray-50">
-                <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        `;
-        previewArea.insertAdjacentHTML('beforeend', loaderHTML);
+        // رفع جميع الصور بالتوازي (Parallel)
+        const uploadPromises = Array.from(input.files).map(file => uploadToCloudinary(file));
+        const urls = await Promise.all(uploadPromises);
 
-        // المرور على الملفات المختارة ورفعها
-        for (let f of input.files) {
-            const url = await uploadToCloudinary(f);
+        // إزالة مؤشرات التحميل وإضافة الصور الناجحة
+        loadingIds.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.remove();
+        });
+
+        urls.forEach(url => {
             if (url) {
                 state.images.push(url);
-                // إضافة الصورة للمعاينة
                 previewArea.insertAdjacentHTML('beforeend', 
                     `<img src="${url}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0 animate-pop">`
                 );
             }
-        }
-
-        // حذف عنصر التحميل بعد الانتهاء
-        const loader = document.getElementById(loaderId);
-        if(loader) loader.remove();
+        });
     };
 
     // Service Worker Registration
@@ -970,6 +995,11 @@
                 favorites: [], 
                 currentFilter: localStorage.getItem('last_filter') || 'all', 
                 currentView: localStorage.getItem('last_view') || 'home', 
+                
+                // Fix 1: History Stack for Back Button
+                previousView: null,
+                previousFilter: null,
+
                 currentItem: null, 
                 lightboxImages: [], 
                 lightboxIndex: 0,
@@ -1071,7 +1101,7 @@
                     } catch(e) {
                         console.warn("Role fetch failed", e);
                     }
-
+                    
                     const loginView = document.getElementById('login-view');
                     loginView.classList.add('hidden');
                     loginView.style.setProperty('display', 'none', 'important');
@@ -1085,7 +1115,7 @@
                     initCats(); 
                 } else {
                     state.user = null;
-
+                
                     const loginView = document.getElementById('login-view');
                     loginView.classList.remove('hidden');
                     loginView.style.removeProperty('display');
@@ -1201,6 +1231,7 @@
 
                         await setDoc(doc(db, "users", user.uid), newUser);
 
+                        // Fix 2: Immediate State Update
                         state.userData = newUser;
                         state.userRole = state.authRole;
                         document.getElementById('header-username').innerText = nameAr;
@@ -1320,25 +1351,25 @@ function renderView() {
     const viewHeader = document.getElementById('view-header');
     const filterBtn = document.getElementById('btn-filter-toggle');
     const filterPanel = document.getElementById('filter-panel');
-
+    
     const homeGrid = document.getElementById('home-grid');
     const prodGrid = document.getElementById('grid-container');
-
+    
     const emptyState = document.getElementById('empty-state'); 
 
     filterPanel.classList.add('hidden');
 
     if (state.currentView === 'home') {
-
+        
         if(homeGrid) homeGrid.classList.remove('hidden'); 
         prodGrid.classList.add('hidden');
-
+        
         if(emptyState) emptyState.classList.add('hidden'); 
 
         viewHeader.classList.add('hidden');
         catContainer.classList.add('hidden');
         filterBtn.classList.add('hidden'); 
-
+        
         searchContainer.classList.remove('hidden');
         searchInput.placeholder = 'ابحث عن قسم...';
 
@@ -1358,7 +1389,7 @@ function renderView() {
             searchContainer.classList.remove('hidden');
             filterBtn.classList.remove('hidden'); 
             searchInput.placeholder = 'ابحث عن منتج...';
-
+            
             if (state.currentFilter === 'all') {
                 catContainer.classList.remove('hidden');
             } else {
@@ -1369,7 +1400,7 @@ function renderView() {
         prodGrid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-10';
         filter(state.currentFilter);
     }
-
+    
     lucide.createIcons();
 
 }
@@ -1393,7 +1424,7 @@ function renderView() {
             renderProducts();
         }
     };
-
+ 
             window.switchToCategoryView = (category) => {
                 state.currentView = 'category';
                 state.currentFilter = category;
@@ -1413,11 +1444,24 @@ function renderView() {
                 window.history.replaceState({}, '', url);
             }
 
+            // Fix 1: Back Button Logic
+            window.goBack = () => {
+                if(state.previousView === 'category' && state.previousFilter) {
+                    state.currentView = state.previousView;
+                    state.currentFilter = state.previousFilter;
+                    state.previousView = null; // Clear history
+                    state.previousFilter = null;
+                    renderView();
+                } else {
+                    switchToHomeView();
+                }
+            }
+
 function renderCategoryCards() {
     const cont = document.getElementById('home-grid'); 
-
+    
     const q = normalizeText(document.getElementById('search-input').value);
-
+    
     if (!cont) return;
 
     cont.innerHTML = '';
@@ -1425,9 +1469,11 @@ function renderCategoryCards() {
 
     if (!filteredCats.length) {
         document.getElementById('empty-state').classList.remove('hidden');
+        document.getElementById('empty-text').innerText = "لا توجد نتائج";
+        document.getElementById('btn-reset-empty').classList.remove('hidden');
     } else {
         document.getElementById('empty-state').classList.add('hidden');
-
+        
         cont.innerHTML = filteredCats.map(cat => {
             const imageUrl = CATEGORY_IMAGES[cat] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=300&auto=format&fit=crop';
             return `
@@ -1440,6 +1486,7 @@ function renderCategoryCards() {
     }
 }
 
+// Fix 3: Call immediately (Skeleton is already in HTML)
 renderCategoryCards();
 
             function loadListings() { 
@@ -1492,7 +1539,7 @@ renderCategoryCards();
         const govFilter = document.getElementById('filter-gov').value;
 
         const cont = document.getElementById('grid-container'); 
-
+        
         let filtered = state.listings.filter(item => { 
             let matchType = true; 
             if (state.currentFilter === 'fav') {
@@ -1500,9 +1547,9 @@ renderCategoryCards();
             } else {
                 matchType = state.currentFilter === 'all' || item.category === state.currentFilter; 
             }
-
+            
             const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); 
-
+            
             let matchGov = true;
             if(govFilter && item.governorate) {
                 matchGov = item.governorate === govFilter;
@@ -1520,13 +1567,26 @@ renderCategoryCards();
         if(!filtered.length) {
             cont.innerHTML = ''; 
             document.getElementById('empty-state').classList.remove('hidden'); 
+            
+            // Fix 6: Custom Empty Message
+            const emptyText = document.getElementById('empty-text');
+            const resetBtn = document.getElementById('btn-reset-empty');
+
+            if (state.currentFilter !== 'all' && state.currentFilter !== 'fav' && !q) {
+                emptyText.innerText = "هذا القسم غير متوفر حالياً";
+                resetBtn.classList.add('hidden');
+            } else {
+                emptyText.innerText = "لا توجد نتائج";
+                resetBtn.classList.remove('hidden');
+            }
+
         } else { 
             document.getElementById('empty-state').classList.add('hidden'); 
-
+            
             const cardsHTML = filtered.map(item => createCard(item)).join('');
             cont.innerHTML = cardsHTML;
         } 
-
+        
         lucide.createIcons(); 
     }
 
@@ -1547,12 +1607,12 @@ renderCategoryCards();
         const imgs = Array.isArray(item.images) ? item.images : [item.image];
         const isFav = (state.favorites || []).includes(item.id);
         const heartClass = isFav ? "fill-red-500 text-red-500" : "text-white";
-
+        
         let badge = item.badge === 'hot' ? `<span class="absolute top-1 right-1 bg-orange-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow animate-pulse z-10">🔥 عرض</span>` : '';
-
+        
         let statusOverlay = ''; 
         let isClickable = true; 
-
+        
         if(item.status && item.status !== 'available') { 
             const txt = item.status === 'sold' ? 'تم البيع' : 'غير متاح'; 
             statusOverlay = `<div class="absolute inset-0 z-20 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center"><span class="bg-red-600 text-white font-bold px-4 py-2 rounded-xl shadow-xl transform -rotate-12 text-sm">${txt}</span></div>`; 
@@ -1621,7 +1681,7 @@ renderCategoryCards();
         if(adminControls) {
             adminControls.innerHTML = ''; 
             const isOwner = state.user && state.user.uid === item.authorId;
-
+            
             if (state.isAdmin || isOwner) {
                 adminControls.innerHTML = `
                     <button onclick="del(null, '${item.id}')" class="bg-white/80 dark:bg-black/50 text-red-500 p-1.5 rounded-full shadow-sm hover:bg-white transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
@@ -1634,7 +1694,7 @@ renderCategoryCards();
         const pubImg = document.getElementById('d-pub-img');
         pubName.innerText = "جاري التحميل...";
         pubImg.innerHTML = `<div class="animate-pulse bg-slate-300 w-full h-full"></div>`; 
-
+        
         document.getElementById('d-pub-bar').onclick = () => toggleProfile(item.authorId);
 
         const amCont = document.getElementById('d-features'); 
@@ -1697,7 +1757,7 @@ renderCategoryCards();
 
         toggleModal('details-modal'); 
         goToDetailsSlide(0, 'auto'); 
-
+        
         const url = new URL(window.location);
         url.searchParams.set('product_id', id);
         window.history.replaceState({}, '', url);
@@ -1709,7 +1769,7 @@ renderCategoryCards();
                     const uData = uSnap.data();
                     state.currentAuthor = uData;
                     if(document.getElementById('details-modal').classList.contains('hidden')) return; 
-
+                    
                     pubName.innerText = uData.name || "مستخدم";
                     if(uData.image) {
                         pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`;
@@ -1725,12 +1785,12 @@ renderCategoryCards();
                 pubName.innerText = "ناشر";
                 state.currentAuthor = null;
             }
-
+            
             state.productReviewsLimit = 1;
             loadProductReviews(false);
             lucide.createIcons(); 
         })();
-
+        
         lucide.createIcons(); 
     }
 
@@ -1749,6 +1809,10 @@ renderCategoryCards();
             window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); if(state.currentView === 'category') renderProducts(); };
             function updateFavBadge() { const b = document.getElementById('fav-count'); if(b){ if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); }}
             window.toggleFavView = () => { 
+                // Fix 1: Save history before switching
+                state.previousView = state.currentView;
+                state.previousFilter = state.currentFilter;
+                
                 state.currentView = 'category';
                 state.currentFilter = 'fav';
                 renderView();
@@ -1865,7 +1929,7 @@ renderCategoryCards();
 
     window.del = async (e, id) => {
         if(e) e.stopPropagation(); 
-
+        
         if(confirm('هل أنت متأكد من حذف هذا المنتج نهائياً؟')) {
             await deleteDoc(doc(db, "listings", id));
             showToast('تم الحذف بنجاح');
@@ -1875,12 +1939,12 @@ renderCategoryCards();
 
     window.toggleStatus = async (e, id, currentStatus) => {
         if(e) e.stopPropagation();
-
+        
         let nextStatus = currentStatus === 'available' ? 'sold' : 'available';
         await updateDoc(doc(db, "listings", id), { status: nextStatus });
-
+        
         showToast(`تم تغيير الحالة إلى: ${nextStatus === 'available' ? 'متاح' : 'مُباع'}`);
-
+        
         if(!document.getElementById('details-modal').classList.contains('hidden')) {
              openDetails(id); 
         }
@@ -2527,15 +2591,15 @@ renderCategoryCards();
                 msg += `*سعر القطعة:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n\n`;
 
                 msg += `📝 تفاصيل الطلب:\n`;
-
+                
                 let totalQty = 0;
                 state.orderItems.forEach((item, idx) => {
                     if(item.qty > 0) {
                         msg += `اختيار #${idx+1}:          (عدد ${item.qty})`;
-
+                        
                         if(item.size) msg += ` | مقاس: ${item.size}`;
                         if(item.color) msg += ` | لون: ${item.color}`;
-
+                        
                         msg += `\n`;
                         totalQty += item.qty;
                     }
@@ -2545,7 +2609,7 @@ renderCategoryCards();
 
                 msg += `\nاجمالي الفاتورة: ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`;
                 msg += `----------------\n`;
-
+                
                 msg += `👤 بيانات العميل:\n`;
                 msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
                 msg += `رقم الهاتف: ${phone}\n`;
