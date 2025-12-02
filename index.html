@@ -897,41 +897,20 @@
     // 👇 التعديل الأول: ضفنا enableIndexedDbPersistence
     import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, limit, orderBy, startAfter, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// Req 4: Service Worker Registration (نسخة التخزين القوي v3 - مع كل صور الأقسام)
+// Req 4: Service Worker Registration (نسخة التخزين القوي v3)
     if ('serviceWorker' in navigator) {
         const swCode = `
-            const CACHE_NAME = 'souq-v4'; // 💡 تعـديل هام: تم التغيير إلى v4 لإجبار تحديث كل الصور
+            const CACHE_NAME = 'souq-v3'; // 💡 تعـديل: تغيير الاسم من v2 إلى v3 لإجبار التحديث
             const ASSETS = [
-                // 1. الأصول الأساسية (الصفحة والـ CDN)
-                '.', 
+                // 💡 تعـديل: إضافة الصفحة الرئيسية "." والأصول الثابتة الهامة
+                '.', // الصفحة الرئيسية (index.html)
                 'https://cdn.tailwindcss.com',
                 'https://unpkg.com/lucide@latest',
                 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap',
+                // أصول بصرية ثابتة (موجودة في كودك لتفاصيل الـ PWA و OG)
                 'https://raw.githubusercontent.com/shehabt1000-boop/Moussa/main/647557c3-c686-4ae6-925e-9fd3765180a7.jpeg',
-                'https://cdn-icons-png.flaticon.com/512/641/641813.png',
-
-                // 2. صور الأقسام (21 صورة)
-                "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=300&auto=format&fit=crop", // ملابس رجالي
-                "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=300&auto=format&fit=crop", // برفانات
-                "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=300&auto=format&fit=crop", // النظارات
-                "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=300&auto=format&fit=crop", // مستحضرات التجميل
-                "https://images.unsplash.com/photo-1621607512214-68297480165e?q=80&w=300&auto=format&fit=crop", // ادوات حلاقة
-                "https://images.unsplash.com/photo-1581009137042-c552e485697a?q=80&w=300&auto=format&fit=crop", // مكملات غذائية
-                "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop", // احذية حريمي
-                "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=300&auto=format&fit=crop", // ادوات رياضية
-                "https://images.pexels.com/photos/3772506/pexels-photo-3772506.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", // ملابس حريمي
-                "https://images.pexels.com/photos/5264901/pexels-photo-5264901.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", // احذية رجالي
-                "https://images.pexels.com/photos/29737094/pexels-photo-29737094.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", // احذية اطفال
-                "https://images.pexels.com/photos/1620758/pexels-photo-1620758.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", // ملابس اطفال
-                "https://images.pexels.com/photos/3766112/pexels-photo-3766112.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", // اكسسورات رجالي
-                "https://images.pexels.com/photos/17568000/pexels-photo-17568000.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", // اكسسورات حريمي
-                "https://images.pexels.com/photos/2848522/pexels-photo-2848522.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", // اكسسورات اطفال
-                "https://images.pexels.com/photos/1986996/pexels-photo-1986996.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", // الحقائب
-                "https://images.pexels.com/photos/19066549/pexels-photo-19066549.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", // الهدايا الشخصية
-                "https://images.pexels.com/photos/4491662/pexels-photo-4491662.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", // الهدايا والالعاب
-                "https://images.pexels.com/photos/10117729/pexels-photo-10117729.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", // منتجات العناية بالبشرة
-                "https://images.pexels.com/photos/26337029/pexels-photo-26337029.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", // منتجات الاطفال
-                "https://images.pexels.com/photos/34636582/pexels-photo-34636582.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" // اقمشة
+                'https://cdn-icons-png.flaticon.com/512/641/641813.png'
+                // يمكن إضافة المزيد من صور الـ CATEGORY_IMAGES هنا لتحسين سرعة تحميل الصفحة الرئيسية
             ];
 
             self.addEventListener('install', e => e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS))));
@@ -940,6 +919,7 @@
                 const url = new URL(e.request.url);
                 
                 // استراتيجية: الكاش أولاً (للصور والملفات الثابتة)
+                // هذه الاستراتيجية تشمل الآن الخطوط (fonts)، الألوان (style)، الأيقونات (script) والصور (image)
                 if (e.request.destination === 'image' || e.request.destination === 'style' || e.request.destination === 'script' || e.request.destination === 'font') {
                     e.respondWith(
                         caches.match(e.request).then(cachedResponse => {
@@ -953,7 +933,7 @@
                         })
                     );
                 } 
-                // استراتيجية: الشبكة أولاً (لأي حاجة تانية زي البيانات الحية)
+                // استراتيجية: الشبكة أولاً (لأي حاجة تانية زي البيانات الحية - Firestore)
                 else {
                     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
                 }
