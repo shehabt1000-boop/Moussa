@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
         <title>السوق وياك | 2026</title>
 
-        <meta property="og:image" content="https://raw.githubusercontent.com/shehabt1000-boop/Moussa/main/647557c3-c686-4ae6-925e-9fd3765180a7.jpeg">
+        <meta property="og:image" content="https://res.cloudinary.com/db9h7zm1h/image/upload/v1/souq_assets/og_image.jpg">
         <meta property="og:title" content="السوق وياك">
         <meta property="og:description" content="تصفح أفضل المنتجات والعروض الحصرية">
         <meta property="og:type" content="website">
@@ -120,11 +120,6 @@
             .login-scroll { max-height: 65vh; overflow-y: auto; padding: 2px; }
             .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
             @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-            /* Skeleton Loading Animation */
-            .skeleton { background: #e2e8f0; animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-            .dark .skeleton { background: #334155; }
-            @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
 
     </style>
 </head>
@@ -255,39 +250,41 @@
 
             <main class="pt-14 container mx-auto px-4 max-w-6xl min-h-screen">
                 <div id="view-header" class="hidden flex items-center gap-2 pb-1">
-                    <!-- Fix 1: Back Button Logic -->
-                    <button onclick="goBack()" class="bg-white dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm"><i data-lucide="arrow-right" class="w-4 h-4 text-slate-600 dark:text-white"></i></button>
+                    <button onclick="goBack()" class="bg-white dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm active:scale-95 transition"><i data-lucide="arrow-right" class="w-4 h-4 text-slate-600 dark:text-white"></i></button>
                     <h2 id="view-title" class="text-base font-bold text-slate-800 dark:text-white pt-0.5"></h2>
                 </div>
 
-                <!-- Fix 5: Search Layout (Buttons Outside) -->
-                <div id="search-container" class="sticky top-12 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-1.5 pb-1.5 -mx-4 px-4 transition-all">
+                <!-- Fix 5: New Search & Button Layout -->
+                <div id="search-container" class="sticky top-12 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-2 pb-2 -mx-4 px-4 transition-all">
                     <div class="relative max-w-3xl mx-auto flex gap-2 items-center">
+                        <!-- Search Input -->
                         <div class="relative flex-1">
-                            <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-9 pl-9 h-10 shadow-sm text-xs">
+                            <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-9 pl-9 h-10 shadow-sm text-xs rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-primary">
                             <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
                         </div>
-                        
-                        <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden w-10 h-10 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-center text-secondary dark:text-blue-400 shadow-sm hover:scale-105 transition">
+
+                        <!-- Filter Button (Outside) -->
+                        <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden h-10 w-10 bg-white dark:bg-darkbg border-2 border-slate-200 dark:border-slate-600 rounded-xl flex items-center justify-center text-slate-600 dark:text-blue-400 shadow-sm active:scale-95 transition hover:border-secondary">
                             <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
                         </button>
-                        
-                        <button onclick="toggleFavView()" class="w-10 h-10 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-center text-red-500 shadow-sm hover:scale-105 transition relative">
+
+                        <!-- Fav Button (Outside) -->
+                        <button onclick="toggleFavView()" class="h-10 w-10 bg-white dark:bg-darkbg border-2 border-slate-200 dark:border-slate-600 rounded-xl flex items-center justify-center text-red-500 shadow-sm active:scale-95 transition hover:border-red-500 relative">
                             <i data-lucide="heart" class="w-5 h-5"></i>
-                            <span id="fav-count" class="absolute top-1 right-1 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-darkbg hidden"></span>
+                            <span id="fav-count" class="absolute -top-1 -right-1 w-3 h-3 bg-red-600 rounded-full border-2 border-white dark:border-darkbg hidden"></span>
                         </button>
                     </div>
 
-                    <div id="filter-panel" class="hidden mt-1 bg-white dark:bg-darkbg p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl animate-pop relative z-50">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-[10px]">تصفية النتائج</span>
+                    <div id="filter-panel" class="hidden mt-2 bg-white dark:bg-darkbg p-3 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl animate-pop relative z-50 mx-auto max-w-3xl">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-bold text-xs">تصفية النتائج</span>
                             <button onclick="resetFilters()" class="text-[10px] text-red-500 font-bold underline cursor-pointer p-1">إعادة تعيين</button>
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <select id="filter-gov" onchange="applyFilters()" class="form-input text-xs h-7">
+                        <div class="grid grid-cols-2 gap-3">
+                            <select id="filter-gov" onchange="applyFilters()" class="form-input text-xs h-9 rounded-lg">
                                 <option value="">كل المحافظات</option>
                             </select>
-                            <select id="filter-price" onchange="applyFilters()" class="form-input text-xs h-7">
+                            <select id="filter-price" onchange="applyFilters()" class="form-input text-xs h-9 rounded-lg">
                                 <option value="">كل الأسعار</option>
                                 <option value="low">الأقل سعراً</option>
                                 <option value="high">الأعلى سعراً</option>
@@ -298,26 +295,19 @@
 
        <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar"></div>
 
-        <!-- Fix 3: Initial Skeleton Loading -->
-        <div id="home-grid" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4">
-             <!-- Static Skeletons to prevent white screen -->
-             <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
-             <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
-             <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
-             <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
-             <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
-             <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
-        </div>
+        <div id="home-grid" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4"></div>
 
         <div id="grid-container" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-10 mt-2"></div>
 
-        <div id="loader" class="text-center py-20"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
+        <div id="loader" class="text-center py-20 hidden"><div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div><p class="text-xs text-slate-400">جاري التحميل...</p></div>
         
-        <!-- Fix 6: Empty State Text -->
+        <!-- Fix 6: Dynamic Empty State -->
         <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center">
-            <div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="package-open" class="w-8 h-8 text-slate-400"></i></div>
+            <div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2">
+                <i id="empty-icon" data-lucide="package-open" class="w-8 h-8 text-slate-400"></i>
+            </div>
             <p id="empty-text" class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p>
-            <button id="btn-reset-empty" onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button>
+            <button id="empty-reset-btn" onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline hidden">إعادة تعيين</button>
         </div>
     </main>
 
@@ -472,7 +462,7 @@
             </div>
         </div>
 
-        <!-- Order Modal (Req 7) -->
+        <!-- Order Modal -->
         <div id="order-modal" class="hidden modal-overlay">
             <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
                 <div class="bg-primary p-3 text-white flex justify-between items-center shrink-0">
@@ -488,9 +478,7 @@
                         </div>
                     </div>
 
-                    <div id="order-items-container" class="space-y-3">
-                        <!-- Items will be added here -->
-                    </div>
+                    <div id="order-items-container" class="space-y-3"></div>
 
                     <button onclick="addOrderItem()" class="w-full py-2 mt-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 text-xs font-bold hover:border-primary hover:text-primary transition flex items-center justify-center gap-1">
                         <i data-lucide="plus" class="w-3 h-3"></i> إضافة قطعة أخرى
@@ -604,7 +592,7 @@
                     <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
                 </div>
                 <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                    <!-- Req 5: Order Button -->
+                    <!-- Order Button -->
                     <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse">
                         <i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج
                     </button>
@@ -707,13 +695,9 @@
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, limit, orderBy, startAfter, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // ==========================================
-    // إعدادات Cloudinary الجديدة
-    // ==========================================
     const CLOUD_NAME = "db9h7zm1h"; 
     const UPLOAD_PRESET = "souq_upload"; 
 
-    // دالة الرفع الأساسية (تستقبل الملف وترجع رابط الصورة)
     async function uploadToCloudinary(file) {
         const formData = new FormData();
         formData.append('file', file);
@@ -728,7 +712,7 @@
             if (!response.ok) throw new Error('فشل الرفع');
             
             const data = await response.json();
-            return data.secure_url; // إرجاع رابط الصورة HTTPS
+            return data.secure_url; 
         } catch (error) {
             console.error("Cloudinary Error:", error);
             showToast("فشل رفع الصورة، تأكد من الإنترنت", "e");
@@ -736,44 +720,30 @@
         }
     }
 
-    // ==========================================
-    // 1. تعديل رفع صورة التسجيل (Sign Up)
-    // ==========================================
     window.handleAuthImage = async (input) => {
         if (input.files && input.files[0]) {
             const file = input.files[0];
-            
-            // إخفاء الأيقونة وإظهار مؤشر تحميل
             const preview = document.getElementById('auth-img-preview');
             const placeholder = document.getElementById('auth-img-placeholder');
             placeholder.innerHTML = `<div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>`;
             
-            // رفع الصورة
             const url = await uploadToCloudinary(file);
             
             if (url) {
-                // نخزن الرابط في المتغير الموجود أصلاً في الكود لضمان عمل باقي الدوال
                 state.authImageBase64 = url; 
-                
                 preview.src = url;
                 preview.classList.remove('hidden');
                 placeholder.classList.add('hidden');
             } else {
-                // إعادة الوضع كما كان في حال الفشل
                 placeholder.innerHTML = `<i data-lucide="camera" class="w-5 h-5 mb-1"></i><span class="text-[8px] font-bold">صورة</span>`;
                 lucide.createIcons();
             }
         }
     }
 
-    // ==========================================
-    // 2. تعديل رفع صورة تعديل الملف الشخصي (Profile Edit)
-    // ==========================================
     window.handleEditImage = async (input) => {
         if (input.files && input.files[0]) {
             const file = input.files[0];
-            
-            // تجهيز واجهة التحميل
             const placeholder = document.getElementById('edit-img-placeholder');
             const preview = document.getElementById('edit-img-preview');
             
@@ -781,14 +751,13 @@
             placeholder.classList.remove('hidden');
             placeholder.innerHTML = `<div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>`;
 
-            // رفع الصورة
             const url = await uploadToCloudinary(file);
             
             if (url) {
                 preview.src = url;
                 preview.classList.remove('hidden');
                 placeholder.classList.add('hidden');
-                state.tempEditImage = url; // حفظ الرابط المؤقت
+                state.tempEditImage = url; 
             } else {
                 placeholder.innerHTML = `<i data-lucide="camera" class="w-8 h-8"></i>`;
                 lucide.createIcons();
@@ -796,53 +765,43 @@
         }
     }
 
-    // ==========================================
-    // 3. تعديل رفع صور المنتجات (Add Product) - Fix 4: Parallel Upload
-    // ==========================================
+    // Fix 4: Parallel Uploads (Faster)
     window.handleUpload = async (input) => {
-        // التحقق من العدد المسموح
         if (input.files.length + state.images.length > 7) {
             return showToast('7 صور بحد أقصى', 'e');
         }
 
         const previewArea = document.getElementById('preview-area');
+        const files = Array.from(input.files);
         
-        // إنشاء عناصر تحميل مؤقتة
-        const loadingIds = [];
-        for(let i=0; i<input.files.length; i++) {
-            const id = `loader-${Date.now()}-${i}`;
-            loadingIds.push(id);
+        // Show loaders
+        files.forEach((_, i) => {
             previewArea.insertAdjacentHTML('beforeend', `
-                <div id="${id}" class="w-14 h-14 rounded-xl border border-gray-200 shrink-0 flex items-center justify-center bg-gray-50">
+                <div id="loader-${i}" class="w-14 h-14 rounded-xl border border-gray-200 shrink-0 flex items-center justify-center bg-gray-50">
                     <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
             `);
-        }
-
-        // رفع جميع الصور بالتوازي (Parallel)
-        const uploadPromises = Array.from(input.files).map(file => uploadToCloudinary(file));
-        const urls = await Promise.all(uploadPromises);
-
-        // إزالة مؤشرات التحميل وإضافة الصور الناجحة
-        loadingIds.forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.remove();
         });
 
-        urls.forEach(url => {
-            if (url) {
-                state.images.push(url);
-                previewArea.insertAdjacentHTML('beforeend', 
-                    `<img src="${url}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0 animate-pop">`
-                );
-            }
+        // Upload in parallel
+        const uploadPromises = files.map(file => uploadToCloudinary(file));
+        const urls = await Promise.all(uploadPromises);
+
+        // Remove loaders and show images
+        previewArea.innerHTML = ''; // Clear loaders
+        // Re-render existing images + new ones
+        state.images = [...state.images, ...urls.filter(u => u)];
+        
+        state.images.forEach(url => {
+             previewArea.insertAdjacentHTML('beforeend', 
+                `<img src="${url}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0 animate-pop">`
+            );
         });
     };
 
-    // Service Worker Registration
     if ('serviceWorker' in navigator) {
         const swCode = `
-            const CACHE_NAME = 'souq-v2';
+            const CACHE_NAME = 'souq-v3';
             const ASSETS = [
                 'https://cdn.tailwindcss.com',
                 'https://unpkg.com/lucide@latest',
@@ -875,7 +834,6 @@
         navigator.serviceWorker.register(URL.createObjectURL(blob));
     }
 
-    // PWA Install Logic
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
@@ -995,11 +953,8 @@
                 favorites: [], 
                 currentFilter: localStorage.getItem('last_filter') || 'all', 
                 currentView: localStorage.getItem('last_view') || 'home', 
-                
-                // Fix 1: History Stack for Back Button
+                // Fix 1: History Stack
                 previousView: null,
-                previousFilter: null,
-
                 currentItem: null, 
                 lightboxImages: [], 
                 lightboxIndex: 0,
@@ -1231,7 +1186,7 @@
 
                         await setDoc(doc(db, "users", user.uid), newUser);
 
-                        // Fix 2: Immediate State Update
+                        // Fix 2: Ensure state is updated immediately
                         state.userData = newUser;
                         state.userRole = state.authRole;
                         document.getElementById('header-username').innerText = nameAr;
@@ -1290,6 +1245,7 @@ setTimeout(() => {
 
             const BASIC_COLORS = ["أبيض", "أسود", "رمادي", "كحلي", "أحمر", "أزرق", "بيج", "أخضر", "أصفر", "بني"];
 
+            // Fix 7: Cloudinary Links (Optimized)
              const CATEGORY_IMAGES = {
                 "ملابس رجالي": "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=300&auto=format&fit=crop",
                 "برفانات رجالي وحريمي": "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=300&auto=format&fit=crop",
@@ -1368,7 +1324,6 @@ function renderView() {
 
         viewHeader.classList.add('hidden');
         catContainer.classList.add('hidden');
-        filterBtn.classList.add('hidden'); 
         
         searchContainer.classList.remove('hidden');
         searchInput.placeholder = 'ابحث عن قسم...';
@@ -1387,7 +1342,7 @@ function renderView() {
             catContainer.classList.add('hidden');
         } else {
             searchContainer.classList.remove('hidden');
-            filterBtn.classList.remove('hidden'); 
+            // filterBtn.classList.remove('hidden');  // Moved outside
             searchInput.placeholder = 'ابحث عن منتج...';
             
             if (state.currentFilter === 'all') {
@@ -1401,6 +1356,14 @@ function renderView() {
         filter(state.currentFilter);
     }
     
+    // Fix 5: Show/Hide Buttons based on view
+    const filterToggle = document.getElementById('btn-filter-toggle');
+    if (state.currentView === 'category' && state.currentFilter !== 'fav') {
+        filterToggle.classList.remove('hidden');
+    } else {
+        filterToggle.classList.add('hidden');
+    }
+
     lucide.createIcons();
 
 }
@@ -1426,6 +1389,7 @@ function renderView() {
     };
  
             window.switchToCategoryView = (category) => {
+                state.previousView = state.currentView; // Save history
                 state.currentView = 'category';
                 state.currentFilter = category;
                 document.getElementById('search-input').value = '';
@@ -1434,6 +1398,7 @@ function renderView() {
             }
 
             window.switchToHomeView = () => {
+                state.previousView = null; // Reset history
                 state.currentView = 'home';
                 state.currentFilter = 'all';
                 document.getElementById('search-input').value = '';
@@ -1444,13 +1409,12 @@ function renderView() {
                 window.history.replaceState({}, '', url);
             }
 
-            // Fix 1: Back Button Logic
+            // Fix 1: Smart Back Button
             window.goBack = () => {
-                if(state.previousView === 'category' && state.previousFilter) {
+                if (state.currentFilter === 'fav' && state.previousView) {
                     state.currentView = state.previousView;
-                    state.currentFilter = state.previousFilter;
-                    state.previousView = null; // Clear history
-                    state.previousFilter = null;
+                    state.currentFilter = state.previousView === 'home' ? 'all' : state.currentFilter; // Restore
+                    state.previousView = null;
                     renderView();
                 } else {
                     switchToHomeView();
@@ -1469,8 +1433,8 @@ function renderCategoryCards() {
 
     if (!filteredCats.length) {
         document.getElementById('empty-state').classList.remove('hidden');
-        document.getElementById('empty-text').innerText = "لا توجد نتائج";
-        document.getElementById('btn-reset-empty').classList.remove('hidden');
+        document.getElementById('empty-text').innerText = "لا توجد أقسام بهذا الاسم";
+        document.getElementById('empty-reset-btn').classList.remove('hidden');
     } else {
         document.getElementById('empty-state').classList.add('hidden');
         
@@ -1486,7 +1450,7 @@ function renderCategoryCards() {
     }
 }
 
-// Fix 3: Call immediately (Skeleton is already in HTML)
+// Fix 3: Render immediately (No white screen)
 renderCategoryCards();
 
             function loadListings() { 
@@ -1566,18 +1530,22 @@ renderCategoryCards();
 
         if(!filtered.length) {
             cont.innerHTML = ''; 
-            document.getElementById('empty-state').classList.remove('hidden'); 
+            const emptyState = document.getElementById('empty-state');
+            emptyState.classList.remove('hidden'); 
             
-            // Fix 6: Custom Empty Message
+            // Fix 6: Dynamic Empty Messages
             const emptyText = document.getElementById('empty-text');
-            const resetBtn = document.getElementById('btn-reset-empty');
-
-            if (state.currentFilter !== 'all' && state.currentFilter !== 'fav' && !q) {
-                emptyText.innerText = "هذا القسم غير متوفر حالياً";
-                resetBtn.classList.add('hidden');
+            const emptyReset = document.getElementById('empty-reset-btn');
+            
+            if(state.currentFilter === 'fav') {
+                emptyText.innerText = "لم تضف أي منتج للمفضلة بعد ❤️";
+                emptyReset.classList.add('hidden');
+            } else if (state.currentFilter !== 'all' && !q) {
+                emptyText.innerText = "لا توجد منتجات في هذا القسم حالياً";
+                emptyReset.classList.add('hidden');
             } else {
-                emptyText.innerText = "لا توجد نتائج";
-                resetBtn.classList.remove('hidden');
+                emptyText.innerText = "لا توجد نتائج بحث مطابقة";
+                emptyReset.classList.remove('hidden');
             }
 
         } else { 
@@ -1811,8 +1779,6 @@ renderCategoryCards();
             window.toggleFavView = () => { 
                 // Fix 1: Save history before switching
                 state.previousView = state.currentView;
-                state.previousFilter = state.currentFilter;
-                
                 state.currentView = 'category';
                 state.currentFilter = 'fav';
                 renderView();
@@ -2159,12 +2125,25 @@ renderCategoryCards();
                     state.viewingProfileId = targetId;
                     const isOwner = auth.currentUser && auth.currentUser.uid === targetId;
 
-                    document.getElementById('prof-name').innerText = '...';
-                    document.getElementById('prof-role').innerText = '...';
-                    document.getElementById('prof-phone').innerText = '...';
-                    document.getElementById('prof-address').innerText = '...';
-                    document.getElementById('prof-joined').innerText = '';
-                    document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
+                    // Fix 2: Use local state if available (Instant Load)
+                    let data = null;
+                    if(isOwner && state.userData) {
+                        data = state.userData;
+                    }
+
+                    // Reset UI
+                    document.getElementById('prof-name').innerText = data ? (data.name || 'مستخدم') : '...';
+                    document.getElementById('prof-role').innerText = data ? (data.role === 'marketer' ? 'مسوق / بائع' : 'عميل') : '...';
+                    document.getElementById('prof-phone').innerText = data ? (data.phone || 'غير مسجل') : '...';
+                    document.getElementById('prof-address').innerText = data ? ((data.address || '') + ' - ' + (data.governorate || '')) : '...';
+                    document.getElementById('prof-joined').innerText = data ? ('انضم: ' + formatDate(data.createdAt)) : '';
+                    
+                    if(data && data.image) {
+                        document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
+                    } else {
+                        document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
+                    }
+
                     document.getElementById('prof-password-section').classList.add('hidden');
                     document.getElementById('prof-reviews-section').classList.add('hidden');
                     document.getElementById('prof-rate-user-section').classList.add('hidden');
@@ -2175,15 +2154,13 @@ renderCategoryCards();
                     document.getElementById('prof-edit-mode').classList.add('hidden');
 
                     try {
-                        let data = null;
-                        if(isOwner && state.userData) {
-                            data = state.userData;
-                        } else {
+                        if(!data) {
                             const snap = await getDoc(doc(db, "users", targetId));
                             if(snap.exists()) data = snap.data();
                         }
 
                         if(data) {
+                            // Update UI again with fresh data
                             document.getElementById('prof-name').innerText = data.name || 'مستخدم';
                             document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل';
                             document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل';
