@@ -3137,9 +3137,7 @@ renderCategoryCards();
     	}
 
 
-
-
-            	window.confirmOrder = () => {
+           	window.confirmOrder = () => {
         	const phone = document.getElementById('ord-phone').value;
         	const gov = document.getElementById('ord-gov').value;
         	const city = document.getElementById('ord-city').value;
@@ -3149,11 +3147,26 @@ renderCategoryCards();
         	if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e");
 
 
-        	// جلب رقم البائع
-        	const sellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
-        	if(!sellerPhone) return showToast("لا يوجد رقم للتواصل مع البائع", "e");
+        	// جلب رقم البائع الخام (قد يحتوي على 0 أو 20 أو مسافات)
+        	const sellerPhoneRaw = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
+        	if(!sellerPhoneRaw) return showToast("لا يوجد رقم للتواصل مع البائع", "e");
+            
+            // 💡 التصحيح يبدأ من هنا: تنقية الرقم
+            // 1. إزالة أي حروف أو مسافات (تبقى الأرقام فقط)
+            let finalPhone = sellerPhoneRaw.replace(/\D/g, ''); 
 
+            // 2. إزالة رمز الدولة (20) أو الصفر الافتتاحي (0) إذا كان موجوداً في بداية الرقم
+            if (finalPhone.startsWith('20')) {
+                finalPhone = finalPhone.substring(2);
+            } else if (finalPhone.startsWith('0')) {
+                finalPhone = finalPhone.substring(1);
+            }
 
+            // 3. تحقق أخير قبل البناء
+            if (finalPhone.length < 9) return showToast("رقم البائع غير صحيح للتواصل", "e");
+            
+            // 💡 التصحيح ينتهي هنا
+            
         	// 1. تجهيز التاريخ والوقت
         	const now = new Date();
         	const dateStr = now.toLocaleDateString('ar-EG');
@@ -3209,7 +3222,8 @@ renderCategoryCards();
 
 
         	// فتح واتساب
-        	const url = `https://wa.me/20${sellerPhone}?text=${encodeURIComponent(msg)}`;
+            // نستخدم finalPhone النظيف والقياسي، ونضيف الـ 20 مرة واحدة فقط في الرابط
+        	const url = `https://wa.me/20${finalPhone}?text=${encodeURIComponent(msg)}`;
         	window.open(url, '_blank');
         	toggleOrderModal();
     	}
