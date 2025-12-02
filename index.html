@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 	<meta charset="UTF-8">
@@ -897,20 +897,14 @@
     // 👇 التعديل الأول: ضفنا enableIndexedDbPersistence
     import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, limit, orderBy, startAfter, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// Req 4: Service Worker Registration (نسخة التخزين القوي v3)
+    // Req 4: Service Worker Registration (نسخة التخزين القوي v2)
     if ('serviceWorker' in navigator) {
         const swCode = `
-            const CACHE_NAME = 'souq-v3'; // 💡 تعـديل: تغيير الاسم من v2 إلى v3 لإجبار التحديث
+            const CACHE_NAME = 'souq-v2'; // غيرنا الاسم عشان نحدث الكاش
             const ASSETS = [
-                // 💡 تعـديل: إضافة الصفحة الرئيسية "." والأصول الثابتة الهامة
-                '.', // الصفحة الرئيسية (index.html)
                 'https://cdn.tailwindcss.com',
                 'https://unpkg.com/lucide@latest',
-                'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap',
-                // أصول بصرية ثابتة (موجودة في كودك لتفاصيل الـ PWA و OG)
-                'https://raw.githubusercontent.com/shehabt1000-boop/Moussa/main/647557c3-c686-4ae6-925e-9fd3765180a7.jpeg',
-                'https://cdn-icons-png.flaticon.com/512/641/641813.png'
-                // يمكن إضافة المزيد من صور الـ CATEGORY_IMAGES هنا لتحسين سرعة تحميل الصفحة الرئيسية
+                'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap'
             ];
 
             self.addEventListener('install', e => e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS))));
@@ -919,7 +913,7 @@
                 const url = new URL(e.request.url);
                 
                 // استراتيجية: الكاش أولاً (للصور والملفات الثابتة)
-                // هذه الاستراتيجية تشمل الآن الخطوط (fonts)، الألوان (style)، الأيقونات (script) والصور (image)
+                // ده اللي هيخلي الصور تظهر فوراً حتى لو النت ضعيف أو مقطوع
                 if (e.request.destination === 'image' || e.request.destination === 'style' || e.request.destination === 'script' || e.request.destination === 'font') {
                     e.respondWith(
                         caches.match(e.request).then(cachedResponse => {
@@ -933,7 +927,7 @@
                         })
                     );
                 } 
-                // استراتيجية: الشبكة أولاً (لأي حاجة تانية زي البيانات الحية - Firestore)
+                // استراتيجية: الشبكة أولاً (لأي حاجة تانية زي البيانات الحية)
                 else {
                     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
                 }
@@ -941,6 +935,32 @@
         `;
         const blob = new Blob([swCode], {type: 'application/javascript'});
         navigator.serviceWorker.register(URL.createObjectURL(blob));
+    }
+
+    // PWA Install Logic
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if(!localStorage.getItem('pwa_installed')) {
+            document.getElementById('install-banner').classList.remove('hidden');
+        }
+    });
+
+    window.installPWA = async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                localStorage.setItem('pwa_installed', 'true');
+            }
+            deferredPrompt = null;
+            document.getElementById('install-banner').classList.add('hidden');
+        }
+    }
+
+    window.closeInstall = () => {
+        document.getElementById('install-banner').classList.add('hidden');
     }
 
     	const EGYPT_DATA = {
@@ -3116,6 +3136,9 @@ renderCategoryCards();
         	document.getElementById('ord-total').innerText = total.toLocaleString() + ' ج.م';
     	}
 
+
+
+
             	window.confirmOrder = () => {
         	const phone = document.getElementById('ord-phone').value;
         	const gov = document.getElementById('ord-gov').value;
@@ -3126,26 +3149,11 @@ renderCategoryCards();
         	if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e");
 
 
-        	// جلب رقم البائع الخام (قد يحتوي على 0 أو 20 أو مسافات)
-        	const sellerPhoneRaw = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
-        	if(!sellerPhoneRaw) return showToast("لا يوجد رقم للتواصل مع البائع", "e");
-            
-            // 💡 التصحيح يبدأ من هنا: تنقية الرقم
-            // 1. إزالة أي حروف أو مسافات (تبقى الأرقام فقط)
-            let finalPhone = sellerPhoneRaw.replace(/\D/g, ''); 
+        	// جلب رقم البائع
+        	const sellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
+        	if(!sellerPhone) return showToast("لا يوجد رقم للتواصل مع البائع", "e");
 
-            // 2. إزالة رمز الدولة (20) أو الصفر الافتتاحي (0) إذا كان موجوداً في بداية الرقم
-            if (finalPhone.startsWith('20')) {
-                finalPhone = finalPhone.substring(2);
-            } else if (finalPhone.startsWith('0')) {
-                finalPhone = finalPhone.substring(1);
-            }
 
-            // 3. تحقق أخير قبل البناء
-            if (finalPhone.length < 9) return showToast("رقم البائع غير صحيح للتواصل", "e");
-            
-            // 💡 التصحيح ينتهي هنا
-            
         	// 1. تجهيز التاريخ والوقت
         	const now = new Date();
         	const dateStr = now.toLocaleDateString('ar-EG');
@@ -3201,8 +3209,7 @@ renderCategoryCards();
 
 
         	// فتح واتساب
-            // نستخدم finalPhone النظيف والقياسي، ونضيف الـ 20 مرة واحدة فقط في الرابط
-        	const url = `https://wa.me/20${finalPhone}?text=${encodeURIComponent(msg)}`;
+        	const url = `https://wa.me/20${sellerPhone}?text=${encodeURIComponent(msg)}`;
         	window.open(url, '_blank');
         	toggleOrderModal();
     	}
@@ -3212,4 +3219,3 @@ lucide.createIcons();
 	</script>
 </body>
 </html>
-
