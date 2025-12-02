@@ -2381,13 +2381,87 @@ renderCategoryCards();
 
 
 
+// Cloudinary Constants (يمكن وضعها في مكان آخر إذا كانت معرفة بالفعل)
+const CLOUDINARY_CLOUD_NAME = 'db6h7zmth';
+const CLOUDINARY_UPLOAD_PRESET = 'souq_upload';
 
-    	window.handleUpload=async(input)=>{if(input.files.length+state.images.length>7)return showToast('7 صور بحد أقصى','e');for(let f of input.files){const c=await compress(f);state.images.push(c);document.getElementById('preview-area').innerHTML+=`<img src="${c}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0">`}}; 
-    	function compress(f){return new Promise(r=>{const d=new FileReader();d.readAsDataURL(f);d.onload=e=>{const i=new Image();i.src=e.target.result;i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const s=800/i.width;c.width=800;c.height=i.height*s;x.drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',0.6))}}})};
+// الدالة المُحدثة: تضغط الصورة ثم ترفعها إلى Cloudinary وتحفظ الرابط (URL)
+window.handleUpload = async (input) => {
+    // التحقق من الحد الأقصى للصور
+    if (input.files.length + state.images.length > 7) return showToast('7 صور بحد أقصى', 'e');
+
+    // وعاء عرض الصور
+    const previewArea = document.getElementById('preview-area');
+
+    for (let f of input.files) {
+        
+        // 1. عرض مؤشر التحميل (Skeleton Loader)
+        const loadingImage = document.createElement('div');
+        loadingImage.className = "w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0 flex items-center justify-center bg-slate-200 dark:bg-slate-700";
+        loadingImage.innerHTML = `<div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>`;
+        previewArea.appendChild(loadingImage);
+
+        // 2. ضغط الصورة للحصول على Base64 (لتقليل حجم الرفع)
+        const compressedBase64 = await compress(f);
+
+        // 3. بناء طلب الرفع غير الموقع (Unsigned Upload)
+        const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+        const formData = new FormData();
+        formData.append('file', compressedBase64);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+        try {
+            const response = await fetch(url, { method: 'POST', body: formData });
+            const data = await response.json();
+
+            if (data.secure_url) {
+                // 4. حفظ الرابط القصير (URL) في الـ State بدلاً من Base64
+                state.images.push(data.secure_url);
+                
+                // 5. استبدال مؤشر التحميل بالصورة الفعلية
+                const uploadedImage = document.createElement('img');
+                uploadedImage.src = data.secure_url;
+                uploadedImage.className = "w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0";
+                
+                // التأكد من استبدال العنصر الصحيح
+                previewArea.replaceChild(uploadedImage, loadingImage);
+
+                showToast('تم رفع الصورة بنجاح وتخزين الرابط ✅');
+            } else {
+                 showToast('فشل الرفع إلى Cloudinary', 'e');
+                 loadingImage.remove(); // إزالة المؤشر في حالة الفشل
+            }
+        } catch (error) {
+            console.error("Cloudinary Upload Error:", error);
+            showToast('حدث خطأ في الاتصال بالشبكة أثناء الرفع', 'e');
+            loadingImage.remove(); // إزالة المؤشر في حالة الفشل
+        }
+    }
+};
+
+// دالة ضغط الصورة (تم الإبقاء عليها كما هي)
+function compress(f){
+    return new Promise(r => {
+        const d = new FileReader();
+        d.readAsDataURL(f);
+        d.onload = e => {
+            const i = new Image();
+            i.src = e.target.result;
+            i.onload = () => {
+                const c = document.createElement('canvas');
+                const x = c.getContext('2d');
+                const s = 800 / i.width;
+                c.width = 800;
+                c.height = i.height * s;
+                x.drawImage(i, 0, 0, c.width, c.height);
+                r(c.toDataURL('image/jpeg', 0.6))
+            }
+        }
+    })
+};
 
 
-
-
+    	
     	window.toggleChat=()=>{
         	if(toggleModal('chat-modal')){
             	if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){
