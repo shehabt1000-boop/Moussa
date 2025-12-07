@@ -2840,76 +2840,92 @@ renderCategoryCards();
 
 
                     window.confirmOrder = () => {
-                const phone = document.getElementById('ord-phone').value;
-                const gov = document.getElementById('ord-gov').value;
-                const city = document.getElementById('ord-city').value;
-                const address = document.getElementById('ord-address').value;
+    const phone = document.getElementById('ord-phone').value;
+    const gov = document.getElementById('ord-gov').value;
+    const city = document.getElementById('ord-city').value;
+    const address = document.getElementById('ord-address').value;
 
 
-                if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e");
+    if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e");
 
 
-                const sellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
-                if(!sellerPhone) return showToast("لا يوجد رقم للتواصل مع البائع", "e");
+    let sellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
+    if(!sellerPhone) return showToast("لا يوجد رقم للتواصل مع البائع", "e");
 
 
-                const now = new Date();
-                const dateStr = now.toLocaleDateString('ar-EG');
-                const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    // --- إصلاح رقم الهاتف (إزالة الصفر في البداية إن وجد) ---
+    sellerPhone = sellerPhone.toString().trim();
+    if (sellerPhone.startsWith('0')) {
+        sellerPhone = sellerPhone.substring(1);
+    }
+    // الآن الرقم أصبح 10xxxx وليس 010xxxx ليتم دمجه مع 20 بشكل صحيح
+    const fullPhone = `20${sellerPhone}`; 
+    // -------------------------------------------------------
 
 
-                const productUrl = `${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}`;
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('ar-EG');
+    const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 
 
-                let msg = `طلب جديد من تطبيق السوق وياك🏠📥\n`;
-                msg += `📅 وقت الطلب: ${dateStr} - ${timeStr}\n\n`;
+    const productUrl = `${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}`;
 
 
-                msg += `📦 معلومات المنتج:\n`;
-                msg += `*الاسم:* ${state.currentItem.title}\n`;
-                msg += `*القسم:* ${state.currentItem.category || 'غير محدد'}\n`;
-                msg += `*سعر القطعة:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n\n`;
+    let msg = `طلب جديد من تطبيق السوق وياك🏠📥\n`;
+    msg += `📅 وقت الطلب: ${dateStr} - ${timeStr}\n\n`;
 
 
-                msg += `📝 تفاصيل الطلب:\n`;
+    msg += `📦 معلومات المنتج:\n`;
+    msg += `*الاسم:* ${state.currentItem.title}\n`;
+    msg += `*القسم:* ${state.currentItem.category || 'غير محدد'}\n`;
+    msg += `*سعر القطعة:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n\n`;
 
 
-                let totalQty = 0;
-                state.orderItems.forEach((item, idx) => {
-                    if(item.qty > 0) {
-                        msg += `اختيار #${idx+1}:          (عدد ${item.qty})`;
+    msg += `📝 تفاصيل الطلب:\n`;
 
 
-                        if(item.size) msg += ` | مقاس: ${item.size}`;
-                        if(item.color) msg += ` | لون: ${item.color}`;
+    let totalQty = 0;
+    state.orderItems.forEach((item, idx) => {
+        if(item.qty > 0) {
+            msg += `اختيار #${idx+1}:          (عدد ${item.qty})`;
 
 
-                        msg += `\n`;
-                        totalQty += item.qty;
-                    }
-                });
+            if(item.size) msg += ` | مقاس: ${item.size}`;
+            if(item.color) msg += ` | لون: ${item.color}`;
 
 
-                if(totalQty === 0) return showToast("يرجى إضافة قطعة واحدة على الأقل", "e");
+            msg += `\n`;
+            totalQty += item.qty;
+        }
+    });
 
 
-                msg += `\nاجمالي الفاتورة: ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`;
-                msg += `----------------\n`;
+    if(totalQty === 0) return showToast("يرجى إضافة قطعة واحدة على الأقل", "e");
 
 
-                msg += `👤 بيانات العميل:\n`;
-                msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
-                msg += `رقم الهاتف: ${phone}\n`;
-                msg += `العنوان: ${gov} - ${city} - ${address}\n\n`;
+    msg += `\nاجمالي الفاتورة: ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`;
+    msg += `----------------\n`;
 
 
-                msg += `🔗 رابط المنتج: ${productUrl}`;
+    msg += `👤 بيانات العميل:\n`;
+    msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
+    msg += `رقم الهاتف: ${phone}\n`;
+    msg += `العنوان: ${gov} - ${city} - ${address}\n\n`;
 
 
-                const url = `https://wa.me/20${sellerPhone}?text=${encodeURIComponent(msg)}`;
-                window.open(url, '_blank');
-                toggleOrderModal();
-            }
+    msg += `🔗 رابط المنتج: ${productUrl}`;
+
+
+    // --- إصلاح الرابط والتوجيه ليعمل مع PWA ---
+    // استخدام api.whatsapp.com أكثر استقراراً من wa.me في التحويل للتطبيق
+    const url = `https://api.whatsapp.com/send?phone=${fullPhone}&text=${encodeURIComponent(msg)}`;
+    
+    // في تطبيقات PWA والموبايل، يفضل استخدام location.href بدلاً من window.open
+    // لأن window.open قد تفتح نافذة منبثقة داخل المتصفح ولا تحولك للتطبيق
+    window.location.href = url; 
+    
+    toggleOrderModal();
+}
 
 
 lucide.createIcons();
