@@ -170,12 +170,25 @@
     	.spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
     	@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-
-    </style>
-</head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
 
-
+    <!-- 🔥 MODERN SPLASH SCREEN (شاشة التحميل الجديدة) -->
+    <div id="splash-screen" class="fixed inset-0 z-[9999] bg-[#0f172a] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="relative flex flex-col items-center">
+            <!-- Logo Animation -->
+            <div class="bg-white p-4 rounded-3xl shadow-2xl shadow-[#10b981]/20 animate-bounce mb-4">
+                <i data-lucide="shopping-bag" class="w-12 h-12 text-[#0f172a]"></i>
+            </div>
+            <!-- App Name -->
+            <h1 class="text-3xl font-black text-white tracking-wider mb-2">السوق <span class="text-[#10b981]">وياك</span></h1>
+            <!-- Loading Text -->
+            <div class="flex items-center gap-1">
+                <div class="w-2 h-2 bg-[#10b981] rounded-full animate-ping"></div>
+                <p class="text-slate-400 text-xs font-bold animate-pulse">جاري تجهيز المتجر...</p>
+            </div>
+        </div>
+        <div class="absolute bottom-10 text-white/20 text-[10px] font-bold">V 2.0.0</div>
+    </div>
 
 	<!-- LOGIN VIEW -->
 	<div id="login-view" class="hidden">
@@ -294,9 +307,6 @@
         	</div>
     	</div>
 	</div>
-
-
-
 
 	<!-- APP CONTENT -->
 	<div id="app-content" class="hidden">
@@ -1163,9 +1173,12 @@
             	});
         	}
     	}
-   	onAuthStateChanged(auth, async (u) => { 
-        	if(u) { 
-            	state.user = u;
+   
+onAuthStateChanged(auth, async (u) => { 
+        const splash = document.getElementById('splash-screen');
+    	if(u) { 
+        	state.user = u;
+            if(!state.userData) {
             	try {
                 	const userDoc = await getDoc(doc(db, "users", u.uid));
                 	if (userDoc.exists()) {
@@ -1178,38 +1191,43 @@
 
                     	if(state.isAdmin) {
                         	document.getElementById('btn-admin-top').classList.remove('hidden');
-                    	} else {
-                         	document.getElementById('btn-admin-top').classList.add('hidden');
                     	}
                 	}
-            	} catch(e) {
-                	console.warn("Role fetch failed", e);
-            	}
+            	} catch(e) { console.warn("Role fetch failed", e); }
+            }
             	
-                // التبديل المباشر للشاشات (بديل forceSwitchToApp)
-            	const loginView = document.getElementById('login-view');
-            	loginView.classList.add('hidden');
-            	loginView.style.setProperty('display', 'none', 'important');
-            	document.getElementById('app-content').classList.remove('hidden');
-                const loader = document.getElementById('loader');
-                if(loader) loader.classList.add('hidden');
+        	const loginView = document.getElementById('login-view');
+        	loginView.classList.add('hidden');
+        	loginView.style.setProperty('display', 'none', 'important');
+        	document.getElementById('app-content').classList.remove('hidden');
 
-            	loadListings(); 
-            	checkUserChat(); 
-            	initFavs(); 
-            	initCats(); 
-        	} else {
-            	state.user = null;
-                
-                // إظهار شاشة تسجيل الدخول مباشرة (بدون سبلاش سكرين)
-            	const loginView = document.getElementById('login-view');
-            	loginView.classList.remove('hidden');
-            	loginView.style.removeProperty('display');
-            	document.getElementById('app-content').classList.add('hidden');
-        	}
-    	});
+        	loadListings(); 
+        	checkUserChat(); 
+        	initFavs(); 
+        	initCats(); 
 
+            // إخفاء شاشة التحميل
+            if(splash) {
+                splash.style.opacity = '0';
+                setTimeout(() => splash.remove(), 500);
+            }
 
+    	} else {
+        	state.user = null;
+            state.userData = null;
+            
+        	const loginView = document.getElementById('login-view');
+        	loginView.classList.remove('hidden');
+        	loginView.style.removeProperty('display');
+        	document.getElementById('app-content').classList.add('hidden');
+            
+            // إخفاء شاشة التحميل ليظهر تسجيل الدخول
+            if(splash) {
+                splash.style.opacity = '0';
+                setTimeout(() => splash.remove(), 500);
+            }
+    	}
+    });
 
 
     	window.setAuthRole = (role) => {
@@ -1275,32 +1293,20 @@
         	}
     	}
 
-
-
-
-    	window.processAuth = async () => {
+window.processAuth = async () => {
         	const username = document.getElementById('auth-username').value.trim().toLowerCase();
         	const pass = document.getElementById('auth-pass').value;
         	const errDiv = document.getElementById('auth-error');
         	const btn = document.getElementById('btn-auth-action');
 
-
-
-
         	errDiv.classList.add('hidden');
         	errDiv.innerText = "";
-
-
-
 
         	if (!username || !pass) {
             	errDiv.innerText = "يرجى ملء اسم المستخدم وكلمة المرور";
             	errDiv.classList.remove('hidden');
             	return;
         	}
-
-
-
 
         	const usernameRegex = /^[a-z0-9_]+$/;
         	if (!usernameRegex.test(username)) {
@@ -1309,27 +1315,20 @@
             	return;
         	}
 
-
-
-
         	if (pass.length < 6) {
             	errDiv.innerText = "كلمة المرور يجب أن تكون 6 أرقام/حروف على الأقل";
             	errDiv.classList.remove('hidden');
             	return;
         	}
 
-
-
-
         	const email = `${username}@souq.local`;
         	const originalBtnText = btn.innerHTML;
         	btn.disabled = true;
         	btn.innerHTML = `<div class="spinner"></div> جاري المعالجة...`;
 
-
-
-
         	try {
+                let finalUserData = null; // متغير لتخزين البيانات وتحديث الواجهة فوراً
+
             	if (state.authType === 'signup') {
                 	const nameAr = document.getElementById('auth-name-ar').value.trim();
                 	const phone = document.getElementById('auth-phone').value.trim();
@@ -1337,26 +1336,14 @@
                 	const city = document.getElementById('auth-city').value;
                 	const address = document.getElementById('auth-address').value.trim();
 
-
-
-
                 	if (!nameAr || !gov || !city || !address || !phone) {
                     	throw new Error("missing_fields");
                 	}
 
-
-
-
                 	const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
                 	const user = userCredential.user;
 
-
-
-
                 	await updateProfile(user, { displayName: nameAr });
-
-
-
 
                 	const newUser = {
                     	username: username,
@@ -1372,40 +1359,52 @@
                     	createdAt: serverTimestamp()
                 	};
 
-
-
-
                 	await setDoc(doc(db, "users", user.uid), newUser);
 
-
-
-
+                    // 🔥 تحديث الحالة فوراً (الحل لمشكلة البروفايل)
+                	state.user = user;
                 	state.userData = newUser;
                 	state.userRole = state.authRole;
-                	document.getElementById('header-username').innerText = nameAr;
-                	document.getElementById('welcome-text').classList.remove('hidden');
-
-
-
+                    finalUserData = newUser;
 
             	} else {
-                	await signInWithEmailAndPassword(auth, email, pass);
+                	const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+                    state.user = userCredential.user;
+
+                    // 🔥 جلب البيانات فوراً عند تسجيل الدخول
+                    const docSnap = await getDoc(doc(db, "users", state.user.uid));
+                    if(docSnap.exists()){
+                        state.userData = docSnap.data();
+                        finalUserData = docSnap.data();
+                        state.userRole = finalUserData.role || 'customer';
+                        state.isAdmin = finalUserData.isAdmin === true;
+                    }
             	}
 
-
-
+                // تحديث عناصر الهيدر فوراً
+                if(finalUserData) {
+                	document.getElementById('header-username').innerText = finalUserData.name;
+                	document.getElementById('welcome-text').classList.remove('hidden');
+                    if(state.isAdmin) {
+                        document.getElementById('btn-admin-top').classList.remove('hidden');
+                    }
+                }
 
             	btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`;
             	btn.classList.replace('bg-navy', 'bg-green-600');
 
+                setTimeout(() => {
+                    // التبديل اليدوي للشاشات
+                    document.getElementById('login-view').classList.add('hidden');
+                    document.getElementById('app-content').classList.remove('hidden');
+                    
+                    // 🔥 إخفاء شاشة التحميل (Splash Screen)
+                    const splash = document.getElementById('splash-screen');
+                    if(splash) splash.style.display = 'none';
 
-setTimeout(() => {
-    // التبديل اليدوي
-    document.getElementById('login-view').classList.add('hidden');
-    document.getElementById('app-content').classList.remove('hidden');
-    showToast(`أهلاً بك في السوق وياك 👋`, 's');
-}, 500);
-
+                    loadListings();
+                    showToast(`أهلاً بك يا ${finalUserData?.name || 'صديقي'} 👋`, 's');
+                }, 500);
 
         	} catch (error) {
             	console.error("Auth Error:", error);
@@ -1418,20 +1417,16 @@ setTimeout(() => {
             	errDiv.classList.remove('hidden');
             	btn.disabled = false;
             	btn.innerHTML = originalBtnText;
+                btn.classList.replace('bg-green-600', 'bg-navy'); // إعادة لون الزر للأصل
             	lucide.createIcons();
         	}
     	}
-
-
-
 
     	window.logout = () => {
         	signOut(auth).then(() => {
             	window.location.reload();
         	});
     	}
-
-
 
 
     	const CATEGORIES = [
@@ -3138,85 +3133,73 @@ renderCategoryCards();
 
 
 
+window.confirmOrder = () => {
+        const phone = document.getElementById('ord-phone').value;
+        const gov = document.getElementById('ord-gov').value;
+        const city = document.getElementById('ord-city').value;
+        const address = document.getElementById('ord-address').value;
 
-            	window.confirmOrder = () => {
-        	const phone = document.getElementById('ord-phone').value;
-        	const gov = document.getElementById('ord-gov').value;
-        	const city = document.getElementById('ord-city').value;
-        	const address = document.getElementById('ord-address').value;
+        if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e");
 
+        // جلب رقم البائع وتنظيفه
+        let sellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
+        if(sellerPhone) sellerPhone = sellerPhone.toString().replace(/\D/g, '');
 
-        	if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e");
+        // رقم احتياطي لو مفيش رقم للبائع
+        if(!sellerPhone || sellerPhone.length < 10) {
+            showToast("جاري التحويل لرقم الدعم لعدم توفر رقم البائع", "s");
+            sellerPhone = "1206244875"; 
+        }
 
+        // حذف الصفر من البداية لو موجود
+        if (sellerPhone.startsWith('0')) {
+            sellerPhone = sellerPhone.substring(1);
+        }
+        const finalPhone = `20${sellerPhone}`;
 
-        	// جلب رقم البائع
-        	const sellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
-        	if(!sellerPhone) return showToast("لا يوجد رقم للتواصل مع البائع", "e");
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('ar-EG');
+        const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        const productUrl = `${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}`;
 
+        let msg = `*طلب جديد من تطبيق السوق وياك* 🏠📥\n`;
+        msg += `📅 ${dateStr} - ${timeStr}\n\n`;
+        msg += `📦 *المنتج:* ${state.currentItem.title}\n`;
+        msg += `💰 *السعر:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n`;
+        msg += `📂 *القسم:* ${state.currentItem.category || 'عام'}\n\n`;
 
-        	// 1. تجهيز التاريخ والوقت
-        	const now = new Date();
-        	const dateStr = now.toLocaleDateString('ar-EG');
-        	const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        msg += `📝 *التفاصيل المطلوبة:*\n`;
+        let totalQty = 0;
+        state.orderItems.forEach((item, idx) => {
+            if(item.qty > 0) {
+                msg += `- قطعة #${idx+1}: عدد (${item.qty})`;
+                if(item.size) msg += `، مقاس: ${item.size}`;
+                if(item.color) msg += `، لون: ${item.color}`;
+                msg += `\n`;
+                totalQty += item.qty;
+            }
+        });
 
+        if(totalQty === 0) return showToast("يرجى إضافة قطعة واحدة على الأقل", "e");
 
-        	// 2. تجهيز رابط المنتج
-        	const productUrl = `${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}`;
+        msg += `\n💵 *الإجمالي:* ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`;
+        msg += `----------------\n`;
+        msg += `👤 *بيانات العميل:*\n`;
+        msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
+        msg += `ت: ${phone}\n`;
+        msg += `📍 ${gov} - ${city} - ${address}\n\n`;
+        msg += `🔗 ${productUrl}`;
 
-
-        	// --- بناء نص الرسالة بالتنسيق المطلوب ---
-        	let msg = `طلب جديد من تطبيق السوق وياك🏠📥\n`;
-        	msg += `📅 وقت الطلب: ${dateStr} - ${timeStr}\n\n`;
-
-
-        	msg += `📦 معلومات المنتج:\n`;
-        	msg += `*الاسم:* ${state.currentItem.title}\n`;
-        	msg += `*القسم:* ${state.currentItem.category || 'غير محدد'}\n`;
-        	msg += `*سعر القطعة:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n\n`;
-
-
-        	msg += `📝 تفاصيل الطلب:\n`;
-        	
-        	let totalQty = 0;
-        	state.orderItems.forEach((item, idx) => {
-            	if(item.qty > 0) {
-                	// تنسيق السطر الواحد لكل خيار
-                	msg += `اختيار #${idx+1}:  	(عدد ${item.qty})`;
-                	
-                	if(item.size) msg += ` | مقاس: ${item.size}`;
-                	if(item.color) msg += ` | لون: ${item.color}`;
-                	
-                	msg += `\n`;
-                	totalQty += item.qty;
-            	}
-        	});
-
-
-        	if(totalQty === 0) return showToast("يرجى إضافة قطعة واحدة على الأقل", "e");
-
-
-        	msg += `\nاجمالي الفاتورة: ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`;
-        	msg += `----------------\n`;
-        	
-        	msg += `👤 بيانات العميل:\n`;
-        	msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
-        	msg += `رقم الهاتف: ${phone}\n`;
-        	msg += `العنوان: ${gov} - ${city} - ${address}\n\n`;
-
-
-        	// وضع الرابط في نهاية الرسالة
-        	msg += `🔗 رابط المنتج: ${productUrl}`;
-
-
-        	// فتح واتساب
-        	const url = `https://wa.me/20${sellerPhone}?text=${encodeURIComponent(msg)}`;
-        	window.open(url, '_blank');
-        	toggleOrderModal();
-    	}
-
+        // استخدام location.href هو الحل لمشكلة PWA
+        const waUrl = `https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`;
+        window.location.href = waUrl;
+        
+        toggleOrderModal();
+    }
 
 lucide.createIcons();
 	</script>
 </body>
 </html>
+
 
