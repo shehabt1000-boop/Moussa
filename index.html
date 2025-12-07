@@ -79,6 +79,9 @@
         #global-loader { position: fixed; inset: 0; z-index: 10000; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out, visibility 0.5s ease-out; }
         #global-loader.fade-out { opacity: 0; visibility: hidden; }
         .loader-spinner { width: 40px; height: 40px; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #10b981; animation: spin 0.8s ease-in-out infinite; }
+        
+        /* Utility for dynamic fields */
+        .feature-checkbox:checked + div { background-color: #3b82f6; color: white; border-color: #3b82f6; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
@@ -360,20 +363,40 @@
 
                 <!-- Dynamic Fields Container -->
                 <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group space-y-2 hidden">
+                    
                     <!-- Clothes/Shoes -->
                     <div id="field-size-chips" class="hidden"><label class="form-label text-primary">المقاسات المتاحة</label><div id="size-chips-container" class="flex flex-wrap gap-1.5"></div></div>
                     <div id="field-color-chips" class="hidden"><label class="form-label text-primary">الألوان المتاحة</label><div id="color-chips-container" class="flex flex-wrap gap-1.5"></div></div>
                     
-                    <!-- Cars -->
+                    <!-- 1. Cars -->
                     <div id="section-cars" class="hidden space-y-2">
-                        <select id="in-car-type" class="form-input text-xs"><option value="">نوع العرض</option><option value="car">سيارة</option><option value="accessory">اكسسوارات</option></select>
-                        <select id="in-car-brand" class="form-input text-xs"><option value="">الماركة</option></select>
-                        <input id="in-car-km" type="number" class="form-input text-xs" placeholder="كم مشت (كم)">
+                        <div class="flex gap-2 mb-1">
+                            <label class="flex-1 cursor-pointer"><input type="radio" name="car-type" value="car" checked onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">سيارة</div></label>
+                            <label class="flex-1 cursor-pointer"><input type="radio" name="car-type" value="accessory" onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">اكسسوارات</div></label>
+                        </div>
+                        <div id="car-fields-main">
+                            <select id="in-car-brand" class="form-input text-xs mb-2"><option value="">الماركة</option></select>
+                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                <input id="in-car-model" class="form-input text-xs" placeholder="الموديل">
+                                <input id="in-car-year" type="number" class="form-input text-xs" placeholder="سنة الصنع">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                <select id="in-car-fuel" class="form-input text-xs"><option value="">الوقود</option><option value="بنزين">بنزين</option><option value="ديزل">ديزل</option><option value="كهرباء">كهرباء</option><option value="هجين">هجين</option></select>
+                                <select id="in-car-trans" class="form-input text-xs"><option value="">الفتيس</option><option value="مانيوال">مانيوال</option><option value="أوتوماتيك">أوتوماتيك</option></select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                <input id="in-car-km" type="number" class="form-input text-xs" placeholder="كم مشت (كم)">
+                                <input id="in-car-cc" type="number" class="form-input text-xs" placeholder="سعة المحرك (CC)">
+                            </div>
+                            <label class="form-label text-primary">الميزات</label>
+                            <div class="flex flex-wrap gap-1.5" id="car-features-list"></div>
+                        </div>
                     </div>
 
-                    <!-- Electronics -->
+                    <!-- 2. Electronics -->
                     <div id="section-electronics" class="hidden space-y-2">
-                        <select id="in-elec-type" class="form-input text-xs"><option value="">النوع</option><option value="phone">هاتف</option><option value="laptop">لابتوب</option><option value="tablet">تابلت</option><option value="pc">كمبيوتر</option></select>
+                        <select id="in-elec-type" class="form-input text-xs"><option value="">النوع</option><option value="phone">هاتف</option><option value="laptop">لابتوب</option><option value="tablet">تابلت</option><option value="pc">كمبيوتر</option><option value="watch">ساعة ذكية</option><option value="headphone">سماعات</option></select>
+                        <input id="in-elec-brand" class="form-input text-xs" placeholder="الماركة (مثل: Samsung, Apple)">
                         <div class="grid grid-cols-2 gap-2">
                             <select id="in-elec-ram" class="form-input text-xs"><option value="">الرام</option><option value="2">2 GB</option><option value="4">4 GB</option><option value="6">6 GB</option><option value="8">8 GB</option><option value="12">12 GB</option><option value="16">16+ GB</option></select>
                             <select id="in-elec-storage" class="form-input text-xs"><option value="">المساحة</option><option value="32">32 GB</option><option value="64">64 GB</option><option value="128">128 GB</option><option value="256">256 GB</option><option value="512">512 GB</option><option value="1024">1 TB</option></select>
@@ -381,18 +404,84 @@
                         <input id="in-elec-battery" type="text" class="form-input text-xs" placeholder="حالة البطارية %">
                     </div>
 
-                    <!-- Real Estate -->
+                    <!-- 3. Pets -->
+                    <div id="section-pets" class="hidden space-y-2">
+                        <div class="flex gap-2 mb-1">
+                            <label class="flex-1 cursor-pointer"><input type="radio" name="pet-type" value="sale" checked onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">حيوان للبيع</div></label>
+                            <label class="flex-1 cursor-pointer"><input type="radio" name="pet-type" value="supplies" onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">مستلزمات</div></label>
+                        </div>
+                        <div id="pet-fields-sale">
+                            <select id="in-pet-cat" class="form-input text-xs mb-2"><option value="">النوع</option><option value="cat">قطط</option><option value="dog">كلاب</option><option value="bird">طيور</option><option value="fish">أسماك</option></select>
+                            <input id="in-pet-breed" class="form-input text-xs mb-2" placeholder="السلالة">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input id="in-pet-age" class="form-input text-xs" placeholder="العمر">
+                                <select id="in-pet-gender" class="form-input text-xs"><option value="">الجنس</option><option value="male">ذكر</option><option value="female">أنثى</option></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Home Appliances -->
+                    <div id="section-home-tools" class="hidden space-y-2">
+                        <input id="in-ht-type" class="form-input text-xs" placeholder="نوع الأداة (أواني، ديكور...)">
+                        <input id="in-ht-material" class="form-input text-xs" placeholder="المادة (خشب، زجاج...)">
+                    </div>
+
+                    <!-- 5. Electrical Appliances -->
+                    <div id="section-electrical" class="hidden space-y-2">
+                        <select id="in-ea-type" class="form-input text-xs"><option value="">الجهاز</option><option value="fridge">ثلاجة</option><option value="washer">غسالة</option><option value="stove">بوتاجاز</option><option value="ac">تكييف</option><option value="tv">تلفزيون</option></select>
+                        <input id="in-ea-brand" class="form-input text-xs" placeholder="الماركة">
+                        <input id="in-ea-cap" class="form-input text-xs" placeholder="السعة/القدرة (مثلاً: 14 قدم)">
+                    </div>
+
+                    <!-- 6. Furniture -->
+                    <div id="section-furniture" class="hidden space-y-2">
+                        <select id="in-furn-type" class="form-input text-xs"><option value="">النوع</option><option value="bed">سرير</option><option value="sofa">كنب/أنتريه</option><option value="table">ترابيزة</option><option value="wardrobe">دولاب</option></select>
+                        <input id="in-furn-mat" class="form-input text-xs" placeholder="الخامة (خشب زان، معدن...)">
+                        <input id="in-furn-dim" class="form-input text-xs" placeholder="المقاسات">
+                    </div>
+
+                    <!-- 7. Raw Materials -->
+                    <div id="section-raw" class="hidden space-y-2">
+                        <select id="in-raw-type" class="form-input text-xs"><option value="">النوع</option><option value="wood">خشب</option><option value="iron">حديد</option><option value="plastic">بلاستيك</option><option value="alum">ألومنيوم</option></select>
+                        <input id="in-raw-qty" class="form-input text-xs" placeholder="الكمية / الوزن">
+                    </div>
+
+                    <!-- 8. Construction -->
+                    <div id="section-const" class="hidden space-y-2">
+                        <select id="in-const-type" class="form-input text-xs"><option value="">المستلزم</option><option value="cement">أسمنت</option><option value="sand">رمل</option><option value="paint">دهانات</option><option value="ceramic">سيراميك</option></select>
+                        <input id="in-const-qty" class="form-input text-xs" placeholder="الكمية">
+                    </div>
+
+                    <!-- 9. Cameras -->
+                    <div id="section-cams" class="hidden space-y-2">
+                        <select id="in-cam-type" class="form-input text-xs"><option value="">النوع</option><option value="cam">كاميرا</option><option value="dvr">DVR/NVR</option></select>
+                        <select id="in-cam-res" class="form-input text-xs"><option value="">الدقة</option><option value="hd">HD</option><option value="fhd">FHD</option><option value="4k">4K</option></select>
+                    </div>
+
+                    <!-- 10. Decor -->
+                    <div id="section-decor" class="hidden space-y-2">
+                        <input id="in-dec-type" class="form-input text-xs" placeholder="النوع (لوحات، نجف...)">
+                        <input id="in-dec-dim" class="form-input text-xs" placeholder="المقاس">
+                    </div>
+
+                    <!-- 11. Real Estate -->
                     <div id="section-realestate" class="hidden space-y-2">
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 mb-1">
                             <label class="flex-1 cursor-pointer"><input type="radio" name="re-type" value="sale" checked class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">بيع</div></label>
                             <label class="flex-1 cursor-pointer"><input type="radio" name="re-type" value="rent" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">إيجار</div></label>
                         </div>
-                        <select id="in-re-cat" class="form-input text-xs"><option value="">نوع العقار</option><option value="apt">شقة</option><option value="villa">فيلا</option><option value="shop">محل</option><option value="land">أرض</option></select>
+                        <select id="in-re-cat" class="form-input text-xs"><option value="">نوع العقار</option><option value="apt">شقة</option><option value="villa">فيلا</option><option value="shop">محل</option><option value="land">أرض</option><option value="chalet">شاليه</option></select>
                         <div class="grid grid-cols-3 gap-2">
                             <input id="in-re-area" type="number" class="form-input text-xs" placeholder="المساحة (م)">
                             <input id="in-re-rooms" type="number" class="form-input text-xs" placeholder="غرف">
                             <input id="in-re-bath" type="number" class="form-input text-xs" placeholder="حمام">
                         </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <select id="in-re-finish" class="form-input text-xs"><option value="">التشطيب</option><option value="super">سوبر لوكس</option><option value="full">كامل</option><option value="semi">نصف</option><option value="none">بدون</option></select>
+                            <input id="in-re-floor" type="number" class="form-input text-xs" placeholder="الدور">
+                        </div>
+                        <label class="form-label text-primary">الميزات</label>
+                        <div class="flex flex-wrap gap-1.5" id="re-features-list"></div>
                     </div>
                 </div>
 
@@ -440,11 +529,15 @@
                 </div>
                 <div class="flex justify-between items-start mb-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><h2 id="d-title" class="text-base font-bold text-slate-900 dark:text-white leading-snug w-3/4 select-text"></h2><span id="d-price" class="text-primary font-black text-lg whitespace-nowrap select-text"></span></div>
                 <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700"><span id="d-cat" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700"></span> <span id="d-cond" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] border border-slate-200 dark:border-slate-700 font-bold"></span><span id="d-date" class="text-[10px] text-black dark:text-white font-bold mr-auto"></span></div>
+                
                 <div id="d-variants-container" class="space-y-2 mb-4">
                     <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">المقاسات:</span><div id="d-sizes-list" class="flex flex-wrap gap-1"></div></div>
                     <div id="d-colors-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">الألوان:</span><div id="d-colors-list" class="flex flex-wrap gap-1"></div></div>
                 </div>
+                
+                <!-- Dynamic Features Container -->
                 <div id="d-features" class="flex flex-wrap gap-2 mb-4"></div>
+                
                 <div class="space-y-1 mb-6"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium select-text"></p></div>
                 <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
                     <h3 class="text-xs font-bold text-slate-900 dark:text-white mb-3">التقييمات</h3>
@@ -598,16 +691,16 @@
     // Updated Categories List
     const CATEGORIES = [
         "عروض", "الكل",
-        "سيارات", "أجهزة إلكترونية", "عقارات", "حيوانات أليفة",
-        "أثاث منزلي", "أجهزة كهربائية", "أدوات منزلية",
-        "مستلزمات بناء", "كاميرات ومراقبة", "ديكور منزلي", "مواد خام",
         "ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", 
         "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "برفانات رجالي وحريمي", "الحقائب الشخصية",
         "النظارات", "مستحضرات التجميل", "ادوات حلاقة للرجال", "مكملات غذائية", "ادوات رياضية",
-        "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة"
+        "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة",
+        "سيارات", "أجهزة إلكترونية", "عقارات", "حيوانات أليفة",
+        "أثاث منزلي", "أجهزة كهربائية", "أدوات منزلية",
+        "مستلزمات بناء", "كاميرات ومراقبة", "ديكور منزلي", "مواد خام"
     ];
 
-    const USED_CATS = ["النظارات", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "سيارات", "أجهزة إلكترونية", "أجهزة كهربائية", "أثاث منزلي", "كاميرات ومراقبة"];
+    const USED_CATS = ["النظارات", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "سيارات", "أجهزة إلكترونية", "أجهزة كهربائية", "أثاث منزلي", "كاميرات ومراقبة", "أدوات منزلية", "مستلزمات بناء", "ديكور منزلي"];
     const CLOTHES_CATS = ["ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "اقمشة"];
     const SHOES_CATS = ["احذية رجالي", "احذية حريمي", "احذية اطفال"];
 
@@ -955,9 +1048,7 @@
         const sizeContainer = document.getElementById('field-size-chips'); const sizeChips = document.getElementById('size-chips-container'); const colorContainer = document.getElementById('field-color-chips'); const colorChips = document.getElementById('color-chips-container'); const dynamicFields = document.getElementById('dynamic-fields');
         
         // Hide all custom sections first
-        document.getElementById('section-cars').classList.add('hidden');
-        document.getElementById('section-electronics').classList.add('hidden');
-        document.getElementById('section-realestate').classList.add('hidden');
+        document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
         sizeContainer.classList.add('hidden'); colorContainer.classList.add('hidden'); dynamicFields.classList.add('hidden');
         
         let showDynamic = false;
@@ -975,9 +1066,40 @@
             BASIC_COLORS.forEach(c => { colorChips.innerHTML += `<label class="cursor-pointer"><input type="checkbox" name="smart-color" value="${c}" class="smart-option hidden"><div class="px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 font-bold text-[10px] text-slate-500 hover:border-navy transition">${c}</div></label>`; });
         }
 
-        if(cat === 'سيارات') { showDynamic = true; document.getElementById('section-cars').classList.remove('hidden'); }
-        if(cat === 'أجهزة إلكترونية' || cat === 'أجهزة كهربائية' || cat === 'كاميرات ومراقبة') { showDynamic = true; document.getElementById('section-electronics').classList.remove('hidden'); }
-        if(cat === 'عقارات') { showDynamic = true; document.getElementById('section-realestate').classList.remove('hidden'); }
+        // Logic for new categories
+        if(cat === 'سيارات') { 
+            showDynamic = true; document.getElementById('section-cars').classList.remove('hidden'); 
+            const carType = document.querySelector('input[name="car-type"]:checked').value;
+            if(carType === 'car') {
+                document.getElementById('car-fields-main').classList.remove('hidden');
+                // Generate features for cars
+                const carFeats = ["تكييف", "فتحة سقف", "ABS", "AIRBAG", "سنتر لوك", "حساسات", "كاميرا خلفية", "شاشة", "مثبت سرعة", "جنوط"];
+                const featCont = document.getElementById('car-features-list'); featCont.innerHTML = '';
+                carFeats.forEach(f => featCont.innerHTML += `<label class="cursor-pointer"><input type="checkbox" class="feature-checkbox hidden" value="${f}"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">${f}</div></label>`);
+            } else {
+                document.getElementById('car-fields-main').classList.add('hidden');
+            }
+        }
+        if(cat === 'أجهزة إلكترونية') { showDynamic = true; document.getElementById('section-electronics').classList.remove('hidden'); }
+        if(cat === 'حيوانات أليفة') { 
+            showDynamic = true; document.getElementById('section-pets').classList.remove('hidden'); 
+            const petType = document.querySelector('input[name="pet-type"]:checked').value;
+            if(petType === 'sale') document.getElementById('pet-fields-sale').classList.remove('hidden');
+            else document.getElementById('pet-fields-sale').classList.add('hidden');
+        }
+        if(cat === 'أدوات منزلية') { showDynamic = true; document.getElementById('section-home-tools').classList.remove('hidden'); }
+        if(cat === 'أجهزة كهربائية') { showDynamic = true; document.getElementById('section-electrical').classList.remove('hidden'); }
+        if(cat === 'أثاث منزلي') { showDynamic = true; document.getElementById('section-furniture').classList.remove('hidden'); }
+        if(cat === 'مواد خام') { showDynamic = true; document.getElementById('section-raw').classList.remove('hidden'); }
+        if(cat === 'مستلزمات بناء') { showDynamic = true; document.getElementById('section-const').classList.remove('hidden'); }
+        if(cat === 'كاميرات ومراقبة') { showDynamic = true; document.getElementById('section-cams').classList.remove('hidden'); }
+        if(cat === 'ديكور منزلي') { showDynamic = true; document.getElementById('section-decor').classList.remove('hidden'); }
+        if(cat === 'عقارات') { 
+            showDynamic = true; document.getElementById('section-realestate').classList.remove('hidden'); 
+            const reFeats = ["أمن وحراسة", "جراج", "حديقة", "اسانسير", "كاميرات مراقبة", "انترنت", "غاز طبيعي", "بلكونة", "قرب مواصلات"];
+            const reFeatCont = document.getElementById('re-features-list'); reFeatCont.innerHTML = '';
+            reFeats.forEach(f => reFeatCont.innerHTML += `<label class="cursor-pointer"><input type="checkbox" class="feature-checkbox hidden" value="${f}"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">${f}</div></label>`);
+        }
 
         if(showDynamic) dynamicFields.classList.remove('hidden');
     }
@@ -991,35 +1113,94 @@
         const cond=document.getElementById('in-condition').value;
         const cat=document.getElementById('in-cat').value;
         const feats=[]; document.querySelectorAll('.chip-checkbox:checked').forEach(c=>feats.push(c.value));
+        
+        // Collect specific features
+        const carFeats = []; document.querySelectorAll('#car-features-list .feature-checkbox:checked').forEach(c => carFeats.push(c.value));
+        const reFeats = []; document.querySelectorAll('#re-features-list .feature-checkbox:checked').forEach(c => reFeats.push(c.value));
+        const allFeats = [...feats, ...carFeats, ...reFeats];
+
         const sizes = []; document.querySelectorAll('input[name="smart-size"]:checked').forEach(c => sizes.push(c.value));
         const colors = []; document.querySelectorAll('input[name="smart-color"]:checked').forEach(c => colors.push(c.value));
         const shipMode = document.querySelector('input[name="ship-mode"]:checked').value;
         let shipGovs = []; if(shipMode === 'specific') { document.querySelectorAll('input[name="ship-gov-check"]:checked').forEach(c => shipGovs.push(c.value)); if(shipGovs.length === 0) { showToast('يرجى اختيار محافظة واحدة على الأقل للشحن', 'e'); btn.disabled = false; btn.innerHTML = '<span>نشر المنتج</span>'; return; } }
         const userGov = state.userData ? state.userData.governorate : '';
 
-        // Custom Fields Data
-        const carType = document.getElementById('in-car-type').value;
-        const carBrand = document.getElementById('in-car-brand').value;
-        const carKm = document.getElementById('in-car-km').value;
-        const elecType = document.getElementById('in-elec-type').value;
-        const elecRam = document.getElementById('in-elec-ram').value;
-        const elecStorage = document.getElementById('in-elec-storage').value;
-        const elecBattery = document.getElementById('in-elec-battery').value;
-        const reType = document.querySelector('input[name="re-type"]:checked')?.value;
-        const reCat = document.getElementById('in-re-cat').value;
-        const reArea = document.getElementById('in-re-area').value;
-        const reRooms = document.getElementById('in-re-rooms').value;
-        const reBath = document.getElementById('in-re-bath').value;
-
-        await addDoc(collection(db,"listings"),{
+        // Collect ALL custom fields
+        const data = {
             title:document.getElementById('in-title').value,
             price:Number(document.getElementById('in-price').value),
             category:cat, condition:cond, size: sizes.length > 0 ? sizes : null, color: colors.length > 0 ? colors : null, 
             shippingMode: shipMode, shippingGov: shipMode === 'specific' ? shipGovs : null, 
-            phone:document.getElementById('in-phone').value, desc:document.getElementById('in-desc').value, features:feats, images:state.images, badge:bdg, status:'available', governorate: userGov, createdAt:serverTimestamp(), authorId:state.user.uid,
-            // Add custom fields to DB
-            carType, carBrand, carKm, elecType, elecRam, elecStorage, elecBattery, reType, reCat, reArea, reRooms, reBath
-        });
+            phone:document.getElementById('in-phone').value, desc:document.getElementById('in-desc').value, features:allFeats, images:state.images, badge:bdg, status:'available', governorate: userGov, createdAt:serverTimestamp(), authorId:state.user.uid,
+            
+            // Cars
+            carType: document.querySelector('input[name="car-type"]:checked')?.value,
+            carBrand: document.getElementById('in-car-brand').value,
+            carModel: document.getElementById('in-car-model').value,
+            carYear: document.getElementById('in-car-year').value,
+            carFuel: document.getElementById('in-car-fuel').value,
+            carTrans: document.getElementById('in-car-trans').value,
+            carKm: document.getElementById('in-car-km').value,
+            carCc: document.getElementById('in-car-cc').value,
+
+            // Electronics
+            elecType: document.getElementById('in-elec-type').value,
+            elecBrand: document.getElementById('in-elec-brand').value,
+            elecRam: document.getElementById('in-elec-ram').value,
+            elecStorage: document.getElementById('in-elec-storage').value,
+            elecBattery: document.getElementById('in-elec-battery').value,
+
+            // Pets
+            petType: document.querySelector('input[name="pet-type"]:checked')?.value,
+            petCat: document.getElementById('in-pet-cat').value,
+            petBreed: document.getElementById('in-pet-breed').value,
+            petAge: document.getElementById('in-pet-age').value,
+            petGender: document.getElementById('in-pet-gender').value,
+
+            // Home Tools
+            htType: document.getElementById('in-ht-type').value,
+            htMat: document.getElementById('in-ht-material').value,
+
+            // Electrical
+            eaType: document.getElementById('in-ea-type').value,
+            eaBrand: document.getElementById('in-ea-brand').value,
+            eaCap: document.getElementById('in-ea-cap').value,
+
+            // Furniture
+            furnType: document.getElementById('in-furn-type').value,
+            furnMat: document.getElementById('in-furn-mat').value,
+            furnDim: document.getElementById('in-furn-dim').value,
+
+            // Raw
+            rawType: document.getElementById('in-raw-type').value,
+            rawQty: document.getElementById('in-raw-qty').value,
+
+            // Construction
+            constType: document.getElementById('in-const-type').value,
+            constQty: document.getElementById('in-const-qty').value,
+
+            // Cams
+            camType: document.getElementById('in-cam-type').value,
+            camRes: document.getElementById('in-cam-res').value,
+
+            // Decor
+            decType: document.getElementById('in-dec-type').value,
+            decDim: document.getElementById('in-dec-dim').value,
+
+            // Real Estate
+            reType: document.querySelector('input[name="re-type"]:checked')?.value,
+            reCat: document.getElementById('in-re-cat').value,
+            reArea: document.getElementById('in-re-area').value,
+            reRooms: document.getElementById('in-re-rooms').value,
+            reBath: document.getElementById('in-re-bath').value,
+            reFinish: document.getElementById('in-re-finish').value,
+            reFloor: document.getElementById('in-re-floor').value
+        };
+
+        // Remove undefined/empty keys to keep DB clean
+        Object.keys(data).forEach(key => (data[key] === undefined || data[key] === '') && delete data[key]);
+
+        await addDoc(collection(db,"listings"), data);
         showToast('تم النشر بنجاح'); toggleAddModal(); btn.disabled = false; btn.innerHTML = '<span>نشر المنتج</span><i data-lucide="arrow-left" class="w-4 h-4"></i>'; lucide.createIcons();
     };
 
