@@ -474,10 +474,10 @@
 
 
                             <div class="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
-                                <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden text-secondary dark:text-blue-400 p-1 hover:scale-110 transition">
+                                <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden text-secondary dark:text-blue-400 p-2 hover:scale-110 transition">
                                     <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
                                 </button>
-                                <button onclick="toggleFavView()" class="relative text-red-500 p-1 hover:scale-110 transition">
+                                <button onclick="toggleFavView()" class="relative text-red-500 p-2hover:scale-110 transition">
                                     <i data-lucide="heart" class="w-3.5 h-3.5"></i>
                                     <span id="fav-count" class="absolute top-0 right-0 w-1.5 h-1.5 bg-red-600 rounded-full border border-white dark:border-darkbg hidden"></span>
                                 </button>
@@ -1977,9 +1977,12 @@ function renderView() {
     const filterBtn = document.getElementById('btn-filter-toggle');
     const filterPanel = document.getElementById('filter-panel');
     
-    // 👇 التعديل الأساسي: تعريف الحاويتين المنفصلتين
-    const homeGrid = document.getElementById('home-grid');       // للأقسام (جديد)
-    const prodGrid = document.getElementById('grid-container');   // للمنتجات (قديم)
+    // تعريف الحاويات
+    const homeGrid = document.getElementById('home-grid');
+    const prodGrid = document.getElementById('grid-container');
+    
+    // 👇 (1) تعريف عنصر الحالة الفارغة
+    const emptyState = document.getElementById('empty-state'); 
 
 
     // إغلاق بانل الفلتر دائماً عند التنقل
@@ -1989,39 +1992,37 @@ function renderView() {
     if (state.currentView === 'home') {
         // === وضع الصفحة الرئيسية ===
         
-        // 1. التعامل مع الحاويات (السرعة هنا 🚀)
-        if(homeGrid) homeGrid.classList.remove('hidden'); // إظهار الأقسام فوراً
-        prodGrid.classList.add('hidden');                 // إخفاء المنتجات
+        // التعامل مع الحاويات
+        if(homeGrid) homeGrid.classList.remove('hidden'); 
+        prodGrid.classList.add('hidden');
         
-        // 2. إخفاء عناصر الهيدر غير المطلوبة
+        // 👇 (2) إخفاء رسالة "لا توجد نتائج" إجبارياً عند العودة للرئيسية
+        if(emptyState) emptyState.classList.add('hidden'); 
+
+
+        // إخفاء عناصر الهيدر غير المطلوبة
         viewHeader.classList.add('hidden');
         catContainer.classList.add('hidden');
         filterBtn.classList.add('hidden'); 
         
-        // 3. إعداد البحث
+        // إعداد البحث
         searchContainer.classList.remove('hidden');
         searchInput.placeholder = 'ابحث عن قسم...';
-        
-        // ⛔ لاحظ: حذفنا سطر renderCategoryCards() من هنا
-        // لأننا استدعيناها مرة واحدة عند تشغيل الموقع، فلا داعي لإعادة الرسم
 
 
     } else if (state.currentView === 'category') {
         // === وضع عرض المنتجات ===
 
 
-        // 1. التعامل مع الحاويات
-        if(homeGrid) homeGrid.classList.add('hidden');    // إخفاء الأقسام
-        prodGrid.classList.remove('hidden');              // إظهار المنتجات
+        if(homeGrid) homeGrid.classList.add('hidden');
+        prodGrid.classList.remove('hidden');
 
 
-        // 2. إظهار الهيدر والعنوان
         viewHeader.classList.remove('hidden');
         const title = state.currentFilter === 'all' ? 'كل المنتجات' : (state.currentFilter === 'fav' ? 'المفضلة' : state.currentFilter);
         document.getElementById('view-title').innerText = title;
 
 
-        // 3. منطق الفلتر والمفضلة
         if (state.currentFilter === 'fav') {
             searchContainer.classList.add('hidden');
             catContainer.classList.add('hidden');
@@ -2038,17 +2039,14 @@ function renderView() {
         }
 
 
-        // ضبط كلاسات الشبكة للمنتجات
         prodGrid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-10';
-        
-        // استدعاء دالة رسم المنتجات
         filter(state.currentFilter);
     }
     
     lucide.createIcons();
+
+
 }
-
-
 
 
             window.applyFilters = () => {
@@ -2056,6 +2054,10 @@ function renderView() {
             }
 
 
+    // 👇 تم إضافة دالة فتح وإغلاق لوحة الفلترة هنا
+    window.toggleFilterPanel = () => {
+        document.getElementById('filter-panel').classList.toggle('hidden');
+    }
 
 
    // Fix 5: Reset Button Logic (تم التعديل)
@@ -2075,12 +2077,7 @@ function renderView() {
             renderProducts();
         }
     };
-
-
-
-
-
-
+ 
             window.switchToCategoryView = (category) => {
                 state.currentView = 'category';
                 state.currentFilter = category;
