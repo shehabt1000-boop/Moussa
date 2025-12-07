@@ -2838,92 +2838,87 @@ renderCategoryCards();
                 document.getElementById('ord-total').innerText = total.toLocaleString() + ' ج.م';
             }
 
-
-                    window.confirmOrder = () => {
+window.confirmOrder = () => {
+    // 1. التحقق من بيانات العميل
     const phone = document.getElementById('ord-phone').value;
     const gov = document.getElementById('ord-gov').value;
     const city = document.getElementById('ord-city').value;
     const address = document.getElementById('ord-address').value;
 
-
     if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e");
 
+    // 2. جلب رقم البائع (من المنتج أو من صاحب المنتج)
+    let rawSellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
 
-    let sellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : '');
-    if(!sellerPhone) return showToast("لا يوجد رقم للتواصل مع البائع", "e");
+    // --- التعديل الجوهري هنا ---
+    
+    // تحويل الرقم لنص وتنظيفه من أي رموز غير رقمية (مثل المسافات أو الشرطات)
+    let cleanPhone = rawSellerPhone ? rawSellerPhone.toString().replace(/\D/g, '') : '';
 
-
-    // --- إصلاح رقم الهاتف (إزالة الصفر في البداية إن وجد) ---
-    sellerPhone = sellerPhone.toString().trim();
-    if (sellerPhone.startsWith('0')) {
-        sellerPhone = sellerPhone.substring(1);
+    // التحقق: هل الرقم فارغ بعد التنظيف؟
+    if (!cleanPhone) {
+        return showToast("عذراً، لا يوجد رقم هاتف مسجل لهذا البائع", "e");
     }
-    // الآن الرقم أصبح 10xxxx وليس 010xxxx ليتم دمجه مع 20 بشكل صحيح
-    const fullPhone = `20${sellerPhone}`; 
-    // -------------------------------------------------------
 
+    // معالجة الصفر في البداية (للأرقام المصرية)
+    if (cleanPhone.startsWith('0')) {
+        cleanPhone = cleanPhone.substring(1);
+    }
+
+    // تحقق إضافي: هل الرقم قصير جداً؟ (رقم الموبايل المصري بدون صفر يجب أن يكون 10 أرقام)
+    if (cleanPhone.length < 10) {
+        return showToast("رقم هاتف البائع غير صحيح أو غير مكتمل", "e");
+    }
+
+    // تكوين الرقم النهائي
+    const fullPhone = `20${cleanPhone}`;
+    
+    // ---------------------------
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('ar-EG');
     const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 
-
     const productUrl = `${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}`;
-
 
     let msg = `طلب جديد من تطبيق السوق وياك🏠📥\n`;
     msg += `📅 وقت الطلب: ${dateStr} - ${timeStr}\n\n`;
-
 
     msg += `📦 معلومات المنتج:\n`;
     msg += `*الاسم:* ${state.currentItem.title}\n`;
     msg += `*القسم:* ${state.currentItem.category || 'غير محدد'}\n`;
     msg += `*سعر القطعة:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n\n`;
 
-
     msg += `📝 تفاصيل الطلب:\n`;
-
 
     let totalQty = 0;
     state.orderItems.forEach((item, idx) => {
         if(item.qty > 0) {
             msg += `اختيار #${idx+1}:          (عدد ${item.qty})`;
 
-
             if(item.size) msg += ` | مقاس: ${item.size}`;
             if(item.color) msg += ` | لون: ${item.color}`;
-
 
             msg += `\n`;
             totalQty += item.qty;
         }
     });
 
-
     if(totalQty === 0) return showToast("يرجى إضافة قطعة واحدة على الأقل", "e");
-
 
     msg += `\nاجمالي الفاتورة: ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`;
     msg += `----------------\n`;
-
 
     msg += `👤 بيانات العميل:\n`;
     msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`;
     msg += `رقم الهاتف: ${phone}\n`;
     msg += `العنوان: ${gov} - ${city} - ${address}\n\n`;
 
-
     msg += `🔗 رابط المنتج: ${productUrl}`;
 
-
-    // --- إصلاح الرابط والتوجيه ليعمل مع PWA ---
-    // استخدام api.whatsapp.com أكثر استقراراً من wa.me في التحويل للتطبيق
     const url = `https://api.whatsapp.com/send?phone=${fullPhone}&text=${encodeURIComponent(msg)}`;
     
-    // في تطبيقات PWA والموبايل، يفضل استخدام location.href بدلاً من window.open
-    // لأن window.open قد تفتح نافذة منبثقة داخل المتصفح ولا تحولك للتطبيق
-    window.location.href = url; 
-    
+    window.location.href = url;
     toggleOrderModal();
 }
 
