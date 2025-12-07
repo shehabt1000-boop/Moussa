@@ -298,16 +298,16 @@
 
         <div id="grid-container" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-10 mt-2"></div>
 
-        <!-- NEW MODERN LOADER -->
-        <div id="loader" class="fixed inset-0 z-[300] bg-[#0f172a] flex flex-col items-center justify-center transition-all duration-500 select-none">
-            <div class="relative mb-6">
-                <div class="w-20 h-20 border-[3px] border-slate-700/50 border-t-[#10b981] border-r-[#10b981] rounded-full animate-spin"></div>
+        <!-- New Modern Loader (Fix #3) -->
+        <div id="loader" class="fixed inset-0 z-[300] bg-[#0f172a] flex flex-col items-center justify-center transition-opacity duration-500">
+            <div class="relative mb-4">
+                <div class="w-16 h-16 border-4 border-slate-700 border-t-[#10b981] rounded-full animate-spin"></div>
                 <div class="absolute inset-0 flex items-center justify-center text-white">
-                    <i data-lucide="shopping-bag" class="w-8 h-8 animate-pulse text-[#10b981]"></i>
+                    <i data-lucide="shopping-bag" class="w-6 h-6 animate-pulse"></i>
                 </div>
             </div>
-            <h1 class="font-black text-2xl text-white tracking-wide">السوق <span class="text-[#10b981]">وياك</span></h1>
-            <p class="text-[10px] text-slate-400 mt-3 font-bold animate-pulse opacity-70">بوابتك للتسوق الذكي</p>
+            <h1 class="font-black text-xl text-white tracking-wider">السوق <span class="text-[#10b981]">وياك</span></h1>
+            <p class="text-[10px] text-slate-400 mt-2 font-bold animate-pulse">جاري تجهيز المتجر...</p>
         </div>
 
         <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
@@ -464,7 +464,7 @@
             </div>
         </div>
 
-        <!-- Order Modal -->
+        <!-- Order Modal (Req 7) -->
         <div id="order-modal" class="hidden modal-overlay">
             <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
                 <div class="bg-primary p-3 text-white flex justify-between items-center shrink-0">
@@ -705,42 +705,10 @@
     const CLOUD_NAME = "db9h7zm1h"; 
     const UPLOAD_PRESET = "souq_upload"; 
 
-    // === NEW: دالة ضغط الصور (حل مشكلة بطء الرفع) ===
-    const compressImage = async (file) => {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.src = URL.createObjectURL(file);
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 1000; // أقصى عرض للصورة 1000 بكسل
-                let width = img.width;
-                let height = img.height;
-
-                if (width > MAX_WIDTH) {
-                    height *= MAX_WIDTH / width;
-                    width = MAX_WIDTH;
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                
-                // تحويل الكانفاس إلى ملف مضغوط بجودة 70%
-                canvas.toBlob((blob) => {
-                    resolve(blob);
-                }, 'image/jpeg', 0.7);
-            }
-        });
-    }
-
-    // دالة الرفع الأساسية المعدلة (تستخدم الضغط)
+    // دالة الرفع الأساسية (تستقبل الملف وترجع رابط الصورة)
     async function uploadToCloudinary(file) {
-        // ضغط الصورة قبل الرفع
-        const compressedBlob = await compressImage(file);
-        
         const formData = new FormData();
-        formData.append('file', compressedBlob);
+        formData.append('file', file);
         formData.append('upload_preset', UPLOAD_PRESET);
 
         try {
@@ -752,7 +720,7 @@
             if (!response.ok) throw new Error('فشل الرفع');
 
             const data = await response.json();
-            return data.secure_url; 
+            return data.secure_url; // إرجاع رابط الصورة HTTPS
         } catch (error) {
             console.error("Cloudinary Error:", error);
             showToast("فشل رفع الصورة، تأكد من الإنترنت", "e");
@@ -821,7 +789,7 @@
     }
 
     // ==========================================
-    // 3. تعديل رفع صور المنتجات (Add Product)
+    // 3. تعديل رفع صور المنتجات (Add Product) - Fix #4 (Parallel Upload)
     // ==========================================
     window.handleUpload = async (input) => {
         // التحقق من العدد المسموح
@@ -830,31 +798,39 @@
         }
 
         const previewArea = document.getElementById('preview-area');
+        const files = Array.from(input.files);
 
-        // إنشاء عنصر تحميل مؤقت ليراه المستخدم
-        const loaderId = `loader-${Date.now()}`;
-        const loaderHTML = `
-            <div id="${loaderId}" class="w-14 h-14 rounded-xl border border-gray-200 shrink-0 flex items-center justify-center bg-gray-50">
-                <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        `;
-        previewArea.insertAdjacentHTML('beforeend', loaderHTML);
+        // إنشاء عناصر تحميل مؤقتة
+        const loaders = [];
+        files.forEach((_, i) => {
+            const loaderId = `loader-${Date.now()}-${i}`;
+            const loaderHTML = `
+                <div id="${loaderId}" class="w-14 h-14 rounded-xl border border-gray-200 shrink-0 flex items-center justify-center bg-gray-50">
+                    <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            `;
+            previewArea.insertAdjacentHTML('beforeend', loaderHTML);
+            loaders.push(loaderId);
+        });
 
-        // المرور على الملفات المختارة ورفعها
-        for (let f of input.files) {
-            const url = await uploadToCloudinary(f);
+        // رفع الصور بالتوازي (Parallel Upload)
+        const uploadPromises = files.map(file => uploadToCloudinary(file));
+        const urls = await Promise.all(uploadPromises);
+
+        // إزالة اللودرات وإضافة الصور
+        loaders.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.remove();
+        });
+
+        urls.forEach(url => {
             if (url) {
                 state.images.push(url);
-                // إضافة الصورة للمعاينة
                 previewArea.insertAdjacentHTML('beforeend', 
                     `<img src="${url}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0 animate-pop">`
                 );
             }
-        }
-
-        // حذف عنصر التحميل بعد الانتهاء
-        const loader = document.getElementById(loaderId);
-        if(loader) loader.remove();
+        });
     };
 
     // Service Worker Registration
@@ -1095,6 +1071,7 @@
            onAuthStateChanged(auth, async (u) => { 
                 if(u) { 
                     state.user = u;
+                    // Fix #2: Check if data already exists (from signup) to avoid re-fetch
                     if (!state.userData || state.userData.username !== u.displayName) {
                         try {
                             const userDoc = await getDoc(doc(db, "users", u.uid));
@@ -1109,7 +1086,7 @@
                                 if(state.isAdmin) {
                                     document.getElementById('btn-admin-top').classList.remove('hidden');
                                 } else {
-                                     document.getElementById('btn-admin-top').classList.add('hidden');
+                                    document.getElementById('btn-admin-top').classList.add('hidden');
                                 }
                             }
                         } catch(e) {
@@ -1122,6 +1099,7 @@
                     loginView.style.setProperty('display', 'none', 'important');
                     document.getElementById('app-content').classList.remove('hidden');
                     
+                    // Fix #3: Smooth loader dismissal
                     const loader = document.getElementById('loader');
                     if(loader) {
                         loader.style.opacity = '0';
@@ -1140,7 +1118,7 @@
                     loginView.classList.remove('hidden');
                     loginView.style.removeProperty('display');
                     document.getElementById('app-content').classList.add('hidden');
-
+                    
                     const loader = document.getElementById('loader');
                     if(loader) loader.classList.add('hidden');
                 }
@@ -1254,13 +1232,11 @@
 
                         await setDoc(doc(db, "users", user.uid), newUser);
 
-                        // === حل مشكلة اختفاء زر التعديل ===
-                        // نقوم بتحديث الحالة محلياً فوراً لضمان ظهور البيانات دون انتظار الجلب من السيرفر
+                        // Fix #2: Manually update local state immediately
                         state.user = user;
                         state.userData = newUser;
                         state.userRole = state.authRole;
                         state.isAdmin = false;
-
                         document.getElementById('header-username').innerText = nameAr;
                         document.getElementById('welcome-text').classList.remove('hidden');
 
@@ -1271,11 +1247,11 @@
                     btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`;
                     btn.classList.replace('bg-navy', 'bg-green-600');
 
-                    setTimeout(() => {
-                        document.getElementById('login-view').classList.add('hidden');
-                        document.getElementById('app-content').classList.remove('hidden');
-                        showToast(`أهلاً بك في السوق وياك 👋`, 's');
-                    }, 500);
+setTimeout(() => {
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('app-content').classList.remove('hidden');
+    showToast(`أهلاً بك في السوق وياك 👋`, 's');
+}, 500);
 
                 } catch (error) {
                     console.error("Auth Error:", error);
@@ -2145,6 +2121,7 @@ renderCategoryCards();
             window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
             window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
 
+            // Fix #1: Optimistic UI for Profile (Instant Load)
             window.toggleProfile = async (userId = null) => {
                 if(toggleModal('profile-modal')) {
                     const targetId = userId || (auth.currentUser ? auth.currentUser.uid : null);
@@ -2153,22 +2130,23 @@ renderCategoryCards();
                     state.viewingProfileId = targetId;
                     const isOwner = auth.currentUser && auth.currentUser.uid === targetId;
 
+                    // Reset UI
                     document.getElementById('prof-name').innerText = '...';
                     document.getElementById('prof-role').innerText = '...';
                     document.getElementById('prof-phone').innerText = '...';
                     document.getElementById('prof-address').innerText = '...';
                     document.getElementById('prof-joined').innerText = '';
                     document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
+                    
                     document.getElementById('prof-password-section').classList.add('hidden');
                     document.getElementById('prof-reviews-section').classList.add('hidden');
                     document.getElementById('prof-rate-user-section').classList.add('hidden');
                     document.getElementById('prof-rating-display').classList.add('hidden');
                     document.getElementById('global-edit-btn').classList.add('hidden');
-
                     document.getElementById('prof-view-mode').classList.remove('hidden');
                     document.getElementById('prof-edit-mode').classList.add('hidden');
 
-                    // === دالة العرض الفوري ===
+                    // Helper to render data
                     const renderProfileData = (data) => {
                         if(!data) return;
                         document.getElementById('prof-name').innerText = data.name || 'مستخدم';
@@ -2181,7 +2159,6 @@ renderCategoryCards();
                             document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`;
                         }
 
-                        // إظهار زر التعديل فوراً إذا كان المستخدم يملك البروفايل
                         if(isOwner) {
                             document.getElementById('global-edit-btn').classList.remove('hidden');
                             document.getElementById('prof-password-section').classList.remove('hidden');
@@ -2194,13 +2171,12 @@ renderCategoryCards();
                         }
                     };
 
-                    // === التحميل الفوري للبيانات من الذاكرة ===
-                    // هذا يحل مشكلة البطء: لا ننتظر السيرفر إذا كانت البيانات معنا
+                    // 1. Instant Render if data exists locally
                     if(isOwner && state.userData) {
                         renderProfileData(state.userData);
                     }
 
-                    // === التحديث في الخلفية ===
+                    // 2. Fetch fresh data in background
                     (async () => {
                         try {
                             let data = null;
@@ -2208,7 +2184,7 @@ renderCategoryCards();
                                 const snap = await getDoc(doc(db, "users", targetId));
                                 if(snap.exists()) {
                                     data = snap.data();
-                                    renderProfileData(data); // تحديث الواجهة عند وصول البيانات
+                                    renderProfileData(data);
                                 }
                             }
 
@@ -2222,6 +2198,7 @@ renderCategoryCards();
                         }
                         lucide.createIcons();
                     })();
+
                     lucide.createIcons();
                 }
             }
