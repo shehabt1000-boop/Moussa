@@ -19,7 +19,8 @@
                         navy: '#0f172a', 
                         darkbg: '#1e293b', 
                         primary: '#10b981', 
-                        secondary: '#3b82f6' 
+                        secondary: '#3b82f6',
+                        verified: '#3b82f6' 
                     },
                     fontFamily: {
                         cairo: ['Cairo', 'sans-serif']
@@ -82,8 +83,6 @@
         #global-loader.fade-out { opacity: 0; visibility: hidden; }
         .loader-spinner { width: 40px; height: 40px; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #10b981; animation: spin 0.8s ease-in-out infinite; }
         .feature-checkbox:checked + div { background-color: #3b82f6; color: white; border-color: #3b82f6; }
-        
-        /* Specs Grid */
         .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; }
         .spec-item { display: flex; flex-direction: column; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.4rem 0.6rem; overflow: hidden; }
         .dark .spec-item { background-color: #1e293b; border-color: #334155; }
@@ -91,8 +90,6 @@
         .dark .spec-label { color: #94a3b8; }
         .spec-value { font-size: 0.75rem; color: #0f172a; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .dark .spec-value { color: #f1f5f9; }
-
-        /* Vertical Table for Main Details */
         .details-table { width: 100%; font-size: 0.75rem; border-collapse: separate; border-spacing: 0; margin-bottom: 0.5rem; }
         .details-table td { padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
         .dark .details-table td { border-color: #334155; }
@@ -100,6 +97,10 @@
         .dark .details-table td:first-child { color: #94a3b8; }
         .details-table td:last-child { color: #0f172a; font-weight: 800; text-align: left; }
         .dark .details-table td:last-child { color: #f8fafc; }
+        
+        /* Verified Badge */
+        .verified-badge { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background-color: #3b82f6; border-radius: 50%; color: white; margin-right: 4px; }
+        .verified-badge svg { width: 10px; height: 10px; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
@@ -268,8 +269,15 @@
                     <div class="flex flex-col items-center gap-3 mb-6">
                         <div id="prof-img-container" class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg"><i data-lucide="user" class="w-10 h-10 text-slate-400"></i></div>
                         <div class="text-center w-full">
-                            <div class="flex items-center justify-center gap-2">
+                            <div class="flex items-center justify-center gap-1">
                                 <h2 id="prof-name" class="font-black text-xl text-navy dark:text-white">...</h2>
+                                <div id="prof-verified-badge" class="hidden verified-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.491 4.491 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></div>
+                            </div>
+                            
+                            <!-- Verify Button -->
+                            <button id="btn-verify-account" onclick="verifyAccount()" class="hidden mt-1 px-3 py-1 bg-blue-600 text-white rounded-full text-[10px] font-bold hover:bg-blue-700 transition">توثيق الحساب</button>
+                            
+                            <div class="flex items-center justify-center gap-2 mt-1">
                                 <button id="global-edit-btn" onclick="toggleEditMode()" class="hidden flex items-center gap-1 text-primary hover:text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full transition"><i data-lucide="pen-tool" class="w-3 h-3"></i> <span class="text-[10px] font-bold">تعديل</span></button>
                             </div>
                             <div id="prof-rating-display" class="flex justify-center items-center gap-1 mt-1 text-yellow-400 text-xs font-bold hidden"><span>★</span> <span id="prof-rating-val">0.0</span></div>
@@ -552,7 +560,16 @@
                 <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse"><i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج</button>
                 
                 <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
-                     <div class="flex items-center gap-2"><div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div><div class="flex flex-col justify-center"><h4 id="d-pub-name" class="font-bold text-[10px] text-navy dark:text-white leading-tight">...</h4><span class="text-[8px] text-slate-400">اضغط لعرض حساب الناشر </span></div></div>
+                     <div class="flex items-center gap-2">
+                         <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
+                         <div class="flex flex-col justify-center">
+                             <div class="flex items-center gap-1">
+                                 <h4 id="d-pub-name" class="font-bold text-[10px] text-navy dark:text-white leading-tight">...</h4>
+                                 <div id="d-pub-verified" class="hidden verified-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.491 4.491 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></div>
+                             </div>
+                             <span class="text-[8px] text-slate-400">اضغط لعرض حساب الناشر </span>
+                         </div>
+                     </div>
                 </div>
 
                 <!-- Main Details Table -->
@@ -631,7 +648,30 @@
     </div>
 
     <!-- Admin Panel -->
-    <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] overflow-y-auto p-2" id="admin-users-list"></div><div class="w-2/3 flex flex-col bg-navy relative"><div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38]"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div><div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38]"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div></div></div></div>
+    <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white">
+        <div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38]">
+            <h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2>
+            <div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+        </div>
+        <div class="flex-1 flex overflow-hidden">
+            <div class="w-1/3 border-l border-white/10 bg-[#001f3f] overflow-y-auto p-2" id="admin-users-list">
+                <!-- Admin Verify Code Input -->
+                <div class="p-3 mb-2 bg-white/5 rounded-xl border border-white/10">
+                    <label class="text-[10px] text-gray-400 block mb-1">كود التوثيق</label>
+                    <div class="flex gap-1">
+                        <input id="admin-verify-code" type="text" class="w-full bg-black/30 border border-white/10 rounded px-2 py-1 text-xs text-white text-center tracking-widest" placeholder="####">
+                        <button onclick="setVerifyCode()" class="bg-primary px-2 rounded text-xs"><i data-lucide="save" class="w-3 h-3"></i></button>
+                    </div>
+                </div>
+                <div id="admin-list-content"></div>
+            </div>
+            <div class="w-2/3 flex flex-col bg-navy relative">
+                <div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38]"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div>
+                <div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div>
+                <div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38]"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div>
+            </div>
+        </div>
+    </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -734,7 +774,7 @@
     // Improved Service Worker for PWA Offline Support
     if ('serviceWorker' in navigator) {
         const swCode = `
-            const CACHE_NAME='souq-v5';
+            const CACHE_NAME='souq-v6';
             const ASSETS = [
                 '/',
                 'https://cdn.tailwindcss.com',
@@ -750,9 +790,7 @@
                             if(u.pathname.endsWith('.js') || u.pathname.endsWith('.css') || u.pathname.endsWith('.png')) { c.put(e.request, n.clone()); }
                             return n;
                         });
-                    }).catch(() => {
-                        // Return offline page if available
-                    })));
+                    }).catch(() => {})));
                 }
             });
         `;
@@ -773,7 +811,7 @@
     const auth = getAuth(app);
     enableIndexedDbPersistence(db).catch((err) => { console.log('Persistence error', err); });
 
-    let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6 };
+    let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {} };
 
     // Updated Categories List
     const CATEGORIES = [
@@ -874,7 +912,6 @@
                     const data = userDoc.data();
                     state.userData = data; state.userRole = data.role || 'customer'; 
                     
-                    // Check local storage for admin persistence
                     if(localStorage.getItem('souq_admin_mode') === 'true') {
                         state.isAdmin = true;
                         document.getElementById('btn-admin-top').classList.remove('hidden');
@@ -913,7 +950,7 @@
                 if (!nameAr || !gov || !city || !address || !phone) throw new Error("missing_fields");
                 const userCredential = await createUserWithEmailAndPassword(auth, email, pass); const user = userCredential.user;
                 await updateProfile(user, { displayName: nameAr });
-                const newUser = { username: username, name: nameAr, phone: phone, email: email, role: state.authRole, governorate: gov, city: city, address: address, isAdmin: false, image: state.authImageBase64 || null, createdAt: serverTimestamp() };
+                const newUser = { username: username, name: nameAr, phone: phone, email: email, role: state.authRole, governorate: gov, city: city, address: address, isAdmin: false, isVerified: false, image: state.authImageBase64 || null, createdAt: serverTimestamp() };
                 await setDoc(doc(db, "users", user.uid), newUser);
                 state.userData = newUser; state.userRole = state.authRole; state.user = user;
                 document.getElementById('header-username').innerText = nameAr; document.getElementById('welcome-text').classList.remove('hidden');
@@ -1057,7 +1094,6 @@
         }
         else if(USED_CATS.includes(item.category)) extraInfo = `<span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span>`;
 
-        // Removed Arrows from Card
         return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${!statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button><span class="absolute bottom-1 left-1 bg-white/80 text-black text-[8px] font-bold px-1 rounded z-10">${formatDate(item.createdAt)}</span><div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${item.category}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[8px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center">${extraInfo}</div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
     }
 
@@ -1119,6 +1155,13 @@
                 html += renderSpecItem('الفتيس', item.carTrans);
                 html += renderSpecItem('العداد', item.carKm ? item.carKm + ' كم' : '');
                 html += renderSpecItem('سعة المحرك', item.carCc ? item.carCc + ' CC' : '');
+                
+                // Smart Feature Integration
+                if(item.features && item.features.length > 0) {
+                    item.features.forEach(f => {
+                         html += renderSpecItem('ميزة', f);
+                    });
+                }
             }
         } else if(item.category === 'أجهزة إلكترونية') {
             html += renderSpecItem('النوع', item.elecType);
@@ -1186,7 +1229,9 @@
         }
 
         const adminControls = document.getElementById('d-admin-controls'); if(adminControls) { adminControls.innerHTML = ''; const isOwner = state.user && state.user.uid === item.authorId; if (state.isAdmin || isOwner) { adminControls.innerHTML = `<button onclick="del(null, '${item.id}')" class="bg-white/80 dark:bg-black/50 text-red-500 p-1.5 rounded-full shadow-sm hover:bg-white transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button><button onclick="toggleStatus(event, '${item.id}', '${item.status || 'available'}')" class="bg-white/80 dark:bg-black/50 text-blue-500 p-1.5 rounded-full shadow-sm hover:bg-white transition"><i data-lucide="edit-3" class="w-5 h-5"></i></button>`; } }
-        const pubName = document.getElementById('d-pub-name'); const pubImg = document.getElementById('d-pub-img'); pubName.innerText = "جاري التحميل..."; pubImg.innerHTML = `<div class="animate-pulse bg-slate-300 w-full h-full"></div>`; document.getElementById('d-pub-bar').onclick = () => toggleProfile(item.authorId);
+        const pubName = document.getElementById('d-pub-name'); const pubImg = document.getElementById('d-pub-img'); const pubBadge = document.getElementById('d-pub-verified');
+        pubName.innerText = "جاري التحميل..."; pubImg.innerHTML = `<div class="animate-pulse bg-slate-300 w-full h-full"></div>`; pubBadge.classList.add('hidden');
+        document.getElementById('d-pub-bar').onclick = () => toggleProfile(item.authorId);
         
         const amCont = document.getElementById('d-features'); amCont.innerHTML=''; 
         const sizeRow = document.getElementById('d-sizes-row'); const sizeList = document.getElementById('d-sizes-list'); const colorRow = document.getElementById('d-colors-row'); const colorList = document.getElementById('d-colors-list');
@@ -1194,7 +1239,7 @@
         if(item.size && Array.isArray(item.size) && item.size.length > 0) { sizeRow.classList.remove('hidden'); item.size.forEach(s => { sizeList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm min-w-[30px] text-center">${s}</span>`; }); }
         if(item.color && Array.isArray(item.color) && item.color.length > 0) { colorRow.classList.remove('hidden'); item.color.forEach(c => { colorList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm">${c}</span>`; }); }
         
-        // Features Logic (Hide for Cars/Real Estate)
+        // Features Logic (Hide for Cars/Real Estate as they are in Specs)
         const featContainer = document.getElementById('d-features-container');
         if(item.category === 'سيارات' || item.category === 'عقارات') {
              featContainer.classList.add('hidden');
@@ -1215,17 +1260,41 @@
         dotsContainer.innerHTML = ''; if (imgs.length > 1) { dotsContainer.innerHTML = imgs.map((_, index) => `<span id="dot-${index}" class="w-2 h-2 rounded-full bg-white/40 transition-all"></span>`).join(''); } document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
         toggleModal('details-modal'); goToDetailsSlide(0, 'auto'); 
         const url = new URL(window.location); url.searchParams.set('product_id', id); window.history.replaceState({}, '', url);
+        
+        // Publisher Data with Caching
         (async () => {
-            try {
-                const uSnap = await getDoc(doc(db, "users", item.authorId));
-                if(uSnap.exists()) {
-                    const uData = uSnap.data(); state.currentAuthor = uData; if(document.getElementById('details-modal').classList.contains('hidden')) return; 
-                    pubName.innerText = uData.name || "مستخدم"; if(uData.image) { pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`; } else { pubImg.innerHTML = `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; lucide.createIcons(); }
-                } else { pubName.innerText = "مستخدم غير معروف"; state.currentAuthor = null; }
-            } catch(e) { pubName.innerText = "ناشر"; state.currentAuthor = null; }
+            if (state.authorCache[item.authorId]) {
+                const uData = state.authorCache[item.authorId];
+                updatePublisherUI(uData);
+            } else {
+                try {
+                    const uSnap = await getDoc(doc(db, "users", item.authorId));
+                    if(uSnap.exists()) {
+                        const uData = uSnap.data();
+                        state.authorCache[item.authorId] = uData; // Cache it
+                        updatePublisherUI(uData);
+                    } else {
+                        pubName.innerText = "مستخدم غير معروف";
+                    }
+                } catch(e) { pubName.innerText = "ناشر"; }
+            }
             state.productReviewsLimit = 1; loadProductReviews(false); lucide.createIcons(); 
         })();
         lucide.createIcons(); 
+    }
+
+    function updatePublisherUI(uData) {
+        const pubName = document.getElementById('d-pub-name'); 
+        const pubImg = document.getElementById('d-pub-img');
+        const pubBadge = document.getElementById('d-pub-verified');
+        
+        state.currentAuthor = uData;
+        pubName.innerText = uData.name || "مستخدم"; 
+        if(uData.image) { pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`; } 
+        else { pubImg.innerHTML = `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; lucide.createIcons(); }
+        
+        if(uData.isVerified) pubBadge.classList.remove('hidden');
+        else pubBadge.classList.add('hidden');
     }
 
     window.closeDetails = () => { toggleModal('details-modal'); state.currentItem = null; document.getElementById('details-dots').innerHTML = ''; const imgEl = document.getElementById('details-img'); if (imgEl) { imgEl.src = ''; } const url = new URL(window.location); url.searchParams.delete('product_id'); window.history.replaceState({}, '', url); }
@@ -1550,7 +1619,36 @@
     window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'} overflow-hidden">${m.t}</span></div>`});b.scrollTop=9999})};
     window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
     window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
-    window.toggleProfile = async (userId = null) => { if(toggleModal('profile-modal')) { const targetId = userId || (auth.currentUser ? auth.currentUser.uid : null); if(!targetId) return; state.viewingProfileId = targetId; const isOwner = auth.currentUser && auth.currentUser.uid === targetId; document.getElementById('prof-name').innerText = '...'; document.getElementById('prof-role').innerText = '...'; document.getElementById('prof-phone').innerText = '...'; document.getElementById('prof-address').innerText = '...'; document.getElementById('prof-joined').innerText = ''; document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`; document.getElementById('prof-password-section').classList.add('hidden'); document.getElementById('prof-reviews-section').classList.add('hidden'); document.getElementById('prof-rate-user-section').classList.add('hidden'); document.getElementById('prof-rating-display').classList.add('hidden'); document.getElementById('global-edit-btn').classList.add('hidden'); document.getElementById('prof-view-mode').classList.remove('hidden'); document.getElementById('prof-edit-mode').classList.add('hidden'); let data = null; if (isOwner && state.userData) { data = state.userData; } else { try { const snap = await getDoc(doc(db, "users", targetId)); if(snap.exists()) data = snap.data(); } catch(e) { console.error(e); } } if(data) { document.getElementById('prof-name').innerText = data.name || 'مستخدم'; document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل'; document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل'; document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || ''); document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt); if(data.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`; } calculateUserRating(targetId); if(isOwner) { document.getElementById('global-edit-btn').classList.remove('hidden'); document.getElementById('prof-password-section').classList.remove('hidden'); } else { document.getElementById('prof-rate-user-section').classList.remove('hidden'); } if(data.role === 'marketer') { document.getElementById('prof-reviews-section').classList.remove('hidden'); state.profileReviewsLimit = 3; loadProfileReviews(false); } } lucide.createIcons(); } }
+    
+    // Verification Logic
+    window.setVerifyCode = async () => {
+        const code = document.getElementById('admin-verify-code').value;
+        if(code.length !== 4) return showToast('الكود يجب أن يكون 4 أرقام', 'e');
+        await setDoc(doc(db, "settings", "general"), { verifyCode: code }, { merge: true });
+        showToast('تم تعيين كود التوثيق بنجاح');
+    }
+
+    window.verifyAccount = async () => {
+        const code = prompt("أدخل كود التوثيق المكون من 4 أرقام:");
+        if(!code) return;
+        
+        try {
+            const settingsSnap = await getDoc(doc(db, "settings", "general"));
+            if(settingsSnap.exists() && settingsSnap.data().verifyCode === code) {
+                await updateDoc(doc(db, "users", state.user.uid), { isVerified: true });
+                state.userData.isVerified = true;
+                toggleProfile(); // Refresh profile UI
+                showToast("تم توثيق حسابك بنجاح! 🎉");
+            } else {
+                showToast("الكود غير صحيح", "e");
+            }
+        } catch(e) {
+            console.error(e);
+            showToast("حدث خطأ، حاول مرة أخرى", "e");
+        }
+    }
+
+    window.toggleProfile = async (userId = null) => { if(toggleModal('profile-modal')) { const targetId = userId || (auth.currentUser ? auth.currentUser.uid : null); if(!targetId) return; state.viewingProfileId = targetId; const isOwner = auth.currentUser && auth.currentUser.uid === targetId; document.getElementById('prof-name').innerText = '...'; document.getElementById('prof-role').innerText = '...'; document.getElementById('prof-phone').innerText = '...'; document.getElementById('prof-address').innerText = '...'; document.getElementById('prof-joined').innerText = ''; document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`; document.getElementById('prof-password-section').classList.add('hidden'); document.getElementById('prof-reviews-section').classList.add('hidden'); document.getElementById('prof-rate-user-section').classList.add('hidden'); document.getElementById('prof-rating-display').classList.add('hidden'); document.getElementById('global-edit-btn').classList.add('hidden'); document.getElementById('prof-view-mode').classList.remove('hidden'); document.getElementById('prof-edit-mode').classList.add('hidden'); document.getElementById('btn-verify-account').classList.add('hidden'); document.getElementById('prof-verified-badge').classList.add('hidden'); let data = null; if (isOwner && state.userData) { data = state.userData; } else { try { const snap = await getDoc(doc(db, "users", targetId)); if(snap.exists()) data = snap.data(); } catch(e) { console.error(e); } } if(data) { document.getElementById('prof-name').innerText = data.name || 'مستخدم'; document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل'; document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل'; document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || ''); document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt); if(data.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`; } calculateUserRating(targetId); if(data.isVerified) { document.getElementById('prof-verified-badge').classList.remove('hidden'); } else if(isOwner) { document.getElementById('btn-verify-account').classList.remove('hidden'); } if(isOwner) { document.getElementById('global-edit-btn').classList.remove('hidden'); document.getElementById('prof-password-section').classList.remove('hidden'); } else { document.getElementById('prof-rate-user-section').classList.remove('hidden'); } if(data.role === 'marketer') { document.getElementById('prof-reviews-section').classList.remove('hidden'); state.profileReviewsLimit = 3; loadProfileReviews(false); } } lucide.createIcons(); } }
     window.toggleEditMode = () => { const viewMode = document.getElementById('prof-view-mode'); const editMode = document.getElementById('prof-edit-mode'); if(editMode.classList.contains('hidden')) { viewMode.classList.add('hidden'); editMode.classList.remove('hidden'); document.getElementById('edit-name').value = state.userData.name || ''; document.getElementById('edit-phone').value = state.userData.phone || ''; document.getElementById('edit-address').value = state.userData.address || ''; document.getElementById('edit-gov').value = state.userData.governorate || ''; updateEditCities(); document.getElementById('edit-city').value = state.userData.city || ''; if(state.userData.image) { document.getElementById('edit-img-preview').src = state.userData.image; document.getElementById('edit-img-preview').classList.remove('hidden'); document.getElementById('edit-img-placeholder').classList.add('hidden'); } } else { editMode.classList.add('hidden'); viewMode.classList.remove('hidden'); } }
     window.saveProfile = async () => { const name = document.getElementById('edit-name').value.trim(); const phone = document.getElementById('edit-phone').value.trim(); const address = document.getElementById('edit-address').value.trim(); const gov = document.getElementById('edit-gov').value; const city = document.getElementById('edit-city').value; if(!name || !phone || !address || !gov || !city) return showToast("يرجى ملء جميع الحقول", "e"); const updateData = { name, phone, address, governorate: gov, city }; if(state.tempEditImage) { updateData.image = state.tempEditImage; } try { await updateDoc(doc(db, "users", state.user.uid), updateData); state.userData = { ...state.userData, ...updateData }; state.tempEditImage = null; document.getElementById('prof-name').innerText = name; document.getElementById('prof-phone').innerText = phone; document.getElementById('prof-address').innerText = address + ' - ' + gov; if(updateData.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${updateData.image}" class="w-full h-full object-cover">`; } showToast("تم حفظ التعديلات بنجاح"); toggleEditMode(); } catch(e) { showToast("فشل الحفظ", "e"); } }
     window.changePassword = async () => { const newPass = document.getElementById('new-password').value; if(!newPass || newPass.length < 6) return showToast("كلمة المرور قصيرة جداً", "e"); try { await updatePassword(auth.currentUser, newPass); showToast("تم تحديث كلمة المرور بنجاح"); document.getElementById('new-password').value = ''; } catch(e) { showToast("يجب إعادة تسجيل الدخول لتغيير كلمة المرور", "e"); } }
@@ -1569,5 +1667,52 @@
     window.confirmOrder = () => { const phone = document.getElementById('ord-phone').value; const gov = document.getElementById('ord-gov').value; const city = document.getElementById('ord-city').value; const address = document.getElementById('ord-address').value; if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e"); let rawSellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : ''); let cleanPhone = rawSellerPhone ? rawSellerPhone.toString().replace(/\D/g, '') : ''; if (!cleanPhone) { return showToast("عذراً، لا يوجد رقم هاتف مسجل لهذا البائع", "e"); } if (cleanPhone.startsWith('0')) { cleanPhone = cleanPhone.substring(1); } if (cleanPhone.length < 10) { return showToast("رقم هاتف البائع غير صحيح أو غير مكتمل", "e"); } const fullPhone = `20${cleanPhone}`; const now = new Date(); const dateStr = now.toLocaleDateString('ar-EG'); const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }); const productUrl = `${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}`; let msg = `طلب جديد من تطبيق السوق وياك🏠📥\n`; msg += `📅 وقت الطلب: ${dateStr} - ${timeStr}\n\n`; msg += `📦 معلومات المنتج:\n`; msg += `*الاسم:* ${state.currentItem.title}\n`; msg += `*القسم:* ${state.currentItem.category || 'غير محدد'}\n`; msg += `*سعر القطعة:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n\n`; msg += `📝 تفاصيل الطلب:\n`; let totalQty = 0; state.orderItems.forEach((item, idx) => { if(item.qty > 0) { msg += `اختيار #${idx+1}:          (عدد ${item.qty})`; if(item.size) msg += ` | مقاس: ${item.size}`; if(item.color) msg += ` | لون: ${item.color}`; msg += `\n`; totalQty += item.qty; } }); if(totalQty === 0) return showToast("يرجى إضافة قطعة واحدة على الأقل", "e"); msg += `\nاجمالي الفاتورة: ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`; msg += `----------------\n`; msg += `👤 بيانات العميل:\n`; msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`; msg += `رقم الهاتف: ${phone}\n`; msg += `العنوان: ${gov} - ${city} - ${address}\n\n`; msg += `🔗 رابط المنتج: ${productUrl}`; const url = `https://api.whatsapp.com/send?phone=${fullPhone}&text=${encodeURIComponent(msg)}`; window.location.href = url; toggleOrderModal(); }
     lucide.createIcons();
 </script>
+
+<!-- 
+    FIREBASE SECURITY RULES (RECOMMENDED)
+    Copy this to your Firebase Console -> Firestore Database -> Rules
+    
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        
+        // Users can read/write their own data
+        match /users/{userId} {
+          allow read: if true;
+          allow create: if request.auth != null;
+          allow update: if request.auth != null && request.auth.uid == userId;
+        }
+        
+        // Listings: Anyone can read, Auth users can create
+        match /listings/{listingId} {
+          allow read: if true;
+          allow create: if request.auth != null;
+          allow update, delete: if request.auth != null && (resource.data.authorId == request.auth.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+        }
+
+        // Chats: Only participants can read/write
+        match /chats/{chatId} {
+          allow read, write: if request.auth != null;
+        }
+
+        // Reviews: Auth users can create
+        match /product_reviews/{reviewId} {
+          allow read: if true;
+          allow create: if request.auth != null;
+        }
+        match /user_reviews/{reviewId} {
+          allow read: if true;
+          allow create: if request.auth != null;
+        }
+
+        // Settings: Read-only for everyone (to check verify code), Write for Admin only
+        match /settings/{docId} {
+          allow read: if true;
+          allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+        }
+      }
+    }
+-->
+
 </body>
 </html>
