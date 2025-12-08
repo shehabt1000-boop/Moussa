@@ -763,7 +763,7 @@
     // Improved Service Worker for PWA Offline Support
     if ('serviceWorker' in navigator) {
         const swCode = `
-            const CACHE_NAME='souq-v9';
+            const CACHE_NAME='souq-v12';
             const ASSETS = [
                 '/',
                 'https://cdn.tailwindcss.com',
@@ -809,12 +809,12 @@
         "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "برفانات رجالي وحريمي", "الحقائب الشخصية",
         "النظارات", "مستحضرات التجميل", "ادوات حلاقة للرجال", "مكملات غذائية", "ادوات رياضية",
         "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة",
-        "سيارات", "أجهزة إلكترونية", "عقارات", "حيوانات أليفة",
+        "سيارات", "أجهزة إلكترونية", "عقارات", "حيوانات أليفة", "ألعاب فيديو", "كتب ومجلات", "زراعة وحدائق", "خدمات", "وظائف",
         "أثاث منزلي", "أجهزة كهربائية", "أدوات منزلية",
         "مستلزمات بناء", "كاميرات ومراقبة", "ديكور منزلي", "مواد خام"
     ];
 
-    const USED_CATS = ["النظارات", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "سيارات", "أجهزة إلكترونية", "أجهزة كهربائية", "أثاث منزلي", "كاميرات ومراقبة", "أدوات منزلية", "مستلزمات بناء", "ديكور منزلي"];
+    const USED_CATS = ["النظارات", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "سيارات", "أجهزة إلكترونية", "أجهزة كهربائية", "أثاث منزلي", "كاميرات ومراقبة", "أدوات منزلية", "مستلزمات بناء", "ديكور منزلي", "ألعاب فيديو", "كتب ومجلات"];
     const CLOTHES_CATS = ["ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "اقمشة"];
     const SHOES_CATS = ["احذية رجالي", "احذية حريمي", "احذية اطفال"];
 
@@ -839,6 +839,11 @@
         "مستلزمات بناء": "https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg?auto=compress&cs=tinysrgb&w=300",
         "كاميرات ومراقبة": "https://images.pexels.com/photos/414781/pexels-photo-414781.jpeg?auto=compress&cs=tinysrgb&w=300",
         "ديكور منزلي": "https://images.pexels.com/photos/1090638/pexels-photo-1090638.jpeg?auto=compress&cs=tinysrgb&w=300",
+        "ألعاب فيديو": "https://images.pexels.com/photos/3945659/pexels-photo-3945659.jpeg?auto=compress&cs=tinysrgb&w=300",
+        "كتب ومجلات": "https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg?auto=compress&cs=tinysrgb&w=300",
+        "زراعة وحدائق": "https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&cs=tinysrgb&w=300",
+        "خدمات": "https://images.pexels.com/photos/4481326/pexels-photo-4481326.jpeg?auto=compress&cs=tinysrgb&w=300",
+        "وظائف": "https://images.pexels.com/photos/5668858/pexels-photo-5668858.jpeg?auto=compress&cs=tinysrgb&w=300",
         "ملابس رجالي": "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=300&auto=format&fit=crop",
         "برفانات رجالي وحريمي": "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=300&auto=format&fit=crop",
         "النظارات": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=300&auto=format&fit=crop",
@@ -1249,6 +1254,14 @@
         const imgs = Array.isArray(item.images) ? item.images : [item.image]; state.detailsSliderImages = imgs; state.detailsSliderIndex = 0;   
         const dotsContainer = document.getElementById('details-dots'); const imgEl = document.getElementById('details-img'); if (imgEl) { imgEl.src = imgs.length > 0 ? imgs[0] : 'https://placehold.co/400x300/e2e8f0/94a3b8?text=No+Image'; imgEl.onclick = () => openLightbox(imgEl.src); }
         dotsContainer.innerHTML = ''; if (imgs.length > 1) { dotsContainer.innerHTML = imgs.map((_, index) => `<span id="dot-${index}" class="w-2 h-2 rounded-full bg-white/40 transition-all"></span>`).join(''); } document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
+        
+        // Smart Button Text
+        const orderBtn = document.getElementById('btn-order-main');
+        if(item.category === 'عقارات') orderBtn.innerHTML = `<i data-lucide="eye" class="w-5 h-5"></i> طلب معاينة`;
+        else if(item.category === 'سيارات') orderBtn.innerHTML = `<i data-lucide="car" class="w-5 h-5"></i> طلب تجربة / تفاوض`;
+        else if(item.category === 'وظائف' || item.category === 'خدمات') orderBtn.innerHTML = `<i data-lucide="phone-call" class="w-5 h-5"></i> تواصل للاتفاق`;
+        else orderBtn.innerHTML = `<i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج`;
+
         toggleModal('details-modal'); goToDetailsSlide(0, 'auto'); 
         const url = new URL(window.location); url.searchParams.set('product_id', id); window.history.replaceState({}, '', url);
         
