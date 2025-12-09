@@ -47,7 +47,6 @@
         
         input[type="file"]::file-selector-button { margin-left: 0.5rem; background-color: #0d9488; color: white; border: 0; border-radius: 0.5rem; padding: 0.25rem 0.75rem; cursor: pointer; }
         
-        /* Fixed Header for Full Screen Modals */
         .modal-header-fixed { position: sticky; top: 0; z-index: 50; background-color: rgba(17, 24, 39, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #374151; }
         
         .ltr { direction: ltr; }
@@ -163,16 +162,25 @@
             
             window.addEventListener('load', removeLoader);
             
-            // Global Unmute Handler
-            document.addEventListener('click', unmuteVideos, { once: true });
-            document.addEventListener('touchstart', unmuteVideos, { once: true });
-        }
-        
-        function unmuteVideos() {
-            const videos = document.querySelectorAll('video');
-            videos.forEach(v => {
-                if(v.muted) v.muted = false;
-            });
+            // --- Smart Unmute Logic ---
+            // This waits for the FIRST interaction (touch or click) anywhere on the site
+            // and immediately unmutes the first video.
+            const unmuteHandler = () => {
+                const firstVideo = document.getElementById('bannerVideo_0');
+                if (firstVideo) {
+                    firstVideo.muted = false;
+                    // If it was paused by browser policy, play it now
+                    if(firstVideo.paused) firstVideo.play().catch(e => console.log("Playback error", e));
+                }
+                // Remove listeners so it doesn't run again
+                document.removeEventListener('click', unmuteHandler);
+                document.removeEventListener('touchstart', unmuteHandler);
+                document.removeEventListener('scroll', unmuteHandler);
+            };
+
+            document.addEventListener('click', unmuteHandler);
+            document.addEventListener('touchstart', unmuteHandler);
+            document.addEventListener('scroll', unmuteHandler);
         }
 
         // --- Lightbox ---
@@ -328,25 +336,15 @@
                             id="bannerVideo_${idx}"
                             controls 
                             playsinline 
+                            muted 
+                            autoplay
                             class="w-full aspect-video object-cover"
-                            ${idx === 0 ? 'autoplay' : ''}
                         >
                             <source src="${v.url}" type="video/mp4">
                         </video>
                          ${isAdmin ? `<button onclick="confirmDelete('${v.id}', 'الفيديو', 'banner')" class="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg z-10 backdrop-blur-md flex items-center gap-2"><i class="fas fa-trash-alt"></i> حذف الفيديو</button>` : ''}
                     </div>
                 `).join('');
-
-                // Attempt Autoplay with Sound logic
-                const firstVideo = document.getElementById('bannerVideo_0');
-                if(firstVideo) {
-                    firstVideo.play().catch(error => {
-                        // Autoplay blocked (likely), mute and play
-                        firstVideo.muted = true;
-                        firstVideo.play();
-                    });
-                }
-
             } else {
                 videoSection.classList.add('hidden');
                 videoContainer.innerHTML = '';
@@ -414,7 +412,7 @@
             oldImages = Array.isArray(trip.images) ? trip.images : (trip.mainImageUrl ? [trip.mainImageUrl] : []);
             
             const modal = document.getElementById('addTripModal');
-            modal.classList.remove('hidden'); modal.classList.add('flex');
+            modal.classList.remove('hidden'); 
             document.getElementById('modalTitle').textContent = "تعديل الرحلة";
             document.getElementById('submitBtn').innerHTML = `<i class="fas fa-save ml-1"></i> حفظ التعديلات`;
             
@@ -437,7 +435,6 @@
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }
-            // Do NOT force close mobile menu here to avoid flickering, let user close it
         }
         
         window.handleLogin = async function(e) { 
@@ -445,7 +442,7 @@
             try { 
                 await signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value); 
                 window.toggleLoginModal(); 
-                document.getElementById('mobile-menu').classList.remove('open'); // Close menu only on success
+                document.getElementById('mobile-menu').classList.remove('open'); 
             } catch (error) { showNotification("بيانات خطأ", "error"); } 
         }
         
@@ -464,9 +461,9 @@
         window.finalizeBooking = function(e) { e.preventDefault(); window.open(`https://wa.me/${currentBookingTrip.phone}?text=${encodeURIComponent(`حجز: ${currentBookingTrip.title}\nالاسم: ${document.getElementById('clientName').value}\nالعدد: ${document.getElementById('formCount').value}\nالإجمالي: ${document.getElementById('formTotal').textContent}`)}`); closeBookingForm(); }
         window.toggleTripStatus = async function(id, status) { await setDoc(doc(db, tripsPath, id), {status}, {merge:true}); }
         window.handleBannerSubmit = async function(e) { e.preventDefault(); const files = document.getElementById('bannerFiles').files; if(!files.length) return; document.getElementById('bannerSubmitBtn').innerHTML='...'; try { const urls = await Promise.all([...files].map(f=>uploadToCloudinary(f))); await Promise.all(urls.map(url=>addDoc(collection(db, bannerPath), {url, createdAt: Timestamp.now()}))); showNotification("تم","success"); window.closeBannerModal(); } catch(e){showNotification("خطأ","error")} document.getElementById('bannerSubmitBtn').innerHTML='تأكيد'; }
-        window.toggleTripModal = function() { isAdmin? (isEditing=false, document.getElementById('addTripModal').classList.toggle('hidden'), document.getElementById('addTripModal').classList.toggle('flex'), document.getElementById('addTripForm').reset()) : null; }
+        window.toggleTripModal = function() { isAdmin? (isEditing=false, document.getElementById('addTripModal').classList.toggle('hidden'), document.getElementById('addTripForm').reset()) : null; }
         window.toggleBannerModal = function() { isAdmin? (document.getElementById('addBannerModal').classList.toggle('hidden'), document.getElementById('addBannerModal').classList.toggle('flex')) : null; }
-        window.closeTripModal = function() { document.getElementById('addTripModal').classList.add('hidden'); document.getElementById('addTripModal').classList.remove('flex'); }
+        window.closeTripModal = function() { document.getElementById('addTripModal').classList.add('hidden'); }
         window.closeBannerModal = function() { document.getElementById('addBannerModal').classList.add('hidden'); document.getElementById('addBannerModal').classList.remove('flex'); }
         window.toggleMobileMenu = function() { document.getElementById('mobile-menu').classList.toggle('open'); }
         window.shareTrip = async function(t,l) { try{await navigator.clipboard.writeText(location.origin+location.pathname+l); showNotification("نسخ الرابط","success")}catch(e){} }
@@ -507,7 +504,7 @@
         
         <!-- Navbar -->
         <nav class="glass-nav sticky top-0 w-full">
-            <div class="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center relative">
+            <div class="container mx-auto px-4 md:px-6 py-2 md:py-4 flex justify-between items-center relative">
                 <button onclick="window.location.reload()" class="text-xl md:text-2xl font-black text-white flex items-center gap-2 hover:text-teal-400">
                     <i class="fas fa-plane-departure text-teal-400"></i> <span id="companyName">Wolf TraVal</span>
                 </button>
