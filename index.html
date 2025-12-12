@@ -56,15 +56,27 @@
         }
         .toast { animation: slideInDown 0.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; width: max-content; max-width: 90vw; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2); backdrop-filter: blur(8px); }
         .toast.hiding { animation: fadeOut 0.1s ease-in forwards; }
-        /* Special Welcome Notification Style */
+        
+        /* Welcome Notification Style */
         .welcome-notif { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: linear-gradient(to right, #f3f4f6 0%, #ffffff 100%); border-right: 4px solid #10b981; border-radius: 8px; padding: 10px; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; animation: slideInTop 0.5s ease-out; }
         .dark .welcome-notif { background: linear-gradient(to right, #1e293b 0%, #0f172a 100%); border-color: #10b981; color: white; }
         .welcome-notif.hiding { animation: fadeOutTop 0.5s ease-in forwards; }
         @keyframes slideInTop { from { transform: translate(-50%, -20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes fadeOutTop { from { opacity: 1; } to { opacity: 0; transform: translate(-50%, -20px); } }
-        
         @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        /* Styles for Chat */
+        .msg-bubble { max-width: 80%; padding: 8px 12px; border-radius: 16px; font-size: 0.75rem; position: relative; word-wrap: break-word; }
+        .msg-me { background-color: #10b981; color: white; border-bottom-right-radius: 2px; align-self: flex-start; }
+        .msg-other { background-color: #f1f5f9; color: #1e293b; border-bottom-left-radius: 2px; align-self: flex-end; }
+        .dark .msg-other { background-color: #334155; color: white; }
+        .online-dot { width: 10px; height: 10px; background-color: #22c55e; border-radius: 50%; border: 2px solid white; position: absolute; bottom: 0; right: 0; }
+        .dark .online-dot { border-color: #1e293b; }
+        .offline-dot { width: 10px; height: 10px; background-color: #94a3b8; border-radius: 50%; border: 2px solid white; position: absolute; bottom: 0; right: 0; }
+        .dark .offline-dot { border-color: #1e293b; }
+
+        /* Generic Forms */
         .form-label { display: block; font-size: 0.65rem; font-weight: 800; color: #334155; margin-bottom: 0.1rem; }
         .dark .form-label { color: #cbd5e1; }
         .form-input { width: 100%; background-color: #ffffff; border: 1px solid #cbd5e1 !important; border-radius: 0.4rem; padding: 0 0.4rem; height: 2rem; display: flex; align-items: center; font-size: 0.7rem; font-weight: 600; color: #1e293b; outline: none; transition: all 0.1s; line-height: normal; }
@@ -201,14 +213,14 @@
                     </div>
                 </div>
                 <div class="flex gap-1.5 items-center">
-                    <!-- Notification Bell Added Here -->
+                    <!-- Notification Bell -->
                     <button onclick="toggleNotifications()" class="relative p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition">
                         <i data-lucide="bell" class="w-4 h-4"></i>
                         <span id="notif-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800"></span>
                     </button>
                     
                     <button onclick="window.location.reload()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-primary hover:bg-slate-200 transition"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
-                    <button onclick="toggleProfile(null)" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
+                    <!-- Removed Profile Button from Header (Moved to Bottom Nav) -->
                     <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
                     <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
                     <button onclick="logout()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600 hover:bg-red-100 transition"><i data-lucide="log-out" class="w-4 h-4"></i></button>
@@ -224,6 +236,7 @@
             </div>
 
 
+            <!-- Search & Filters -->
             <div id="search-container" class="sticky top-12 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-1.5 pb-1.5 -mx-4 px-4 transition-all">
                 <div class="relative max-w-3xl mx-auto flex gap-2 items-center">
                     <div class="relative flex-1">
@@ -236,6 +249,7 @@
                     </div>
                 </div>
                 <div id="filter-panel" class="hidden mt-1 bg-white dark:bg-darkbg p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl animate-pop relative z-50">
+                    <!-- Filters Content -->
                     <div class="flex justify-between items-center mb-1">
                         <span class="font-bold text-[10px]">تصفية النتائج</span>
                         <button onclick="resetFilters()" class="text-[10px] text-red-500 font-bold underline cursor-pointer p-1">إعادة تعيين</button>
@@ -255,24 +269,68 @@
             </div>
 
 
+            <!-- Views -->
             <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar"></div>
             <div id="home-grid" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4"></div>
             <div id="grid-container" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-2 mt-2"></div>
             
+            <!-- Inbox View -->
+            <div id="inbox-view" class="hidden pb-10 mt-2 space-y-2"></div>
+
+            <!-- Private Chat View (Hidden by default) -->
+            <div id="private-chat-view" class="hidden fixed inset-0 z-[70] bg-slate-50 dark:bg-navy flex flex-col animate-pop">
+                <!-- Chat Header -->
+                <div class="bg-white/95 dark:bg-navy/95 border-b border-slate-200 dark:border-slate-700 p-2 flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-2">
+                        <button onclick="closePrivateChat()" class="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"><i data-lucide="arrow-right" class="w-5 h-5"></i></button>
+                        <div class="relative">
+                            <div id="pc-img" class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-4 h-4"></i></div>
+                            <span id="pc-status-dot" class="offline-dot"></span>
+                        </div>
+                        <div class="flex flex-col">
+                            <h4 id="pc-name" class="font-bold text-xs">مستخدم</h4>
+                            <span id="pc-status-text" class="text-[9px] text-slate-400">غير متصل</span>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <button onclick="document.getElementById('pc-menu').classList.toggle('hidden')" class="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>
+                        <div id="pc-menu" class="hidden absolute top-8 left-0 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-600 rounded-lg shadow-xl w-32 py-1 z-50">
+                            <button onclick="toggleProfile(state.currentChatUserId)" class="w-full text-right px-3 py-1.5 text-[10px] hover:bg-slate-100 dark:hover:bg-slate-700 font-bold flex items-center gap-2"><i data-lucide="star" class="w-3 h-3"></i> تقييم</button>
+                            <button onclick="blockUser(state.currentChatUserId)" class="w-full text-right px-3 py-1.5 text-[10px] text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold flex items-center gap-2"><i data-lucide="slash" class="w-3 h-3"></i> حظر</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Messages Area -->
+                <div id="pc-messages" class="flex-1 overflow-y-auto p-3 flex flex-col gap-2 bg-slate-50 dark:bg-navy"></div>
+                <!-- Input Area -->
+                <div class="p-2 bg-white dark:bg-darkbg border-t border-slate-200 dark:border-slate-700 flex items-center gap-2 shrink-0">
+                    <input id="pc-input" type="text" class="flex-1 bg-slate-100 dark:bg-slate-800 border-none rounded-full px-4 py-2.5 text-xs outline-none" placeholder="اكتب رسالة...">
+                    <button onclick="sendPrivateMessage()" class="p-2.5 bg-primary text-white rounded-full shadow-lg"><i data-lucide="send" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+
             <div id="load-more-container" class="hidden text-center pb-10 pt-2">
                 <button onclick="loadMoreItems()" class="bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow text-xs font-bold text-primary border border-slate-200 dark:border-slate-700">عرض المزيد 👇</button>
             </div>
-
 
             <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
         </main>
 
 
-        <!-- NAV BAR -->
-        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
+        <!-- Updated NAV BAR (5 Buttons) -->
+        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-3 py-2 rounded-full flex items-center gap-6 shadow-lg transform transition-all hover:scale-105 w-max max-w-[95vw]">
             <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
+            
+            <button onclick="toggleInbox()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative">
+                <div id="inbox-badge" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div>
+                <i data-lucide="message-square" class="w-5 h-5 group-hover:scale-110 transition"></i>
+            </button>
+
             <button id="nav-add-btn" onclick="toggleAddModal()" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
-            <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
+            
+            <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="headset" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
+            
+            <button onclick="toggleProfile(null)" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="user" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
         </nav>
 
 
@@ -284,7 +342,7 @@
     </div>
 
 
-    <!-- Notifications Modal (New) -->
+    <!-- Notifications Modal -->
     <div id="notif-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
@@ -315,14 +373,12 @@
     </div>
 
 
-    <!-- Profile Modal -->
+    <!-- Profile Modal (Same as before) -->
     <div id="profile-modal" class="hidden modal-overlay">
+        <!-- Content same as previous, maintained structure -->
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2">
-                    <h3 class="font-bold text-sm">الملف الشخصي</h3>
-                    <button onclick="window.location.reload()" class="bg-white/20 hover:bg-white/30 p-1 rounded text-[10px] flex items-center gap-1"><i data-lucide="refresh-cw" class="w-3 h-3"></i> تحديث</button>
-                </div>
+                <div class="flex items-center gap-2"><h3 class="font-bold text-sm">الملف الشخصي</h3></div>
                 <button onclick="toggleProfile()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
@@ -335,10 +391,7 @@
                                 <h2 id="prof-name" class="font-black text-xl text-navy dark:text-white">...</h2>
                                 <div id="prof-verified-badge" class="hidden verified-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.491 4.491 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></div>
                             </div>
-                            
-                            <!-- Verify Button -->
                             <button id="btn-verify-account" onclick="verifyAccount()" class="hidden mt-1 px-3 py-1 bg-blue-600 text-white rounded-full text-[10px] font-bold hover:bg-blue-700 transition">توثيق الحساب</button>
-                            
                             <div class="flex items-center justify-center gap-2 mt-1">
                                 <button id="global-edit-btn" onclick="toggleEditMode()" class="hidden flex items-center gap-1 text-primary hover:text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full transition"><i data-lucide="pen-tool" class="w-3 h-3"></i> <span class="text-[10px] font-bold">تعديل</span></button>
                             </div>
@@ -353,48 +406,22 @@
                         <div id="prof-rate-user-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
                             <label class="text-[10px] font-bold text-slate-400 mb-2 block">قيم هذا المستخدم</label>
                             <div class="flex flex-col gap-2">
-                                <div class="star-rating text-lg self-end">
-                                    <input type="radio" id="u-star5" name="u-rating" value="5" onclick="setUserRating(5)"><label for="u-star5">★</label>
-                                    <input type="radio" id="u-star4" name="u-rating" value="4" onclick="setUserRating(4)"><label for="u-star4">★</label>
-                                    <input type="radio" id="u-star3" name="u-rating" value="3" onclick="setUserRating(3)"><label for="u-star3">★</label>
-                                    <input type="radio" id="u-star2" name="u-rating" value="2" onclick="setUserRating(2)"><label for="u-star2">★</label>
-                                    <input type="radio" id="u-star1" name="u-rating" value="1" onclick="setUserRating(1)"><label for="u-star1">★</label>
-                                </div>
+                                <div class="star-rating text-lg self-end"><input type="radio" id="u-star5" name="u-rating" value="5" onclick="setUserRating(5)"><label for="u-star5">★</label><input type="radio" id="u-star4" name="u-rating" value="4" onclick="setUserRating(4)"><label for="u-star4">★</label><input type="radio" id="u-star3" name="u-rating" value="3" onclick="setUserRating(3)"><label for="u-star3">★</label><input type="radio" id="u-star2" name="u-rating" value="2" onclick="setUserRating(2)"><label for="u-star2">★</label><input type="radio" id="u-star1" name="u-rating" value="1" onclick="setUserRating(1)"><label for="u-star1">★</label></div>
                                 <textarea id="user-review-text" class="form-input text-xs w-full" rows="2" placeholder="اكتب تعليقك..."></textarea>
                                 <button onclick="submitUserReview()" class="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">إرسال التقييم</button>
                             </div>
                         </div>
                     </div>
-                    <div id="prof-reviews-section" class="hidden">
-                        <h3 class="font-bold text-sm text-navy dark:text-white mb-3 border-b pb-2 border-slate-100 dark:border-slate-700">آراء العملاء</h3>
-                        <div id="prof-reviews-list" class="space-y-3"></div>
-                        <div class="flex gap-2 mt-2">
-                            <button id="prof-reviews-more" onclick="loadProfileReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button>
-                            <button id="prof-reviews-less" onclick="loadProfileReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button>
-                        </div>
-                    </div>
+                    <div id="prof-reviews-section" class="hidden"><h3 class="font-bold text-sm text-navy dark:text-white mb-3 border-b pb-2 border-slate-100 dark:border-slate-700">آراء العملاء</h3><div id="prof-reviews-list" class="space-y-3"></div><div class="flex gap-2 mt-2"><button id="prof-reviews-more" onclick="loadProfileReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button><button id="prof-reviews-less" onclick="loadProfileReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button></div></div>
                 </div>
-                <!-- EDIT MODE -->
                 <div id="prof-edit-mode" class="hidden space-y-3">
-                    <div class="flex flex-col items-center gap-2 mb-4">
-                        <div class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg relative group">
-                            <img id="edit-img-preview" src="" class="w-full h-full object-cover hidden">
-                            <div id="edit-img-placeholder" class="flex flex-col items-center text-slate-400"><i data-lucide="camera" class="w-8 h-8"></i></div>
-                            <input type="file" id="edit-img-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleEditImage(this)">
-                        </div>
-                        <span class="text-[10px] text-primary font-bold">اضغط لتغيير الصورة</span>
-                    </div>
+                    <!-- Edit Mode Content -->
+                    <div class="flex flex-col items-center gap-2 mb-4"><div class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg relative group"><img id="edit-img-preview" src="" class="w-full h-full object-cover hidden"><div id="edit-img-placeholder" class="flex flex-col items-center text-slate-400"><i data-lucide="camera" class="w-8 h-8"></i></div><input type="file" id="edit-img-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleEditImage(this)"></div><span class="text-[10px] text-primary font-bold">اضغط لتغيير الصورة</span></div>
                     <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">الاسم الكامل</label><input id="edit-name" type="text" class="form-input"></div>
                     <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">رقم الهاتف</label><input id="edit-phone" type="tel" class="form-input"></div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">المحافظة</label><select id="edit-gov" onchange="updateEditCities()" class="form-input text-xs"></select></div>
-                        <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">المركز/المدينة</label><select id="edit-city" class="form-input text-xs"></select></div>
-                    </div>
+                    <div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">المحافظة</label><select id="edit-gov" onchange="updateEditCities()" class="form-input text-xs"></select></div><div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">المركز/المدينة</label><select id="edit-city" class="form-input text-xs"></select></div></div>
                     <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">العنوان بالتفصيل</label><input id="edit-address" type="text" class="form-input"></div>
-                    <div id="prof-password-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-4">
-                        <label class="text-[10px] font-bold text-slate-400 mb-2 block">تغيير كلمة المرور</label>
-                        <div class="flex gap-2"><input id="new-password" type="password" class="form-input text-xs" placeholder="كلمة المرور الجديدة"><button onclick="changePassword()" class="bg-navy dark:bg-primary text-white px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap">تحديث</button></div>
-                    </div>
+                    <div id="prof-password-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-4"><label class="text-[10px] font-bold text-slate-400 mb-2 block">تغيير كلمة المرور</label><div class="flex gap-2"><input id="new-password" type="password" class="form-input text-xs" placeholder="كلمة المرور الجديدة"><button onclick="changePassword()" class="bg-navy dark:bg-primary text-white px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap">تحديث</button></div></div>
                     <div class="flex gap-2 pt-4"><button onclick="saveProfile()" class="flex-1 bg-primary text-white py-2 rounded-xl font-bold text-sm shadow-lg">حفظ التعديلات</button><button onclick="toggleEditMode()" class="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-white py-2 rounded-xl font-bold text-sm">إلغاء</button></div>
                 </div>
             </div>
@@ -425,334 +452,28 @@
                     <div><label class="form-label">رقم الهاتف</label><input id="ord-phone" type="tel" class="form-input text-xs" placeholder="01xxxxxxxxx"></div>
                 </div>
             </div>
-            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg shrink-0">
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg shrink-0 space-y-2">
                 <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-slate-500">الإجمالي:</span><span id="ord-total" class="text-lg font-black text-primary">0 ج.م</span></div>
-                <button onclick="confirmOrder()" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg">تأكيد الطلب عبر واتساب</button>
+                <!-- Updated Buttons -->
+                <button onclick="confirmOrderChat()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2"><i data-lucide="message-square" class="w-4 h-4"></i> تأكيد الطلب عبر المحادثة</button>
+                <button onclick="confirmOrder()" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2"><i data-lucide="message-circle" class="w-4 h-4"></i> تأكيد الطلب عبر واتساب</button>
             </div>
         </div>
     </div>
 
 
-    <!-- Add Modal -->
-    <div id="add-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0 h-12">
-                <h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة منتج</h3>
-                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-white dark:bg-darkbg custom-scroll">
-                <div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-1.5"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
-                <div class="grid grid-cols-2 gap-1.5">
-                    <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input" placeholder="اسم المنتج..."></div>
-                    <div class="form-group"><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input" placeholder="0"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-1.5">
-                    <div class="form-group"><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input bg-gray-50"></select></div>
-                    <div id="field-condition" class="form-group hidden"><label class="form-label">الحالة</label><select id="in-condition" class="form-input"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
-                </div>
-
-
-                <!-- Dynamic Fields Container -->
-                <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group space-y-2 hidden">
-                    
-                    <!-- Clothes/Shoes -->
-                    <div id="field-size-chips" class="hidden"><label class="form-label text-primary">المقاسات المتاحة</label><div id="size-chips-container" class="flex flex-wrap gap-1.5"></div></div>
-                    <div id="field-color-chips" class="hidden"><label class="form-label text-primary">الألوان المتاحة</label><div id="color-chips-container" class="flex flex-wrap gap-1.5"></div></div>
-                    
-                    <!-- 1. Cars -->
-                    <div id="section-cars" class="hidden space-y-2">
-                        <div class="flex gap-2 mb-1">
-                            <label class="flex-1 cursor-pointer"><input type="radio" name="car-type" value="car" checked onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">سيارة</div></label>
-                            <label class="flex-1 cursor-pointer"><input type="radio" name="car-type" value="accessory" onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">اكسسوارات</div></label>
-                        </div>
-                        <div id="car-fields-main">
-                            <select id="in-car-brand" class="form-input mb-2"><option value="">الماركة</option></select>
-                            <div class="grid grid-cols-2 gap-1.5 mb-2">
-                                <input id="in-car-model" class="form-input" placeholder="الموديل">
-                                <input id="in-car-year" type="number" class="form-input" placeholder="سنة الصنع">
-                            </div>
-                            <div class="grid grid-cols-2 gap-1.5 mb-2">
-                                <select id="in-car-fuel" class="form-input"><option value="">الوقود</option><option value="بنزين">بنزين</option><option value="ديزل">ديزل</option><option value="كهرباء">كهرباء</option><option value="هجين">هجين</option></select>
-                                <select id="in-car-trans" class="form-input"><option value="">الفتيس</option><option value="مانيوال">مانيوال</option><option value="أوتوماتيك">أوتوماتيك</option></select>
-                            </div>
-                            <div class="grid grid-cols-2 gap-1.5 mb-2">
-                                <input id="in-car-km" type="number" class="form-input" placeholder="كم مشت (كم)">
-                                <input id="in-car-cc" type="number" class="form-input" placeholder="سعة المحرك (CC)">
-                            </div>
-                            <label class="form-label text-primary">الميزات</label>
-                            <div class="flex flex-wrap gap-1.5" id="car-features-list"></div>
-                        </div>
-                        <div id="car-fields-acc" class="hidden">
-                            <input id="in-car-acc-name" class="form-input mb-2" placeholder="اسم الاكسسوار (إطارات، بطارية...)">
-                            <select id="in-car-acc-cond" class="form-input"><option value="new">جديد</option><option value="used">مستعمل</option></select>
-                        </div>
-                    </div>
-
-
-                    <!-- 2. Electronics -->
-                    <div id="section-electronics" class="hidden space-y-2">
-                        <select id="in-elec-type" class="form-input"><option value="">النوع</option><option value="phone">هاتف</option><option value="laptop">لابتوب</option><option value="tablet">تابلت</option><option value="pc">كمبيوتر</option><option value="watch">ساعة ذكية</option><option value="headphone">سماعات</option></select>
-                        <input id="in-elec-brand" class="form-input" placeholder="الماركة (مثل: Samsung, Apple)">
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <select id="in-elec-ram" class="form-input"><option value="">الرام</option><option value="2">2 GB</option><option value="4">4 GB</option><option value="6">6 GB</option><option value="8">8 GB</option><option value="12">12 GB</option><option value="16">16+ GB</option></select>
-                            <select id="in-elec-storage" class="form-input"><option value="">المساحة</option><option value="32">32 GB</option><option value="64">64 GB</option><option value="128">128 GB</option><option value="256">256 GB</option><option value="512">512 GB</option><option value="1024">1 TB</option></select>
-                        </div>
-                        <input id="in-elec-battery" type="text" class="form-input" placeholder="حالة البطارية %">
-                    </div>
-
-
-                    <!-- 3. Pets -->
-                    <div id="section-pets" class="hidden space-y-2">
-                        <div class="flex gap-2 mb-1">
-                            <label class="flex-1 cursor-pointer"><input type="radio" name="pet-type" value="sale" checked onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">حيوان للبيع</div></label>
-                            <label class="flex-1 cursor-pointer"><input type="radio" name="pet-type" value="supplies" onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">مستلزمات</div></label>
-                        </div>
-                        <div id="pet-fields-sale">
-                            <select id="in-pet-cat" class="form-input mb-2"><option value="">النوع</option><option value="cat">قطط</option><option value="dog">كلاب</option><option value="bird">طيور</option><option value="fish">أسماك</option></select>
-                            <input id="in-pet-breed" class="form-input mb-2" placeholder="السلالة">
-                            <div class="grid grid-cols-2 gap-1.5">
-                                <input id="in-pet-age" class="form-input" placeholder="العمر">
-                                <select id="in-pet-gender" class="form-input"><option value="">الجنس</option><option value="male">ذكر</option><option value="female">أنثى</option></select>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- 4. Home Appliances -->
-                    <div id="section-home-tools" class="hidden space-y-2">
-                        <input id="in-ht-type" class="form-input" placeholder="نوع الأداة (أواني، ديكور...)">
-                        <input id="in-ht-material" class="form-input" placeholder="المادة (خشب، زجاج...)">
-                    </div>
-
-
-                    <!-- 5. Electrical Appliances -->
-                    <div id="section-electrical" class="hidden space-y-2">
-                        <select id="in-ea-type" class="form-input"><option value="">الجهاز</option><option value="fridge">ثلاجة</option><option value="washer">غسالة</option><option value="stove">بوتاجاز</option><option value="ac">تكييف</option><option value="tv">تلفزيون</option></select>
-                        <input id="in-ea-brand" class="form-input" placeholder="الماركة">
-                        <input id="in-ea-cap" class="form-input" placeholder="السعة/القدرة (مثلاً: 14 قدم)">
-                    </div>
-
-
-                    <!-- 6. Furniture -->
-                    <div id="section-furniture" class="hidden space-y-2">
-                        <select id="in-furn-type" class="form-input"><option value="">النوع</option><option value="bed">سرير</option><option value="sofa">كنب/أنتريه</option><option value="table">ترابيزة</option><option value="wardrobe">دولاب</option></select>
-                        <input id="in-furn-mat" class="form-input" placeholder="الخامة (خشب زان، معدن...)">
-                        <input id="in-furn-dim" class="form-input" placeholder="المقاسات">
-                    </div>
-
-
-                    <!-- 7. Raw Materials -->
-                    <div id="section-raw" class="hidden space-y-2">
-                        <select id="in-raw-type" class="form-input"><option value="">النوع</option><option value="wood">خشب</option><option value="iron">حديد</option><option value="plastic">بلاستيك</option><option value="alum">ألومنيوم</option></select>
-                        <input id="in-raw-qty" class="form-input" placeholder="الكمية / الوزن">
-                    </div>
-
-
-                    <!-- 8. Construction -->
-                    <div id="section-const" class="hidden space-y-2">
-                        <select id="in-const-type" class="form-input"><option value="">المستلزم</option><option value="cement">أسمنت</option><option value="sand">رمل</option><option value="paint">دهانات</option><option value="ceramic">سيراميك</option></select>
-                        <input id="in-const-qty" class="form-input" placeholder="الكمية">
-                    </div>
-
-
-                    <!-- 9. Cameras -->
-                    <div id="section-cams" class="hidden space-y-2">
-                        <select id="in-cam-type" class="form-input"><option value="">النوع</option><option value="cam">كاميرا</option><option value="dvr">DVR/NVR</option></select>
-                        <select id="in-cam-res" class="form-input"><option value="">الدقة</option><option value="hd">HD</option><option value="fhd">FHD</option><option value="4k">4K</option></select>
-                    </div>
-
-
-                    <!-- 10. Decor -->
-                    <div id="section-decor" class="hidden space-y-2">
-                        <input id="in-dec-type" class="form-input" placeholder="النوع (لوحات، نجف...)">
-                        <input id="in-dec-dim" class="form-input" placeholder="المقاس">
-                    </div>
-
-
-                    <!-- 11. Real Estate -->
-                    <div id="section-realestate" class="hidden space-y-2">
-                        <div class="flex gap-2 mb-1">
-                            <label class="flex-1 cursor-pointer"><input type="radio" name="re-type" value="sale" checked class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">بيع</div></label>
-                            <label class="flex-1 cursor-pointer"><input type="radio" name="re-type" value="rent" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">إيجار</div></label>
-                        </div>
-                        <select id="in-re-cat" class="form-input"><option value="">نوع العقار</option><option value="apt">شقة</option><option value="villa">فيلا</option><option value="shop">محل</option><option value="land">أرض</option><option value="chalet">شاليه</option></select>
-                        <div class="grid grid-cols-3 gap-1.5">
-                            <input id="in-re-area" type="number" class="form-input" placeholder="المساحة (م)">
-                            <input id="in-re-rooms" type="number" class="form-input" placeholder="غرف">
-                            <input id="in-re-bath" type="number" class="form-input" placeholder="حمام">
-                        </div>
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <select id="in-re-finish" class="form-input"><option value="">التشطيب</option><option value="super">سوبر لوكس</option><option value="full">كامل</option><option value="semi">نصف</option><option value="none">بدون</option></select>
-                            <input id="in-re-floor" type="number" class="form-input" placeholder="الدور">
-                        </div>
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <select id="in-re-pay" class="form-input"><option value="">نظام الدفع</option><option value="cash">كاش</option><option value="install">تقسيط</option></select>
-                            <select id="in-re-furnished" class="form-input"><option value="">مفروش؟</option><option value="yes">نعم</option><option value="no">لا</option></select>
-                        </div>
-                        <label class="form-label text-primary">الميزات</label>
-                        <div class="flex flex-wrap gap-1.5" id="re-features-list"></div>
-                    </div>
-                </div>
-
-
-                <div class="form-group bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
-                    <label class="form-label mb-1">أماكن الشحن</label>
-                    <div class="flex gap-2 mb-2">
-                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="all" onchange="toggleShipGov()" checked class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">كل المحافظات</div></label>
-                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="specific" onchange="toggleShipGov()" class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">محافظات محددة</div></label>
-                    </div>
-                    <div id="ship-gov-container" class="hidden">
-                        <div class="text-[10px] mb-1 text-slate-400">اختر المحافظات المتاحة:</div>
-                        <div id="ship-gov-list" class="max-h-24 overflow-y-auto custom-scroll grid grid-cols-2 gap-1 p-1 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-600 rounded-lg"></div>
-                    </div>
-                </div>
-                <div class="form-group"><label class="form-label">مواصفات إضافية:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="متوفر فاتورة"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">متوفر فاتورة</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label></div></div>
-                <div class="form-group"><label class="form-label">تمييز:</label><div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg"><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div>
-                <div class="grid grid-cols-3 gap-1.5">
-                    <div class="form-group col-span-1"><label class="form-label">رقم الهاتف</label><input id="in-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx"></div>
-                    <div class="form-group col-span-2"><label class="form-label">الوصف</label><textarea id="in-desc" rows="1" class="form-input" placeholder="تفاصيل..."></textarea></div>
-                </div>
-            </div>
-            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-3"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر الآن</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
-        </div>
-    </div>
-
-
-    <!-- Details Modal -->
-    <div id="details-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
-                <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
-                <div class="absolute top-3 right-3 flex gap-2 z-20">
-                    <div id="d-admin-controls" class="flex gap-2"></div>
-                    <button onclick="downloadImg()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="download" class="w-5 h-5"></i></button>
-                    <button onclick="copyDetails()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="copy" class="w-5 h-5"></i></button>
-                    <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
-                </div>
-                <div id="details-slider-container" class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800"><img id="details-img" src="" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(this.src)"></div>
-                <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
-                <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse"><i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج</button>
-                
-                <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
-                     <div class="flex items-center gap-2">
-                         <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
-                         <div class="flex flex-col justify-center">
-                             <div class="flex items-center gap-1">
-                                 <h4 id="d-pub-name" class="font-bold text-[10px] text-navy dark:text-white leading-tight">...</h4>
-                                 <div id="d-pub-verified" class="hidden verified-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.491 4.491 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></div>
-                             </div>
-                             <span class="text-[8px] text-slate-400">اضغط لعرض حساب الناشر </span>
-                         </div>
-                     </div>
-                </div>
-
-
-                <!-- Main Details Table -->
-                <table class="details-table">
-                    <tbody>
-                        <tr><td>اسم المنتج:</td><td id="d-title">...</td></tr>
-                        <tr><td>السعر:</td><td id="d-price" class="text-primary">...</td></tr>
-                        <tr><td>القسم:</td><td id="d-cat">...</td></tr>
-                        <tr><td>تاريخ النشر:</td><td id="d-date">...</td></tr>
-                    </tbody>
-                </table>
-                
-                <!-- CONDITION BADGE -->
-                <div id="d-condition-badge" class="mb-3 hidden"></div>
-                
-                <div id="d-variants-container" class="space-y-2 mb-4">
-                    <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">المقاسات:</span><div id="d-sizes-list" class="flex flex-wrap gap-1"></div></div>
-                    <div id="d-colors-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">الألوان:</span><div id="d-colors-list" class="flex flex-wrap gap-1"></div></div>
-                </div>
-                
-                <!-- Dynamic Specs Container (GRID) -->
-                <div id="d-dynamic-specs" class="mb-4 hidden"></div>
-
-
-                <!-- Features -->
-                <div id="d-features-container" class="mb-4 hidden">
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 mb-2">المميزات:</h3>
-                    <div id="d-features" class="flex flex-wrap gap-2"></div>
-                </div>
-                
-                <div class="space-y-1 mb-6"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium select-text"></p></div>
-                
-                <!-- Shipping Info (Moved here) -->
-                <div id="d-shipping-bar" class="mb-4 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
-                    <div id="d-shipping-info" class="flex items-center gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-300"></div>
-                </div>
-
-
-                <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-white mb-3">التقييمات</h3>
-                    <div id="product-reviews-list" class="space-y-3 mb-3"></div>
-                    <div class="flex gap-2 mt-2"><button id="load-more-reviews" onclick="loadProductReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button><button id="load-less-reviews" onclick="loadProductReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button></div>
-                    <div id="add-review-form" class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
-                        <div class="flex justify-between items-center mb-2"><span class="text-[10px] font-bold">أضف تقييمك</span><div class="star-rating text-lg"><input type="radio" id="star5" name="rating" value="5" onclick="setRating(5)"><label for="star5">★</label><input type="radio" id="star4" name="rating" value="4" onclick="setRating(4)"><label for="star4">★</label><input type="radio" id="star3" name="rating" value="3" onclick="setRating(3)"><label for="star3">★</label><input type="radio" id="star2" name="rating" value="2" onclick="setRating(2)"><label for="star2">★</label><input type="radio" id="star1" name="rating" value="1" onclick="setRating(1)"><label for="star1">★</label></div></div>
-                        <textarea id="review-text" class="form-input text-xs w-full mb-2" rows="2" placeholder="اكتب رأيك هنا..."></textarea>
-                        <button onclick="submitProductReview()" class="bg-navy dark:bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">نشر التقييم</button>
-                    </div>
-                </div>
-            </div>
-            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-2 shrink-0 pb-8 md:pb-3"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="phone" class="w-4 h-4"></i> اتصال</a></div>
-        </div>
-    </div>
-
-
-    <!-- Chat Modal -->
-    <div id="chat-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2"><div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">الدعم الفني</h4></div></div>
-                <div class="flex items-center gap-2"><a href="https://wa.me/201206244875" target="_blank" class="bg-[#25D366] px-2 py-1 rounded-full flex items-center gap-1 text-[10px] font-bold hover:opacity-90 transition"><i data-lucide="message-circle" class="w-3 h-3"></i> للتواصل مع الدعم عبر الواتساب </a><button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-            </div>
-            <div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
-            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe">
-                <label class="cursor-pointer p-2 bg-slate-100 dark:bg-slate-700 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition">
-                    <input type="file" accept="image/*" class="hidden" onchange="sendImageMsg(this)">
-                    <i data-lucide="image" class="w-4 h-4 text-slate-500 dark:text-white"></i>
-                </label>
-                <input id="chat-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب..."><button onclick="sendMsg()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Lightbox -->
-    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center select-none">
-        <button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button>
-        <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
-        <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
-        <div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div>
-    </div>
-
-
-    <!-- Admin Panel -->
-    <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white">
-        <div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38] shrink-0">
-            <h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2>
-            <div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-        </div>
-        <div class="flex-1 flex overflow-hidden">
-            <div class="w-1/3 border-l border-white/10 bg-[#001f3f] flex flex-col">
-                <div id="admin-users-list" class="flex-1 overflow-y-auto p-2"></div>
-            </div>
-            <div class="w-2/3 flex flex-col bg-navy relative">
-                <div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38] shrink-0"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div>
-                <div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div>
-                <div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38] shrink-0"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div>
-            </div>
-        </div>
-    </div>
+    <!-- Add Modal, Chat Modal, Admin Panel, Lightbox (Keeping them essentially same but compacted for space) -->
+    <div id="add-modal" class="hidden modal-overlay"><div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700"><div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0 h-12"><h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة منتج</h3><button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button></div><div class="flex-1 overflow-y-auto p-3 space-y-2 bg-white dark:bg-darkbg custom-scroll"><div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-1.5"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div><div class="grid grid-cols-2 gap-1.5"><div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input" placeholder="اسم المنتج..."></div><div class="form-group"><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input" placeholder="0"></div></div><div class="grid grid-cols-2 gap-1.5"><div class="form-group"><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input bg-gray-50"></select></div><div id="field-condition" class="form-group hidden"><label class="form-label">الحالة</label><select id="in-condition" class="form-input"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div></div><div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group space-y-2 hidden"><div id="field-size-chips" class="hidden"><label class="form-label text-primary">المقاسات المتاحة</label><div id="size-chips-container" class="flex flex-wrap gap-1.5"></div></div><div id="field-color-chips" class="hidden"><label class="form-label text-primary">الألوان المتاحة</label><div id="color-chips-container" class="flex flex-wrap gap-1.5"></div></div><div id="section-cars" class="hidden space-y-2"><div class="flex gap-2 mb-1"><label class="flex-1 cursor-pointer"><input type="radio" name="car-type" value="car" checked onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">سيارة</div></label><label class="flex-1 cursor-pointer"><input type="radio" name="car-type" value="accessory" onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">اكسسوارات</div></label></div><div id="car-fields-main"><select id="in-car-brand" class="form-input mb-2"><option value="">الماركة</option></select><div class="grid grid-cols-2 gap-1.5 mb-2"><input id="in-car-model" class="form-input" placeholder="الموديل"><input id="in-car-year" type="number" class="form-input" placeholder="سنة الصنع"></div><div class="grid grid-cols-2 gap-1.5 mb-2"><select id="in-car-fuel" class="form-input"><option value="">الوقود</option><option value="بنزين">بنزين</option><option value="ديزل">ديزل</option><option value="كهرباء">كهرباء</option><option value="هجين">هجين</option></select><select id="in-car-trans" class="form-input"><option value="">الفتيس</option><option value="مانيوال">مانيوال</option><option value="أوتوماتيك">أوتوماتيك</option></select></div><div class="grid grid-cols-2 gap-1.5 mb-2"><input id="in-car-km" type="number" class="form-input" placeholder="كم مشت (كم)"><input id="in-car-cc" type="number" class="form-input" placeholder="سعة المحرك (CC)"></div><label class="form-label text-primary">الميزات</label><div class="flex flex-wrap gap-1.5" id="car-features-list"></div></div><div id="car-fields-acc" class="hidden"><input id="in-car-acc-name" class="form-input mb-2" placeholder="اسم الاكسسوار"><select id="in-car-acc-cond" class="form-input"><option value="new">جديد</option><option value="used">مستعمل</option></select></div></div><div id="section-electronics" class="hidden space-y-2"><select id="in-elec-type" class="form-input"><option value="">النوع</option><option value="phone">هاتف</option><option value="laptop">لابتوب</option><option value="tablet">تابلت</option><option value="pc">كمبيوتر</option><option value="watch">ساعة ذكية</option><option value="headphone">سماعات</option></select><input id="in-elec-brand" class="form-input" placeholder="الماركة"><div class="grid grid-cols-2 gap-1.5"><select id="in-elec-ram" class="form-input"><option value="">الرام</option><option value="2">2 GB</option><option value="4">4 GB</option><option value="6">6 GB</option><option value="8">8 GB</option><option value="12">12 GB</option><option value="16">16+ GB</option></select><select id="in-elec-storage" class="form-input"><option value="">المساحة</option><option value="32">32 GB</option><option value="64">64 GB</option><option value="128">128 GB</option><option value="256">256 GB</option><option value="512">512 GB</option><option value="1024">1 TB</option></select></div><input id="in-elec-battery" type="text" class="form-input" placeholder="حالة البطارية %"></div><div id="section-pets" class="hidden space-y-2"><div class="flex gap-2 mb-1"><label class="flex-1 cursor-pointer"><input type="radio" name="pet-type" value="sale" checked onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">حيوان للبيع</div></label><label class="flex-1 cursor-pointer"><input type="radio" name="pet-type" value="supplies" onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">مستلزمات</div></label></div><div id="pet-fields-sale"><select id="in-pet-cat" class="form-input mb-2"><option value="">النوع</option><option value="cat">قطط</option><option value="dog">كلاب</option><option value="bird">طيور</option><option value="fish">أسماك</option></select><input id="in-pet-breed" class="form-input mb-2" placeholder="السلالة"><div class="grid grid-cols-2 gap-1.5"><input id="in-pet-age" class="form-input" placeholder="العمر"><select id="in-pet-gender" class="form-input"><option value="">الجنس</option><option value="male">ذكر</option><option value="female">أنثى</option></select></div></div></div><div id="section-home-tools" class="hidden space-y-2"><input id="in-ht-type" class="form-input" placeholder="النوع"><input id="in-ht-material" class="form-input" placeholder="المادة"></div><div id="section-electrical" class="hidden space-y-2"><select id="in-ea-type" class="form-input"><option value="">الجهاز</option><option value="fridge">ثلاجة</option><option value="washer">غسالة</option><option value="stove">بوتاجاز</option><option value="ac">تكييف</option><option value="tv">تلفزيون</option></select><input id="in-ea-brand" class="form-input" placeholder="الماركة"><input id="in-ea-cap" class="form-input" placeholder="السعة"></div><div id="section-furniture" class="hidden space-y-2"><select id="in-furn-type" class="form-input"><option value="">النوع</option><option value="bed">سرير</option><option value="sofa">كنب/أنتريه</option><option value="table">ترابيزة</option><option value="wardrobe">دولاب</option></select><input id="in-furn-mat" class="form-input" placeholder="الخامة"><input id="in-furn-dim" class="form-input" placeholder="المقاسات"></div><div id="section-raw" class="hidden space-y-2"><select id="in-raw-type" class="form-input"><option value="">النوع</option><option value="wood">خشب</option><option value="iron">حديد</option><option value="plastic">بلاستيك</option><option value="alum">ألومنيوم</option></select><input id="in-raw-qty" class="form-input" placeholder="الكمية"></div><div id="section-const" class="hidden space-y-2"><select id="in-const-type" class="form-input"><option value="">المستلزم</option><option value="cement">أسمنت</option><option value="sand">رمل</option><option value="paint">دهانات</option><option value="ceramic">سيراميك</option></select><input id="in-const-qty" class="form-input" placeholder="الكمية"></div><div id="section-cams" class="hidden space-y-2"><select id="in-cam-type" class="form-input"><option value="">النوع</option><option value="cam">كاميرا</option><option value="dvr">DVR/NVR</option></select><select id="in-cam-res" class="form-input"><option value="">الدقة</option><option value="hd">HD</option><option value="fhd">FHD</option><option value="4k">4K</option></select></div><div id="section-decor" class="hidden space-y-2"><input id="in-dec-type" class="form-input" placeholder="النوع"><input id="in-dec-dim" class="form-input" placeholder="المقاس"></div><div id="section-realestate" class="hidden space-y-2"><div class="flex gap-2 mb-1"><label class="flex-1 cursor-pointer"><input type="radio" name="re-type" value="sale" checked class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">بيع</div></label><label class="flex-1 cursor-pointer"><input type="radio" name="re-type" value="rent" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">إيجار</div></label></div><select id="in-re-cat" class="form-input"><option value="">نوع العقار</option><option value="apt">شقة</option><option value="villa">فيلا</option><option value="shop">محل</option><option value="land">أرض</option><option value="chalet">شاليه</option></select><div class="grid grid-cols-3 gap-1.5"><input id="in-re-area" type="number" class="form-input" placeholder="المساحة"><input id="in-re-rooms" type="number" class="form-input" placeholder="غرف"><input id="in-re-bath" type="number" class="form-input" placeholder="حمام"></div><div class="grid grid-cols-2 gap-1.5"><select id="in-re-finish" class="form-input"><option value="">التشطيب</option><option value="super">سوبر لوكس</option><option value="full">كامل</option><option value="semi">نصف</option><option value="none">بدون</option></select><input id="in-re-floor" type="number" class="form-input" placeholder="الدور"></div><div class="grid grid-cols-2 gap-1.5"><select id="in-re-pay" class="form-input"><option value="">نظام الدفع</option><option value="cash">كاش</option><option value="install">تقسيط</option></select><select id="in-re-furnished" class="form-input"><option value="">مفروش؟</option><option value="yes">نعم</option><option value="no">لا</option></select></div><label class="form-label text-primary">الميزات</label><div class="flex flex-wrap gap-1.5" id="re-features-list"></div></div></div><div class="form-group bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700"><label class="form-label mb-1">أماكن الشحن</label><div class="flex gap-2 mb-2"><label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="all" onchange="toggleShipGov()" checked class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">كل المحافظات</div></label><label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="specific" onchange="toggleShipGov()" class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">محافظات محددة</div></label></div><div id="ship-gov-container" class="hidden"><div class="text-[10px] mb-1 text-slate-400">اختر المحافظات المتاحة:</div><div id="ship-gov-list" class="max-h-24 overflow-y-auto custom-scroll grid grid-cols-2 gap-1 p-1 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-600 rounded-lg"></div></div></div><div class="form-group"><label class="form-label">مواصفات إضافية:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="متوفر فاتورة"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">متوفر فاتورة</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label></div></div><div class="form-group"><label class="form-label">تمييز:</label><div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg"><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div><div class="grid grid-cols-3 gap-1.5"><div class="form-group col-span-1"><label class="form-label">رقم الهاتف</label><input id="in-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx"></div><div class="form-group col-span-2"><label class="form-label">الوصف</label><textarea id="in-desc" rows="1" class="form-input" placeholder="تفاصيل..."></textarea></div></div></div><div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-3"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر الآن</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div></div></div>
+    <div id="details-modal" class="hidden modal-overlay"><div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700"><div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group"><button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button><div class="absolute top-3 right-3 flex gap-2 z-20"><div id="d-admin-controls" class="flex gap-2"></div><button onclick="downloadImg()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="download" class="w-5 h-5"></i></button><button onclick="copyDetails()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="copy" class="w-5 h-5"></i></button><button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button></div><div id="details-slider-container" class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800"><img id="details-img" src="" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(this.src)"></div><div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div><div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div></div><div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll"><button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse"><i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج</button><div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition"><div class="flex items-center gap-2"><div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div><div class="flex flex-col justify-center"><div class="flex items-center gap-1"><h4 id="d-pub-name" class="font-bold text-[10px] text-navy dark:text-white leading-tight">...</h4><div id="d-pub-verified" class="hidden verified-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.491 4.491 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></div></div><span class="text-[8px] text-slate-400">اضغط لعرض حساب الناشر </span></div></div></div><table class="details-table"><tbody><tr><td>اسم المنتج:</td><td id="d-title">...</td></tr><tr><td>السعر:</td><td id="d-price" class="text-primary">...</td></tr><tr><td>القسم:</td><td id="d-cat">...</td></tr><tr><td>تاريخ النشر:</td><td id="d-date">...</td></tr></tbody></table><div id="d-condition-badge" class="mb-3 hidden"></div><div id="d-variants-container" class="space-y-2 mb-4"><div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">المقاسات:</span><div id="d-sizes-list" class="flex flex-wrap gap-1"></div></div><div id="d-colors-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">الألوان:</span><div id="d-colors-list" class="flex flex-wrap gap-1"></div></div></div><div id="d-dynamic-specs" class="mb-4 hidden"></div><div id="d-features-container" class="mb-4 hidden"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 mb-2">المميزات:</h3><div id="d-features" class="flex flex-wrap gap-2"></div></div><div class="space-y-1 mb-6"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium select-text"></p></div><div id="d-shipping-bar" class="mb-4 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800"><div id="d-shipping-info" class="flex items-center gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-300"></div></div><div class="border-t border-slate-100 dark:border-slate-700 pt-4"><h3 class="text-xs font-bold text-slate-900 dark:text-white mb-3">التقييمات</h3><div id="product-reviews-list" class="space-y-3 mb-3"></div><div class="flex gap-2 mt-2"><button id="load-more-reviews" onclick="loadProductReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button><button id="load-less-reviews" onclick="loadProductReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button></div><div id="add-review-form" class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2"><div class="flex justify-between items-center mb-2"><span class="text-[10px] font-bold">أضف تقييمك</span><div class="star-rating text-lg"><input type="radio" id="star5" name="rating" value="5" onclick="setRating(5)"><label for="star5">★</label><input type="radio" id="star4" name="rating" value="4" onclick="setRating(4)"><label for="star4">★</label><input type="radio" id="star3" name="rating" value="3" onclick="setRating(3)"><label for="star3">★</label><input type="radio" id="star2" name="rating" value="2" onclick="setRating(2)"><label for="star2">★</label><input type="radio" id="star1" name="rating" value="1" onclick="setRating(1)"><label for="star1">★</label></div></div><textarea id="review-text" class="form-input text-xs w-full mb-2" rows="2" placeholder="اكتب رأيك هنا..."></textarea><button onclick="submitProductReview()" class="bg-navy dark:bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">نشر التقييم</button></div></div></div><div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-2 shrink-0 pb-8 md:pb-3"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="phone" class="w-4 h-4"></i> اتصال</a></div></div></div>
+    <div id="chat-modal" class="hidden modal-overlay"><div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700"><div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0"><div class="flex items-center gap-2"><div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">الدعم الفني</h4></div></div><div class="flex items-center gap-2"><a href="https://wa.me/201206244875" target="_blank" class="bg-[#25D366] px-2 py-1 rounded-full flex items-center gap-1 text-[10px] font-bold hover:opacity-90 transition"><i data-lucide="message-circle" class="w-3 h-3"></i> للتواصل مع الدعم عبر الواتساب </a><button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe"><label class="cursor-pointer p-2 bg-slate-100 dark:bg-slate-700 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition"><input type="file" accept="image/*" class="hidden" onchange="sendImageMsg(this)"><i data-lucide="image" class="w-4 h-4 text-slate-500 dark:text-white"></i></label><input id="chat-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب..."><button onclick="sendMsg()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button></div></div></div>
+    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center select-none"><button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button><button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-left" class="w-8 h-8"></i></button><button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-right" class="w-8 h-8"></i></button><div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div></div>
+    <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white"><div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38] shrink-0"><h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2><div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div></div><div class="flex-1 flex overflow-hidden"><div class="w-1/3 border-l border-white/10 bg-[#001f3f] flex flex-col"><div id="admin-users-list" class="flex-1 overflow-y-auto p-2"></div></div><div class="w-2/3 flex flex-col bg-navy relative"><div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38] shrink-0"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div><div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div><div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38] shrink-0"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div></div></div></div>
 
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, limit, orderBy, startAfter, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, limit, orderBy, startAfter, enableIndexedDbPersistence, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-messaging.js";
 
 
@@ -833,7 +554,6 @@
     }
 
 
-    // Parallel Upload Fix
     window.handleUpload = async (input) => {
         if (input.files.length + state.images.length > 7) return showToast('7 صور بحد أقصى', 'e');
         const previewArea = document.getElementById('preview-area');
@@ -885,29 +605,14 @@
 
 
     let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {},
-        notifications: [], unreadCount: 0
+        notifications: [], unreadCount: 0, currentChatId: null, currentChatUserId: null
     };
 
 
-    // Updated Categories List
-    const CATEGORIES = [
-        "عروض", "الكل",
-        "ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", 
-        "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "برفانات رجالي وحريمي", "الحقائب الشخصية",
-        "النظارات", "مستحضرات التجميل", "ادوات حلاقة للرجال", "مكملات غذائية", "ادوات رياضية",
-        "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة",
-        "سيارات", "الكترونيات وموبيلات", "عقارات", "حيوانات أليفة",
-        "أثاث منزلي", "أجهزة كهربائية", "أدوات منزلية",
-        "مستلزمات بناء وتشطيب ", "كاميرات مراقبة ", "ديكور منزلي", "مواد خام"
-    ];
-
-
+    const CATEGORIES = ["عروض", "الكل", "ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "برفانات رجالي وحريمي", "الحقائب الشخصية", "النظارات", "مستحضرات التجميل", "ادوات حلاقة للرجال", "مكملات غذائية", "ادوات رياضية", "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة", "سيارات", "الكترونيات وموبيلات", "عقارات", "حيوانات أليفة", "أثاث منزلي", "أجهزة كهربائية", "أدوات منزلية", "مستلزمات بناء وتشطيب ", "كاميرات مراقبة ", "ديكور منزلي", "مواد خام"];
     const USED_CATS = ["النظارات", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "سيارات", "الكترونيات وموبيلات", "أجهزة كهربائية", "أثاث منزلي", "كاميرات مراقبة ", "أدوات منزلية", "مستلزمات بناء وتشطيب ", "ديكور منزلي"];
     const CLOTHES_CATS = ["ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "اقمشة"];
     const SHOES_CATS = ["احذية رجالي", "احذية حريمي", "احذية اطفال"];
-
-
-    // Data Lists
     const CAR_BRANDS = ["Toyota", "Hyundai", "Kia", "Mercedes", "BMW", "Nissan", "Chevrolet", "Mitsubishi", "Fiat", "Suzuki", "BYD", "Chery", "Peugeot", "Renault", "Opel", "Skoda", "Volkswagen", "Jeep", "Land Rover", "Ford", "Honda", "Mazda", "Subaru", "Lexus", "Audi", "Porsche", "Other"];
     const SIZES_MEN = ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "FreeSize"];
     const SIZES_WOMEN = ["XS", "S", "M", "L", "XL", "2XL", "FreeSize"];
@@ -915,8 +620,6 @@
     const SIZES_SHOES_ADULT = ["37", "38", "39", "40", "41", "42", "43", "44", "45"];
     const SIZES_SHOES_KIDS = ["20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35"];
     const BASIC_COLORS = ["أبيض", "أسود", "رمادي", "كحلي", "أحمر", "أزرق", "بيج", "أخضر", "أصفر", "بني"];
-
-
     const CATEGORY_IMAGES = {
         "سيارات": "https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&cs=tinysrgb&w=300",
         "الكترونيات وموبيلات": "https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?auto=compress&cs=tinysrgb&w=300",
@@ -969,8 +672,6 @@
         const sel = document.getElementById('in-cat'); sel.innerHTML = '';
         const brandSel = document.getElementById('in-car-brand'); brandSel.innerHTML = '<option value="">الماركة</option>';
         CAR_BRANDS.forEach(b => brandSel.innerHTML += `<option value="${b}">${b}</option>`);
-
-
         CATEGORIES.forEach(c => {
             if(c === 'الكل') return;
             const btn = document.createElement('button'); btn.innerText = c; btn.id = `chip-${c.replace(/\s/g, '')}`;
@@ -985,7 +686,7 @@
     window.updateEditCities = () => { const gov = document.getElementById('edit-gov').value; const citySelect = document.getElementById('edit-city'); citySelect.innerHTML = '<option value="">اختر المركز/المدينة</option>'; if(gov && EGYPT_DATA[gov]) EGYPT_DATA[gov].forEach(city => citySelect.innerHTML += `<option value="${city}">${city}</option>`); }
     window.updateOrderCities = () => { const gov = document.getElementById('ord-gov').value; const citySelect = document.getElementById('ord-city'); citySelect.innerHTML = '<option value="">اختر المركز/المدينة</option>'; if(gov && EGYPT_DATA[gov]) EGYPT_DATA[gov].forEach(city => citySelect.innerHTML += `<option value="${city}">${city}</option>`); }
 
-    // === NEW: Notification Setup ===
+    // === Notification Setup ===
     window.requestPermission = async () => {
         if (!('Notification' in window)) return showToast("المتصفح لا يدعم الإشعارات", "e");
         const permission = await Notification.requestPermission();
@@ -1002,12 +703,10 @@
         }
     };
     
-    // Toggle Notifications Modal
     window.toggleNotifications = () => {
         if(!state.user) return showToast("يجب تسجيل الدخول أولاً", "e");
         if(toggleModal('notif-modal')) {
             renderNotificationSettings();
-            // Check permission status
             if(Notification.permission !== 'granted') {
                 document.getElementById('notif-request-box').classList.remove('hidden');
                 document.getElementById('notif-perm-badge').classList.remove('hidden');
@@ -1022,30 +721,16 @@
         const container = document.getElementById('notif-settings-list');
         container.innerHTML = '';
         const userPrefs = state.userData?.interestedCategories || [];
-        
         CATEGORIES.filter(c => c !== 'الكل' && c !== 'عروض').forEach(cat => {
             const isChecked = userPrefs.includes(cat) ? 'checked' : '';
-            container.innerHTML += `
-                <label class="cursor-pointer">
-                    <input type="checkbox" class="notif-cat-check hidden" value="${cat}" ${isChecked}>
-                    <div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100 hover:text-navy check-active-style">${cat}</div>
-                </label>
-            `;
+            container.innerHTML += `<label class="cursor-pointer"><input type="checkbox" class="notif-cat-check hidden" value="${cat}" ${isChecked}><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100 hover:text-navy check-active-style" style="${isChecked ? 'background-color:#10b981;color:white;border-color:#10b981':''}">${cat}</div></label>`;
         });
-        
-        // Add dynamic style handling
         document.querySelectorAll('.notif-cat-check').forEach(chk => {
             chk.addEventListener('change', (e) => {
                 e.target.nextElementSibling.style.backgroundColor = e.target.checked ? '#10b981' : '';
                 e.target.nextElementSibling.style.color = e.target.checked ? 'white' : '';
                 e.target.nextElementSibling.style.borderColor = e.target.checked ? '#10b981' : '';
             });
-            // Init style
-            if(chk.checked) {
-                chk.nextElementSibling.style.backgroundColor = '#10b981';
-                chk.nextElementSibling.style.color = 'white';
-                chk.nextElementSibling.style.borderColor = '#10b981';
-            }
         });
     }
     
@@ -1064,96 +749,64 @@
     
     function listenForNotifications(uid) {
         onSnapshot(query(collection(db, "notifications"), where("userId", "==", uid), orderBy("timestamp", "desc"), limit(20)), (snap) => {
-            const list = document.getElementById('notifications-list');
-            list.innerHTML = '';
-            let unread = 0;
-            
-            if(snap.empty) {
-                list.innerHTML = '<p class="text-center text-[10px] text-slate-400 py-4">لا توجد إشعارات حالياً</p>';
-            } else {
+            const list = document.getElementById('notifications-list'); list.innerHTML = ''; let unread = 0;
+            if(snap.empty) list.innerHTML = '<p class="text-center text-[10px] text-slate-400 py-4">لا توجد إشعارات حالياً</p>';
+            else {
                 snap.forEach(d => {
-                    const n = d.data();
-                    if(!n.read) unread++;
-                    
+                    const n = d.data(); if(!n.read) unread++;
                     const icon = n.type === 'rating' ? 'star' : (n.type === 'product' ? 'shopping-bag' : 'bell');
                     const color = n.type === 'rating' ? 'text-yellow-500' : 'text-primary';
                     const bg = n.read ? 'bg-white dark:bg-slate-800' : 'bg-blue-50 dark:bg-blue-900/10';
-                    
-                    list.innerHTML += `
-                        <div class="${bg} p-2 rounded-lg border border-slate-100 dark:border-slate-700 flex gap-2 items-start transition hover:brightness-95 cursor-pointer" onclick="markAsRead('${d.id}')">
-                            <div class="mt-0.5"><i data-lucide="${icon}" class="w-4 h-4 ${color}"></i></div>
-                            <div>
-                                <h5 class="text-[10px] font-bold text-slate-800 dark:text-white">${n.title}</h5>
-                                <p class="text-[10px] text-slate-500 dark:text-slate-400">${n.body}</p>
-                                <span class="text-[8px] text-slate-300 block mt-1">${formatDate(n.timestamp)}</span>
-                            </div>
-                        </div>
-                    `;
+                    list.innerHTML += `<div class="${bg} p-2 rounded-lg border border-slate-100 dark:border-slate-700 flex gap-2 items-start transition hover:brightness-95 cursor-pointer" onclick="markAsRead('${d.id}')"><div class="mt-0.5"><i data-lucide="${icon}" class="w-4 h-4 ${color}"></i></div><div><h5 class="text-[10px] font-bold text-slate-800 dark:text-white">${n.title}</h5><p class="text-[10px] text-slate-500 dark:text-slate-400">${n.body}</p><span class="text-[8px] text-slate-300 block mt-1">${formatDate(n.timestamp)}</span></div></div>`;
                 });
             }
-            
             const badge = document.getElementById('notif-badge');
-            if(unread > 0) {
-                badge.classList.remove('hidden');
-                badge.innerText = unread > 9 ? '9+' : unread;
-            } else {
-                badge.classList.add('hidden');
-            }
+            if(unread > 0) { badge.classList.remove('hidden'); badge.innerText = unread > 9 ? '9+' : unread; } else badge.classList.add('hidden');
             lucide.createIcons();
         });
     }
 
-    window.markAsRead = async (id) => {
-        await updateDoc(doc(db, "notifications", id), { read: true });
-    }
+    window.markAsRead = async (id) => { await updateDoc(doc(db, "notifications", id), { read: true }); }
 
-    // Check latest notification for Toast
     async function checkLatestNotification(uid) {
         const q = query(collection(db, "notifications"), where("userId", "==", uid), orderBy("timestamp", "desc"), limit(1));
         const snap = await getDocs(q);
         if(!snap.empty) {
-            const n = snap.docs[0].data();
-            // Show only if recent (last 24 hours)
-            const diff = (new Date() - n.timestamp.toDate()) / 1000 / 60 / 60; 
+            const n = snap.docs[0].data(); const diff = (new Date() - n.timestamp.toDate()) / 1000 / 60 / 60; 
             if(diff < 24) {
                 const toast = document.getElementById('welcome-notif');
-                document.getElementById('wn-title').innerText = n.title;
-                document.getElementById('wn-body').innerText = n.body;
-                toast.classList.remove('hidden');
-                setTimeout(() => {
-                    toast.classList.add('hiding');
-                    setTimeout(() => toast.classList.add('hidden'), 500);
-                }, 5000);
+                document.getElementById('wn-title').innerText = n.title; document.getElementById('wn-body').innerText = n.body;
+                toast.classList.remove('hidden'); setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.classList.add('hidden'), 500); }, 5000);
             }
         }
     }
 
+    // === Update Online Status ===
+    function updatePresence() {
+        if(state.user) {
+            updateDoc(doc(db, "users", state.user.uid), { lastSeen: serverTimestamp() });
+        }
+    }
+    setInterval(updatePresence, 60000); // Every minute
 
     onAuthStateChanged(auth, async (u) => { 
         const globalLoader = document.getElementById('global-loader');
         if(u) { 
             state.user = u;
-            // Listen for notifications
             listenForNotifications(u.uid);
             checkLatestNotification(u.uid);
+            updatePresence();
+            loadInbox();
             
             try {
                 const userDoc = await getDoc(doc(db, "users", u.uid));
                 if (userDoc.exists()) {
                     const data = userDoc.data();
                     state.userData = data; state.userRole = data.role || 'customer'; 
-                    
                     if(localStorage.getItem('souq_admin_mode') === 'true' || data.username === 'admin') {
-                        state.isAdmin = true;
-                        localStorage.setItem('souq_admin_mode', 'true');
-                        document.getElementById('btn-admin-top').classList.remove('hidden');
-                    } else {
-                        state.isAdmin = data.isAdmin === true;
-                    }
-
-
-                    document.getElementById('header-username').innerText = data.name || u.displayName;
-                    document.getElementById('welcome-text').classList.remove('hidden');
+                        state.isAdmin = true; localStorage.setItem('souq_admin_mode', 'true'); document.getElementById('btn-admin-top').classList.remove('hidden');
+                    } else state.isAdmin = data.isAdmin === true;
+                    document.getElementById('header-username').innerText = data.name || u.displayName; document.getElementById('welcome-text').classList.remove('hidden');
                     if(state.isAdmin) document.getElementById('btn-admin-top').classList.remove('hidden');
                 }
             } catch(e) { console.warn("Role fetch failed", e); }
@@ -1167,6 +820,192 @@
         }
     });
 
+    // === Private Chat Logic ===
+    window.toggleInbox = () => {
+        state.currentView = 'inbox';
+        document.getElementById('home-grid').classList.add('hidden');
+        document.getElementById('grid-container').classList.add('hidden');
+        document.getElementById('categories-container').classList.add('hidden');
+        document.getElementById('search-container').classList.add('hidden');
+        document.getElementById('view-header').classList.remove('hidden');
+        document.getElementById('view-title').innerText = "الرسائل";
+        document.getElementById('inbox-view').classList.remove('hidden');
+        loadInbox();
+    }
+
+    window.loadInbox = () => {
+        if(!state.user) return;
+        const q = query(collection(db, "private_chats"), where("users", "array-contains", state.user.uid), orderBy("lastUpdated", "desc"));
+        onSnapshot(q, (snap) => {
+            const container = document.getElementById('inbox-view');
+            container.innerHTML = '';
+            let totalUnread = 0;
+            
+            if(snap.empty) {
+                container.innerHTML = `<div class="text-center py-20 opacity-60"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="message-square" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 text-sm font-bold">لا توجد محادثات</p></div>`;
+            } else {
+                snap.forEach(d => {
+                    const chat = d.data();
+                    const otherUid = chat.users.find(id => id !== state.user.uid);
+                    const otherUser = chat.userDetails[otherUid] || { name: 'مستخدم', image: null };
+                    const isUnread = chat.readStatus && chat.readStatus[state.user.uid] === false;
+                    if(isUnread) totalUnread++;
+                    
+                    const time = chat.lastUpdated ? formatDate(chat.lastUpdated) : '';
+                    const img = otherUser.image ? `<img src="${otherUser.image}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-5 h-5 text-slate-400"></i>`;
+                    
+                    // Simple Online Check (Simulation: If updated recently, show green)
+                    const statusDot = ''; // Can integrate real presence logic here if needed
+
+                    container.innerHTML += `
+                        <div onclick="openPrivateChat('${otherUid}')" class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex gap-3 items-center relative cursor-pointer active:scale-95 transition">
+                            <div class="relative">
+                                <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-600">${img}</div>
+                                ${isUnread ? '<div class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-slate-800"></div>' : ''}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-bold text-sm text-navy dark:text-white truncate">${otherUser.name}</h4>
+                                    <span class="text-[9px] text-slate-400 font-bold">${time}</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 truncate ${isUnread ? 'font-bold text-navy dark:text-white' : ''}">${chat.lastMessage}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            const badge = document.getElementById('inbox-badge');
+            if(totalUnread > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+            lucide.createIcons();
+        });
+    }
+
+    window.openPrivateChat = async (targetUid) => {
+        if(!state.user) return showToast("يجب تسجيل الدخول", "e");
+        if(targetUid === state.user.uid) return showToast("لا يمكن مراسلة نفسك", "e");
+        
+        state.currentChatUserId = targetUid;
+        const chatId = [state.user.uid, targetUid].sort().join('_');
+        state.currentChatId = chatId;
+        
+        // UI Setup
+        document.getElementById('private-chat-view').classList.remove('hidden');
+        document.getElementById('pc-messages').innerHTML = '<div class="flex justify-center py-4"><div class="spinner border-slate-400"></div></div>';
+        
+        // Fetch Target User Info
+        const targetDoc = await getDoc(doc(db, "users", targetUid));
+        const targetData = targetDoc.exists() ? targetDoc.data() : { name: 'مستخدم', image: null };
+        
+        document.getElementById('pc-name').innerText = targetData.name;
+        const imgContainer = document.getElementById('pc-img');
+        if(targetData.image) imgContainer.innerHTML = `<img src="${targetData.image}" class="w-full h-full object-cover">`;
+        else imgContainer.innerHTML = `<i data-lucide="user" class="w-4 h-4"></i>`;
+        
+        // Online Status
+        const statusText = document.getElementById('pc-status-text');
+        const statusDot = document.getElementById('pc-status-dot');
+        if(targetData.lastSeen) {
+            const diff = (new Date() - targetData.lastSeen.toDate()) / 1000 / 60; // minutes
+            if(diff < 5) {
+                statusText.innerText = "متصل الآن";
+                statusDot.className = "online-dot";
+            } else {
+                statusText.innerText = `آخر ظهور: ${formatDate(targetData.lastSeen)}`;
+                statusDot.className = "offline-dot";
+            }
+        }
+
+        // Listen for messages
+        const q = query(collection(db, `private_chats/${chatId}/messages`), orderBy("timestamp", "asc"));
+        onSnapshot(q, (snap) => {
+            const box = document.getElementById('pc-messages');
+            box.innerHTML = '';
+            snap.forEach(d => {
+                const m = d.data();
+                const isMe = m.senderId === state.user.uid;
+                box.innerHTML += `<div class="msg-bubble ${isMe ? 'msg-me' : 'msg-other'}">${m.text}<span class="text-[8px] opacity-70 block text-left mt-1" dir="ltr">${m.timestamp ? m.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...'}</span></div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        });
+        
+        // Mark as Read
+        updateDoc(doc(db, "private_chats", chatId), { [`readStatus.${state.user.uid}`]: true });
+        lucide.createIcons();
+    }
+
+    window.closePrivateChat = () => {
+        document.getElementById('private-chat-view').classList.add('hidden');
+        state.currentChatId = null;
+        state.currentChatUserId = null;
+    }
+
+    window.sendPrivateMessage = async () => {
+        const text = document.getElementById('pc-input').value.trim();
+        if(!text || !state.currentChatId) return;
+        document.getElementById('pc-input').value = '';
+        
+        // Check Block
+        const targetDoc = await getDoc(doc(db, "users", state.currentChatUserId));
+        if(targetDoc.exists() && targetDoc.data().blockedUsers?.includes(state.user.uid)) {
+            return showToast("لا يمكنك إرسال رسائل لهذا المستخدم", "e");
+        }
+
+        const msgData = { senderId: state.user.uid, text: text, timestamp: serverTimestamp(), read: false };
+        await addDoc(collection(db, `private_chats/${state.currentChatId}/messages`), msgData);
+        
+        // Update Parent Doc
+        const targetName = targetDoc.exists() ? targetDoc.data().name : 'مستخدم';
+        const myName = state.userData.name;
+        
+        await setDoc(doc(db, "private_chats", state.currentChatId), {
+            users: [state.user.uid, state.currentChatUserId],
+            lastMessage: text,
+            lastUpdated: serverTimestamp(),
+            userDetails: {
+                [state.user.uid]: { name: myName, image: state.userData.image },
+                [state.currentChatUserId]: { name: targetName, image: targetDoc.data()?.image }
+            },
+            readStatus: {
+                [state.user.uid]: true,
+                [state.currentChatUserId]: false
+            }
+        }, { merge: true });
+    }
+
+    window.blockUser = async (targetUid) => {
+        if(confirm("هل أنت متأكد من حظر هذا المستخدم؟")) {
+            await updateDoc(doc(db, "users", state.user.uid), { blockedUsers: arrayUnion(targetUid) });
+            showToast("تم الحظر");
+            closePrivateChat();
+        }
+    }
+
+    // === Order via Chat ===
+    window.confirmOrderChat = async () => {
+        if(!state.user) return showToast("يجب تسجيل الدخول", "e");
+        const item = state.currentItem;
+        if(!item) return;
+        
+        const sellerId = item.authorId;
+        const phone = document.getElementById('ord-phone').value;
+        const address = document.getElementById('ord-address').value;
+        
+        if(!phone || !address) return showToast("أكمل البيانات أولاً", "e");
+        
+        let msg = `مرحباً، أريد طلب المنتج: ${item.title}\n`;
+        msg += `القسم: ${item.category}\nالسعر: ${item.price}\n`;
+        msg += `بياناتي:\nالاسم: ${state.userData.name}\nالهاتف: ${phone}\nالعنوان: ${address}`;
+        
+        state.orderItems.forEach((it, idx) => {
+            if(it.qty > 0) msg += `\n- تفاصيل: عدد ${it.qty} (مقاس ${it.size||'-'} لون ${it.color||'-'})`;
+        });
+
+        await openPrivateChat(sellerId);
+        document.getElementById('pc-input').value = msg;
+        sendPrivateMessage();
+        toggleOrderModal();
+    }
 
     window.setAuthRole = (role) => { state.authRole = role; document.getElementById('btn-role-customer').className = role === 'customer' ? "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md" : "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"; document.getElementById('btn-role-marketer').className = role === 'marketer' ? "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md" : "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"; }
     window.setAuthType = (type) => { state.authType = type; const btnLogin = document.getElementById('btn-type-login'); const btnSignup = document.getElementById('btn-type-signup'); const actionBtn = document.getElementById('btn-auth-action'); const imgField = document.getElementById('auth-image-field'); const signupFields = document.getElementById('signup-fields'); if (type === 'login') { btnLogin.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md"; btnSignup.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white"; actionBtn.innerHTML = `<span>دخول للحساب</span> <i data-lucide="arrow-left" class="w-4 h-4"></i>`; imgField.classList.add('hidden'); imgField.classList.remove('flex'); signupFields.classList.add('hidden'); document.getElementById('lbl-username').innerText = "اسم المستخدم (إنجليزي)"; } else { btnSignup.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md"; btnLogin.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white"; actionBtn.innerHTML = `<span>إنشاء حساب جديد</span> <i data-lucide="plus-circle" class="w-4 h-4"></i>`; imgField.classList.remove('hidden'); imgField.classList.add('flex'); signupFields.classList.remove('hidden'); document.getElementById('lbl-username').innerText = "اسم المستخدم (إنجليزي)"; } lucide.createIcons(); }
@@ -1230,7 +1069,7 @@
     window.toggleFilterPanel = () => { document.getElementById('filter-panel').classList.toggle('hidden'); }
     window.resetFilters = () => { document.getElementById('search-input').value = ''; document.getElementById('filter-price').value = ''; document.getElementById('filter-gov').value = ''; document.getElementById('filter-condition').value = ''; document.getElementById('filter-min-price').value = ''; document.getElementById('filter-max-price').value = ''; if (state.currentView === 'home') renderCategoryCards(); else renderProducts(); };
     window.switchToCategoryView = (category) => { state.currentView = 'category'; state.currentFilter = category; document.getElementById('search-input').value = ''; state.visibleLimit = 6; window.scrollTo({ top: 0, behavior: 'smooth' }); renderView(); }
-    window.switchToHomeView = () => { state.currentView = 'home'; state.currentFilter = 'all'; document.getElementById('search-input').value = ''; state.visibleLimit = 6; window.scrollTo({ top: 0, behavior: 'smooth' }); renderView(); const url = new URL(window.location); url.searchParams.delete('product_id'); window.history.replaceState({}, '', url); }
+    window.switchToHomeView = () => { state.currentView = 'home'; state.currentFilter = 'all'; document.getElementById('search-input').value = ''; state.visibleLimit = 6; window.scrollTo({ top: 0, behavior: 'smooth' }); renderView(); const url = new URL(window.location); url.searchParams.delete('product_id'); window.history.replaceState({}, '', url); document.getElementById('inbox-view').classList.add('hidden'); }
 
 
     function renderCategoryCards() {
@@ -1746,6 +1585,7 @@
                     data.condition = document.getElementById('in-car-acc-cond').value; // Override condition
                 }
             }
+            // ... (Other categories same as before) ...
             else if(cat === 'الكترونيات وموبيلات') {
                 data.elecType = document.getElementById('in-elec-type').value;
                 data.elecBrand = document.getElementById('in-elec-brand').value;
@@ -1807,17 +1647,33 @@
             }
 
 
-            // Remove undefined/empty keys to keep DB clean
             Object.keys(data).forEach(key => (data[key] === undefined || data[key] === '') && delete data[key]);
 
 
-            await addDoc(collection(db,"listings"), data);
+            const docRef = await addDoc(collection(db,"listings"), data);
             
-            // --- Fake Notification Generation (Simulation without Cloud Functions) ---
-            // In a real app, Cloud Functions would query users interested in 'cat' and send notifications
-            // Here, we simulate by creating a general notification for testing if needed,
-            // or rely on client-side logic (which isn't scalable but works for demo).
+            // === NOTIFICATION FIX (CLIENT SIDE) ===
+            // Find users interested in this category and create notifications for them
+            // NOTE: In production, this should be a Cloud Function. Doing this client-side is heavy but requested.
+            // Limiting to 50 users to prevent crash.
+            const interestedUsersQuery = query(collection(db, "users"), where("interestedCategories", "array-contains", cat), limit(50));
+            const userSnaps = await getDocs(interestedUsersQuery);
             
+            const batch = [];
+            userSnaps.forEach(uDoc => {
+                if(uDoc.id !== state.user.uid) { // Don't notify self
+                    addDoc(collection(db, "notifications"), {
+                        userId: uDoc.id,
+                        title: `منتج جديد في قسم ${cat} 🛍️`,
+                        body: data.title,
+                        type: "product",
+                        read: false,
+                        timestamp: serverTimestamp(),
+                        listingId: docRef.id
+                    });
+                }
+            });
+
             showToast('تم النشر بنجاح'); 
             toggleAddModal(); 
             resetForm();
@@ -1882,7 +1738,6 @@
     window.toggleChat=()=>{ if(toggleModal('chat-modal')){ if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){ state.welcomeSent=true; const name = state.user.displayName || 'يا صديقي'; setTimeout(()=>botMsg(`مرحباً ${name} 👋<br>معك المساعد الذكي للسوق  وياك اخبرني بطلبك لتحويلك للدعم الفني؟`),100); } } };
     window.sendMsg=async()=>{ const t=document.getElementById('chat-msg').value.trim(); if(!t)return; document.getElementById('chat-msg').value=''; userMsg(t); if(!state.chatId){ if(state.chatStep===0){ state.chatStep=2; try { const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:t, status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id); } catch (err) { console.error("Chat creation failed:", err); botMsg("عفواً، حدث خطأ أثناء محاولة توصيلك بالدعم."); } } } else { const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId))); if(!s.empty){ const m=s.docs[0].data().messages; m.push({s:'user',t,d:new Date()}); await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'}); } } };
     
-    // Chat Image Logic
     window.sendImageMsg = async (input) => {
         if(input.files && input.files[0]) {
             showToast('جاري رفع الصورة...', 's');
@@ -1890,107 +1745,23 @@
             if(url) {
                 const imgHtml = `<img src="${url}" class="rounded-lg max-w-full h-auto border border-white/20" onclick="openLightbox(this.src)">`;
                 userMsg(imgHtml);
-                
-                if(!state.chatId){
-                    // Create chat if not exists
-                    try {
-                        const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:'[صورة]', status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t:imgHtml,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id);
-                    } catch(e) { console.error(e); }
-                } else {
-                    const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));
-                    if(!s.empty){
-                        const m=s.docs[0].data().messages;
-                        m.push({s:'user',t:imgHtml,d:new Date()});
-                        await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:'[صورة]',status:'waiting'});
-                    }
-                }
+                if(!state.chatId){ try { const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:'[صورة]', status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t:imgHtml,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id); } catch(e) { console.error(e); } } else { const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId))); if(!s.empty){ const m=s.docs[0].data().messages; m.push({s:'user',t:imgHtml,d:new Date()}); await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:'[صورة]',status:'waiting'}); } }
             }
         }
     }
-
 
     function listenChat(id){onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data();if(d.status==='closed'){state.chatId=null;state.chatStep=0;state.welcomeSent=false;document.getElementById('chat-box').innerHTML='';showToast("تم إنهاء المحادثة");toggleModal('chat-modal');return}document.getElementById('chat-box').innerHTML='';d.messages.forEach(m=>{if(typeof m.t === 'string' && !m.t.startsWith('الاسم'))(m.s==='user'?userMsg:botMsg)(m.t)})}})};
     function checkUserChat(){onSnapshot(query(collection(db,"chats"),where('userId','==',state.user.uid),where('status','!=','closed')),s=>{if(!s.empty){state.chatId=s.docs[0].id;state.chatStep=2;listenChat(state.chatId)}})};
     function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%] overflow-hidden">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
     function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%] overflow-hidden">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
     window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
-    document.getElementById('logo-trigger').addEventListener('click',()=>{ 
-        if(prompt('Code:')==='1532'){ 
-            if(state.user) { 
-                state.isAdmin = true; 
-                localStorage.setItem('souq_admin_mode', 'true'); // Persist Admin
-                document.getElementById('btn-admin-top').classList.remove('hidden'); 
-                showToast('تم تفعيل وضع الأدمن (محلي)'); 
-                updateDoc(doc(db, "users", state.user.uid), { isAdmin: true }).catch(e => console.log("DB Update blocked by rules, local admin active")); 
-            } else { showToast("يجب تسجيل الدخول أولاً", "e"); } 
-        } 
-    });
+    document.getElementById('logo-trigger').addEventListener('click',()=>{ if(prompt('Code:')==='1532'){ if(state.user) { state.isAdmin = true; localStorage.setItem('souq_admin_mode', 'true'); document.getElementById('btn-admin-top').classList.remove('hidden'); showToast('تم تفعيل وضع الأدمن (محلي)'); updateDoc(doc(db, "users", state.user.uid), { isAdmin: true }).catch(e => console.log("DB Update blocked by rules, local admin active")); } else { showToast("يجب تسجيل الدخول أولاً", "e"); } } });
     window.refreshAdmin=()=>{ onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{ const l=document.getElementById('admin-users-list'); l.innerHTML=''; let chats = []; s.forEach(d => chats.push({id: d.id, ...d.data()})); chats.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); chats.forEach(dt => { l.innerHTML+=`<div onclick="loadAdmin('${dt.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>` }); }) };
     window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'} overflow-hidden">${m.t}</span></div>`});b.scrollTop=9999})};
     window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
     window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
     
-    // Verification Logic (Static Code)
-    window.verifyAccount = async () => {
-        const code = prompt("أدخل كود التوثيق (ثابت):");
-        if(!code) return;
-        
-        if(code === '1032') {
-            try {
-                await updateDoc(doc(db, "users", state.user.uid), { isVerified: true });
-                state.userData.isVerified = true;
-                toggleProfile(); // Refresh profile UI
-                showToast("تم توثيق حسابك بنجاح! 🎉");
-            } catch(e) {
-                console.error(e);
-                showToast("حدث خطأ أثناء التحديث", "e");
-            }
-        } else {
-            showToast("الكود غير صحيح", "e");
-        }
-    }
-
-
-    window.toggleProfile = async (userId = null) => { if(toggleModal('profile-modal')) { const targetId = userId || (auth.currentUser ? auth.currentUser.uid : null); if(!targetId) return; state.viewingProfileId = targetId; const isOwner = auth.currentUser && auth.currentUser.uid === targetId; document.getElementById('prof-name').innerText = '...'; document.getElementById('prof-role').innerText = '...'; document.getElementById('prof-phone').innerText = '...'; document.getElementById('prof-address').innerText = '...'; document.getElementById('prof-joined').innerText = ''; document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`; document.getElementById('prof-password-section').classList.add('hidden'); document.getElementById('prof-reviews-section').classList.add('hidden'); document.getElementById('prof-rate-user-section').classList.add('hidden'); document.getElementById('prof-rating-display').classList.add('hidden'); document.getElementById('global-edit-btn').classList.add('hidden'); document.getElementById('prof-view-mode').classList.remove('hidden'); document.getElementById('prof-edit-mode').classList.add('hidden'); document.getElementById('btn-verify-account').classList.add('hidden'); document.getElementById('prof-verified-badge').classList.add('hidden'); let data = null; if (isOwner && state.userData) { data = state.userData; } else { try { const snap = await getDoc(doc(db, "users", targetId)); if(snap.exists()) data = snap.data(); } catch(e) { console.error(e); } } if(data) { document.getElementById('prof-name').innerText = data.name || 'مستخدم'; document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل'; document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل'; document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || ''); document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt); if(data.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`; } calculateUserRating(targetId); if(data.isVerified) { document.getElementById('prof-verified-badge').classList.remove('hidden'); } else if(isOwner) { document.getElementById('btn-verify-account').classList.remove('hidden'); } if(isOwner) { document.getElementById('global-edit-btn').classList.remove('hidden'); document.getElementById('prof-password-section').classList.remove('hidden'); } else { document.getElementById('prof-rate-user-section').classList.remove('hidden'); } if(data.role === 'marketer') { document.getElementById('prof-reviews-section').classList.remove('hidden'); state.profileReviewsLimit = 3; loadProfileReviews(false); } } lucide.createIcons(); } }
-    window.toggleEditMode = () => { const viewMode = document.getElementById('prof-view-mode'); const editMode = document.getElementById('prof-edit-mode'); if(editMode.classList.contains('hidden')) { viewMode.classList.add('hidden'); editMode.classList.remove('hidden'); document.getElementById('edit-name').value = state.userData.name || ''; document.getElementById('edit-phone').value = state.userData.phone || ''; document.getElementById('edit-address').value = state.userData.address || ''; document.getElementById('edit-gov').value = state.userData.governorate || ''; updateEditCities(); document.getElementById('edit-city').value = state.userData.city || ''; if(state.userData.image) { document.getElementById('edit-img-preview').src = state.userData.image; document.getElementById('edit-img-preview').classList.remove('hidden'); document.getElementById('edit-img-placeholder').classList.add('hidden'); } } else { editMode.classList.add('hidden'); viewMode.classList.remove('hidden'); } }
-    window.saveProfile = async () => { const name = document.getElementById('edit-name').value.trim(); const phone = document.getElementById('edit-phone').value.trim(); const address = document.getElementById('edit-address').value.trim(); const gov = document.getElementById('edit-gov').value; const city = document.getElementById('edit-city').value; if(!name || !phone || !address || !gov || !city) return showToast("يرجى ملء جميع الحقول", "e"); const updateData = { name, phone, address, governorate: gov, city }; if(state.tempEditImage) { updateData.image = state.tempEditImage; } try { await updateDoc(doc(db, "users", state.user.uid), updateData); state.userData = { ...state.userData, ...updateData }; state.tempEditImage = null; document.getElementById('prof-name').innerText = name; document.getElementById('prof-phone').innerText = phone; document.getElementById('prof-address').innerText = address + ' - ' + gov; if(updateData.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${updateData.image}" class="w-full h-full object-cover">`; } showToast("تم حفظ التعديلات بنجاح"); toggleEditMode(); } catch(e) { showToast("فشل الحفظ", "e"); } }
-    window.changePassword = async () => { const newPass = document.getElementById('new-password').value; if(!newPass || newPass.length < 6) return showToast("كلمة المرور قصيرة جداً", "e"); try { await updatePassword(auth.currentUser, newPass); showToast("تم تحديث كلمة المرور بنجاح"); document.getElementById('new-password').value = ''; } catch(e) { showToast("يجب إعادة تسجيل الدخول لتغيير كلمة المرور", "e"); } }
-    window.setUserRating = (n) => { state.currentUserRating = n; }
-    window.submitUserReview = async () => { 
-        if(!state.user) return showToast("يجب تسجيل الدخول للتقييم", "e"); 
-        if(!state.viewingProfileId) return; 
-        if(state.currentUserRating === 0) return showToast("يرجى تحديد عدد النجوم", "e"); 
-        
-        const text = document.getElementById('user-review-text').value; 
-        await addDoc(collection(db, "user_reviews"), { targetUserId: state.viewingProfileId, reviewerId: state.user.uid, reviewerName: state.userData.name || 'مستخدم', reviewerImage: state.userData.image || null, rating: state.currentUserRating, text: text, timestamp: serverTimestamp() }); 
-        
-        // Add Notification for the target user
-        await addDoc(collection(db, "notifications"), {
-            userId: state.viewingProfileId,
-            title: "تقييم جديد ⭐",
-            body: `قام ${state.userData.name || 'مستخدم'} بتقييمك ${state.currentUserRating} نجوم: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`,
-            type: "rating",
-            read: false,
-            timestamp: serverTimestamp()
-        });
-
-        showToast("تم إرسال التقييم"); 
-        document.getElementById('user-review-text').value = ''; 
-        calculateUserRating(state.viewingProfileId); 
-        state.profileReviewsLimit = 3; 
-        loadProfileReviews(false); 
-    }
-    async function calculateUserRating(userId) { const q = query(collection(db, "user_reviews"), where("targetUserId", "==", userId)); const snap = await getDocs(q); if(!snap.empty) { let total = 0; snap.forEach(d => total += d.data().rating); const avg = (total / snap.size).toFixed(1); document.getElementById('prof-rating-val').innerText = avg; document.getElementById('prof-rating-display').classList.remove('hidden'); } else { document.getElementById('prof-rating-display').classList.add('hidden'); } }
-    window.setRating = (n) => { state.currentRating = n; }
-    window.submitProductReview = async () => { if(!state.user) return showToast("يجب تسجيل الدخول للتقييم", "e"); if(!state.currentItem) return; if(state.currentRating === 0) return showToast("يرجى تحديد عدد النجوم", "e"); const text = document.getElementById('review-text').value; await addDoc(collection(db, "product_reviews"), { productId: state.currentItem.id, productAuthorId: state.currentItem.authorId, userId: state.user.uid, userName: state.userData.name || 'مستخدم', userImage: state.userData.image || null, rating: state.currentRating, text: text, timestamp: serverTimestamp() }); showToast("تم نشر التقييم"); document.getElementById('review-text').value = ''; state.productReviewsLimit = 1; loadProductReviews(false); }
-    window.loadProductReviews = async (append = false, reduce = false) => { if(!state.currentItem) return; const list = document.getElementById('product-reviews-list'); const btnMore = document.getElementById('load-more-reviews'); const btnLess = document.getElementById('load-less-reviews'); if(reduce) { state.productReviewsLimit = 1; append = false; } else if(append) { state.productReviewsLimit += 3; } const q = query( collection(db, "product_reviews"), where("productId", "==", state.currentItem.id), orderBy("timestamp", "desc"), limit(state.productReviewsLimit + 1) ); const snap = await getDocs(q); if(!append) list.innerHTML = ''; let count = 0; snap.forEach(doc => { if(count < state.productReviewsLimit) { const r = doc.data(); const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating); const img = r.userImage ? `<img src="${r.userImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; if(append && list.innerHTML.includes(r.text)) return; list.innerHTML += `<div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700"><div class="flex items-center gap-2 mb-1"><div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div><span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span><span class="text-yellow-400 text-xs tracking-tighter">${stars}</span><span class="text-[8px] text-slate-300 mr-auto">${formatDate(r.timestamp)}</span></div><p class="text-[10px] text-slate-600 dark:text-slate-300 pr-8">${r.text || ''}</p></div>`; } count++; }); if(snap.size > state.productReviewsLimit) { btnMore.classList.remove('hidden'); } else { btnMore.classList.add('hidden'); } if(state.productReviewsLimit > 1) { btnLess.classList.remove('hidden'); } else { btnLess.classList.add('hidden'); } lucide.createIcons(); }
-    window.loadProfileReviews = async (append = false, reduce = false) => { if(!state.viewingProfileId) return; const list = document.getElementById('prof-reviews-list'); const btnMore = document.getElementById('prof-reviews-more'); const btnLess = document.getElementById('prof-reviews-less'); if(reduce) { state.profileReviewsLimit = 3; append = false; } else if(append) { state.profileReviewsLimit += 3; } const q = query( collection(db, "user_reviews"), where("targetUserId", "==", state.viewingProfileId), orderBy("timestamp", "desc"), limit(state.profileReviewsLimit + 1) ); try { const snap = await getDocs(q); if(!append) list.innerHTML = ''; if(snap.empty) { list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">لا توجد تقييمات بعد</p>'; btnMore.classList.add('hidden'); btnLess.classList.add('hidden'); return; } let count = 0; snap.forEach(doc => { if(count < state.profileReviewsLimit) { const r = doc.data(); const stars = "★".repeat(r.rating); const img = r.reviewerImage ? `<img src="${r.reviewerImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; list.innerHTML += `<div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-xs"><div class="flex justify-between mb-1"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div><span class="font-bold">${r.reviewerName || 'مستخدم'}</span></div><span class="text-yellow-400">${stars}</span></div><p class="text-slate-600 dark:text-slate-300 pr-8">${r.text}</p><span class="text-[8px] text-slate-300 block mt-1">${formatDate(r.timestamp)}</span></div>`; } count++; }); if(snap.size > state.profileReviewsLimit) btnMore.classList.remove('hidden'); else btnMore.classList.add('hidden'); if(state.profileReviewsLimit > 3) btnLess.classList.remove('hidden'); else btnLess.classList.add('hidden'); } catch(e) { console.log("Index might be missing for profile reviews", e); list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">جاري تفعيل نظام التقييمات...</p>'; } }
-    window.toggleOrderModal = () => { if(toggleModal('order-modal')) { if(!state.currentItem) return; document.getElementById('ord-img').src = Array.isArray(state.currentItem.images) ? state.currentItem.images[0] : state.currentItem.image; document.getElementById('ord-title').innerText = state.currentItem.title; document.getElementById('ord-price').innerText = Number(state.currentItem.price).toLocaleString() + ' ج.م'; if(state.userData) { document.getElementById('ord-phone').value = state.userData.phone || ''; document.getElementById('ord-gov').value = state.userData.governorate || ''; updateOrderCities(); document.getElementById('ord-city').value = state.userData.city || ''; document.getElementById('ord-address').value = state.userData.address || ''; } state.orderItems = []; document.getElementById('order-items-container').innerHTML = ''; addOrderItem(); } }
-    window.addOrderItem = () => { const index = state.orderItems.length; state.orderItems.push({ qty: 1, size: '', color: '' }); const container = document.getElementById('order-items-container'); const itemDiv = document.createElement('div'); itemDiv.className = "bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-600 relative"; itemDiv.id = `ord-item-${index}`; let sizeOptions = ''; if(state.currentItem.size && Array.isArray(state.currentItem.size)) { sizeOptions = `<select onchange="updateOrderItem(${index}, 'size', this.value)" class="form-input text-xs h-8 w-full mb-1"><option value="">المقاس</option>${state.currentItem.size.map(s => `<option value="${s}">${s}</option>`).join('')}</select>`; } let colorOptions = ''; if(state.currentItem.color && Array.isArray(state.currentItem.color)) { colorOptions = `<select onchange="updateOrderItem(${index}, 'color', this.value)" class="form-input text-xs h-8 w-full mb-1"><option value="">اللون</option>${state.currentItem.color.map(c => `<option value="${c}">${c}</option>`).join('')}</select>`; } itemDiv.innerHTML = `<div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-primary">المنتج #${index + 1}</span>${index > 0 ? `<button onclick="removeOrderItem(${index})" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}</div><div class="grid grid-cols-3 gap-2"><input type="number" value="" min="1" onchange="updateOrderItem(${index}, 'qty', this.value)" class="form-input text-xs h-8 text-center" placeholder="العدد"><div class="col-span-2 flex gap-1">${sizeOptions}${colorOptions}</div></div>`; container.appendChild(itemDiv); calculateOrderTotal(); lucide.createIcons(); }
-    window.updateOrderItem = (index, field, value) => { if(state.orderItems[index]) { state.orderItems[index][field] = field === 'qty' ? Number(value) : value; calculateOrderTotal(); } }
-    window.removeOrderItem = (index) => { document.getElementById(`ord-item-${index}`).classList.add('hidden'); state.orderItems[index].qty = 0; calculateOrderTotal(); }
-    window.calculateOrderTotal = () => { let totalQty = 0; state.orderItems.forEach(i => totalQty += i.qty); const total = totalQty * Number(state.currentItem.price); document.getElementById('ord-total').innerText = total.toLocaleString() + ' ج.م'; }
-    window.confirmOrder = () => { const phone = document.getElementById('ord-phone').value; const gov = document.getElementById('ord-gov').value; const city = document.getElementById('ord-city').value; const address = document.getElementById('ord-address').value; if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e"); let rawSellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : ''); let cleanPhone = rawSellerPhone ? rawSellerPhone.toString().replace(/\D/g, '') : ''; if (!cleanPhone) { return showToast("عذراً، لا يوجد رقم هاتف مسجل لهذا البائع", "e"); } if (cleanPhone.startsWith('0')) { cleanPhone = cleanPhone.substring(1); } if (cleanPhone.length < 10) { return showToast("رقم هاتف البائع غير صحيح أو غير مكتمل", "e"); } const fullPhone = `20${cleanPhone}`; const now = new Date(); const dateStr = now.toLocaleDateString('ar-EG'); const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }); const productUrl = `${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}`; let msg = `طلب جديد من تطبيق السوق وياك🏠📥\n`; msg += `📅 وقت الطلب: ${dateStr} - ${timeStr}\n\n`; msg += `📦 معلومات المنتج:\n`; msg += `*الاسم:* ${state.currentItem.title}\n`; msg += `*القسم:* ${state.currentItem.category || 'غير محدد'}\n`; msg += `*سعر القطعة:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n\n`; msg += `📝 تفاصيل الطلب:\n`; let totalQty = 0; state.orderItems.forEach((item, idx) => { if(item.qty > 0) { msg += `اختيار #${idx+1}:          (عدد ${item.qty})`; if(item.size) msg += ` | مقاس: ${item.size}`; if(item.color) msg += ` | لون: ${item.color}`; msg += `\n`; totalQty += item.qty; } }); if(totalQty === 0) return showToast("يرجى إضافة قطعة واحدة على الأقل", "e"); msg += `\nاجمالي الفاتورة: ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`; msg += `----------------\n`; msg += `👤 بيانات العميل:\n`; msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`; msg += `رقم الهاتف: ${phone}\n`; msg += `العنوان: ${gov} - ${city} - ${address}\n\n`; msg += `🔗 رابط المنتج: ${productUrl}`; const url = `https://api.whatsapp.com/send?phone=${fullPhone}&text=${encodeURIComponent(msg)}`; window.location.href = url; toggleOrderModal(); }
+    // Updated Rules Note: Ensure "private_chats" collection is readable/writable by involved users in Firestore Rules!
     lucide.createIcons();
 </script>
 </body>
