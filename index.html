@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wolf TraVal | للسياحة والترفيه</title>
-
+    <meta name="description" content="اكتشف أفضل المغامرات وعروض السياحة والترفيه والرحلات البحرية في مصر مع Wolf TraVal.">
     <meta name="theme-color" content="#0f172a">
+    
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/shehabt1000-boop/-/8feac62d11c707c07fd2d22afba278c69070d152/Wolf%20TraVal%20.jpg">
     <link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/shehabt1000-boop/-/8feac62d11c707c07fd2d22afba278c69070d152/Wolf%20TraVal%20.jpg">
@@ -15,6 +17,7 @@
     <meta property="og:image" content="https://raw.githubusercontent.com/shehabt1000-boop/-/8feac62d11c707c07fd2d22afba278c69070d152/Wolf%20TraVal%20.jpg">
     <meta property="og:url" content="https://Wolf-traval.netlify.app/">
     <meta property="og:type" content="website">
+    
     <script src="https://cdn.tailwindcss.com"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -32,31 +35,35 @@
         }
         .loader-hidden { opacity: 0; visibility: hidden; }
 
-        .mobile-menu { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(-100%); left: 0; right: auto; will-change: transform; top: 60px !important; }
+        .mobile-menu { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(-100%); left: 0; right: auto; will-change: transform; top: 60px !important; }
         .mobile-menu.open { transform: translateX(0); }
-        ::-webkit-scrollbar { width: 8px; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #111; }
         ::-webkit-scrollbar-thumb { background: #0d9488; border-radius: 4px; }
+        
         input[type="file"]::file-selector-button { margin-left: 0.5rem; background-color: #0d9488; color: white; border: 0; border-radius: 0.5rem; padding: 0.25rem 0.75rem; cursor: pointer; }
         .modal-header-fixed { position: sticky; top: 0; z-index: 10; background-color: rgba(31, 41, 55, 0.95); backdrop-filter: blur(5px); }
         .ltr { direction: ltr; }
+        
         .marquee-wrapper { overflow: hidden; width: 100%; position: relative; }
         .marquee-content { display: flex; width: max-content; animation: scrollLeft 45s linear infinite; transform: translateZ(0); backface-visibility: hidden; }
         .marquee-wrapper:hover .marquee-content { animation-play-state: paused; }
         @keyframes scrollLeft { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
+        
         .lightbox { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
         .lightbox.active { opacity: 1; pointer-events: all; }
         .lightbox img, .lightbox video { max-width: 95%; max-height: 80vh; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .lightbox-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: background 0.2s; z-index: 2001; }
         .lightbox-close:hover { background: rgba(255,0,0,0.6); }
-        .slide-media { transition: opacity 0.2s ease-in-out; }
-
+        
+        .slide-media { transition: opacity 0.3s ease-in-out; }
         .trip-card { display: flex; flex-direction: column; height: 100%; }
         .trip-card-body { display: flex; flex-direction: column; flex-grow: 1; }
         .description-content { flex-grow: 1; white-space: pre-wrap; margin-bottom: 1rem; }
         .card-bottom-section { margin-top: auto; }
 
-        /* Install PWA Button Style */
         .install-btn {
             position: fixed; bottom: 20px; left: 20px; z-index: 1000;
             background: linear-gradient(to right, #0d9488, #2563eb);
@@ -68,7 +75,6 @@
         .install-btn:active { transform: scale(0.95); }
     </style>
 
-    <!-- Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -79,13 +85,13 @@
         }
     </script>
 
-    <!-- Firebase & Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
         import { getFirestore, collection, addDoc, query, orderBy, Timestamp, onSnapshot, setDoc, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
         import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
         import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-messaging.js";
 
+        // --- Configuration ---
         const COMPANY_NAME = "Wolf TraVal";
         const ADMIN_UID = "GOMXxizbZEPRztWWzigk8CZNpvf2"; 
         const DEFAULT_PHONE = "201055416692"; 
@@ -95,6 +101,7 @@
         const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`;
         const VAPID_KEY = "BPJf9kVHsSnlFP-FtwMkiaNlLRhgTVdLYkDKlopLjLbHfboN9u9kE7Jkzx4KpeGCNyimnQ79fVTz65qP8ydAmAM";
 
+        // --- State ---
         let isAdmin = false; 
         let tripsData = []; 
         let bannerData = [];
@@ -109,50 +116,33 @@
         let pendingNotifications = [];
         let unreadNotificationsCount = 0;
 
-        // Intersection Observer for Videos (Auto Pause)
+        // --- Helper: Optimize Images for Performance ---
+        function optimizeUrl(url) {
+            if (!url) return 'https://via.placeholder.com/400x300';
+            if (url.includes('cloudinary.com') && !url.includes('/video/')) {
+                // Inserts transformation to reduce size and format to auto (WebP)
+                return url.replace('/upload/', '/upload/f_auto,q_auto,w_800/'); 
+            }
+            return url;
+        }
+
+        function isVideo(url) { return url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/video/upload/'); }
+
+        // --- Observer for Video Autopause ---
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (!entry.isIntersecting) {
-                    // Pause if video is out of viewport
                     entry.target.pause();
                 }
             });
-        }, { threshold: 0.5 }); // Trigger when 50% out of view
+        }, { threshold: 0.5 });
 
         function observeVideos(container) {
             const videos = container.querySelectorAll('video');
             videos.forEach(video => videoObserver.observe(video));
         }
 
-        // PWA Install Logic
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            // Show install button if not installed before
-            if (!localStorage.getItem('appInstalled')) {
-                document.getElementById('installAppBtn').classList.remove('hidden');
-            }
-        });
-
-        window.installApp = async function() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    localStorage.setItem('appInstalled', 'true');
-                    document.getElementById('installAppBtn').classList.add('hidden');
-                }
-                deferredPrompt = null;
-            }
-        }
-
-        window.addEventListener('appinstalled', () => {
-            localStorage.setItem('appInstalled', 'true');
-            document.getElementById('installAppBtn').classList.add('hidden');
-        });
-
-
+        // --- Loading Logic ---
         function waitForImages(container) {
             const images = container.querySelectorAll('img');
             if (images.length === 0) return Promise.resolve();
@@ -164,7 +154,8 @@
         }
 
         function tryRemoveLoader() {
-            if (isTripsReady && isBannerReady && !initialLoadComplete) {
+            // Reduced timeout threshold and logic
+            if ((isTripsReady && isBannerReady) && !initialLoadComplete) {
                 const loader = document.getElementById('loader');
                 if (loader) {
                     loader.classList.add('loader-hidden');
@@ -177,8 +168,12 @@
             }
         }
         
-        setTimeout(() => { isTripsReady = true; isBannerReady = true; tryRemoveLoader(); }, 10000); 
+        // Fallback: Remove loader after 3 seconds max (UX Fix)
+        setTimeout(() => { 
+            isTripsReady = true; isBannerReady = true; tryRemoveLoader(); 
+        }, 3000); 
 
+        // --- Firebase Config ---
         const firebaseConfig = {
           apiKey: "AIzaSyCTo8DhvaAmNtV9OIgY5eLOeVgF7iQqlYk",
           authDomain: "faculty-of-commerce-2025.firebaseapp.com",
@@ -189,21 +184,21 @@
           appId: "1:312259778835:web:504299bb2de918596b62e6",
           measurementId: "G-QJZB7E2D5R"
         };
+
         const tripsPath = `artifacts/${firebaseConfig.projectId}/public/data/trips`; 
         const bannerPath = `artifacts/${firebaseConfig.projectId}/public/data/banner`; 
 
+        // --- Notifications ---
         window.showNotification = function(msg, type) {
             const container = document.getElementById('toast-container');
             if (!container) return;
-            const existingToasts = container.querySelectorAll('div');
-            for(let toast of existingToasts) { if(toast.innerText.includes(msg)) return; }
             const notif = document.createElement('div');
             notif.className = `transform transition-all duration-300 ease-in-out translate-x-full opacity-0 flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl backdrop-blur-md border border-white/10 min-w-[300px] ${type === 'error' ? 'bg-red-900/90 text-red-100' : type === 'success' ? 'bg-green-900/90 text-green-100' : 'bg-gray-800/90 text-gray-100'}`;
             let icon = type === 'error' ? '<i class="fas fa-exclamation-circle text-xl"></i>' : type === 'success' ? '<i class="fas fa-check-circle text-xl"></i>' : '<i class="fas fa-info-circle text-teal-400 text-xl"></i>';
             notif.innerHTML = `<div>${icon}</div><div class="font-medium text-sm">${msg}</div>`;
             container.appendChild(notif);
             requestAnimationFrame(() => { notif.classList.remove('translate-x-full', 'opacity-0'); });
-            setTimeout(() => { notif.classList.add('opacity-0', 'translate-x-full'); setTimeout(() => notif.remove(), 300); }, 6000);
+            setTimeout(() => { notif.classList.add('opacity-0', 'translate-x-full'); setTimeout(() => notif.remove(), 300); }, 5000);
         }
 
         async function uploadToCloudinary(file) {
@@ -218,8 +213,6 @@
             } catch (error) { console.error(error); throw error; }
         }
 
-        function isVideo(url) { return url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/video/upload/'); }
-        
         function updateNotificationBadge() {
             const badge = document.getElementById('notificationBadge');
             if (badge) {
@@ -250,7 +243,7 @@
             localStorage.setItem('unreadNotifs', unreadNotificationsCount);
             updateNotificationBadge();
         }
-        
+
         window.openNotificationCenter = function() { 
              const modal = document.getElementById('notificationModal');
              const listContainer = document.getElementById('notificationList');
@@ -280,58 +273,13 @@
                  updateNotificationBadge();
              }
         }
+        
         window.closeNotificationCenter = function() {
             document.getElementById('notificationModal').classList.add('hidden');
             document.getElementById('notificationModal').classList.remove('flex');
         }
 
-        window.requestNotificationPermission = async function() {
-            if (!("Notification" in window)) return;
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === "granted") { try { const token = await getToken(messaging, { vapidKey: VAPID_KEY }); } catch(e) {} }
-            } catch (error) { console.error(error); }
-        }
-
-        function sendExternalNotification(title, body) {
-            if (Notification.permission === "granted" && 'serviceWorker' in navigator) {
-                navigator.serviceWorker.ready.then(registration => {
-                    registration.showNotification(title, {
-                        body: body,
-                        icon: 'https://img.icons8.com/fluency/512/Wolf.png',
-                        vibrate: [200, 100, 200],
-                        tag: 'wolf-traval-new-trip',
-                        data: { url: location.origin + location.pathname + '#trips-section' }
-                    });
-                });
-            }
-        }
-        
-        function playNotificationSound() {
-            try { const audio = new Audio('https://notificationsounds.com/soundfiles/84d2320e837934c2e6467efdcc589f72/file-sounds-1100-long-whistle.mp3'); audio.play().catch(e => {}); } catch (e) {}
-        }
-
-        function handleDeepLink() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const tripId = urlParams.get('tripId');
-            if (tripId) {
-                const checkData = setInterval(() => {
-                    if (initialLoadComplete) {
-                        clearInterval(checkData);
-                        const tripElement = document.getElementById('trip-card-' + tripId);
-                        if (tripElement) {
-                            tripElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            tripElement.classList.add('ring-2', 'ring-teal-500');
-                            setTimeout(() => tripElement.classList.remove('ring-2', 'ring-teal-500'), 2000);
-                        } else {
-                            showNotification("الرابط غير صالح أو الرحلة غير موجودة", "error");
-                        }
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                    }
-                }, 200);
-            }
-        }
-
+        // --- Main Init ---
         async function initApp() {
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
@@ -358,28 +306,46 @@
             document.querySelectorAll('.fb-link').forEach(l => l.href = FB_PAGE);
             document.querySelectorAll('.wa-link').forEach(l => l.href = `https://wa.me/${DEFAULT_PHONE}`);
             
-            // Close mobile menu when clicking outside
+            // Close mobile menu on outside click
             document.addEventListener('click', (event) => {
                 const menu = document.getElementById('mobile-menu');
                 const btn = document.getElementById('mobileMenuBtn');
-                if (menu.classList.contains('open')) {
-                     // If clicking inside menu or on the toggle button, do nothing
-                    if (!menu.contains(event.target) && !btn.contains(event.target)) {
-                        toggleMobileMenu();
-                    }
+                if (menu.classList.contains('open') && !menu.contains(event.target) && !btn.contains(event.target)) {
+                    toggleMobileMenu();
                 }
             });
 
             loadNotificationState();
-            requestNotificationPermission();
+            
+            // PWA Install Prompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                window.deferredPrompt = e;
+                if (!localStorage.getItem('appInstalled')) {
+                    document.getElementById('installAppBtn').classList.remove('hidden');
+                }
+            });
+        }
+        
+        window.installApp = async function() {
+            if (window.deferredPrompt) {
+                window.deferredPrompt.prompt();
+                const { outcome } = await window.deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    localStorage.setItem('appInstalled', 'true');
+                    document.getElementById('installAppBtn').classList.add('hidden');
+                }
+                window.deferredPrompt = null;
+            }
         }
 
+        // --- UI Rendering ---
         window.openLightbox = function(src) {
             const lb = document.getElementById('mainLightbox');
             const container = document.getElementById('lightboxContent');
             container.innerHTML = ''; 
             if (isVideo(src)) container.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[80vh] rounded-lg"></video>`;
-            else container.innerHTML = `<img src="${src}" class="max-w-full max-h-[80vh] rounded-lg">`;
+            else container.innerHTML = `<img src="${optimizeUrl(src)}" class="max-w-full max-h-[80vh] rounded-lg">`;
             lb.classList.add('active');
         }
         window.closeLightbox = function() {
@@ -392,10 +358,15 @@
             const mediaItems = card.querySelectorAll('.slide-media');
             const counter = card.querySelector('.slide-counter');
             let activeIndex = Array.from(mediaItems).findIndex(el => !el.classList.contains('opacity-0'));
-            mediaItems[activeIndex].classList.add('opacity-0'); mediaItems[activeIndex].style.pointerEvents = 'none'; if(mediaItems[activeIndex].tagName === 'VIDEO') mediaItems[activeIndex].pause();
+            mediaItems[activeIndex].classList.add('opacity-0'); mediaItems[activeIndex].style.pointerEvents = 'none'; 
+            if(mediaItems[activeIndex].tagName === 'VIDEO') mediaItems[activeIndex].pause();
+            
             let nextIndex = activeIndex + direction;
             if (nextIndex >= mediaItems.length) nextIndex = 0; if (nextIndex < 0) nextIndex = mediaItems.length - 1;
-            mediaItems[nextIndex].classList.remove('opacity-0'); mediaItems[nextIndex].style.pointerEvents = 'auto'; if(mediaItems[nextIndex].tagName === 'VIDEO') mediaItems[nextIndex].play();
+            
+            mediaItems[nextIndex].classList.remove('opacity-0'); mediaItems[nextIndex].style.pointerEvents = 'auto'; 
+            // Only autoplay video if user interacted
+            // if(mediaItems[nextIndex].tagName === 'VIDEO') mediaItems[nextIndex].play(); 
             if(counter) counter.textContent = `${nextIndex + 1}/${mediaItems.length}`;
         }
 
@@ -403,12 +374,7 @@
             const container = document.getElementById('trips-container');
             container.innerHTML = ''; 
             if (trips.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full flex flex-col items-center justify-center py-16 text-center opacity-80">
-                        <div class="bg-gray-800 p-6 rounded-full mb-4 shadow-xl"><i class="fas fa-suitcase-rolling text-5xl text-teal-500"></i></div>
-                        <h3 class="text-2xl font-bold text-gray-200 mb-2">لا توجد رحلات متاحة حالياً</h3>
-                        <p class="text-gray-400">نعمل على تجهيز مغامرات جديدة وممتعة لكم. انتظرونا قريباً!</p>
-                    </div>`;
+                container.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-16 text-center opacity-80"><i class="fas fa-suitcase-rolling text-5xl text-teal-500 mb-4"></i><h3 class="text-2xl font-bold text-gray-200">لا توجد رحلات متاحة حالياً</h3></div>`;
                 return;
             }
 
@@ -425,8 +391,9 @@
                 if (mediaList.length > 0) {
                     mediaHtml = mediaList.map((url, index) => {
                         const isVid = isVideo(url);
+                        // Added alt tag for SEO and Accessibility, optimized URL
                         if (isVid) return `<video src="${url}" class="slide-media absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${index === 0 ? '' : 'opacity-0'}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()" style="${index === 0 ? 'pointer-events: auto' : 'pointer-events: none'}" onclick="openLightbox(this.getAttribute('src'))"></video>`;
-                        else return `<img src="${url}" class="slide-media absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${index === 0 ? '' : 'opacity-0'}" loading="lazy" style="${index === 0 ? 'pointer-events: auto' : 'pointer-events: none'}" onclick="openLightbox(this.getAttribute('src'))">`;
+                        else return `<img src="${optimizeUrl(url)}" alt="${trip.title}" class="slide-media absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${index === 0 ? '' : 'opacity-0'}" loading="lazy" style="${index === 0 ? 'pointer-events: auto' : 'pointer-events: none'}" onclick="openLightbox(this.getAttribute('src'))">`;
                     }).join('');
 
                     if (mediaList.length > 1) {
@@ -439,32 +406,19 @@
                     }
                 }
 
-                const tripPhone = trip.whatsappPhone || DEFAULT_PHONE;
-                let remainingTime = '', isExpired = false;
-                let dateDisplay = 'غير محدد';
-                let timeDisplay = '';
-                
+                // Date Calculation
+                let remainingTime = '', isExpired = false, dateDisplay = 'غير محدد', timeDisplay = '';
                 if (trip.departureDate) {
-                    const departureDateObj = new Date(trip.departureDate);
+                    const dObj = new Date(trip.departureDate);
                     const now = new Date();
-                    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    const tripMidnight = new Date(departureDateObj.getFullYear(), departureDateObj.getMonth(), departureDateObj.getDate());
-                    const diffTime = tripMidnight - todayMidnight;
+                    const diffTime = new Date(dObj.getFullYear(), dObj.getMonth(), dObj.getDate()) - new Date(now.getFullYear(), now.getMonth(), now.getDate());
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-
-                    if (diffDays < 0) { 
-                        remainingTime = 'انتهت'; isExpired = true; 
-                    } else if (diffDays === 0) {
-                        remainingTime = 'الرحلة اليوم!';
-                    } else if (diffDays === 1) {
-                        remainingTime = 'غداً';
-                    } else if (diffDays === 2) {
-                        remainingTime = 'بعد يومين';
-                    } else {
-                        remainingTime = `باقي ${diffDays} أيام`;
-                    }
-                    dateDisplay = departureDateObj.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
-                    timeDisplay = departureDateObj.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                    if (diffDays < 0) { remainingTime = 'انتهت'; isExpired = true; } 
+                    else if (diffDays === 0) remainingTime = 'الرحلة اليوم!';
+                    else if (diffDays === 1) remainingTime = 'غداً';
+                    else remainingTime = `باقي ${diffDays} أيام`;
+                    dateDisplay = dObj.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
+                    timeDisplay = dObj.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
                 }
 
                 const statusTag = trip.status === 'expired' ? `<div class="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-md z-30 animate-pulse">انتهت 🔥</div>` : '';
@@ -504,15 +458,14 @@
                                 </div>
                                 <div class="flex justify-between border-t border-gray-700/50 pt-2 mt-2">
                                     <span><i class="fas fa-map-marker-alt ml-1 text-blue-500"></i> ${trip.location}</span>
-                                    <span><i class="fas fa-users ml-1 text-blue-500"></i> الاماكن المتاحه: ${trip.availableSeats || '0'}</span>
+                                    <span><i class="fas fa-users ml-1 text-blue-500"></i> متاح: ${trip.availableSeats || '0'}</span>
                                 </div>
                             </div>
-                            <button onclick="openBookingOptions('${trip.title}', '${trip.code}', '${trip.price}', '${tripPhone}')" class="w-full bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg mt-4 text-sm flex justify-center items-center gap-2 transition-transform active:scale-95"><i class="fas fa-ticket-alt text-lg"></i> احجز الآن</button>
+                            <button onclick="openBookingOptions('${trip.title}', '${trip.code}', '${trip.price}', '${trip.whatsappPhone || DEFAULT_PHONE}')" class="w-full bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg mt-4 text-sm flex justify-center items-center gap-2 transition-transform active:scale-95"><i class="fas fa-ticket-alt text-lg"></i> احجز الآن</button>
                         </div>
                     </div>`;
                 container.appendChild(card);
             });
-            // Observe newly added videos
             observeVideos(container);
         }
 
@@ -528,7 +481,7 @@
                 const allImages = [...images, ...images, ...images]; 
                 track.innerHTML = allImages.map(img => `
                     <div class="relative w-48 h-32 md:w-60 md:h-40 mx-2 flex-shrink-0 rounded-xl overflow-hidden border border-gray-800 group bg-gray-900 transform translate-z-0">
-                        <img src="${img.url}" onclick="openLightbox(this.getAttribute('src'))" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-90 hover:opacity-100 cursor-pointer">
+                        <img src="${optimizeUrl(img.url)}" alt="صورة من المعرض" onclick="openLightbox(this.getAttribute('src'))" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-90 hover:opacity-100 cursor-pointer">
                         ${isAdmin ? `<button onclick="event.stopPropagation(); confirmDelete('${img.id}', 'صورة من المعرض', 'banner')" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm shadow-md z-10 backdrop-blur-sm transition-all hover:scale-110"><i class="fas fa-trash-alt"></i></button>` : ''}
                     </div>`).join('');
             }
@@ -537,13 +490,14 @@
                 videoSection.classList.remove('hidden');
                 videoContainer.innerHTML = videos.map(vid => `
                     <div class="relative w-full mx-auto rounded-2xl overflow-hidden shadow-2xl border border-gray-700 bg-gray-900/50 mb-8 last:mb-0">
-                        <video controls playsinline loop class="w-full h-56 md:h-80 object-cover cursor-pointer"><source src="${vid.url}" type="video/mp4"></video>
+                        <video controls playsinline class="w-full h-56 md:h-80 object-cover cursor-pointer"><source src="${vid.url}" type="video/mp4"></video>
                          ${isAdmin ? `<button onclick="confirmDelete('${vid.id}', 'الفيديو', 'banner')" class="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg z-10 backdrop-blur-md flex items-center gap-2"><i class="fas fa-trash-alt"></i> حذف الفيديو</button>` : ''}
                     </div>`).join('');
                 observeVideos(videoContainer);
             } else { videoSection.classList.add('hidden'); videoContainer.innerHTML = ''; }
         }
 
+        // --- Event Handlers & Admin Logic ---
         window.handleTripSubmit = async function(event) {
             event.preventDefault(); if (!isAdmin) return;
             const btn = document.getElementById('submitBtn'); const originalText = btn.innerHTML; btn.innerHTML = 'جاري الحفظ...'; btn.disabled = true;
@@ -567,49 +521,38 @@
         window.handleLogin = async function(e) { e.preventDefault(); try { await signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value); window.toggleLoginModal(); } catch (error) { showNotification("بيانات خطأ", "error"); } }
         window.handleLogout = async function() { await signOut(auth); window.location.reload(); }
 
-        // تم فصل الإشعار الفوري عن عملية التخزين لتظهر بعد اللودر
+        // --- Notification Queue Logic ---
         function queueNewTripNotification(title, tripId) {
              if (!isAdmin) {
-                // إضافة للتاريخ
                 addToNotificationHistory(title, tripId);
-                // إضافة لقائمة الانتظار للعرض بعد اللودر
                 pendingNotifications.push({title, tripId});
              }
         }
-        
-        // هذه الدالة تعمل فقط عند إضافة رحلة والموقع مفتوح (ليس عند التحميل الأولي)
         function notifyNewTripLive(title, tripId) {
              if (!isAdmin) {
                 addToNotificationHistory(title, tripId);
                 showNotification(`رحلة جديدة: ${title}`, "info");
-                playNotificationSound();
-                sendExternalNotification(`رحلة جديدة إلى: ${title}`, `تفقد التفاصيل الآن في قسم الرحلات`);
+                try { const audio = new Audio('https://notificationsounds.com/soundfiles/84d2320e837934c2e6467efdcc589f72/file-sounds-1100-long-whistle.mp3'); audio.play().catch(e => {}); } catch (e) {}
              }
         }
-        
         function processPendingNotifications() {
             if (pendingNotifications.length > 0) {
                 pendingNotifications.forEach((notif, index) => {
                     setTimeout(() => {
                         showNotification(`رحلة جديدة: ${notif.title}`, "info");
-                        playNotificationSound();
-                    }, index * 800); // تتابع زمني بسيط
+                    }, index * 800);
                 });
-                // إرسال إشعار خارجي واحد للأخيرة
-                const last = pendingNotifications[pendingNotifications.length -1];
-                sendExternalNotification(`رحلة جديدة إلى: ${last.title}`, `تفقد التفاصيل الآن في قسم الرحلات`);
                 pendingNotifications = [];
             }
         }
 
+        // --- Listeners ---
         function listenForTrips() { 
             onSnapshot(query(collection(db, tripsPath), orderBy("createdAt", "desc")), (snap) => { 
-                // Render content
                 tripsData = []; 
                 snap.forEach(doc => tripsData.push({id: doc.id, ...doc.data()})); 
                 renderTrips(tripsData);
                 
-                // Logic for Notifications
                 if (!initialLoadComplete) {
                      if (snap.size > 0) {
                          const countToCheck = Math.min(snap.size, 2); 
@@ -617,54 +560,46 @@
                              const tripDoc = snap.docs[i];
                              const tripData = tripDoc.data();
                              let history = JSON.parse(localStorage.getItem('notificationHistory') || "[]");
-                             const alreadyNotified = history.some(n => n.tripId === tripDoc.id);
-                             if (!alreadyNotified) {
+                             if (!history.some(n => n.tripId === tripDoc.id)) {
                                  const nowSeconds = Timestamp.now().seconds;
                                  const createdSeconds = tripData.createdAt ? tripData.createdAt.seconds : 0;
                                  if ((nowSeconds - createdSeconds) < 172800) { 
-                                     // Queue it instead of showing immediately
                                      queueNewTripNotification(tripData.title, tripDoc.id);
                                  }
                              }
                          }
                      }
-                     // Wait for images then try to remove loader
                      waitForImages(document.getElementById('trips-container')).then(() => {
-                        isTripsReady = true;
-                        tryRemoveLoader();
+                        isTripsReady = true; tryRemoveLoader();
                      });
                 } else {
-                     // Live updates (Loader is already gone)
                      snap.docChanges().forEach(change => {
                         if (change.type === "added") {
                             const newTrip = change.doc.data();
                             const nowSeconds = Timestamp.now().seconds;
                             const createdSeconds = newTrip.createdAt ? newTrip.createdAt.seconds : 0;
-                            if (Math.abs(nowSeconds - createdSeconds) < 300) { 
-                                notifyNewTripLive(newTrip.title, change.doc.id);
-                            }
+                            if (Math.abs(nowSeconds - createdSeconds) < 300) notifyNewTripLive(newTrip.title, change.doc.id);
                         }
                     });
-                     // Images update
                      waitForImages(document.getElementById('trips-container'));
                 }
             }); 
         }
+
         function listenForBanner() { 
             onSnapshot(query(collection(db, bannerPath), orderBy("createdAt", "desc")), (snap) => { 
                 bannerData = []; 
                 snap.forEach(doc => bannerData.push({id: doc.id, ...doc.data()})); 
                 renderBanner(bannerData); 
-                
                 if (!initialLoadComplete) {
                      waitForImages(document.getElementById('marquee-track')).then(() => {
-                        isBannerReady = true;
-                        tryRemoveLoader();
+                        isBannerReady = true; tryRemoveLoader();
                      });
                 }
             }); 
         }
 
+        // --- Helper Functions ---
         window.confirmDelete = function(id, title, type) { pendingDelete = { id, title, type }; document.getElementById('deleteModal').classList.remove('hidden'); document.getElementById('deleteModal').classList.add('flex'); }
         window.executeDelete = async function() { if(!pendingDelete) return; try { await deleteDoc(doc(db, pendingDelete.type==='trip'?tripsPath:bannerPath, pendingDelete.id)); showNotification("تم الحذف", "success"); } catch(e){showNotification("خطأ","error")} window.closeDeleteModal(); }
         window.closeDeleteModal = function() { document.getElementById('deleteModal').classList.add('hidden'); document.getElementById('deleteModal').classList.remove('flex'); }
@@ -685,6 +620,25 @@
         window.shareTrip = async function(t,l) { try{await navigator.clipboard.writeText(location.origin+location.pathname+l); showNotification("نسخ الرابط","success")}catch(e){} }
         window.previewBannerImages = function(e) { document.getElementById('bannerPreview').innerHTML = [...e.target.files].map(f => `<${f.type.startsWith('video')?'video':'img'} src="${URL.createObjectURL(f)}" class="w-16 h-16 object-cover border border-gray-600 rounded">`).join(''); }
         window.toggleCustomInput = function(selectId, customId) { const el = document.getElementById(customId); document.getElementById(selectId).value === 'other' ? (el.classList.remove('hidden'), el.required=true) : (el.classList.add('hidden'), el.required=false); }
+        
+        function handleDeepLink() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tripId = urlParams.get('tripId');
+            if (tripId) {
+                const checkData = setInterval(() => {
+                    if (initialLoadComplete && document.getElementById('trip-card-' + tripId)) {
+                        clearInterval(checkData);
+                        const tripElement = document.getElementById('trip-card-' + tripId);
+                        tripElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        tripElement.classList.add('ring-2', 'ring-teal-500');
+                        // Update title specifically for SEO (client side)
+                        const titleEl = tripElement.querySelector('h3');
+                        if(titleEl) document.title = `${titleEl.innerText} | Wolf TraVal`;
+                    }
+                }, 500);
+            }
+        }
+
         function updateUIForAdmin(l) { 
             const d=document.getElementById('desktopAdminGroup'), ml=document.getElementById('mobileLoginBtn'), mo=document.getElementById('mobileLogoutBtn'), ma=document.getElementById('mobileAdminActions');
             if(l){ d.classList.remove('hidden'); ml.classList.add('hidden'); mo.classList.remove('hidden'); ma.classList.remove('hidden'); ma.classList.add('grid'); }
@@ -700,13 +654,12 @@
         <div class="text-center">
             <i class="fas fa-plane-departure text-6xl text-teal-500 animate-bounce mb-4"></i>
             <h1 class="text-4xl font-black text-white tracking-widest">Wolf TraVal</h1>
-            <p class="text-gray-300 mt-2 text-sm animate-pulse">جاري تجهيز التطبيق...</p>
+            <p class="text-gray-300 mt-2 text-sm animate-pulse">جاري تجهيز المغامرة...</p>
         </div>
     </div>
 
     <div id="toast-container" class="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 w-max max-w-[90vw] pointer-events-none"></div>
 
-    <!-- PWA Install Button -->
     <button id="installAppBtn" onclick="installApp()" class="hidden install-btn">
         <i class="fas fa-download"></i> تثبيت التطبيق
     </button>
@@ -716,27 +669,23 @@
         <div id="lightboxContent"></div>
     </div>
 
+    <!-- Optimized Hero Background with Overlay -->
     <div class="fixed top-0 left-0 z-0 w-full h-full pointer-events-none">
-        <img src="https://images.pexels.com/photos/2559941/pexels-photo-2559941.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" class="w-full h-full object-cover object-center">
-        <div class="absolute inset-0 bg-black/70"></div> 
+        <img src="https://images.pexels.com/photos/2559941/pexels-photo-2559941.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" class="w-full h-full object-cover object-center opacity-60">
+        <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-gray-900"></div> 
     </div>
 
     <div class="relative z-10 flex flex-col min-h-screen">
         <nav class="glass-nav sticky top-0 w-full flex items-center">
             <div class="w-full px-4 md:px-8 flex justify-between items-center relative h-full">
-                <!-- Logo -->
                 <button onclick="window.location.reload()" class="flex-shrink-0 text-lg md:text-xl font-black text-white flex items-center gap-2 hover:text-teal-400">
                     <i class="fas fa-plane-departure text-teal-400"></i> <span id="companyName">Wolf TraVal</span>
                 </button>
-                
-                <!-- Links Centered -->
                 <div class="hidden lg:flex flex-1 justify-center items-center gap-6 text-sm font-semibold">
                     <a href="#" class="hover:text-teal-400">الرئيسية</a>
                     <a href="#trips-section" class="hover:text-teal-400">الرحلات</a>
                     <a href="#" target="_blank" class="hover:text-teal-400 fb-link">فيسبوك</a>
                 </div>
-
-                <!-- Right Controls -->
                 <div class="flex-shrink-0 flex items-center gap-3">
                     <div class="hidden md:block">
                         <div id="desktopAdminGroup" class="hidden flex items-center gap-2">
@@ -749,13 +698,11 @@
                         <i class="fas fa-bell"></i>
                         <span id="notificationBadge" class="absolute top-0 right-0 w-4 h-4 bg-red-600 rounded-full hidden border-2 border-gray-900"></span>
                     </button>
-                    <!-- Toggle Menu Button ID Added -->
                     <button id="mobileMenuBtn" onclick="toggleMobileMenu()" class="lg:hidden text-white text-lg p-2 hover:text-teal-400 transition-colors"><i class="fas fa-bars"></i></button>
                 </div>
             </div>
         </nav>
         
-        <!-- Mobile Menu -->
         <div id="mobile-menu" class="mobile-menu fixed w-64 h-auto min-h-[50vh] bg-gray-900/95 backdrop-blur-xl z-50 p-5 shadow-2xl flex flex-col gap-6 rounded-br-2xl border-r border-b border-gray-700">
             <div class="flex justify-between items-center border-b border-gray-700 pb-4">
                 <span class="text-lg font-bold text-white">القائمة</span>
@@ -803,8 +750,8 @@
             <div class="container mx-auto px-6 text-center">
                 <p class="mb-4 text-xl font-bold text-white" id="footerCompanyName">Wolf TraVal</p>
                 <div class="flex justify-center gap-6">
-                    <a href="#" target="_blank" class="text-3xl hover:text-green-500 transition-colors wa-link"><i class="fab fa-whatsapp"></i></a>
-                     <a href="#" target="_blank" class="text-3xl hover:text-blue-500 transition-colors fb-link"><i class="fab fa-facebook"></i></a>
+                    <a href="#" target="_blank" class="text-3xl hover:text-green-500 transition-colors wa-link" aria-label="Whatsapp"><i class="fab fa-whatsapp"></i></a>
+                     <a href="#" target="_blank" class="text-3xl hover:text-blue-500 transition-colors fb-link" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
                 </div>
                 <p class="text-sm mt-6">© 2025 جميع الحقوق محفوظة لـ Wolf TraVal.</p>
             </div>
@@ -823,9 +770,7 @@
                 <h3 class="text-xl font-bold text-white"><i class="fas fa-bell ml-2 text-teal-500"></i> الإشعارات</h3>
                 <button onclick="closeNotificationCenter()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
-            <div id="notificationList" class="max-h-80 overflow-y-auto custom-scroll">
-                <!-- List Generated via JS -->
-            </div>
+            <div id="notificationList" class="max-h-80 overflow-y-auto custom-scroll"></div>
             <button onclick="closeNotificationCenter()" class="w-full mt-4 text-gray-500 text-sm hover:text-gray-300">إغلاق</button>
         </div>
     </div>
@@ -837,7 +782,6 @@
                 <button onclick="closeTripModal()" class="text-gray-400 hover:text-white transition-colors"><i class="fas fa-times text-xl"></i></button>
             </div>
             <form id="addTripForm" onsubmit="handleTripSubmit(event)" class="p-4 md:p-6 space-y-4 md:space-y-6 overflow-y-auto flex-grow">
-                <!-- Trip Form Fields -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">عنوان الرحلة</label>
