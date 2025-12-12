@@ -23,7 +23,7 @@
     <style>
         body { font-family: 'Cairo', sans-serif; background-color: #000; overflow-x: hidden; }
         .glass-nav { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); z-index: 50; height: 60px; }
-
+        
         #loader { 
             position: fixed; inset: 0; z-index: 9999; 
             background-color: #0f172a; 
@@ -102,7 +102,7 @@
         let isEditing = false, editTripId = null, oldImages = [];
         let pendingDelete = null; 
         let currentBookingTrip = null;
-
+        
         let isTripsReady = false;
         let isBannerReady = false;
         let initialLoadComplete = false; 
@@ -176,7 +176,7 @@
                 }
             }
         }
-
+        
         setTimeout(() => { isTripsReady = true; isBannerReady = true; tryRemoveLoader(); }, 10000); 
 
         const firebaseConfig = {
@@ -219,7 +219,7 @@
         }
 
         function isVideo(url) { return url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/video/upload/'); }
-
+        
         function updateNotificationBadge() {
             const badge = document.getElementById('notificationBadge');
             if (badge) {
@@ -232,7 +232,7 @@
                  }
             }
         }
-
+        
         function loadNotificationState() {
             const count = localStorage.getItem('unreadNotifs');
             unreadNotificationsCount = count ? parseInt(count) : 0;
@@ -250,7 +250,7 @@
             localStorage.setItem('unreadNotifs', unreadNotificationsCount);
             updateNotificationBadge();
         }
-
+        
         window.openNotificationCenter = function() { 
              const modal = document.getElementById('notificationModal');
              const listContainer = document.getElementById('notificationList');
@@ -306,7 +306,7 @@
                 });
             }
         }
-
+        
         function playNotificationSound() {
             try { const audio = new Audio('https://notificationsounds.com/soundfiles/84d2320e837934c2e6467efdcc589f72/file-sounds-1100-long-whistle.mp3'); audio.play().catch(e => {}); } catch (e) {}
         }
@@ -357,7 +357,7 @@
             document.getElementById('footerCompanyName').textContent = COMPANY_NAME;
             document.querySelectorAll('.fb-link').forEach(l => l.href = FB_PAGE);
             document.querySelectorAll('.wa-link').forEach(l => l.href = `https://wa.me/${DEFAULT_PHONE}`);
-
+            
             // Close mobile menu when clicking outside
             document.addEventListener('click', (event) => {
                 const menu = document.getElementById('mobile-menu');
@@ -443,7 +443,7 @@
                 let remainingTime = '', isExpired = false;
                 let dateDisplay = 'غير محدد';
                 let timeDisplay = '';
-
+                
                 if (trip.departureDate) {
                     const departureDateObj = new Date(trip.departureDate);
                     const now = new Date();
@@ -576,7 +576,7 @@
                 pendingNotifications.push({title, tripId});
              }
         }
-
+        
         // هذه الدالة تعمل فقط عند إضافة رحلة والموقع مفتوح (ليس عند التحميل الأولي)
         function notifyNewTripLive(title, tripId) {
              if (!isAdmin) {
@@ -586,7 +586,7 @@
                 sendExternalNotification(`رحلة جديدة إلى: ${title}`, `تفقد التفاصيل الآن في قسم الرحلات`);
              }
         }
-
+        
         function processPendingNotifications() {
             if (pendingNotifications.length > 0) {
                 pendingNotifications.forEach((notif, index) => {
@@ -608,7 +608,7 @@
                 tripsData = []; 
                 snap.forEach(doc => tripsData.push({id: doc.id, ...doc.data()})); 
                 renderTrips(tripsData);
-
+                
                 // Logic for Notifications
                 if (!initialLoadComplete) {
                      if (snap.size > 0) {
@@ -655,7 +655,7 @@
                 bannerData = []; 
                 snap.forEach(doc => bannerData.push({id: doc.id, ...doc.data()})); 
                 renderBanner(bannerData); 
-
+                
                 if (!initialLoadComplete) {
                      waitForImages(document.getElementById('marquee-track')).then(() => {
                         isBannerReady = true;
@@ -728,7 +728,7 @@
                 <button onclick="window.location.reload()" class="flex-shrink-0 text-lg md:text-xl font-black text-white flex items-center gap-2 hover:text-teal-400">
                     <i class="fas fa-plane-departure text-teal-400"></i> <span id="companyName">Wolf TraVal</span>
                 </button>
-
+                
                 <!-- Links Centered -->
                 <div class="hidden lg:flex flex-1 justify-center items-center gap-6 text-sm font-semibold">
                     <a href="#" class="hover:text-teal-400">الرئيسية</a>
@@ -754,7 +754,7 @@
                 </div>
             </div>
         </nav>
-
+        
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="mobile-menu fixed w-64 h-auto min-h-[50vh] bg-gray-900/95 backdrop-blur-xl z-50 p-5 shadow-2xl flex flex-col gap-6 rounded-br-2xl border-r border-b border-gray-700">
             <div class="flex justify-between items-center border-b border-gray-700 pb-4">
@@ -829,7 +829,7 @@
             <button onclick="closeNotificationCenter()" class="w-full mt-4 text-gray-500 text-sm hover:text-gray-300">إغلاق</button>
         </div>
     </div>
-
+    
     <div id="addTripModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
         <div class="bg-gray-800 border border-gray-700 w-full md:max-w-xl my-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] h-auto">
             <div class="modal-header-fixed p-4 border-b border-gray-700 flex justify-between items-center">
