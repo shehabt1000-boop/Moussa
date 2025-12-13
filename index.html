@@ -120,7 +120,6 @@
         let isBannerLoaded = false;
         let deepLinkHandled = false;
 
-        // Force remove loader after 4 seconds max
         setTimeout(() => {
             const loader = document.getElementById('loader');
             if (loader) {
@@ -129,8 +128,6 @@
             }
         }, 4000);
 
-        // --- Performance & Optimization Helpers ---
-        
         function getOptimizedUrl(url, width = 600) {
             if (typeof url === 'string' && url.includes('cloudinary.com')) {
                 const transformation = `f_auto,q_auto,w_${width}`;
@@ -350,7 +347,8 @@
             trips.forEach((trip) => {
                 const card = document.createElement('div');
                 card.id = `trip-${trip.id}`; 
-                card.className = "w-11/12 md:w-full max-w-sm mx-auto bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden shadow-lg shadow-teal-500/10 transition-all duration-300";
+                // Card now flex-col to allow footer alignment
+                card.className = "w-11/12 md:w-full max-w-sm mx-auto bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden shadow-lg shadow-teal-500/10 transition-all duration-300 flex flex-col h-full";
 
                 let mediaList = Array.isArray(trip.images) ? trip.images : (trip.mainImageUrl ? [trip.mainImageUrl] : ['https://via.placeholder.com/400x300']);
                 let mediaHtml = '';
@@ -363,7 +361,6 @@
                         const pointerStyle = index === 0 ? 'pointer-events: auto' : 'pointer-events: none';
                         
                         if (isVid) {
-                            // Fix: Removed custom play overlay to avoid double buttons
                             return `<div class="absolute inset-0 w-full h-full transition-opacity duration-500 ${index === 0 ? '' : 'opacity-0'}" style="${pointerStyle}">
                                         <video src="${optUrl}" 
                                             class="w-full h-full object-cover" 
@@ -423,35 +420,39 @@
                     : '';
 
                 card.innerHTML = `
-                    <div class="trip-card-image-container relative h-64 bg-gray-800 group">
+                    <div class="trip-card-image-container relative h-64 bg-gray-800 group flex-shrink-0">
                         ${mediaHtml}
                         ${controlsHtml}
                         <div class="absolute top-4 right-4 bg-teal-600/90 text-white text-[10px] font-bold px-2 py-1 rounded shadow-md z-20 pointer-events-none">${trip.durationText || 'غير محدد'}</div>
                         ${statusTag}
                         <button onclick="shareTrip('${trip.title}', '?tripId=${trip.id}')" class="absolute bottom-4 right-4 bg-white text-gray-900 w-8 h-8 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform z-20"><i class="fas fa-share-alt"></i></button>
                     </div>
-                    <div class="p-5 bg-gray-800/50 rounded-b-2xl"> 
+                    <!-- Body Content flex-grow to push footer down -->
+                    <div class="p-5 bg-gray-800/50 rounded-b-2xl flex flex-col flex-grow"> 
                         ${adminControls}
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-lg font-bold text-white leading-tight">${trip.title}</h3>
-                            <span class="text-teal-400 font-extrabold text-lg whitespace-nowrap">${trip.price} <span class="text-xs font-normal text-gray-300">ج.م</span></span>
-                        </div>
-                        
-                        <div id="desc-${trip.id}" class="text-gray-300 text-xs line-clamp-2 font-medium transition-all duration-300">
-                            ${trip.description}
-                        </div>
-                        ${showMoreBtn}
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-lg font-bold text-white leading-tight">${trip.title}</h3>
+                                <span class="text-teal-400 font-extrabold text-lg whitespace-nowrap">${trip.price} <span class="text-xs font-normal text-gray-300">ج.م</span></span>
+                            </div>
+                            
+                            <div id="desc-${trip.id}" class="text-gray-300 text-xs line-clamp-2 font-medium transition-all duration-300">
+                                ${trip.description}
+                            </div>
+                            ${showMoreBtn}
 
-                        <div class="text-gray-300 text-[11px] border-t border-gray-700 pt-3 mt-3 space-y-2">
-                             <div class="flex justify-between items-center">
-                                <span class="text-gray-400">تاريخ الذهاب: <span class="text-white font-bold font-mono">${dateStr}</span></span>
-                                <span class="${isExpired ? 'text-red-500 font-bold' : 'text-yellow-500'}"><i class="fas fa-hourglass-half ml-1"></i> ${remainingTime}</span>
-                             </div>
-                             <div class="flex justify-between items-center">
-                                <span class="text-gray-400">وقت الذهاب: <span class="text-white font-bold font-mono ltr inline-block">${timeStr}</span></span>
-                             </div>
-                             <div class="flex justify-between"><span><i class="fas fa-map-marker-alt ml-1 text-blue-500"></i> ${trip.location}</span><span><i class="fas fa-users ml-1 text-blue-500"></i> الاماكن المتاحه: ${trip.availableSeats || '0'}</span></div>
+                            <div class="text-gray-300 text-[11px] border-t border-gray-700 pt-3 mt-3 space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">تاريخ الذهاب: <span class="text-white font-bold font-mono">${dateStr}</span></span>
+                                    <span class="${isExpired ? 'text-red-500 font-bold' : 'text-yellow-500'}"><i class="fas fa-hourglass-half ml-1"></i> ${remainingTime}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">وقت الذهاب: <span class="text-white font-bold font-mono ltr inline-block">${timeStr}</span></span>
+                                </div>
+                                <div class="flex justify-between"><span><i class="fas fa-map-marker-alt ml-1 text-blue-500"></i> ${trip.location}</span><span><i class="fas fa-users ml-1 text-blue-500"></i> الاماكن المتاحه: ${trip.availableSeats || '0'}</span></div>
+                            </div>
                         </div>
+                        <!-- Book Button Pushed to Bottom -->
                         <button onclick="openBookingOptions('${trip.title}', '${trip.code}', '${trip.price}', '${tripPhone}')" class="w-full bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg mt-4 text-sm flex justify-center items-center gap-2 transition-transform active:scale-95"><i class="fas fa-ticket-alt text-lg"></i> احجز الآن</button>
                     </div>
                 `;
@@ -576,8 +577,22 @@
             document.getElementById('availableSeats').value = trip.availableSeats;
             document.getElementById('tripDesc').value = trip.description;
         }
+        
+        // Correct Add Trip Function (Resets form)
+        window.openAddTripModal = function() {
+            if (!isAdmin) return;
+            isEditing = false;
+            editTripId = null;
+            oldImages = [];
+            document.getElementById('addTripForm').reset();
+            document.getElementById('modalTitle').textContent = "إضافة رحلة جديدة";
+            document.getElementById('submitBtn').innerHTML = "حفظ ونشر الرحلة";
+            
+            const modal = document.getElementById('addTripModal');
+            modal.classList.remove('hidden'); 
+            modal.classList.add('flex');
+        }
 
-        // Fix: Removed 'open' class AND 'active' overlay class to fix blur issue
         window.toggleLoginModal = function() { 
             document.getElementById('loginModal').classList.toggle('hidden'); 
             document.getElementById('loginModal').classList.toggle('flex'); 
@@ -619,7 +634,7 @@
         window.finalizeBooking = function(e) { e.preventDefault(); window.open(`https://wa.me/${currentBookingTrip.phone}?text=${encodeURIComponent(`حجز: ${currentBookingTrip.title}\nالاسم: ${document.getElementById('clientName').value}\nالعدد: ${document.getElementById('formCount').value}\nالإجمالي: ${document.getElementById('formTotal').textContent}`)}`); closeBookingForm(); }
         window.toggleTripStatus = async function(id, status) { await setDoc(doc(db, tripsPath, id), {status}, {merge:true}); }
         window.handleBannerSubmit = async function(e) { e.preventDefault(); const files = document.getElementById('bannerFiles').files; if(!files.length) return; document.getElementById('bannerSubmitBtn').innerHTML='...'; try { const urls = await Promise.all([...files].map(f=>uploadToCloudinary(f))); await Promise.all(urls.map(url=>addDoc(collection(db, bannerPath), {url, createdAt: Timestamp.now()}))); showNotification("تم","success"); window.closeBannerModal(); } catch(e){showNotification("خطأ","error")} document.getElementById('bannerSubmitBtn').innerHTML='تأكيد'; }
-        window.toggleTripModal = function() { isAdmin? (isEditing=false, document.getElementById('addTripModal').classList.toggle('hidden'), document.getElementById('addTripModal').classList.toggle('flex'), document.getElementById('addTripForm').reset()) : null; }
+        
         window.toggleBannerModal = function() { isAdmin? (document.getElementById('addBannerModal').classList.toggle('hidden'), document.getElementById('addBannerModal').classList.toggle('flex')) : null; }
         window.closeTripModal = function() { document.getElementById('addTripModal').classList.add('hidden'); document.getElementById('addTripModal').classList.remove('flex'); }
         window.closeBannerModal = function() { document.getElementById('addBannerModal').classList.add('hidden'); document.getElementById('addBannerModal').classList.remove('flex'); }
@@ -647,9 +662,9 @@
         window.previewBannerImages = function(e) { document.getElementById('bannerPreview').innerHTML = [...e.target.files].map(f => `<${f.type.startsWith('video')?'video':'img'} src="${URL.createObjectURL(f)}" class="w-16 h-16 object-cover border border-gray-600 rounded">`).join(''); }
         window.toggleCustomInput = function(selectId, customId) { const el = document.getElementById(customId); document.getElementById(selectId).value === 'other' ? (el.classList.remove('hidden'), el.required=true) : (el.classList.add('hidden'), el.required=false); }
         function updateUIForAdmin(l) { 
-            const d=document.getElementById('desktopAdminGroup'), ml=document.getElementById('mobileLoginBtn'), mo=document.getElementById('mobileLogoutBtn'), ma=document.getElementById('mobileAdminActions');
-            if(l){ d.classList.remove('hidden'); ml.classList.add('hidden'); mo.classList.remove('hidden'); ma.classList.remove('hidden'); ma.classList.add('grid'); }
-            else { d.classList.add('hidden'); ml.classList.remove('hidden'); mo.classList.add('hidden'); ma.classList.add('hidden'); ma.classList.remove('grid'); }
+            const ml=document.getElementById('mobileLoginBtn'), mo=document.getElementById('mobileLogoutBtn'), ma=document.getElementById('mobileAdminActions');
+            if(l){ ml.classList.add('hidden'); mo.classList.remove('hidden'); ma.classList.remove('hidden'); ma.classList.add('grid'); }
+            else { ml.classList.remove('hidden'); mo.classList.add('hidden'); ma.classList.add('hidden'); ma.classList.remove('grid'); }
             renderTrips(tripsData); renderBanner(bannerData);
         }
         window.onload = initApp;
@@ -706,34 +721,18 @@
 
     <div class="relative z-10 flex flex-col min-h-screen">
 
-        <!-- Navbar -->
+        <!-- Navbar (Modified for Unified Sidebar) -->
         <nav class="glass-nav sticky top-0 w-full flex items-center">
-            <div class="container mx-auto px-4 md:px-6 grid grid-cols-2 md:grid-cols-3 items-center h-full">
-                <!-- Right: Logo -->
-                <div class="flex justify-start">
-                    <button onclick="window.location.reload()" class="text-lg md:text-xl font-black text-white flex items-center gap-2 hover:text-teal-400">
-                        <i class="fas fa-plane-departure text-teal-400"></i> <span id="companyName">Wolf TraVal</span>
-                    </button>
-                </div>
+            <div class="container mx-auto px-4 md:px-6 flex justify-between items-center h-full">
+                <!-- Logo -->
+                <button onclick="window.location.reload()" class="text-lg md:text-xl font-black text-white flex items-center gap-2 hover:text-teal-400">
+                    <i class="fas fa-plane-departure text-teal-400"></i> <span id="companyName">Wolf TraVal</span>
+                </button>
 
-                <!-- Center: Links -->
-                <div class="hidden md:flex justify-center items-center gap-6 text-sm font-semibold">
-                    <a href="#" class="hover:text-teal-400">الرئيسية</a>
-                    <a href="#trips-section" class="hover:text-teal-400">الرحلات</a>
-                    <a href="#" target="_blank" class="hover:text-teal-400 fb-link">فيسبوك</a>
-                </div>
-
-                <!-- Left: Admin/Menu -->
-                <div class="flex justify-end items-center gap-3">
-                    <div class="hidden md:block">
-                        <div id="desktopAdminGroup" class="hidden flex items-center gap-2">
-                            <button onclick="toggleBannerModal()" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-2 py-1 rounded-lg text-xs flex items-center gap-1 backdrop-blur-md transition-all"><i class="fas fa-images text-teal-400"></i> المعرض</button>
-                            <button onclick="toggleTripModal()" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-2 py-1 rounded-lg text-xs flex items-center gap-1 backdrop-blur-md transition-all"><i class="fas fa-plus text-teal-400"></i> رحلة</button>
-                            <button onclick="handleLogout()" class="text-red-400 hover:text-red-300 text-xs px-2"><i class="fas fa-sign-out-alt"></i></button>
-                        </div>
-                    </div>
-                    <button onclick="toggleMobileMenu()" class="text-white text-lg p-2 hover:text-teal-400 transition-colors md:hidden"><i class="fas fa-bars"></i></button>
-                </div>
+                <!-- Sidebar Button (Always Visible Now) -->
+                <button onclick="toggleMobileMenu()" class="text-white text-lg p-2 hover:text-teal-400 transition-colors">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
         </nav>
 
@@ -754,7 +753,8 @@
                 <button id="mobileLogoutBtn" onclick="handleLogout()" class="hidden w-full text-red-400 hover:text-red-300 border border-red-900/30 bg-red-900/10 px-4 py-2.5 rounded-xl transition-all flex items-center gap-3 mb-3"><i class="fas fa-sign-out-alt w-5 text-center"></i> <span>خروج</span></button>
                 <div id="mobileAdminActions" class="hidden grid-cols-2 gap-3">
                     <button onclick="toggleBannerModal(); toggleMobileMenu();" class="flex flex-col items-center justify-center bg-teal-900/20 border border-teal-500/30 text-teal-100 py-3 rounded-xl text-xs gap-2 hover:bg-teal-900/40"><i class="fas fa-images text-lg"></i> إضافة صور</button>
-                    <button onclick="toggleTripModal(); toggleMobileMenu();" class="flex flex-col items-center justify-center bg-teal-900/20 border border-teal-500/30 text-teal-100 py-3 rounded-xl text-xs gap-2 hover:bg-teal-900/40"><i class="fas fa-plus text-lg"></i> إضافة رحلة</button>
+                    <!-- Changed to openAddTripModal to ensure clean state -->
+                    <button onclick="openAddTripModal(); toggleMobileMenu();" class="flex flex-col items-center justify-center bg-teal-900/20 border border-teal-500/30 text-teal-100 py-3 rounded-xl text-xs gap-2 hover:bg-teal-900/40"><i class="fas fa-plus text-lg"></i> إضافة رحلة</button>
                 </div>
             </div>
         </div>
@@ -801,66 +801,70 @@
     <!-- Modals (Login, Delete, Booking) -->
     <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4"><div class="bg-gray-800 border border-teal-500/50 w-full max-w-sm rounded-2xl shadow-2xl p-6"><h3 class="text-xl font-bold text-center text-white mb-4">دخول الإدارة</h3><form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4"><input type="email" id="emailInput" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-teal-500 ltr" placeholder="البريد الإلكتروني"><input type="password" id="passInput" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-teal-500 ltr" placeholder="كلمة المرور"><button type="submit" id="loginBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg transition-colors">دخول</button><button type="button" onclick="toggleLoginModal()" class="w-full text-gray-500 text-sm hover:text-gray-300">إلغاء</button></form></div></div>
     <div id="deleteModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-4"><div class="bg-gray-800 border border-red-500/30 w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center"><div class="w-16 h-16 bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-exclamation-triangle text-2xl text-red-500"></i></div><h3 class="text-xl font-bold text-white mb-2">تأكيد الحذف</h3><p id="deleteMessage" class="text-gray-400 text-sm mb-6">هل أنت متأكد؟</p><div class="flex gap-3"><button id="confirmDeleteBtn" onclick="executeDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl transition-colors">نعم، حذف</button><button onclick="closeDeleteModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2.5 rounded-xl transition-colors">إلغاء</button></div></div></div>
-    <div id="bookingOptionsModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-4"><div class="bg-gray-800 border border-gray-700 w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center"><h3 class="text-xl font-bold text-white mb-6">كيف يمكننا مساعدتك؟</h3><div class="flex flex-col gap-3"><button onclick="handleInquiry()" class="w-full bg-transparent border border-teal-500 text-teal-400 hover:bg-teal-500/10 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fab fa-whatsapp text-xl"></i> أحتاج إلى استفسار</button><button onclick="openBookingForm()" class="w-full bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2"><i class="fas fa-check-circle text-xl"></i> أريد الحجز</button></div><button onclick="closeBookingOptions()" class="mt-4 text-gray-500 text-sm hover:text-gray-300">إغلاق</button></div></div>
-    <div id="bookingFormModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-4"><div class="bg-gray-800 border border-gray-700 w-full max-w-md rounded-2xl shadow-2xl p-6"><div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4"><h3 class="text-xl font-bold text-white">بيانات الحجز</h3><button onclick="closeBookingForm()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button></div><form onsubmit="finalizeBooking(event)" class="space-y-4"><div><label class="block text-gray-400 text-xs mb-1">اسم العميل</label><input type="text" id="clientName" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 text-white"></div><div><label class="block text-gray-400 text-xs mb-1">رقم الهاتف</label><input type="tel" id="clientPhone" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 text-white text-right" placeholder="01xxxxxxxxx"></div><div><label class="block text-gray-400 text-xs mb-1">الرحلة المطلوبة</label><input type="text" id="formTripTitle" readonly class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-400"></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-gray-400 text-xs mb-1">سعر الفرد</label><input type="text" id="formTripPrice" readonly class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-400 text-center"></div><div><label class="block text-gray-400 text-xs mb-1">عدد الأفراد</label><input type="number" id="formCount" min="1" value="1" oninput="updateTotalPrice()" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 text-white text-center"></div></div><div class="bg-teal-900/30 border border-teal-500/30 p-4 rounded-xl flex justify-between items-center mt-2"><span class="text-teal-400 font-bold">إجمالي السعر:</span><span id="formTotal" class="text-white font-black text-xl">0 ج.م</span></div><button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl shadow-lg mt-4">تأكيد وإرسال للواتساب <i class="fab fa-whatsapp mr-1"></i></button></form></div></div>
+    
+    <!-- Reduced Booking Form Size -->
+    <div id="bookingOptionsModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-4"><div class="bg-gray-800 border border-gray-700 w-full max-w-xs rounded-2xl shadow-2xl p-4 text-center"><h3 class="text-lg font-bold text-white mb-4">كيف يمكننا مساعدتك؟</h3><div class="flex flex-col gap-3"><button onclick="handleInquiry()" class="w-full bg-transparent border border-teal-500 text-teal-400 hover:bg-teal-500/10 font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm"><i class="fab fa-whatsapp text-lg"></i> أحتاج إلى استفسار</button><button onclick="openBookingForm()" class="w-full bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 text-white font-bold py-2.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm"><i class="fas fa-check-circle text-lg"></i> أريد الحجز</button></div><button onclick="closeBookingOptions()" class="mt-4 text-gray-500 text-xs hover:text-gray-300">إغلاق</button></div></div>
+    <div id="bookingFormModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-4"><div class="bg-gray-800 border border-gray-700 w-full max-w-sm rounded-2xl shadow-2xl p-4"><div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3"><h3 class="text-lg font-bold text-white">بيانات الحجز</h3><button onclick="closeBookingForm()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button></div><form onsubmit="finalizeBooking(event)" class="space-y-3"><div><label class="block text-gray-400 text-xs mb-1">اسم العميل</label><input type="text" id="clientName" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"></div><div><label class="block text-gray-400 text-xs mb-1">رقم الهاتف</label><input type="tel" id="clientPhone" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-right text-sm" placeholder="01xxxxxxxxx"></div><div><label class="block text-gray-400 text-xs mb-1">الرحلة المطلوبة</label><input type="text" id="formTripTitle" readonly class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-gray-400 text-sm"></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-gray-400 text-xs mb-1">سعر الفرد</label><input type="text" id="formTripPrice" readonly class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-gray-400 text-center text-sm"></div><div><label class="block text-gray-400 text-xs mb-1">عدد الأفراد</label><input type="number" id="formCount" min="1" value="1" oninput="updateTotalPrice()" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-center text-sm"></div></div><div class="bg-teal-900/30 border border-teal-500/30 p-3 rounded-xl flex justify-between items-center mt-1"><span class="text-teal-400 font-bold text-sm">إجمالي السعر:</span><span id="formTotal" class="text-white font-black text-lg">0 ج.م</span></div><button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-xl shadow-lg mt-3 text-sm">تأكيد وإرسال للواتساب <i class="fab fa-whatsapp mr-1"></i></button></form></div></div>
 
-    <!-- Add Trip Modal -->
-    <div id="addTripModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-0 md:p-4 overflow-y-auto no-scrollbar">
-        <div class="bg-gray-800 border border-gray-700 w-full md:max-w-xl md:my-8 rounded-none md:rounded-2xl shadow-2xl overflow-hidden h-[100dvh] md:h-auto flex flex-col">
-            <div class="modal-header-fixed p-4 border-b border-gray-700 flex justify-between items-center">
-                <h3 id="modalTitle" class="text-xl font-bold text-white">إضافة رحلة جديدة</h3>
-                <button onclick="closeTripModal()" class="text-gray-400 hover:text-white transition-colors"><i class="fas fa-times text-xl"></i></button>
+    <!-- Add Trip Modal (Smaller & Detached from edges) -->
+    <div id="addTripModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto no-scrollbar">
+        <div class="bg-gray-800 border border-gray-700 w-[95%] max-w-lg mx-auto rounded-2xl shadow-2xl overflow-hidden flex flex-col h-auto max-h-[90vh] my-6">
+            <div class="modal-header-fixed p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800">
+                <h3 id="modalTitle" class="text-lg font-bold text-white">إضافة رحلة جديدة</h3>
+                <button onclick="closeTripModal()" class="text-gray-400 hover:text-white transition-colors"><i class="fas fa-times text-lg"></i></button>
             </div>
-            <form id="addTripForm" onsubmit="handleTripSubmit(event)" class="p-4 md:p-6 space-y-4 md:space-y-6 overflow-y-auto no-scrollbar flex-grow">
+            <form id="addTripForm" onsubmit="handleTripSubmit(event)" class="p-4 space-y-4 overflow-y-auto no-scrollbar flex-grow">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">عنوان الرحلة</label>
-                        <input type="text" id="tripTitle" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-teal-500" placeholder="مثال: رحلة دهب">
+                        <label class="block text-xs font-medium text-gray-400 mb-1">عنوان الرحلة</label>
+                        <input type="text" id="tripTitle" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-teal-500" placeholder="مثال: رحلة دهب">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">المكان</label>
-                        <input type="text" id="tripLocation" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-teal-500" placeholder="مثال: جنوب سيناء">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">السعر</label>
-                        <input type="number" id="tripPrice" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-teal-500" placeholder="3500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-teal-400 mb-1">رقم الحجز</label>
-                        <input type="text" id="tripPhone" required class="w-full bg-gray-700 border border-teal-500/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-teal-500 ltr" placeholder="01xxxxxxxxx">
-                    </div>
-                    <div class="col-span-2 lg:col-span-1">
-                        <label class="block text-sm font-medium text-gray-400 mb-1">التاريخ</label>
-                        <input type="datetime-local" id="departureDate" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-teal-500 ltr">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">المقاعد</label>
-                        <input type="number" id="availableSeats" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-teal-500" placeholder="20">
+                        <label class="block text-xs font-medium text-gray-400 mb-1">المكان</label>
+                        <input type="text" id="tripLocation" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-teal-500" placeholder="مثال: جنوب سيناء">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">الليالي</label>
-                        <select id="nightsSelect" onchange="toggleCustomInput('nightsSelect', 'nightsCustom')" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white"><option value="1">1 ليلة</option><option value="3" selected>3 ليالي</option><option value="other">أخرى</option></select>
-                        <input type="number" id="nightsCustom" class="hidden w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white mt-2">
+                        <label class="block text-xs font-medium text-gray-400 mb-1">السعر</label>
+                        <input type="number" id="tripPrice" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-teal-500" placeholder="3500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">الأيام</label>
-                        <select id="daysSelect" onchange="toggleCustomInput('daysSelect', 'daysCustom')" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white"><option value="1">1 يوم</option><option value="4" selected>4 أيام</option><option value="other">أخرى</option></select>
-                        <input type="number" id="daysCustom" class="hidden w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white mt-2">
+                        <label class="block text-xs font-medium text-teal-400 mb-1">رقم الحجز</label>
+                        <input type="text" id="tripPhone" required class="w-full bg-gray-700 border border-teal-500/50 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-teal-500 ltr" placeholder="01xxxxxxxxx">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2 md:col-span-1">
+                        <label class="block text-xs font-medium text-gray-400 mb-1">التاريخ</label>
+                        <input type="datetime-local" id="departureDate" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-teal-500 ltr">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">المقاعد</label>
+                        <input type="number" id="availableSeats" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-teal-500" placeholder="20">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">الليالي</label>
+                        <select id="nightsSelect" onchange="toggleCustomInput('nightsSelect', 'nightsCustom')" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"><option value="1">1 ليلة</option><option value="3" selected>3 ليالي</option><option value="other">أخرى</option></select>
+                        <input type="number" id="nightsCustom" class="hidden w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm mt-2">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">الأيام</label>
+                        <select id="daysSelect" onchange="toggleCustomInput('daysSelect', 'daysCustom')" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"><option value="1">1 يوم</option><option value="4" selected>4 أيام</option><option value="other">أخرى</option></select>
+                        <input type="number" id="daysCustom" class="hidden w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm mt-2">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-1">الوصف</label>
-                    <textarea id="tripDesc" required rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-teal-500" placeholder="تفاصيل..."></textarea>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">الوصف</label>
+                    <textarea id="tripDesc" required rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-teal-500" placeholder="تفاصيل..."></textarea>
                 </div>
-                <div class="bg-gray-900 p-4 rounded-xl border border-gray-700">
-                    <h4 class="text-white font-bold mb-3"><i class="fas fa-images ml-2"></i> صور/فيديو الرحلة</h4>
-                    <input type="file" id="tripImageFile" multiple accept="image/*,video/*" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white ltr">
+                <div class="bg-gray-900 p-3 rounded-xl border border-gray-700">
+                    <h4 class="text-white font-bold mb-2 text-sm"><i class="fas fa-images ml-2"></i> صور/فيديو الرحلة</h4>
+                    <input type="file" id="tripImageFile" multiple accept="image/*,video/*" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-xs ltr">
                 </div>
-                <button type="submit" id="submitBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg shadow-lg transition-colors mt-2 mb-4">حفظ ونشر الرحلة</button>
+                <button type="submit" id="submitBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-lg shadow-lg transition-colors mt-2 text-sm">حفظ ونشر الرحلة</button>
             </form>
         </div>
     </div>
