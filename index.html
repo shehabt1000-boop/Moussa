@@ -73,6 +73,14 @@
             transition: transform 0.2s;
         }
         .install-btn:active { transform: scale(0.95); }
+
+        /* Fix Background Zoom Issue */
+        .fixed-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: -1; pointer-events: none;
+            /* Prevents browser from resizing background on scroll */
+            transform: translateZ(0); 
+            will-change: transform;
+        }
     </style>
 
     <!-- Service Worker -->
@@ -415,7 +423,6 @@
             }
         }
 
-        // --- NEW: Toggle Playback with Centered Button ---
         window.toggleCardPlayback = function(btn) {
             const container = btn.closest('.trip-card-image-container');
             const video = container.querySelector('video:not(.opacity-0)');
@@ -496,9 +503,9 @@
                 if (mediaList.length > 0) {
                     mediaHtml = mediaList.map((url, index) => {
                         const isVid = isVideo(url);
-                        // Removed onclick from video to prevent conflict with the centered button
+                        // Add stopPropagation to clicks on media
                         if (isVid) return `<video src="${url}" class="slide-media absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${index === 0 ? '' : 'opacity-0'}" muted loop playsinline style="${index === 0 ? 'pointer-events: auto' : 'pointer-events: none'}"></video>`;
-                        else return `<img src="${url}" class="slide-media absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${index === 0 ? '' : 'opacity-0'}" loading="lazy" style="${index === 0 ? 'pointer-events: auto' : 'pointer-events: none'}" onclick="openLightbox(this.getAttribute('src'))">`;
+                        else return `<img src="${url}" class="slide-media absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${index === 0 ? '' : 'opacity-0'}" loading="lazy" style="${index === 0 ? 'pointer-events: auto' : 'pointer-events: none'}" onclick="event.stopPropagation(); openLightbox(this.getAttribute('src'))">`;
                     }).join('');
 
                     controlsHtml = `
@@ -517,7 +524,7 @@
                              </button>
                         </div>
 
-                        <!-- Bottom Controls (Mute/Expand) -->
+                        <!-- Bottom Controls -->
                         <div class="absolute bottom-4 left-4 flex gap-2 z-20 pointer-events-auto">
                              ${mediaList.some(u => isVideo(u)) ? `
                              <button onclick="event.stopPropagation(); toggleMute(this)" class="bg-black/60 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/80"><i class="fas fa-volume-mute"></i></button>
@@ -792,7 +799,7 @@
         <div id="lightboxContent"></div>
     </div>
 
-    <div class="fixed top-0 left-0 z-0 w-full h-full pointer-events-none">
+    <div class="fixed-bg">
         <img src="https://images.pexels.com/photos/2559941/pexels-photo-2559941.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" class="w-full h-full object-cover object-center">
         <div class="absolute inset-0 bg-black/70"></div> 
     </div>
