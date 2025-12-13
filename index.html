@@ -34,12 +34,11 @@
         * { -ms-overflow-style: none; scrollbar-width: none; }
 
         .glass-nav { 
-            background: rgba(0, 0, 0, 0.8); 
+            background: rgba(0, 0, 0, 0.85); 
             backdrop-filter: blur(12px);    
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
             z-index: 50; 
             height: 60px;
-            /* FIXED POSITIONING AS REQUESTED */
             position: fixed;
             top: 0;
             left: 0;
@@ -47,37 +46,42 @@
         }
 
         #loader {
-            position: fixed; inset: 0; z-index: 9999;
+            position: fixed; inset: 0; z-index: 99999;
             background-color: #0f172a; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 0.5s ease-out, visibility 0.5s;
         }
         .loader-hidden { opacity: 0; visibility: hidden; }
 
-        /* Mobile Menu & Overlay */
+        /* Mobile Menu & Overlay - FIXED Z-INDEX ISSUES */
         .mobile-menu-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 60;
-            opacity: 0; visibility: hidden; transition: 0.3s; backdrop-filter: blur(4px);
+            position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.7); 
+            z-index: 1000; /* High Z-Index */
+            opacity: 0; visibility: hidden; 
+            transition: 0.3s; 
+            backdrop-filter: blur(5px);
         }
         .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
         
         .mobile-menu { 
+            position: fixed;
+            top: 0; bottom: 0; left: 0;
+            width: 280px;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 1001; /* Higher than overlay */
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             transform: translateX(-100%); 
-            left: 0; right: auto; 
-            will-change: transform;
-            top: 0 !important;
-            height: 100vh;
-            z-index: 70;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.5);
+            border-right: 1px solid rgba(255,255,255,0.1);
         }
         .mobile-menu.open { transform: translateX(0); }
 
         input[type="file"]::file-selector-button { margin-left: 0.5rem; background-color: #0d9488; color: white; border: 0; border-radius: 0.5rem; padding: 0.25rem 0.75rem; cursor: pointer; }
         
-        /* Modal Optimizations */
         .modal-header-fixed { position: sticky; top: 0; z-index: 20; background-color: rgba(31, 41, 55, 1); border-bottom: 1px solid #374151; }
         .modal-footer-fixed { position: sticky; bottom: 0; z-index: 20; background-color: rgba(31, 41, 55, 1); border-top: 1px solid #374151; padding: 10px; }
-        
         .ltr { direction: ltr; }
 
         .marquee-wrapper { overflow: hidden; width: 100%; position: relative; }
@@ -145,7 +149,6 @@
             return url;
         }
 
-        // COMPRESSION REMOVED AS REQUESTED
         function removeLoader() {
             const loader = document.getElementById('loader');
             if (loader && !loader.classList.contains('loader-hidden')) {
@@ -169,7 +172,7 @@
 
         window.showNotification = function(msg, type) {
             const notif = document.createElement('div');
-            notif.className = `fixed top-16 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl text-white shadow-2xl z-[99999] transition-all duration-500 opacity-0 transform translate-y-[-20px] ${type === 'error' ? 'bg-red-600' : type === 'success' ? 'bg-green-600' : 'bg-gray-700'} backdrop-blur-md border border-white/10 font-bold text-sm text-center min-w-[200px]`;
+            notif.className = `fixed top-20 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl text-white shadow-2xl z-[99999] transition-all duration-500 opacity-0 transform translate-y-[-20px] ${type === 'error' ? 'bg-red-600' : type === 'success' ? 'bg-green-600' : 'bg-gray-700'} backdrop-blur-md border border-white/10 font-bold text-sm text-center min-w-[200px]`;
             notif.innerHTML = msg;
             document.body.appendChild(notif);
             setTimeout(() => { notif.classList.remove('opacity-0', 'translate-y-[-20px]'); }, 50);
@@ -177,7 +180,6 @@
         }
 
         async function uploadToCloudinary(file) {
-            // NO COMPRESSION - DIRECT UPLOAD
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', UPLOAD_PRESET);
@@ -729,13 +731,35 @@
         <div id="lightboxContent"></div>
     </div>
 
+    <!-- MOVED OUTSIDE OF MAIN CONTAINER TO FIX Z-INDEX/BLUR ISSUE -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+    <div id="mobile-menu" class="mobile-menu p-5 flex flex-col gap-6">
+        <div class="flex justify-between items-center border-b border-gray-700 pb-4 mt-2">
+            <span class="text-lg font-bold text-white">القائمة</span>
+            <button onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-800"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="flex flex-col space-y-4 text-base font-semibold">
+            <a href="#" class="text-gray-300 hover:text-teal-400 flex items-center gap-3" onclick="toggleMobileMenu()"><i class="fas fa-home w-5 text-center"></i> الرئيسية</a>
+            <a href="#trips-section" class="text-gray-300 hover:text-teal-400 flex items-center gap-3" onclick="toggleMobileMenu()"><i class="fas fa-plane w-5 text-center"></i> الرحلات</a>
+            <a href="#" target="_blank" class="text-gray-300 hover:text-teal-400 flex items-center gap-3 fb-link" onclick="toggleMobileMenu()"><i class="fab fa-facebook w-5 text-center"></i> فيسبوك</a>
+        </nav>
+        <div class="mt-2 border-t border-gray-700 pt-4">
+            <button id="mobileLoginBtn" onclick="toggleLoginModal()" class="w-full text-gray-300 hover:text-white border border-gray-600/50 bg-gray-800/50 px-4 py-2.5 rounded-xl transition-all flex items-center gap-3 mb-3"><i class="fas fa-lock w-5 text-center text-teal-500"></i> <span>دخول الإدارة</span></button>
+            <button id="mobileLogoutBtn" onclick="handleLogout()" class="hidden w-full text-red-400 hover:text-red-300 border border-red-900/30 bg-red-900/10 px-4 py-2.5 rounded-xl transition-all flex items-center gap-3 mb-3"><i class="fas fa-sign-out-alt w-5 text-center"></i> <span>خروج</span></button>
+            <div id="mobileAdminActions" class="hidden grid-cols-2 gap-3">
+                <button onclick="toggleBannerModal(); toggleMobileMenu();" class="flex flex-col items-center justify-center bg-teal-900/20 border border-teal-500/30 text-teal-100 py-3 rounded-xl text-xs gap-2 hover:bg-teal-900/40"><i class="fas fa-images text-lg"></i> إضافة صور</button>
+                <button onclick="openAddTripModal(); toggleMobileMenu();" class="flex flex-col items-center justify-center bg-teal-900/20 border border-teal-500/30 text-teal-100 py-3 rounded-xl text-xs gap-2 hover:bg-teal-900/40"><i class="fas fa-plus text-lg"></i> إضافة رحلة</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Background -->
     <div class="fixed inset-0 z-0 h-[100dvh] w-full pointer-events-none">
         <img src="https://images.pexels.com/photos/2559941/pexels-photo-2559941.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" class="w-full h-full object-cover object-center">
         <div class="absolute inset-0 bg-black/70"></div> 
     </div>
 
-    <!-- Main Wrapper with Top Padding for Fixed Navbar -->
+    <!-- Main Wrapper -->
     <div class="relative z-10 flex flex-col min-h-screen pt-[60px]">
 
         <!-- Fixed Navbar -->
@@ -752,28 +776,6 @@
                 </button>
             </div>
         </nav>
-
-        <!-- Sidebar & Overlay -->
-        <div id="mobile-menu-overlay" class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
-        <div id="mobile-menu" class="mobile-menu fixed w-64 h-auto min-h-[50vh] bg-gray-900/95 backdrop-blur-xl z-50 p-5 shadow-2xl flex flex-col gap-6 rounded-br-2xl border-r border-b border-gray-700">
-            <div class="flex justify-between items-center border-b border-gray-700 pb-4 mt-2">
-                <span class="text-lg font-bold text-white">القائمة</span>
-                <button onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-800"><i class="fas fa-times"></i></button>
-            </div>
-            <nav class="flex flex-col space-y-4 text-base font-semibold">
-                <a href="#" class="text-gray-300 hover:text-teal-400 flex items-center gap-3" onclick="toggleMobileMenu()"><i class="fas fa-home w-5 text-center"></i> الرئيسية</a>
-                <a href="#trips-section" class="text-gray-300 hover:text-teal-400 flex items-center gap-3" onclick="toggleMobileMenu()"><i class="fas fa-plane w-5 text-center"></i> الرحلات</a>
-                <a href="#" target="_blank" class="text-gray-300 hover:text-teal-400 flex items-center gap-3 fb-link" onclick="toggleMobileMenu()"><i class="fab fa-facebook w-5 text-center"></i> فيسبوك</a>
-            </nav>
-            <div class="mt-2 border-t border-gray-700 pt-4">
-                <button id="mobileLoginBtn" onclick="toggleLoginModal()" class="w-full text-gray-300 hover:text-white border border-gray-600/50 bg-gray-800/50 px-4 py-2.5 rounded-xl transition-all flex items-center gap-3 mb-3"><i class="fas fa-lock w-5 text-center text-teal-500"></i> <span>دخول الإدارة</span></button>
-                <button id="mobileLogoutBtn" onclick="handleLogout()" class="hidden w-full text-red-400 hover:text-red-300 border border-red-900/30 bg-red-900/10 px-4 py-2.5 rounded-xl transition-all flex items-center gap-3 mb-3"><i class="fas fa-sign-out-alt w-5 text-center"></i> <span>خروج</span></button>
-                <div id="mobileAdminActions" class="hidden grid-cols-2 gap-3">
-                    <button onclick="toggleBannerModal(); toggleMobileMenu();" class="flex flex-col items-center justify-center bg-teal-900/20 border border-teal-500/30 text-teal-100 py-3 rounded-xl text-xs gap-2 hover:bg-teal-900/40"><i class="fas fa-images text-lg"></i> إضافة صور</button>
-                    <button onclick="openAddTripModal(); toggleMobileMenu();" class="flex flex-col items-center justify-center bg-teal-900/20 border border-teal-500/30 text-teal-100 py-3 rounded-xl text-xs gap-2 hover:bg-teal-900/40"><i class="fas fa-plus text-lg"></i> إضافة رحلة</button>
-                </div>
-            </div>
-        </div>
 
         <!-- Hero -->
         <header class="flex-grow flex flex-col items-center justify-center text-center pt-4 pb-6 overflow-hidden">
