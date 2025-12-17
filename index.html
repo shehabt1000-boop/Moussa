@@ -99,27 +99,19 @@
         .verified-badge { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background-color: #3b82f6; border-radius: 50%; color: white; margin-right: 4px; }
         .verified-badge svg { width: 10px; height: 10px; }
 
-        /* --- MASTER MODAL FIX FOR MOBILE --- */
-        #master-modal {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 90% !important;
-            max-width: 320px !important;
-            height: auto !important;
-            max-height: 90vh !important;
-            z-index: 99999 !important;
-            margin: 0 !important;
-            inset: auto !important; /* Reset inset */
-            display: none;
-        }
-        #master-modal:not(.hidden) {
-            display: flex !important;
+        /* Full Page View for Master/Admin */
+        .full-page-view {
+            position: fixed;
+            inset: 0;
+            z-index: 200; /* Highest priority */
+            background-color: #f8fafc;
+            display: flex;
             flex-direction: column;
+            overflow-y: auto;
         }
-        /* --- END FIX --- */
-
+        .dark .full-page-view {
+            background-color: #0f172a;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
@@ -211,12 +203,12 @@
                 </div>
                 <div class="flex gap-1.5 items-center">
                     <button onclick="window.location.reload()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-primary hover:bg-slate-200 transition"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
-                    <!-- ID ADDED HERE FOR PROFILE BUTTON LOGIC -->
-                    <button id="header-profile-btn" onclick="toggleProfile(null)" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
+                    <!-- Header Profile Button (Hidden for Customers via JS) -->
+                    <button id="btn-header-profile" onclick="toggleProfile(null)" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
                     <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
 
                     <!-- Master Admin Button -->
-                    <button onclick="toggleMasterModal()" id="btn-master-control" class="hidden bg-yellow-500 p-1.5 rounded-full text-white hover:bg-yellow-600 shadow-lg animate-pulse"><i data-lucide="crown" class="w-4 h-4"></i></button>
+                    <button onclick="openMasterView()" id="btn-master-control" class="hidden bg-yellow-500 p-1.5 rounded-full text-white hover:bg-yellow-600 shadow-lg animate-pulse"><i data-lucide="crown" class="w-4 h-4"></i></button>
 
                     <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
                     <button onclick="logout()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600 hover:bg-red-100 transition"><i data-lucide="log-out" class="w-4 h-4"></i></button>
@@ -288,29 +280,22 @@
         </div>
     </div>
 
-    <!-- Master Admin Modal -->
-    <div id="master-modal" class="hidden modal-overlay">
-        <div class="bg-white dark:bg-darkbg p-5 rounded-2xl w-full max-w-xs border border-slate-200 dark:border-slate-700 shadow-2xl animate-pop">
-            <h3 class="font-black text-center text-lg mb-4 text-navy dark:text-white">👑 تحكم الماستر</h3>
-            <div class="space-y-3">
-                <div>
-                    <label class="form-label">رقم هاتف المستخدم</label>
-                    <input id="master-target-phone" type="tel" class="form-input text-center font-bold" placeholder="01xxxxxxxxx">
-                </div>
-                <div class="flex gap-2 justify-center py-2">
-                    <label class="flex items-center gap-2 cursor-pointer bg-slate-100 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <input type="checkbox" id="master-check-verified" class="w-4 h-4 rounded text-primary focus:ring-primary">
-                        <span class="text-xs font-bold">توثيق ✅</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-slate-100 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <input type="checkbox" id="master-check-admin" class="w-4 h-4 rounded text-red-500 focus:ring-red-500">
-                        <span class="text-xs font-bold text-red-500">أدمن 🛡️</span>
-                    </label>
-                </div>
+    <!-- MASTER ADMIN FULL PAGE VIEW -->
+    <div id="master-view" class="full-page-view hidden">
+        <div class="sticky top-0 bg-navy text-white p-4 shadow-lg flex justify-between items-center z-10">
+            <h2 class="font-black text-lg flex items-center gap-2"><i data-lucide="crown" class="w-5 h-5 text-yellow-400"></i> لوحة التحكم الكاملة</h2>
+            <button onclick="closeMasterView()" class="bg-white/10 p-2 rounded-full hover:bg-white/20"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="p-4 space-y-4 max-w-2xl mx-auto w-full">
+            <div class="bg-white dark:bg-darkbg p-4 rounded-xl shadow border border-slate-200 dark:border-slate-700">
+                <h3 class="font-bold mb-2 text-sm">بحث عن مستخدم</h3>
                 <div class="flex gap-2">
-                    <button onclick="saveMasterChanges()" class="flex-1 bg-navy dark:bg-primary text-white py-2 rounded-xl font-bold text-sm">حفظ التعديلات</button>
-                    <button onclick="toggleMasterModal()" class="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white py-2 rounded-xl font-bold text-sm">إلغاء</button>
+                    <input id="master-search-phone" type="tel" class="form-input" placeholder="رقم الهاتف (01xxxxxxxxx)">
+                    <button onclick="searchUserForMaster()" class="bg-primary text-white px-4 py-2 rounded-lg font-bold text-xs">بحث</button>
                 </div>
+            </div>
+            <div id="master-user-result" class="hidden bg-white dark:bg-darkbg p-4 rounded-xl shadow border border-slate-200 dark:border-slate-700 animate-pop">
+                <!-- User Data Will Appear Here -->
             </div>
         </div>
     </div>
@@ -590,7 +575,136 @@
         </div>
     </div>
 
-    <!-- Admin Panel -->
+    <!-- Details Modal -->
+    <div id="details-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+            <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
+                <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="absolute top-3 right-3 flex gap-2 z-20">
+                    <div id="d-admin-controls" class="flex gap-2"></div>
+                    <button onclick="downloadImg()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="download" class="w-5 h-5"></i></button>
+                    <button onclick="copyDetails()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="copy" class="w-5 h-5"></i></button>
+                    <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
+                </div>
+                <div id="details-slider-container" class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800"><img id="details-img" src="" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(this.src)"></div>
+                <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
+                <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
+                <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse"><i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج</button>
+
+                <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
+                     <div class="flex items-center gap-2">
+                         <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
+                         <div class="flex flex-col justify-center">
+                             <div class="flex items-center gap-1">
+                                 <h4 id="d-pub-name" class="font-bold text-[10px] text-navy dark:text-white leading-tight">...</h4>
+                                 <div id="d-pub-verified" class="hidden verified-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.491 4.491 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></div>
+                             </div>
+                             <span class="text-[8px] text-slate-400">اضغط لعرض حساب الناشر </span>
+                         </div>
+                     </div>
+                </div>
+
+                <!-- Main Details Table -->
+                <table class="details-table">
+                    <tbody>
+                        <tr><td>اسم المنتج:</td><td id="d-title">...</td></tr>
+                        <tr><td>السعر:</td><td id="d-price" class="text-primary">...</td></tr>
+                        <tr><td>القسم:</td><td id="d-cat">...</td></tr>
+                        <tr><td>تاريخ النشر:</td><td id="d-date">...</td></tr>
+                    </tbody>
+                </table>
+
+                <!-- CONDITION BADGE -->
+                <div id="d-condition-badge" class="mb-3 hidden"></div>
+
+                <div id="d-variants-container" class="space-y-2 mb-4">
+                    <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">المقاسات:</span><div id="d-sizes-list" class="flex flex-wrap gap-1"></div></div>
+                    <div id="d-colors-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">الألوان:</span><div id="d-colors-list" class="flex flex-wrap gap-1"></div></div>
+                </div>
+
+                <!-- Dynamic Specs Container (GRID) -->
+                <div id="d-dynamic-specs" class="mb-4 hidden"></div>
+
+                <!-- Features -->
+                <div id="d-features-container" class="mb-4 hidden">
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 mb-2">المميزات:</h3>
+                    <div id="d-features" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="space-y-1 mb-6"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium select-text"></p></div>
+
+                <!-- Shipping Info (Moved here) -->
+                <div id="d-shipping-bar" class="mb-4 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+                    <div id="d-shipping-info" class="flex items-center gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-300"></div>
+                </div>
+
+                <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-white mb-3">التقييمات</h3>
+                    <div id="product-reviews-list" class="space-y-3 mb-3"></div>
+                    <div class="flex gap-2 mt-2"><button id="load-more-reviews" onclick="loadProductReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button><button id="load-less-reviews" onclick="loadProductReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button></div>
+                    <div id="add-review-form" class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
+                        <div class="flex justify-between items-center mb-2"><span class="text-[10px] font-bold">أضف تقييمك</span><div class="star-rating text-lg"><input type="radio" id="star5" name="rating" value="5" onclick="setRating(5)"><label for="star5">★</label><input type="radio" id="star4" name="rating" value="4" onclick="setRating(4)"><label for="star4">★</label><input type="radio" id="star3" name="rating" value="3" onclick="setRating(3)"><label for="star3">★</label><input type="radio" id="star2" name="rating" value="2" onclick="setRating(2)"><label for="star2">★</label><input type="radio" id="star1" name="rating" value="1" onclick="setRating(1)"><label for="star1">★</label></div></div>
+                        <textarea id="review-text" class="form-input text-xs w-full mb-2" rows="2" placeholder="اكتب رأيك هنا..."></textarea>
+                        <button onclick="submitProductReview()" class="bg-navy dark:bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">نشر التقييم</button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-2 shrink-0 pb-8 md:pb-3"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="phone" class="w-4 h-4"></i> اتصال</a></div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chat-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2"><div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">الدعم الفني</h4></div></div>
+                <div class="flex items-center gap-2"><a href="https://wa.me/201206244875" target="_blank" class="bg-[#25D366] px-2 py-1 rounded-full flex items-center gap-1 text-[10px] font-bold hover:opacity-90 transition"><i data-lucide="message-circle" class="w-3 h-3"></i> للتواصل مع الدعم عبر الواتساب </a><button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+            </div>
+            <div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
+            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe">
+                <label class="cursor-pointer p-2 bg-slate-100 dark:bg-slate-700 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition">
+                    <input type="file" accept="image/*" class="hidden" onchange="sendImageMsg(this)">
+                    <i data-lucide="image" class="w-4 h-4 text-slate-500 dark:text-white"></i>
+                </label>
+                <input id="chat-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب..."><button onclick="sendMsg()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center select-none">
+        <button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button>
+        <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
+        <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
+        <div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div>
+    </div>
+
+    <!-- MASTER ADMIN FULL PAGE VIEW (New Replacement) -->
+    <div id="master-view" class="full-page-view hidden">
+        <div class="sticky top-0 bg-navy text-white p-4 shadow-lg flex justify-between items-center z-10">
+            <h2 class="font-black text-lg flex items-center gap-2"><i data-lucide="crown" class="w-5 h-5 text-yellow-400"></i> لوحة التحكم الكاملة</h2>
+            <button onclick="closeMasterView()" class="bg-white/10 p-2 rounded-full hover:bg-white/20"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="p-4 space-y-4 max-w-2xl mx-auto w-full pb-20">
+            <!-- Search Section -->
+            <div class="bg-white dark:bg-darkbg p-4 rounded-xl shadow border border-slate-200 dark:border-slate-700">
+                <h3 class="font-bold mb-2 text-sm">بحث عن مستخدم</h3>
+                <div class="flex gap-2">
+                    <input id="master-search-phone" type="tel" class="form-input" placeholder="رقم الهاتف (01xxxxxxxxx)">
+                    <button onclick="searchUserForMaster()" class="bg-primary text-white px-4 py-2 rounded-lg font-bold text-xs">بحث</button>
+                </div>
+            </div>
+            
+            <!-- Result Section -->
+            <div id="master-user-result" class="hidden bg-white dark:bg-darkbg p-4 rounded-xl shadow border border-slate-200 dark:border-slate-700 animate-pop">
+                <!-- Data injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel (Popup Style) -->
     <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white">
         <div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38] shrink-0">
             <h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2>
@@ -687,7 +801,6 @@
         }
     }
 
-    // Parallel Upload Fix
     window.handleUpload = async (input) => {
         if (input.files.length + state.images.length > 7) return showToast('7 صور بحد أقصى', 'e');
         const previewArea = document.getElementById('preview-area');
@@ -709,12 +822,9 @@
         });
     };
 
-    // Service Worker Registration (Separate File)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('SW Registered'))
-                .catch(err => console.log('SW Error', err));
+            navigator.serviceWorker.register('sw.js').then(reg => console.log('SW Registered')).catch(err => console.log('SW Error', err));
         });
     }
 
@@ -733,23 +843,10 @@
 
     let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false };
 
-    // Updated Categories List
-    const CATEGORIES = [
-        "عروض", "الكل",
-        "ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", 
-        "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "برفانات رجالي وحريمي", "الحقائب الشخصية",
-        "النظارات", "مستحضرات التجميل", "ادوات حلاقة للرجال", "مكملات غذائية", "ادوات رياضية",
-        "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة",
-        "سيارات", "الكترونيات وموبيلات", "عقارات", "حيوانات أليفة",
-        "أثاث منزلي", "أجهزة كهربائية", "أدوات منزلية",
-        "مستلزمات بناء وتشطيب ", "كاميرات مراقبة ", "ديكور منزلي", "مواد خام"
-    ];
-
+    const CATEGORIES = ["عروض", "الكل", "ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "احذية رجالي", "احذية حريمي", "احذية اطفال", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "برفانات رجالي وحريمي", "الحقائب الشخصية", "النظارات", "مستحضرات التجميل", "ادوات حلاقة للرجال", "مكملات غذائية", "ادوات رياضية", "الهدايا الشخصية", "الهدايا والالعاب", "منتجات العناية بالبشرة", "منتجات الاطفال", "اقمشة", "سيارات", "الكترونيات وموبيلات", "عقارات", "حيوانات أليفة", "أثاث منزلي", "أجهزة كهربائية", "أدوات منزلية", "مستلزمات بناء وتشطيب ", "كاميرات مراقبة ", "ديكور منزلي", "مواد خام"];
     const USED_CATS = ["النظارات", "اكسسورات رجالي", "اكسسورات حريمي", "اكسسورات اطفال", "سيارات", "الكترونيات وموبيلات", "أجهزة كهربائية", "أثاث منزلي", "كاميرات مراقبة ", "أدوات منزلية", "مستلزمات بناء وتشطيب ", "ديكور منزلي"];
     const CLOTHES_CATS = ["ملابس رجالي", "ملابس حريمي", "ملابس اطفال", "اقمشة"];
     const SHOES_CATS = ["احذية رجالي", "احذية حريمي", "احذية اطفال"];
-
-    // Data Lists
     const CAR_BRANDS = ["Toyota", "Hyundai", "Kia", "Mercedes", "BMW", "Nissan", "Chevrolet", "Mitsubishi", "Fiat", "Suzuki", "BYD", "Chery", "Peugeot", "Renault", "Opel", "Skoda", "Volkswagen", "Jeep", "Land Rover", "Ford", "Honda", "Mazda", "Subaru", "Lexus", "Audi", "Porsche", "Other"];
     const SIZES_MEN = ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "FreeSize"];
     const SIZES_WOMEN = ["XS", "S", "M", "L", "XL", "2XL", "FreeSize"];
@@ -757,66 +854,11 @@
     const SIZES_SHOES_ADULT = ["37", "38", "39", "40", "41", "42", "43", "44", "45"];
     const SIZES_SHOES_KIDS = ["20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35"];
     const BASIC_COLORS = ["أبيض", "أسود", "رمادي", "كحلي", "أحمر", "أزرق", "بيج", "أخضر", "أصفر", "بني"];
+    const CATEGORY_IMAGES = { "سيارات": "https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&cs=tinysrgb&w=300", "الكترونيات وموبيلات": "https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?auto=compress&cs=tinysrgb&w=300", "عقارات": "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=300", "حيوانات أليفة": "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=300", "أدوات منزلية": "https://images.pexels.com/photos/38325/vacuum-cleaner-carpet-cleaner-housework-housekeeping-38325.jpeg?auto=compress&cs=tinysrgb&w=300", "أجهزة كهربائية": "https://images.pexels.com/photos/213162/pexels-photo-213162.jpeg?auto=compress&cs=tinysrgb&w=300", "أثاث منزلي": "https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=300", "مواد خام": "https://images.pexels.com/photos/162553/keys-workshop-mechanic-tools-162553.jpeg?auto=compress&cs=tinysrgb&w=300", "مستلزمات بناء وتشطيب ": "https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg?auto=compress&cs=tinysrgb&w=300", "كاميرات مراقبة ": "https://images.pexels.com/photos/414781/pexels-photo-414781.jpeg?auto=compress&cs=tinysrgb&w=300", "ديكور منزلي": "https://images.pexels.com/photos/1090638/pexels-photo-1090638.jpeg?auto=compress&cs=tinysrgb&w=300", "ملابس رجالي": "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=300&auto=format&fit=crop", "برفانات رجالي وحريمي": "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=300&auto=format&fit=crop", "النظارات": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=300&auto=format&fit=crop", "مستحضرات التجميل": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=300&auto=format&fit=crop", "ادوات حلاقة للرجال": "https://images.unsplash.com/photo-1621607512214-68297480165e?q=80&w=300&auto=format&fit=crop", "مكملات غذائية": "https://images.unsplash.com/photo-1581009137042-c552e485697a?q=80&w=300&auto=format&fit=crop", "احذية حريمي": "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop", "ادوات رياضية": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=300&auto=format&fit=crop", "ملابس حريمي": "https://images.pexels.com/photos/3772506/pexels-photo-3772506.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "احذية رجالي": "https://images.pexels.com/photos/5264901/pexels-photo-5264901.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "احذية اطفال": "https://images.pexels.com/photos/29737094/pexels-photo-29737094.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "ملابس اطفال": "https://images.pexels.com/photos/1620758/pexels-photo-1620758.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات رجالي": "https://images.pexels.com/photos/3766112/pexels-photo-3766112.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات حريمي": "https://images.pexels.com/photos/17568000/pexels-photo-17568000.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اكسسورات اطفال": "https://images.pexels.com/photos/2848522/pexels-photo-2848522.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الحقائب الشخصية": "https://images.pexels.com/photos/1986996/pexels-photo-1986996.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الهدايا الشخصية": "https://images.pexels.com/photos/19066549/pexels-photo-19066549.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "الهدايا والالعاب": "https://images.pexels.com/photos/4491662/pexels-photo-4491662.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "منتجات العناية بالبشرة": "https://images.pexels.com/photos/10117729/pexels-photo-10117729.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "منتجات الاطفال": "https://images.pexels.com/photos/26337029/pexels-photo-26337029.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop", "اقمشة": "https://images.pexels.com/photos/34636582/pexels-photo-34636582.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" };
 
-    const CATEGORY_IMAGES = {
-        "سيارات": "https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&cs=tinysrgb&w=300",
-        "الكترونيات وموبيلات": "https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?auto=compress&cs=tinysrgb&w=300",
-        "عقارات": "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=300",
-        "حيوانات أليفة": "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=300",
-        "أدوات منزلية": "https://images.pexels.com/photos/38325/vacuum-cleaner-carpet-cleaner-housework-housekeeping-38325.jpeg?auto=compress&cs=tinysrgb&w=300",
-        "أجهزة كهربائية": "https://images.pexels.com/photos/213162/pexels-photo-213162.jpeg?auto=compress&cs=tinysrgb&w=300",
-        "أثاث منزلي": "https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=300",
-        "مواد خام": "https://images.pexels.com/photos/162553/keys-workshop-mechanic-tools-162553.jpeg?auto=compress&cs=tinysrgb&w=300",
-        "مستلزمات بناء وتشطيب ": "https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg?auto=compress&cs=tinysrgb&w=300",
-        "كاميرات مراقبة ": "https://images.pexels.com/photos/414781/pexels-photo-414781.jpeg?auto=compress&cs=tinysrgb&w=300",
-        "ديكور منزلي": "https://images.pexels.com/photos/1090638/pexels-photo-1090638.jpeg?auto=compress&cs=tinysrgb&w=300",
-        "ملابس رجالي": "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=300&auto=format&fit=crop",
-        "برفانات رجالي وحريمي": "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=300&auto=format&fit=crop",
-        "النظارات": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=300&auto=format&fit=crop",
-        "مستحضرات التجميل": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=300&auto=format&fit=crop",
-        "ادوات حلاقة للرجال": "https://images.unsplash.com/photo-1621607512214-68297480165e?q=80&w=300&auto=format&fit=crop",
-        "مكملات غذائية": "https://images.unsplash.com/photo-1581009137042-c552e485697a?q=80&w=300&auto=format&fit=crop",
-        "احذية حريمي": "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop",
-        "ادوات رياضية": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=300&auto=format&fit=crop",
-        "ملابس حريمي": "https://images.pexels.com/photos/3772506/pexels-photo-3772506.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-        "احذية رجالي": "https://images.pexels.com/photos/5264901/pexels-photo-5264901.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-        "احذية اطفال": "https://images.pexels.com/photos/29737094/pexels-photo-29737094.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-        "ملابس اطفال": "https://images.pexels.com/photos/1620758/pexels-photo-1620758.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-        "اكسسورات رجالي": "https://images.pexels.com/photos/3766112/pexels-photo-3766112.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-        "اكسسورات حريمي": "https://images.pexels.com/photos/17568000/pexels-photo-17568000.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-        "اكسسورات اطفال": "https://images.pexels.com/photos/2848522/pexels-photo-2848522.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-        "الحقائب الشخصية": "https://images.pexels.com/photos/1986996/pexels-photo-1986996.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-        "الهدايا الشخصية": "https://images.pexels.com/photos/19066549/pexels-photo-19066549.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-        "الهدايا والالعاب": "https://images.pexels.com/photos/4491662/pexels-photo-4491662.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-        "منتجات العناية بالبشرة": "https://images.pexels.com/photos/10117729/pexels-photo-10117729.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-        "منتجات الاطفال": "https://images.pexels.com/photos/26337029/pexels-photo-26337029.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-        "اقمشة": "https://images.pexels.com/photos/34636582/pexels-photo-34636582.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop"
-    };
-
-    function initGovs() {
-        const govSelect = document.getElementById('auth-gov'); const filterGov = document.getElementById('filter-gov'); const shipGovList = document.getElementById('ship-gov-list'); const editGov = document.getElementById('edit-gov'); const ordGov = document.getElementById('ord-gov'); 
-        govSelect.innerHTML = '<option value="">اختر المحافظة</option>'; filterGov.innerHTML = '<option value="">كل المحافظات</option>'; editGov.innerHTML = '<option value="">اختر المحافظة</option>'; ordGov.innerHTML = '<option value="">اختر المحافظة</option>'; shipGovList.innerHTML = '';
-        Object.keys(EGYPT_DATA).forEach(gov => {
-            govSelect.innerHTML += `<option value="${gov}">${gov}</option>`; filterGov.innerHTML += `<option value="${gov}">${gov}</option>`; editGov.innerHTML += `<option value="${gov}">${gov}</option>`; ordGov.innerHTML += `<option value="${gov}">${gov}</option>`;
-            shipGovList.innerHTML += `<label class="flex items-center gap-1 cursor-pointer hover:bg-slate-50 p-1 rounded"><input type="checkbox" name="ship-gov-check" value="${gov}" class="w-3 h-3 rounded border-gray-300 text-primary focus:ring-primary"><span class="text-[10px] font-bold text-slate-600">${gov}</span></label>`;
-        });
-    }
+    function initGovs() { const govSelect = document.getElementById('auth-gov'); const filterGov = document.getElementById('filter-gov'); const shipGovList = document.getElementById('ship-gov-list'); const editGov = document.getElementById('edit-gov'); const ordGov = document.getElementById('ord-gov'); govSelect.innerHTML = '<option value="">اختر المحافظة</option>'; filterGov.innerHTML = '<option value="">كل المحافظات</option>'; editGov.innerHTML = '<option value="">اختر المحافظة</option>'; ordGov.innerHTML = '<option value="">اختر المحافظة</option>'; shipGovList.innerHTML = ''; Object.keys(EGYPT_DATA).forEach(gov => { govSelect.innerHTML += `<option value="${gov}">${gov}</option>`; filterGov.innerHTML += `<option value="${gov}">${gov}</option>`; editGov.innerHTML += `<option value="${gov}">${gov}</option>`; ordGov.innerHTML += `<option value="${gov}">${gov}</option>`; shipGovList.innerHTML += `<label class="flex items-center gap-1 cursor-pointer hover:bg-slate-50 p-1 rounded"><input type="checkbox" name="ship-gov-check" value="${gov}" class="w-3 h-3 rounded border-gray-300 text-primary focus:ring-primary"><span class="text-[10px] font-bold text-slate-600">${gov}</span></label>`; }); }
     initGovs();
-
-    function initCats() {
-        const cont = document.getElementById('categories-container'); cont.innerHTML = `<button onclick="filter('all')" id="chip-all" class="chip-btn">الكل</button>`;
-        const sel = document.getElementById('in-cat'); sel.innerHTML = '';
-        const brandSel = document.getElementById('in-car-brand'); brandSel.innerHTML = '<option value="">الماركة</option>';
-        CAR_BRANDS.forEach(b => brandSel.innerHTML += `<option value="${b}">${b}</option>`);
-
-        CATEGORIES.forEach(c => {
-            if(c === 'الكل') return;
-            const btn = document.createElement('button'); btn.innerText = c; btn.id = `chip-${c.replace(/\s/g, '')}`;
-            btn.className = "px-4 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition hover:border-primary hover:text-primary chip-btn";
-            btn.onclick = () => filter(c); cont.appendChild(btn);
-            if(c !== 'عروض') { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt); }
-        });
-    }
+    function initCats() { const cont = document.getElementById('categories-container'); cont.innerHTML = `<button onclick="filter('all')" id="chip-all" class="chip-btn">الكل</button>`; const sel = document.getElementById('in-cat'); sel.innerHTML = ''; const brandSel = document.getElementById('in-car-brand'); brandSel.innerHTML = '<option value="">الماركة</option>'; CAR_BRANDS.forEach(b => brandSel.innerHTML += `<option value="${b}">${b}</option>`); CATEGORIES.forEach(c => { if(c === 'الكل') return; const btn = document.createElement('button'); btn.innerText = c; btn.id = `chip-${c.replace(/\s/g, '')}`; btn.className = "px-4 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition hover:border-primary hover:text-primary chip-btn"; btn.onclick = () => filter(c); cont.appendChild(btn); if(c !== 'عروض') { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt); } }); }
 
     window.updateCities = () => { const gov = document.getElementById('auth-gov').value; const citySelect = document.getElementById('auth-city'); citySelect.innerHTML = '<option value="">اختر المركز/المدينة</option>'; if(gov && EGYPT_DATA[gov]) EGYPT_DATA[gov].forEach(city => citySelect.innerHTML += `<option value="${city}">${city}</option>`); }
     window.updateEditCities = () => { const gov = document.getElementById('edit-gov').value; const citySelect = document.getElementById('edit-city'); citySelect.innerHTML = '<option value="">اختر المركز/المدينة</option>'; if(gov && EGYPT_DATA[gov]) EGYPT_DATA[gov].forEach(city => citySelect.innerHTML += `<option value="${city}">${city}</option>`); }
@@ -830,22 +872,25 @@
                 const userDoc = await getDoc(doc(db, "users", u.uid));
                 if (userDoc.exists()) {
                     const data = userDoc.data();
-                    state.userData = data; state.userRole = data.role || 'customer'; 
-
-                    state.isAdmin = data.isAdmin === true;
-                    if(state.isAdmin) document.getElementById('btn-admin-top').classList.remove('hidden');
-
-                    // Master Admin Check
-                    if(u.uid === MASTER_UID) {
-                        document.getElementById('btn-master-control').classList.remove('hidden');
+                    
+                    // --- BANNED CHECK ---
+                    if (data.isBanned) {
+                        await signOut(auth);
+                        alert("تم حظر حسابك. يرجى التواصل مع الإدارة.");
+                        window.location.reload();
+                        return;
                     }
 
+                    state.userData = data; state.userRole = data.role || 'customer'; 
+                    state.isAdmin = data.isAdmin === true;
+                    if(state.isAdmin) document.getElementById('btn-admin-top').classList.remove('hidden');
+                    if(u.uid === MASTER_UID) document.getElementById('btn-master-control').classList.remove('hidden');
                     document.getElementById('header-username').innerText = data.name || u.displayName;
                     document.getElementById('welcome-text').classList.remove('hidden');
                 }
             } catch(e) { console.warn("Role fetch failed", e); }
 
-            updateNavUI(); // Update Nav based on Role
+            updateNavUI(); 
             document.getElementById('login-view').classList.add('hidden'); document.getElementById('app-content').classList.remove('hidden');
             if(globalLoader) { globalLoader.classList.add('fade-out'); setTimeout(() => globalLoader.style.display = 'none', 500); }
             loadListings(); checkUserChat(); initFavs(); initCats(); 
@@ -856,20 +901,15 @@
         }
     });
 
-    // Function to update Nav based on Role
     function updateNavUI() {
         const container = document.getElementById('nav-middle-btn-container');
-        const headerProfileBtn = document.getElementById('header-profile-btn');
+        const headerProfileBtn = document.getElementById('btn-header-profile');
 
         if(state.userRole === 'customer') {
-             // Show Profile Button in Bottom Nav
              container.innerHTML = `<button onclick="toggleProfile(null)" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="user" class="w-6 h-6"></i></button>`;
-             // Hide Profile Button in Header (since it's in bottom nav)
              if(headerProfileBtn) headerProfileBtn.classList.add('hidden');
         } else {
-             // Show Add Product Button (Marketer/Admin)
              container.innerHTML = `<button id="nav-add-btn" onclick="toggleAddModal()" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>`;
-             // Show Profile Button in Header (since bottom nav is used for Add)
              if(headerProfileBtn) headerProfileBtn.classList.remove('hidden');
         }
         lucide.createIcons();
@@ -883,19 +923,13 @@
         const pass = document.getElementById('auth-pass').value; 
         const errDiv = document.getElementById('auth-error'); 
         const btn = document.getElementById('btn-auth-action');
-
         errDiv.classList.add('hidden'); errDiv.innerText = "";
-
-        // Validate Phone
         let cleanPhone = rawPhone.replace(/\D/g, '');
         if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
         if (cleanPhone.length !== 10) { errDiv.innerText = "رقم الهاتف غير صحيح (يجب أن يكون 11 رقم)"; errDiv.classList.remove('hidden'); return; }
-
         const fullPhone = `0${cleanPhone}`;
-        const email = `${fullPhone}@souq.local`; // Dummy Email Generation
-
+        const email = `${fullPhone}@souq.local`;
         if (pass.length < 6) { errDiv.innerText = "كلمة المرور يجب أن تكون 6 أرقام/حروف على الأقل"; errDiv.classList.remove('hidden'); return; }
-
         const originalBtnText = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<div class="spinner"></div> جاري المعالجة...`;
 
         try {
@@ -904,752 +938,158 @@
                 const gov = document.getElementById('auth-gov').value; 
                 const city = document.getElementById('auth-city').value; 
                 const address = document.getElementById('auth-address').value.trim();
-
                 if (!nameAr || !gov || !city || !address) throw new Error("missing_fields");
-
                 const userCredential = await createUserWithEmailAndPassword(auth, email, pass); const user = userCredential.user;
                 await updateProfile(user, { displayName: nameAr });
-
-                const newUser = { 
-                    username: fullPhone, // Using phone as username
-                    name: nameAr, 
-                    phone: fullPhone, 
-                    email: email, 
-                    role: state.authRole, 
-                    governorate: gov, 
-                    city: city, 
-                    address: address, 
-                    isAdmin: false, 
-                    isVerified: false, 
-                    image: state.authImageBase64 || null, 
-                    createdAt: serverTimestamp() 
-                };
-
+                const newUser = { username: fullPhone, name: nameAr, phone: fullPhone, email: email, role: state.authRole, governorate: gov, city: city, address: address, isAdmin: false, isVerified: false, isBanned: false, image: state.authImageBase64 || null, createdAt: serverTimestamp() };
                 await setDoc(doc(db, "users", user.uid), newUser);
                 state.userData = newUser; state.userRole = state.authRole; state.user = user;
-                document.getElementById('header-username').innerText = nameAr; document.getElementById('welcome-text').classList.remove('hidden');
-
             } else { 
                 const userCredential = await signInWithEmailAndPassword(auth, email, pass);
                 const user = userCredential.user;
-                
-                // --- FIX: Strict Role Validation ---
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    if (userData.role !== state.authRole) {
-                        await signOut(auth); // Sign out immediately
+                // --- ROLE CHECK ---
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if (snap.exists()) {
+                    const dbRole = snap.data().role;
+                    if (dbRole !== state.authRole) {
+                        await signOut(auth);
                         throw new Error("role_mismatch");
                     }
-                    state.userData = userData;
-                    state.userRole = userData.role;
-                    state.user = user;
+                    if (snap.data().isBanned) {
+                        await signOut(auth);
+                        throw new Error("banned_user");
+                    }
                 }
             }
 
-            // --- FIX: Seamless Update (No Reload) ---
-            updateNavUI();
-            btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`; 
-            btn.classList.replace('bg-navy', 'bg-green-600');
+            btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`; btn.classList.replace('bg-navy', 'bg-green-600');
             
+            // --- REFRESH PAGE FOR CLEAN STATE ---
             setTimeout(() => { 
-                document.getElementById('login-view').classList.add('hidden'); 
-                document.getElementById('app-content').classList.remove('hidden'); 
-                showToast(`أهلاً بك في السوق وياك 👋`, 's'); 
-                loadListings(); // Refresh listings
-                checkUserChat(); 
-                initFavs();
+                window.location.reload();
             }, 500);
 
         } catch (error) {
             console.error("Auth Error:", error); let msg = `حدث خطأ: ${error.code}`; 
             if(error.message === "missing_fields") msg = "يرجى إكمال جميع البيانات"; 
-            else if(error.message === "role_mismatch") msg = "عفواً، نوع الحساب غير صحيح. يرجى اختيار الدور المناسب (عميل/مقدم خدمة)";
+            else if(error.message === "role_mismatch") msg = `عفواً، هذا الحساب مسجل كـ ${state.authRole === 'customer' ? 'مقدم خدمة' : 'عميل'}. يرجى تغيير نوع الدخول.`;
+            else if(error.message === "banned_user") msg = "تم حظر هذا الحساب من قبل الإدارة";
             else if(error.code === 'auth/email-already-in-use') msg = "رقم الهاتف هذا مسجل بالفعل"; 
             else if(error.code === 'auth/wrong-password') msg = "كلمة المرور غير صحيحة"; 
             else if(error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') msg = "بيانات الدخول غير صحيحة";
-            
             errDiv.innerText = msg; errDiv.classList.remove('hidden'); btn.disabled = false; btn.innerHTML = originalBtnText; lucide.createIcons();
         }
     }
 
-    // FIXED LOGOUT
-    window.logout = async () => { 
-        try {
-            await signOut(auth);
-            localStorage.clear(); // Clear local state
-            window.location.reload(); 
-        } catch(e) {
-            console.error("Logout error", e);
-            window.location.reload();
-        }
+    // --- MASTER ADMIN LOGIC (New Full Page) ---
+    window.openMasterView = () => {
+        document.getElementById('master-view').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    window.closeMasterView = () => {
+        document.getElementById('master-view').classList.add('hidden');
+        document.body.style.overflow = '';
     }
 
-    // --- FIX: Admin Panel as Fixed Page ---
-    window.toggleAdminPanel = () => {
-        const panel = document.getElementById('admin-panel');
-        const app = document.getElementById('app-content');
+    window.searchUserForMaster = async () => {
+        const phoneInput = document.getElementById('master-search-phone').value.trim();
+        const resDiv = document.getElementById('master-user-result');
         
-        panel.classList.toggle('hidden');
-        
-        if(!panel.classList.contains('hidden')) {
-            app.classList.add('hidden'); // Hide app content
-            refreshAdmin();
+        if(!phoneInput) return showToast("أدخل رقم الهاتف", "e");
+        let cleanPhone = phoneInput.replace(/\D/g, '');
+        if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
+        const fullPhone = `0${cleanPhone}`;
+
+        resDiv.innerHTML = '<div class="text-center"><div class="spinner border-navy"></div> جاري البحث...</div>';
+        resDiv.classList.remove('hidden');
+
+        const q = query(collection(db, "users"), where("phone", "==", fullPhone));
+        const snap = await getDocs(q);
+
+        if(snap.empty) {
+            resDiv.innerHTML = '<p class="text-red-500 font-bold text-center">لم يتم العثور على مستخدم</p>';
         } else {
-            app.classList.remove('hidden'); // Show app content
+            const docSnap = snap.docs[0];
+            const u = docSnap.data();
+            const uid = docSnap.id;
+            
+            resDiv.innerHTML = `
+                <div class="flex items-center gap-3 mb-4 border-b pb-2">
+                    <div class="w-12 h-12 rounded-full bg-slate-200 overflow-hidden">
+                        ${u.image ? `<img src="${u.image}" class="w-full h-full object-cover">` : '<i data-lucide="user" class="w-full h-full p-2 text-slate-400"></i>'}
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-navy dark:text-white">${u.name}</h4>
+                        <p class="text-xs text-slate-500">${u.role === 'marketer' ? 'مقدم خدمة' : 'عميل'}</p>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-2 rounded">
+                        <span class="text-xs font-bold">توثيق الحساب (علامة زرقاء)</span>
+                        <button onclick="toggleMasterAction('${uid}', 'isVerified', ${!u.isVerified})" class="${u.isVerified ? 'bg-green-600' : 'bg-slate-300'} text-white px-3 py-1 rounded text-xs font-bold transition">${u.isVerified ? 'مفعل' : 'تعطيل'}</button>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-2 rounded">
+                        <span class="text-xs font-bold">صلاحيات الأدمن</span>
+                        <button onclick="toggleMasterAction('${uid}', 'isAdmin', ${!u.isAdmin})" class="${u.isAdmin ? 'bg-green-600' : 'bg-slate-300'} text-white px-3 py-1 rounded text-xs font-bold transition">${u.isAdmin ? 'مفعل' : 'تعطيل'}</button>
+                    </div>
+                    <div class="flex justify-between items-center bg-red-50 dark:bg-red-900/20 p-2 rounded border border-red-100">
+                        <span class="text-xs font-bold text-red-600">حظر المستخدم (Ban)</span>
+                        <button onclick="toggleMasterAction('${uid}', 'isBanned', ${!u.isBanned})" class="${u.isBanned ? 'bg-red-600' : 'bg-slate-300'} text-white px-3 py-1 rounded text-xs font-bold transition">${u.isBanned ? 'محظور' : 'غير محظور'}</button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
         }
-    };
-
-    function renderView() {
-        localStorage.setItem('last_view', state.currentView); localStorage.setItem('last_filter', state.currentFilter);
-        const searchInput = document.getElementById('search-input'); const catContainer = document.getElementById('categories-container'); const searchContainer = document.getElementById('search-container'); const viewHeader = document.getElementById('view-header'); const filterBtn = document.getElementById('btn-filter-toggle'); const filterPanel = document.getElementById('filter-panel');
-        const homeGrid = document.getElementById('home-grid'); const prodGrid = document.getElementById('grid-container'); const emptyState = document.getElementById('empty-state'); const loadMore = document.getElementById('load-more-container');
-        filterPanel.classList.add('hidden');
-        if (state.currentView === 'home') {
-            if(homeGrid) homeGrid.classList.remove('hidden'); prodGrid.classList.add('hidden'); if(emptyState) emptyState.classList.add('hidden'); 
-            viewHeader.classList.add('hidden'); catContainer.classList.add('hidden'); filterBtn.classList.add('hidden'); loadMore.classList.add('hidden');
-            searchContainer.classList.remove('hidden'); searchInput.placeholder = 'ابحث عن قسم...';
-        } else if (state.currentView === 'category') {
-            if(homeGrid) homeGrid.classList.add('hidden'); prodGrid.classList.remove('hidden');
-            viewHeader.classList.remove('hidden');
-            const title = state.currentFilter === 'all' ? 'كل المنتجات' : (state.currentFilter === 'fav' ? 'المفضلة' : state.currentFilter);
-            document.getElementById('view-title').innerText = title;
-            if (state.currentFilter === 'fav') { searchContainer.classList.add('hidden'); catContainer.classList.add('hidden'); } 
-            else { searchContainer.classList.remove('hidden'); filterBtn.classList.remove('hidden'); searchInput.placeholder = 'ابحث عن منتج...'; if (state.currentFilter === 'all' || state.currentFilter === 'عروض') catContainer.classList.remove('hidden'); else catContainer.classList.add('hidden'); }
-            prodGrid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pb-2';
-            filter(state.currentFilter);
-        }
-        lucide.createIcons();
     }
 
+    window.toggleMasterAction = async (uid, field, value) => {
+        try {
+            await updateDoc(doc(db, "users", uid), { [field]: value });
+            showToast("تم تحديث الحالة بنجاح");
+            searchUserForMaster(); // Refresh UI
+        } catch(e) {
+            console.error(e);
+            showToast("حدث خطأ", "e");
+        }
+    }
+
+    // ... (Keep existing logout, renderView, filter, listing logic) ...
+    window.logout = async () => { try { await signOut(auth); localStorage.clear(); window.location.reload(); } catch(e) { console.error("Logout error", e); window.location.reload(); } }
+    function renderView() { localStorage.setItem('last_view', state.currentView); localStorage.setItem('last_filter', state.currentFilter); const searchInput = document.getElementById('search-input'); const catContainer = document.getElementById('categories-container'); const searchContainer = document.getElementById('search-container'); const viewHeader = document.getElementById('view-header'); const filterBtn = document.getElementById('btn-filter-toggle'); const filterPanel = document.getElementById('filter-panel'); const homeGrid = document.getElementById('home-grid'); const prodGrid = document.getElementById('grid-container'); const emptyState = document.getElementById('empty-state'); const loadMore = document.getElementById('load-more-container'); filterPanel.classList.add('hidden'); if (state.currentView === 'home') { if(homeGrid) homeGrid.classList.remove('hidden'); prodGrid.classList.add('hidden'); if(emptyState) emptyState.classList.add('hidden'); viewHeader.classList.add('hidden'); catContainer.classList.add('hidden'); filterBtn.classList.add('hidden'); loadMore.classList.add('hidden'); searchContainer.classList.remove('hidden'); searchInput.placeholder = 'ابحث عن قسم...'; } else if (state.currentView === 'category') { if(homeGrid) homeGrid.classList.add('hidden'); prodGrid.classList.remove('hidden'); viewHeader.classList.remove('hidden'); const title = state.currentFilter === 'all' ? 'كل المنتجات' : (state.currentFilter === 'fav' ? 'المفضلة' : state.currentFilter); document.getElementById('view-title').innerText = title; if (state.currentFilter === 'fav') { searchContainer.classList.add('hidden'); catContainer.classList.add('hidden'); } else { searchContainer.classList.remove('hidden'); filterBtn.classList.remove('hidden'); searchInput.placeholder = 'ابحث عن منتج...'; if (state.currentFilter === 'all' || state.currentFilter === 'عروض') catContainer.classList.remove('hidden'); else catContainer.classList.add('hidden'); } prodGrid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pb-2'; filter(state.currentFilter); } lucide.createIcons(); }
     window.applyFilters = () => { renderProducts(); }
     window.toggleFilterPanel = () => { document.getElementById('filter-panel').classList.toggle('hidden'); }
     window.resetFilters = () => { document.getElementById('search-input').value = ''; document.getElementById('filter-price').value = ''; document.getElementById('filter-gov').value = ''; document.getElementById('filter-condition').value = ''; document.getElementById('filter-min-price').value = ''; document.getElementById('filter-max-price').value = ''; if (state.currentView === 'home') renderCategoryCards(); else renderProducts(); };
     window.switchToCategoryView = (category) => { state.currentView = 'category'; state.currentFilter = category; document.getElementById('search-input').value = ''; state.visibleLimit = 6; window.scrollTo({ top: 0, behavior: 'smooth' }); renderView(); }
     window.switchToHomeView = () => { state.currentView = 'home'; state.currentFilter = 'all'; document.getElementById('search-input').value = ''; state.visibleLimit = 6; window.scrollTo({ top: 0, behavior: 'smooth' }); renderView(); const url = new URL(window.location); url.searchParams.delete('product_id'); window.history.replaceState({}, '', url); }
-
-    function renderCategoryCards() {
-        const cont = document.getElementById('home-grid'); const q = normalizeText(document.getElementById('search-input').value); if (!cont) return;
-        cont.innerHTML = ''; const filteredCats = CATEGORIES.filter(c => c !== 'الكل' && c !== 'عروض' && normalizeText(c).includes(q));
-        if (!filteredCats.length) document.getElementById('empty-state').classList.remove('hidden');
-        else {
-            document.getElementById('empty-state').classList.add('hidden');
-            cont.innerHTML = filteredCats.map(cat => {
-                const imageUrl = CATEGORY_IMAGES[cat] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=300&auto=format&fit=crop';
-                return `<div onclick="switchToCategoryView('${cat}')" class="relative rounded-xl overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 h-28 cursor-pointer active:scale-95 transition-transform group flex items-center justify-center text-center p-2"><img src="${imageUrl}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy"><div class="absolute inset-0 bg-black/50"></div><h3 class="relative z-10 font-bold text-white text-sm drop-shadow-md">${cat}</h3></div>`;
-            }).join('');
-        }
-    }
-    renderCategoryCards();
-
-    async function loadListings(isNext = false) {
-        if(state.isLoadingMore) return;
-        state.isLoadingMore = true;
-        const loadBtn = document.getElementById('btn-load-more');
-        if(loadBtn) loadBtn.innerText = "جاري التحميل...";
-
-        if(!isNext) {
-            showSkeletons();
-            state.listings = [];
-            state.lastVisibleDoc = null;
-        }
-
-        try {
-            let q = query(collection(db, "listings"), orderBy("createdAt", "desc"), limit(10));
-            if (isNext && state.lastVisibleDoc) {
-                q = query(collection(db, "listings"), orderBy("createdAt", "desc"), startAfter(state.lastVisibleDoc), limit(10));
-            }
-
-            const snap = await getDocs(q);
-
-            if (!snap.empty) {
-                state.lastVisibleDoc = snap.docs[snap.docs.length - 1];
-                snap.forEach(d => state.listings.push({id: d.id, ...d.data()}));
-                document.getElementById('load-more-container').classList.remove('hidden');
-            } else {
-                document.getElementById('load-more-container').classList.add('hidden');
-            }
-
-            // Handle Deep Link
-            const params = new URLSearchParams(window.location.search); 
-            const linkedProdId = params.get('product_id');
-            if(linkedProdId && !state.currentItem && !isNext) { 
-                const item = state.listings.find(i => i.id === linkedProdId); 
-                if(item) openDetails(item.id);
-                else {
-                    getDoc(doc(db, "listings", linkedProdId)).then(d => {
-                        if(d.exists()) {
-                            const data = {id: d.id, ...d.data()};
-                            state.listings.unshift(data); // Add to top
-                            openDetails(data.id);
-                        }
-                    });
-                }
-            }
-
-            renderView();
-        } catch (e) {
-            console.error("Error loading listings:", e);
-            showToast("حدث خطأ في تحميل البيانات", "e");
-        } finally {
-            state.isLoadingMore = false;
-            if(loadBtn) loadBtn.innerText = "عرض المزيد 👇";
-        }
-    }
-
-    window.handleSearch = async () => { 
-        if (state.currentView === 'home') {
-            renderCategoryCards();
-        } else {
-            const q = document.getElementById('search-input').value;
-            if(q.length > 0) { renderProducts(); } else { renderProducts(); }
-        }
-    };
-
-    window.filter = (type) => { 
-        state.currentFilter = type; 
-        document.querySelectorAll('#categories-container .chip-btn').forEach(btn => { btn.className = "px-4 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition hover:border-primary hover:text-primary chip-btn"; });
-        const activeId = type === 'all' ? 'chip-all' : `chip-${type.replace(/\s/g, '')}`;
-        const activeBtn = document.getElementById(activeId);
-        if(activeBtn) { activeBtn.className = "px-5 py-1.5 rounded-full bg-navy dark:bg-primary text-white text-xs font-bold shadow whitespace-nowrap transform scale-105 transition chip-btn"; activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
-        if (state.currentView !== 'category') state.currentView = 'category';
-        const title = type === 'all' ? 'كل المنتجات' : (type === 'fav' ? 'المفضلة' : type);
-        document.getElementById('view-title').innerText = title;
-        renderProducts(); 
-    };
-
-    function renderProducts() {
-        const q = normalizeText(document.getElementById('search-input').value);
-        const priceFilter = document.getElementById('filter-price').value;
-        const govFilter = document.getElementById('filter-gov').value;
-        const condFilter = document.getElementById('filter-condition').value;
-        const minP = Number(document.getElementById('filter-min-price').value);
-        const maxP = Number(document.getElementById('filter-max-price').value);
-        const cont = document.getElementById('grid-container'); 
-
-        let filtered = state.listings.filter(item => { 
-            let matchType = true; 
-            if (state.currentFilter === 'fav') matchType = (state.favorites || []).includes(item.id);
-            else if (state.currentFilter === 'عروض') matchType = item.badge === 'hot';
-            else matchType = state.currentFilter === 'all' || item.category === state.currentFilter; 
-
-            const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); 
-            let matchGov = govFilter ? item.governorate === govFilter : true;
-            let matchCond = condFilter ? item.condition === condFilter : true;
-            let matchPrice = true;
-            if(minP && item.price < minP) matchPrice = false;
-            if(maxP && item.price > maxP) matchPrice = false;
-
-            return matchType && matchText && matchGov && matchCond && matchPrice; 
-        }); 
-
-        if (priceFilter === 'low') filtered.sort((a, b) => a.price - b.price);
-        else if (priceFilter === 'high') filtered.sort((a, b) => b.price - a.price);
-
-        if(!filtered.length) { cont.innerHTML = ''; document.getElementById('empty-state').classList.remove('hidden'); } 
-        else { 
-            document.getElementById('empty-state').classList.add('hidden'); 
-            cont.innerHTML = filtered.map(item => createCard(item)).join('');
-        } 
-        lucide.createIcons(); 
-    }
-
+    function renderCategoryCards() { const cont = document.getElementById('home-grid'); const q = normalizeText(document.getElementById('search-input').value); if (!cont) return; cont.innerHTML = ''; const filteredCats = CATEGORIES.filter(c => c !== 'الكل' && c !== 'عروض' && normalizeText(c).includes(q)); if (!filteredCats.length) document.getElementById('empty-state').classList.remove('hidden'); else { document.getElementById('empty-state').classList.add('hidden'); cont.innerHTML = filteredCats.map(cat => { const imageUrl = CATEGORY_IMAGES[cat] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=300&auto=format&fit=crop'; return `<div onclick="switchToCategoryView('${cat}')" class="relative rounded-xl overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 h-28 cursor-pointer active:scale-95 transition-transform group flex items-center justify-center text-center p-2"><img src="${imageUrl}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy"><div class="absolute inset-0 bg-black/50"></div><h3 class="relative z-10 font-bold text-white text-sm drop-shadow-md">${cat}</h3></div>`; }).join(''); } }
+    async function loadListings(isNext = false) { if(state.isLoadingMore) return; state.isLoadingMore = true; const loadBtn = document.getElementById('btn-load-more'); if(loadBtn) loadBtn.innerText = "جاري التحميل..."; if(!isNext) { showSkeletons(); state.listings = []; state.lastVisibleDoc = null; } try { let q = query(collection(db, "listings"), orderBy("createdAt", "desc"), limit(10)); if (isNext && state.lastVisibleDoc) { q = query(collection(db, "listings"), orderBy("createdAt", "desc"), startAfter(state.lastVisibleDoc), limit(10)); } const snap = await getDocs(q); if (!snap.empty) { state.lastVisibleDoc = snap.docs[snap.docs.length - 1]; snap.forEach(d => state.listings.push({id: d.id, ...d.data()})); document.getElementById('load-more-container').classList.remove('hidden'); } else { document.getElementById('load-more-container').classList.add('hidden'); } const params = new URLSearchParams(window.location.search); const linkedProdId = params.get('product_id'); if(linkedProdId && !state.currentItem && !isNext) { const item = state.listings.find(i => i.id === linkedProdId); if(item) openDetails(item.id); else { getDoc(doc(db, "listings", linkedProdId)).then(d => { if(d.exists()) { const data = {id: d.id, ...d.data()}; state.listings.unshift(data); openDetails(data.id); } }); } } renderView(); } catch (e) { console.error("Error loading listings:", e); showToast("حدث خطأ في تحميل البيانات", "e"); } finally { state.isLoadingMore = false; if(loadBtn) loadBtn.innerText = "عرض المزيد 👇"; } }
+    window.handleSearch = async () => { if (state.currentView === 'home') { renderCategoryCards(); } else { const q = document.getElementById('search-input').value; if(q.length > 0) { renderProducts(); } else { renderProducts(); } } };
+    window.filter = (type) => { state.currentFilter = type; document.querySelectorAll('#categories-container .chip-btn').forEach(btn => { btn.className = "px-4 py-1.5 rounded-full bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition hover:border-primary hover:text-primary chip-btn"; }); const activeId = type === 'all' ? 'chip-all' : `chip-${type.replace(/\s/g, '')}`; const activeBtn = document.getElementById(activeId); if(activeBtn) { activeBtn.className = "px-5 py-1.5 rounded-full bg-navy dark:bg-primary text-white text-xs font-bold shadow whitespace-nowrap transform scale-105 transition chip-btn"; activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } if (state.currentView !== 'category') state.currentView = 'category'; const title = type === 'all' ? 'كل المنتجات' : (type === 'fav' ? 'المفضلة' : type); document.getElementById('view-title').innerText = title; renderProducts(); };
+    function renderProducts() { const q = normalizeText(document.getElementById('search-input').value); const priceFilter = document.getElementById('filter-price').value; const govFilter = document.getElementById('filter-gov').value; const condFilter = document.getElementById('filter-condition').value; const minP = Number(document.getElementById('filter-min-price').value); const maxP = Number(document.getElementById('filter-max-price').value); const cont = document.getElementById('grid-container'); let filtered = state.listings.filter(item => { let matchType = true; if (state.currentFilter === 'fav') matchType = (state.favorites || []).includes(item.id); else if (state.currentFilter === 'عروض') matchType = item.badge === 'hot'; else matchType = state.currentFilter === 'all' || item.category === state.currentFilter; const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); let matchGov = govFilter ? item.governorate === govFilter : true; let matchCond = condFilter ? item.condition === condFilter : true; let matchPrice = true; if(minP && item.price < minP) matchPrice = false; if(maxP && item.price > maxP) matchPrice = false; return matchType && matchText && matchGov && matchCond && matchPrice; }); if (priceFilter === 'low') filtered.sort((a, b) => a.price - b.price); else if (priceFilter === 'high') filtered.sort((a, b) => b.price - a.price); if(!filtered.length) { cont.innerHTML = ''; document.getElementById('empty-state').classList.remove('hidden'); } else { document.getElementById('empty-state').classList.add('hidden'); cont.innerHTML = filtered.map(item => createCard(item)).join(''); } lucide.createIcons(); }
     window.loadMoreItems = () => { loadListings(true); }
-
-    function formatDate(timestamp) {
-        if (!timestamp) return ''; const date = timestamp.toDate(); const now = new Date(); const diff = Math.floor((now - date) / 1000); 
-        if (diff < 60) return 'منذ لحظات'; if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`; if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`; if (diff < 604800) return `منذ ${Math.floor(diff / 86400)} يوم`;
-        return date.toLocaleDateString('ar-EG');
-    }
-
-    function createCard(item) {
-        const imgs = Array.isArray(item.images) ? item.images : [item.image];
-        const isFav = (state.favorites || []).includes(item.id);
-        const heartClass = isFav ? "fill-red-500 text-red-500" : "text-white";
-        let badge = item.badge === 'hot' ? `<span class="absolute top-1 right-1 bg-orange-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow animate-pulse z-10">🔥 عرض</span>` : '';
-        let statusOverlay = ''; let isClickable = true; 
-        if(item.status && item.status !== 'available') { const txt = item.status === 'sold' ? 'تم البيع' : 'غير متاح'; statusOverlay = `<div class="absolute inset-0 z-20 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center"><span class="bg-red-600 text-white font-bold px-4 py-2 rounded-xl shadow-xl transform -rotate-12 text-sm">${txt}</span></div>`; }
-
-        let extraInfo = '';
-        if(item.category === 'عقارات') extraInfo = `<span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.reType === 'sale' ? 'بيع' : 'إيجار'}</span>`;
-        else if(item.category === 'سيارات') {
-            if(item.carType === 'accessory') extraInfo = `<span class="bg-slate-100 dark:bg-white/5 px-1 rounded">اكسسوار</span>`;
-            else extraInfo = `<span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.carBrand || 'سيارة'}</span>`;
-        }
-        else if(USED_CATS.includes(item.category)) extraInfo = `<span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span>`;
-
-        return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${!statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button><span class="absolute bottom-1 left-1 bg-white/80 text-black text-[8px] font-bold px-1 rounded z-10">${formatDate(item.createdAt)}</span><div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${item.category}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[8px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center">${extraInfo}</div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`;
-    }
-
-    function goToDetailsSlide(index, behavior = 'auto') {
-        const total = state.detailsSliderImages.length; if (total === 0) return;
-        if (index < 0) index = total - 1; if (index >= total) index = 0;
-        state.detailsSliderIndex = index;
-        const imgEl = document.getElementById('details-img'); if (imgEl) imgEl.src = state.detailsSliderImages[state.detailsSliderIndex];
-        updateSliderDots();
-    }
+    function formatDate(timestamp) { if (!timestamp) return ''; const date = timestamp.toDate(); const now = new Date(); const diff = Math.floor((now - date) / 1000); if (diff < 60) return 'منذ لحظات'; if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`; if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`; if (diff < 604800) return `منذ ${Math.floor(diff / 86400)} يوم`; return date.toLocaleDateString('ar-EG'); }
+    function createCard(item) { const imgs = Array.isArray(item.images) ? item.images : [item.image]; const isFav = (state.favorites || []).includes(item.id); const heartClass = isFav ? "fill-red-500 text-red-500" : "text-white"; let badge = item.badge === 'hot' ? `<span class="absolute top-1 right-1 bg-orange-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow animate-pulse z-10">🔥 عرض</span>` : ''; let statusOverlay = ''; let isClickable = true; if(item.status && item.status !== 'available') { const txt = item.status === 'sold' ? 'تم البيع' : 'غير متاح'; statusOverlay = `<div class="absolute inset-0 z-20 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center"><span class="bg-red-600 text-white font-bold px-4 py-2 rounded-xl shadow-xl transform -rotate-12 text-sm">${txt}</span></div>`; } let extraInfo = ''; if(item.category === 'عقارات') extraInfo = `<span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.reType === 'sale' ? 'بيع' : 'إيجار'}</span>`; else if(item.category === 'سيارات') { if(item.carType === 'accessory') extraInfo = `<span class="bg-slate-100 dark:bg-white/5 px-1 rounded">اكسسوار</span>`; else extraInfo = `<span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.carBrand || 'سيارة'}</span>`; } else if(USED_CATS.includes(item.category)) extraInfo = `<span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.condition==='new'?'جديد':(item.condition==='openbox'?'كسر زيرو':'مستعمل')}</span>`; return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-black dark:border-slate-700 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}"><div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">${statusOverlay} ${!statusOverlay ? badge : ''}<button onclick="toggleFav(event, '${item.id}')" class="absolute top-1 left-1 z-20 p-1.5 rounded-full bg-black/20 hover:bg-black/40"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button><span class="absolute bottom-1 left-1 bg-white/80 text-black text-[8px] font-bold px-1 rounded z-10">${formatDate(item.createdAt)}</span><div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">${imgs.map(src => `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" loading="lazy">`).join('')}</div><span class="absolute bottom-1 right-1 bg-white/90 dark:bg-black/60 text-slate-800 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-10">${item.category}</span></div><div class="p-1.5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><span class="font-black text-primary text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج.م</span></div><div class="text-[8px] text-slate-500 dark:text-slate-400 mb-1 flex gap-1 items-center">${extraInfo}</div><div class="mt-auto flex gap-1 pt-1 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-primary text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a></div></div></div>`; }
+    function goToDetailsSlide(index, behavior = 'auto') { const total = state.detailsSliderImages.length; if (total === 0) return; if (index < 0) index = total - 1; if (index >= total) index = 0; state.detailsSliderIndex = index; const imgEl = document.getElementById('details-img'); if (imgEl) imgEl.src = state.detailsSliderImages[state.detailsSliderIndex]; updateSliderDots(); }
     window.scrollDetails = (dir) => { const total = state.detailsSliderImages.length; if (total <= 1) return; goToDetailsSlide(state.detailsSliderIndex - dir); }
     function updateSliderDots() { if (state.detailsSliderImages.length <= 1) return; for (let i = 0; i < state.detailsSliderImages.length; i++) { const dot = document.getElementById(`dot-${i}`); if (dot) dot.className = i === state.detailsSliderIndex ? 'w-4 h-2 rounded-full bg-white shadow transition-all' : 'w-2 h-2 rounded-full bg-white/40 transition-all'; } }
     window.copyDetails = () => { if(!state.currentItem) return; const text = `المنتج: ${state.currentItem.title}\nالسعر: ${Number(state.currentItem.price).toLocaleString()} ج.م\nالوصف: ${state.currentItem.desc}\nللتواصل: ${state.currentItem.phone}`; navigator.clipboard.writeText(text).then(() => { showToast('تم نسخ التفاصيل بنجاح ✅'); }).catch(err => { showToast('فشل النسخ', 'e'); }); }
-
-    window.downloadImg = async () => {
-        const src = document.getElementById('details-img').src;
-        if(!src) return;
-        try {
-            const response = await fetch(src);
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `souq_image_${Date.now()}.jpg`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast('جاري التنزيل...', 's');
-        } catch(e) {
-            console.error(e);
-            window.open(src, '_blank'); 
-        }
-    }
-
-    function renderSpecItem(label, value) {
-        if(!value) return '';
-        return `
-            <div class="spec-item">
-                <span class="spec-label">${label}</span>
-                <span class="spec-value" title="${value}">${value}</span>
-            </div>
-        `;
-    }
-
-    function renderSpecs(item) {
-        let html = '';
-        if(item.category === 'سيارات') {
-            if(item.carType === 'accessory') {
-                html += renderSpecItem('اسم القطعة', item.carAccName);
-                html += renderSpecItem('الحالة', item.condition === 'new' ? 'جديد' : 'مستعمل');
-            } else {
-                html += renderSpecItem('الماركة', item.carBrand);
-                html += renderSpecItem('الموديل', item.carModel);
-                html += renderSpecItem('السنة', item.carYear);
-                html += renderSpecItem('الوقود', item.carFuel);
-                html += renderSpecItem('الفتيس', item.carTrans);
-                html += renderSpecItem('العداد', item.carKm ? item.carKm + ' كم' : '');
-                html += renderSpecItem('سعة المحرك', item.carCc ? item.carCc + ' CC' : '');
-                if(item.features && item.features.length > 0) {
-                    item.features.forEach(f => { html += renderSpecItem('ميزة', f); });
-                }
-            }
-        } else if(item.category === 'الكترونيات وموبيلات') {
-            html += renderSpecItem('النوع', item.elecType);
-            html += renderSpecItem('الماركة', item.elecBrand);
-            html += renderSpecItem('الرام', item.elecRam ? item.elecRam + ' GB' : '');
-            html += renderSpecItem('المساحة', item.elecStorage ? item.elecStorage + ' GB' : '');
-            html += renderSpecItem('البطارية', item.elecBattery);
-        } else if(item.category === 'حيوانات أليفة') {
-            if(item.petType === 'sale') {
-                html += renderSpecItem('النوع', item.petCat);
-                html += renderSpecItem('السلالة', item.petBreed);
-                html += renderSpecItem('العمر', item.petAge);
-                html += renderSpecItem('الجنس', item.petGender === 'male' ? 'ذكر' : 'أنثى');
-            } else {
-                html += renderSpecItem('النوع', 'مستلزمات');
-            }
-        } else if(item.category === 'عقارات') {
-            html += renderSpecItem('نوع العرض', item.reType === 'sale' ? 'بيع' : 'إيجار');
-            html += renderSpecItem('نوع العقار', item.reCat);
-            html += renderSpecItem('المساحة', item.reArea ? item.reArea + ' م²' : '');
-            html += renderSpecItem('غرف', item.reRooms);
-            html += renderSpecItem('حمام', item.reBath);
-            html += renderSpecItem('التشطيب', item.reFinish);
-            html += renderSpecItem('الدور', item.reFloor);
-            html += renderSpecItem('الدفع', item.rePay === 'cash' ? 'كاش' : 'تقسيط');
-            html += renderSpecItem('مفروش', item.reFurnished === 'yes' ? 'نعم' : 'لا');
-        } else if(item.category === 'أجهزة كهربائية') {
-            html += renderSpecItem('الجهاز', item.eaType);
-            html += renderSpecItem('الماركة', item.eaBrand);
-            html += renderSpecItem('السعة', item.eaCap);
-        } else if(item.category === 'أثاث منزلي') {
-            html += renderSpecItem('النوع', item.furnType);
-            html += renderSpecItem('الخامة', item.furnMat);
-            html += renderSpecItem('المقاسات', item.furnDim);
-        }
-
-        if(html) return `<div class="specs-grid">${html}</div>`;
-        return '';
-    }
-
-    window.openDetails = (id) => {
-        const item = state.listings.find(i => i.id === id); if(!item) return; state.currentItem = item; 
-        document.getElementById('d-title').innerText = item.title; document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; 
-        document.getElementById('d-cat').innerText = 'قسم' + item.category; 
-        document.getElementById('d-desc').innerText = item.desc; document.getElementById('d-date').innerText = formatDate(item.createdAt);
-
-        const badgeContainer = document.getElementById('d-condition-badge');
-        if(USED_CATS.includes(item.category)) {
-            const condText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
-            badgeContainer.innerHTML = `<div class="inline-flex items-center gap-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 px-3 py-1 rounded-full text-xs font-bold border border-orange-500/20"><i data-lucide="info" class="w-3 h-3"></i> الحالة: ${condText}</div>`;
-            badgeContainer.classList.remove('hidden');
-        } else {
-            badgeContainer.classList.add('hidden');
-        }
-
-        const specsContainer = document.getElementById('d-dynamic-specs');
-        const specsHTML = renderSpecs(item);
-        if(specsHTML) {
-            specsContainer.innerHTML = specsHTML;
-            specsContainer.classList.remove('hidden');
-        } else {
-            specsContainer.classList.add('hidden');
-        }
-
-        const adminControls = document.getElementById('d-admin-controls'); if(adminControls) { adminControls.innerHTML = ''; const isOwner = state.user && state.user.uid === item.authorId; if (state.isAdmin || isOwner) { adminControls.innerHTML = `<button onclick="del(null, '${item.id}')" class="bg-white/80 dark:bg-black/50 text-red-500 p-1.5 rounded-full shadow-sm hover:bg-white transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button><button onclick="toggleStatus(event, '${item.id}', '${item.status || 'available'}')" class="bg-white/80 dark:bg-black/50 text-blue-500 p-1.5 rounded-full shadow-sm hover:bg-white transition"><i data-lucide="edit-3" class="w-5 h-5"></i></button>`; } }
-        const pubName = document.getElementById('d-pub-name'); const pubImg = document.getElementById('d-pub-img'); const pubBadge = document.getElementById('d-pub-verified');
-        pubName.innerText = "جاري التحميل..."; pubImg.innerHTML = `<div class="animate-pulse bg-slate-300 w-full h-full"></div>`; pubBadge.classList.add('hidden');
-        document.getElementById('d-pub-bar').onclick = () => toggleProfile(item.authorId);
-
-        const amCont = document.getElementById('d-features'); amCont.innerHTML=''; 
-        const sizeRow = document.getElementById('d-sizes-row'); const sizeList = document.getElementById('d-sizes-list'); const colorRow = document.getElementById('d-colors-row'); const colorList = document.getElementById('d-colors-list');
-        sizeRow.classList.add('hidden'); colorRow.classList.add('hidden'); sizeList.innerHTML = ''; colorList.innerHTML = '';
-        if(item.size && Array.isArray(item.size) && item.size.length > 0) { sizeRow.classList.remove('hidden'); item.size.forEach(s => { sizeList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm min-w-[30px] text-center">${s}</span>`; }); }
-        if(item.color && Array.isArray(item.color) && item.color.length > 0) { colorRow.classList.remove('hidden'); item.color.forEach(c => { colorList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm">${c}</span>`; }); }
-
-        const featContainer = document.getElementById('d-features-container');
-        if(item.category === 'سيارات' || item.category === 'عقارات') {
-             featContainer.classList.add('hidden');
-        } else {
-             if(item.features && item.features.length > 0) {
-                 item.features.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1 border border-slate-200 dark:border-slate-600 font-bold">${a}</span>`);
-                 featContainer.classList.remove('hidden');
-             } else {
-                 featContainer.classList.add('hidden');
-             }
-        }
-
-        const shipInfo = document.getElementById('d-shipping-info');
-        if(item.shippingMode === 'specific' && item.shippingGov) { let govText = Array.isArray(item.shippingGov) ? item.shippingGov.join('، ') : item.shippingGov; shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> <span class="whitespace-normal leading-tight text-right">الشحن متاح لـ: ${govText}</span>`; } else { shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> شحن لكل المحافظات`; }
-        document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; document.getElementById('d-call').href = `tel:${item.phone}`;
-        const imgs = Array.isArray(item.images) ? item.images : [item.image]; state.detailsSliderImages = imgs; state.detailsSliderIndex = 0;   
-        const dotsContainer = document.getElementById('details-dots'); const imgEl = document.getElementById('details-img'); if (imgEl) { imgEl.src = imgs.length > 0 ? imgs[0] : 'https://placehold.co/400x300/e2e8f0/94a3b8?text=No+Image'; imgEl.onclick = () => openLightbox(imgEl.src); }
-        dotsContainer.innerHTML = ''; if (imgs.length > 1) { dotsContainer.innerHTML = imgs.map((_, index) => `<span id="dot-${index}" class="w-2 h-2 rounded-full bg-white/40 transition-all"></span>`).join(''); } document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
-        toggleModal('details-modal'); goToDetailsSlide(0, 'auto'); 
-        const url = new URL(window.location); url.searchParams.set('product_id', id); window.history.replaceState({}, '', url);
-
-        (async () => {
-            if (state.authorCache[item.authorId]) {
-                const uData = state.authorCache[item.authorId];
-                updatePublisherUI(uData);
-            } else {
-                try {
-                    const uSnap = await getDoc(doc(db, "users", item.authorId));
-                    if(uSnap.exists()) {
-                        const uData = uSnap.data();
-                        state.authorCache[item.authorId] = uData; // Cache it
-                        updatePublisherUI(uData);
-                    } else {
-                        pubName.innerText = "مستخدم غير معروف";
-                    }
-                } catch(e) { pubName.innerText = "ناشر"; }
-            }
-            state.productReviewsLimit = 1; loadProductReviews(false); lucide.createIcons(); 
-        })();
-        lucide.createIcons(); 
-    }
-
-    function updatePublisherUI(uData) {
-        const pubName = document.getElementById('d-pub-name'); 
-        const pubImg = document.getElementById('d-pub-img');
-        const pubBadge = document.getElementById('d-pub-verified');
-
-        state.currentAuthor = uData;
-        pubName.innerText = uData.name || "مستخدم"; 
-        if(uData.image) { pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`; } 
-        else { pubImg.innerHTML = `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; lucide.createIcons(); }
-
-        if(uData.isVerified) pubBadge.classList.remove('hidden');
-        else pubBadge.classList.add('hidden');
-    }
-
+    window.downloadImg = async () => { const src = document.getElementById('details-img').src; if(!src) return; try { const response = await fetch(src); const blob = await response.blob(); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `souq_image_${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showToast('جاري التنزيل...', 's'); } catch(e) { console.error(e); window.open(src, '_blank'); } }
+    function renderSpecItem(label, value) { if(!value) return ''; return `<div class="spec-item"><span class="spec-label">${label}</span><span class="spec-value" title="${value}">${value}</span></div>`; }
+    function renderSpecs(item) { let html = ''; if(item.category === 'سيارات') { if(item.carType === 'accessory') { html += renderSpecItem('اسم القطعة', item.carAccName); html += renderSpecItem('الحالة', item.condition === 'new' ? 'جديد' : 'مستعمل'); } else { html += renderSpecItem('الماركة', item.carBrand); html += renderSpecItem('الموديل', item.carModel); html += renderSpecItem('السنة', item.carYear); html += renderSpecItem('الوقود', item.carFuel); html += renderSpecItem('الفتيس', item.carTrans); html += renderSpecItem('العداد', item.carKm ? item.carKm + ' كم' : ''); html += renderSpecItem('سعة المحرك', item.carCc ? item.carCc + ' CC' : ''); if(item.features && item.features.length > 0) { item.features.forEach(f => { html += renderSpecItem('ميزة', f); }); } } } else if(item.category === 'الكترونيات وموبيلات') { html += renderSpecItem('النوع', item.elecType); html += renderSpecItem('الماركة', item.elecBrand); html += renderSpecItem('الرام', item.elecRam ? item.elecRam + ' GB' : ''); html += renderSpecItem('المساحة', item.elecStorage ? item.elecStorage + ' GB' : ''); html += renderSpecItem('البطارية', item.elecBattery); } else if(item.category === 'حيوانات أليفة') { if(item.petType === 'sale') { html += renderSpecItem('النوع', item.petCat); html += renderSpecItem('السلالة', item.petBreed); html += renderSpecItem('العمر', item.petAge); html += renderSpecItem('الجنس', item.petGender === 'male' ? 'ذكر' : 'أنثى'); } else { html += renderSpecItem('النوع', 'مستلزمات'); } } else if(item.category === 'عقارات') { html += renderSpecItem('نوع العرض', item.reType === 'sale' ? 'بيع' : 'إيجار'); html += renderSpecItem('نوع العقار', item.reCat); html += renderSpecItem('المساحة', item.reArea ? item.reArea + ' م²' : ''); html += renderSpecItem('غرف', item.reRooms); html += renderSpecItem('حمام', item.reBath); html += renderSpecItem('التشطيب', item.reFinish); html += renderSpecItem('الدور', item.reFloor); html += renderSpecItem('الدفع', item.rePay === 'cash' ? 'كاش' : 'تقسيط'); html += renderSpecItem('مفروش', item.reFurnished === 'yes' ? 'نعم' : 'لا'); } else if(item.category === 'أجهزة كهربائية') { html += renderSpecItem('الجهاز', item.eaType); html += renderSpecItem('الماركة', item.eaBrand); html += renderSpecItem('السعة', item.eaCap); } else if(item.category === 'أثاث منزلي') { html += renderSpecItem('النوع', item.furnType); html += renderSpecItem('الخامة', item.furnMat); html += renderSpecItem('المقاسات', item.furnDim); } if(html) return `<div class="specs-grid">${html}</div>`; return ''; }
+    window.openDetails = (id) => { const item = state.listings.find(i => i.id === id); if(!item) return; state.currentItem = item; document.getElementById('d-title').innerText = item.title; document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; document.getElementById('d-cat').innerText = 'قسم' + item.category; document.getElementById('d-desc').innerText = item.desc; document.getElementById('d-date').innerText = formatDate(item.createdAt); const badgeContainer = document.getElementById('d-condition-badge'); if(USED_CATS.includes(item.category)) { const condText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل'); badgeContainer.innerHTML = `<div class="inline-flex items-center gap-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 px-3 py-1 rounded-full text-xs font-bold border border-orange-500/20"><i data-lucide="info" class="w-3 h-3"></i> الحالة: ${condText}</div>`; badgeContainer.classList.remove('hidden'); } else { badgeContainer.classList.add('hidden'); } const specsContainer = document.getElementById('d-dynamic-specs'); const specsHTML = renderSpecs(item); if(specsHTML) { specsContainer.innerHTML = specsHTML; specsContainer.classList.remove('hidden'); } else { specsContainer.classList.add('hidden'); } const adminControls = document.getElementById('d-admin-controls'); if(adminControls) { adminControls.innerHTML = ''; const isOwner = state.user && state.user.uid === item.authorId; if (state.isAdmin || isOwner) { adminControls.innerHTML = `<button onclick="del(null, '${item.id}')" class="bg-white/80 dark:bg-black/50 text-red-500 p-1.5 rounded-full shadow-sm hover:bg-white transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button><button onclick="toggleStatus(event, '${item.id}', '${item.status || 'available'}')" class="bg-white/80 dark:bg-black/50 text-blue-500 p-1.5 rounded-full shadow-sm hover:bg-white transition"><i data-lucide="edit-3" class="w-5 h-5"></i></button>`; } } const pubName = document.getElementById('d-pub-name'); const pubImg = document.getElementById('d-pub-img'); const pubBadge = document.getElementById('d-pub-verified'); pubName.innerText = "جاري التحميل..."; pubImg.innerHTML = `<div class="animate-pulse bg-slate-300 w-full h-full"></div>`; pubBadge.classList.add('hidden'); document.getElementById('d-pub-bar').onclick = () => toggleProfile(item.authorId); const amCont = document.getElementById('d-features'); amCont.innerHTML=''; const sizeRow = document.getElementById('d-sizes-row'); const sizeList = document.getElementById('d-sizes-list'); const colorRow = document.getElementById('d-colors-row'); const colorList = document.getElementById('d-colors-list'); sizeRow.classList.add('hidden'); colorRow.classList.add('hidden'); sizeList.innerHTML = ''; colorList.innerHTML = ''; if(item.size && Array.isArray(item.size) && item.size.length > 0) { sizeRow.classList.remove('hidden'); item.size.forEach(s => { sizeList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm min-w-[30px] text-center">${s}</span>`; }); } if(item.color && Array.isArray(item.color) && item.color.length > 0) { colorRow.classList.remove('hidden'); item.color.forEach(c => { colorList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm">${c}</span>`; }); } const featContainer = document.getElementById('d-features-container'); if(item.category === 'سيارات' || item.category === 'عقارات') { featContainer.classList.add('hidden'); } else { if(item.features && item.features.length > 0) { item.features.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1 border border-slate-200 dark:border-slate-600 font-bold">${a}</span>`); featContainer.classList.remove('hidden'); } else { featContainer.classList.add('hidden'); } } const shipInfo = document.getElementById('d-shipping-info'); if(item.shippingMode === 'specific' && item.shippingGov) { let govText = Array.isArray(item.shippingGov) ? item.shippingGov.join('، ') : item.shippingGov; shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> <span class="whitespace-normal leading-tight text-right">الشحن متاح لـ: ${govText}</span>`; } else { shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> شحن لكل المحافظات`; } document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; document.getElementById('d-call').href = `tel:${item.phone}`; const imgs = Array.isArray(item.images) ? item.images : [item.image]; state.detailsSliderImages = imgs; state.detailsSliderIndex = 0; const dotsContainer = document.getElementById('details-dots'); const imgEl = document.getElementById('details-img'); if (imgEl) { imgEl.src = imgs.length > 0 ? imgs[0] : 'https://placehold.co/400x300/e2e8f0/94a3b8?text=No+Image'; imgEl.onclick = () => openLightbox(imgEl.src); } dotsContainer.innerHTML = ''; if (imgs.length > 1) { dotsContainer.innerHTML = imgs.map((_, index) => `<span id="dot-${index}" class="w-2 h-2 rounded-full bg-white/40 transition-all"></span>`).join(''); } document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none'; toggleModal('details-modal'); goToDetailsSlide(0, 'auto'); const url = new URL(window.location); url.searchParams.set('product_id', id); window.history.replaceState({}, '', url); (async () => { if (state.authorCache[item.authorId]) { const uData = state.authorCache[item.authorId]; updatePublisherUI(uData); } else { try { const uSnap = await getDoc(doc(db, "users", item.authorId)); if(uSnap.exists()) { const uData = uSnap.data(); state.authorCache[item.authorId] = uData; updatePublisherUI(uData); } else { pubName.innerText = "مستخدم غير معروف"; } } catch(e) { pubName.innerText = "ناشر"; } } state.productReviewsLimit = 1; loadProductReviews(false); lucide.createIcons(); })(); lucide.createIcons(); }
+    function updatePublisherUI(uData) { const pubName = document.getElementById('d-pub-name'); const pubImg = document.getElementById('d-pub-img'); const pubBadge = document.getElementById('d-pub-verified'); state.currentAuthor = uData; pubName.innerText = uData.name || "مستخدم"; if(uData.image) { pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`; } else { pubImg.innerHTML = `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; lucide.createIcons(); } if(uData.isVerified) pubBadge.classList.remove('hidden'); else pubBadge.classList.add('hidden'); }
     window.closeDetails = () => { toggleModal('details-modal'); state.currentItem = null; document.getElementById('details-dots').innerHTML = ''; const imgEl = document.getElementById('details-img'); if (imgEl) { imgEl.src = ''; } const url = new URL(window.location); url.searchParams.delete('product_id'); window.history.replaceState({}, '', url); }
     function initFavs() { try { state.favorites = JSON.parse(localStorage.getItem('souq_favs') || '[]'); } catch(e){ state.favorites = []; } updateFavBadge(); }
     window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); if(state.currentView === 'category') renderProducts(); };
     function updateFavBadge() { const b = document.getElementById('fav-count'); if(b){ if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); }}
-    window.toggleFavView = () => { 
-        localStorage.setItem('prev_view', state.currentView);
-        localStorage.setItem('prev_filter', state.currentFilter);
-        state.currentView = 'category'; state.currentFilter = 'fav'; renderView(); showToast("عرض المفضلة ❤️"); 
-    };
-
-    const originalSwitchToHome = window.switchToHomeView;
-    window.switchToHomeView = () => {
-        if(state.currentFilter === 'fav') {
-            const prevView = localStorage.getItem('prev_view') || 'home';
-            const prevFilter = localStorage.getItem('prev_filter') || 'all';
-            if(prevView === 'category' && prevFilter !== 'fav') {
-                switchToCategoryView(prevFilter);
-            } else {
-                originalSwitchToHome();
-            }
-        } else {
-            originalSwitchToHome();
-        }
-    }
-
-    window.updateFormFields = () => {
-        const cat = document.getElementById('in-cat').value;
-        document.getElementById('field-condition').classList.toggle('hidden', !USED_CATS.includes(cat));
-        const isClothes = CLOTHES_CATS.includes(cat); const isShoes = SHOES_CATS.includes(cat);
-        const sizeContainer = document.getElementById('field-size-chips'); const sizeChips = document.getElementById('size-chips-container'); const colorContainer = document.getElementById('field-color-chips'); const colorChips = document.getElementById('color-chips-container'); const dynamicFields = document.getElementById('dynamic-fields');
-
-        document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
-        sizeContainer.classList.add('hidden'); colorContainer.classList.add('hidden'); dynamicFields.classList.add('hidden');
-
-        let showDynamic = false;
-
-        if (isClothes || isShoes) {
-            showDynamic = true; sizeContainer.classList.remove('hidden'); sizeChips.innerHTML = '';
-            let sizes = [];
-            if (cat.includes("اطفال")) sizes = isShoes ? SIZES_SHOES_KIDS : SIZES_KIDS;
-            else if (cat.includes("حريمي")) sizes = isShoes ? SIZES_SHOES_ADULT : SIZES_WOMEN;
-            else sizes = isShoes ? SIZES_SHOES_ADULT : SIZES_MEN;
-            sizes.forEach(s => { sizeChips.innerHTML += `<label class="cursor-pointer"><input type="checkbox" name="smart-size" value="${s}" class="smart-option hidden"><div class="px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 font-bold text-[10px] text-slate-500 hover:border-navy transition min-w-[30px] text-center">${s}</div></label>`; });
-        }
-        if (isClothes) {
-            showDynamic = true; colorContainer.classList.remove('hidden'); colorChips.innerHTML = '';
-            BASIC_COLORS.forEach(c => { colorChips.innerHTML += `<label class="cursor-pointer"><input type="checkbox" name="smart-color" value="${c}" class="smart-option hidden"><div class="px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 font-bold text-[10px] text-slate-500 hover:border-navy transition">${c}</div></label>`; });
-        }
-
-        if(cat === 'سيارات') { 
-            showDynamic = true; document.getElementById('section-cars').classList.remove('hidden'); 
-            const carType = document.querySelector('input[name="car-type"]:checked').value;
-            if(carType === 'car') {
-                document.getElementById('car-fields-main').classList.remove('hidden');
-                document.getElementById('car-fields-acc').classList.add('hidden');
-                const carFeats = ["تكييف", "فتحة سقف", "ABS", "AIRBAG", "سنتر لوك", "حساسات", "كاميرا خلفية", "شاشة", "مثبت سرعة", "جنوط"];
-                const featCont = document.getElementById('car-features-list'); featCont.innerHTML = '';
-                carFeats.forEach(f => featCont.innerHTML += `<label class="cursor-pointer"><input type="checkbox" class="feature-checkbox hidden" value="${f}"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">${f}</div></label>`);
-            } else {
-                document.getElementById('car-fields-main').classList.add('hidden');
-                document.getElementById('car-fields-acc').classList.remove('hidden');
-            }
-        }
-        if(cat === 'الكترونيات وموبيلات') { showDynamic = true; document.getElementById('section-electronics').classList.remove('hidden'); }
-        if(cat === 'حيوانات أليفة') { 
-            showDynamic = true; document.getElementById('section-pets').classList.remove('hidden'); 
-            const petType = document.querySelector('input[name="pet-type"]:checked').value;
-            if(petType === 'sale') document.getElementById('pet-fields-sale').classList.remove('hidden');
-            else document.getElementById('pet-fields-sale').classList.add('hidden');
-        }
-        if(cat === 'أدوات منزلية') { showDynamic = true; document.getElementById('section-home-tools').classList.remove('hidden'); }
-        if(cat === 'أجهزة كهربائية') { showDynamic = true; document.getElementById('section-electrical').classList.remove('hidden'); }
-        if(cat === 'أثاث منزلي') { showDynamic = true; document.getElementById('section-furniture').classList.remove('hidden'); }
-        if(cat === 'مواد خام') { showDynamic = true; document.getElementById('section-raw').classList.remove('hidden'); }
-        if(cat === 'مستلزمات بناء وتشطيب ') { showDynamic = true; document.getElementById('section-const').classList.remove('hidden'); }
-        if(cat === 'كاميرات مراقبة ') { showDynamic = true; document.getElementById('section-cams').classList.remove('hidden'); }
-        if(cat === 'ديكور منزلي') { showDynamic = true; document.getElementById('section-decor').classList.remove('hidden'); }
-        if(cat === 'عقارات') { 
-            showDynamic = true; document.getElementById('section-realestate').classList.remove('hidden'); 
-            const reFeats = ["أمن وحراسة", "جراج", "حديقة", "اسانسير", "كاميرات مراقبة", "انترنت", "غاز طبيعي", "بلكونة", "قرب مواصلات"];
-            const reFeatCont = document.getElementById('re-features-list'); reFeatCont.innerHTML = '';
-            reFeats.forEach(f => reFeatCont.innerHTML += `<label class="cursor-pointer"><input type="checkbox" class="feature-checkbox hidden" value="${f}"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">${f}</div></label>`);
-        }
-
-        if(showDynamic) dynamicFields.classList.remove('hidden');
-    }
-
+    window.toggleFavView = () => { localStorage.setItem('prev_view', state.currentView); localStorage.setItem('prev_filter', state.currentFilter); state.currentView = 'category'; state.currentFilter = 'fav'; renderView(); showToast("عرض المفضلة ❤️"); };
+    const originalSwitchToHome = window.switchToHomeView; window.switchToHomeView = () => { if(state.currentFilter === 'fav') { const prevView = localStorage.getItem('prev_view') || 'home'; const prevFilter = localStorage.getItem('prev_filter') || 'all'; if(prevView === 'category' && prevFilter !== 'fav') { switchToCategoryView(prevFilter); } else { originalSwitchToHome(); } } else { originalSwitchToHome(); } }
+    window.updateFormFields = () => { const cat = document.getElementById('in-cat').value; document.getElementById('field-condition').classList.toggle('hidden', !USED_CATS.includes(cat)); const isClothes = CLOTHES_CATS.includes(cat); const isShoes = SHOES_CATS.includes(cat); const sizeContainer = document.getElementById('field-size-chips'); const sizeChips = document.getElementById('size-chips-container'); const colorContainer = document.getElementById('field-color-chips'); const colorChips = document.getElementById('color-chips-container'); const dynamicFields = document.getElementById('dynamic-fields'); document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden')); sizeContainer.classList.add('hidden'); colorContainer.classList.add('hidden'); dynamicFields.classList.add('hidden'); let showDynamic = false; if (isClothes || isShoes) { showDynamic = true; sizeContainer.classList.remove('hidden'); sizeChips.innerHTML = ''; let sizes = []; if (cat.includes("اطفال")) sizes = isShoes ? SIZES_SHOES_KIDS : SIZES_KIDS; else if (cat.includes("حريمي")) sizes = isShoes ? SIZES_SHOES_ADULT : SIZES_WOMEN; else sizes = isShoes ? SIZES_SHOES_ADULT : SIZES_MEN; sizes.forEach(s => { sizeChips.innerHTML += `<label class="cursor-pointer"><input type="checkbox" name="smart-size" value="${s}" class="smart-option hidden"><div class="px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 font-bold text-[10px] text-slate-500 hover:border-navy transition min-w-[30px] text-center">${s}</div></label>`; }); } if (isClothes) { showDynamic = true; colorContainer.classList.remove('hidden'); colorChips.innerHTML = ''; BASIC_COLORS.forEach(c => { colorChips.innerHTML += `<label class="cursor-pointer"><input type="checkbox" name="smart-color" value="${c}" class="smart-option hidden"><div class="px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 font-bold text-[10px] text-slate-500 hover:border-navy transition">${c}</div></label>`; }); } if(cat === 'سيارات') { showDynamic = true; document.getElementById('section-cars').classList.remove('hidden'); const carType = document.querySelector('input[name="car-type"]:checked').value; if(carType === 'car') { document.getElementById('car-fields-main').classList.remove('hidden'); document.getElementById('car-fields-acc').classList.add('hidden'); const carFeats = ["تكييف", "فتحة سقف", "ABS", "AIRBAG", "سنتر لوك", "حساسات", "كاميرا خلفية", "شاشة", "مثبت سرعة", "جنوط"]; const featCont = document.getElementById('car-features-list'); featCont.innerHTML = ''; carFeats.forEach(f => featCont.innerHTML += `<label class="cursor-pointer"><input type="checkbox" class="feature-checkbox hidden" value="${f}"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">${f}</div></label>`); } else { document.getElementById('car-fields-main').classList.add('hidden'); document.getElementById('car-fields-acc').classList.remove('hidden'); } } if(cat === 'الكترونيات وموبيلات') { showDynamic = true; document.getElementById('section-electronics').classList.remove('hidden'); } if(cat === 'حيوانات أليفة') { showDynamic = true; document.getElementById('section-pets').classList.remove('hidden'); const petType = document.querySelector('input[name="pet-type"]:checked').value; if(petType === 'sale') document.getElementById('pet-fields-sale').classList.remove('hidden'); else document.getElementById('pet-fields-sale').classList.add('hidden'); } if(cat === 'أدوات منزلية') { showDynamic = true; document.getElementById('section-home-tools').classList.remove('hidden'); } if(cat === 'أجهزة كهربائية') { showDynamic = true; document.getElementById('section-electrical').classList.remove('hidden'); } if(cat === 'أثاث منزلي') { showDynamic = true; document.getElementById('section-furniture').classList.remove('hidden'); } if(cat === 'مواد خام') { showDynamic = true; document.getElementById('section-raw').classList.remove('hidden'); } if(cat === 'مستلزمات بناء وتشطيب ') { showDynamic = true; document.getElementById('section-const').classList.remove('hidden'); } if(cat === 'كاميرات مراقبة ') { showDynamic = true; document.getElementById('section-cams').classList.remove('hidden'); } if(cat === 'ديكور منزلي') { showDynamic = true; document.getElementById('section-decor').classList.remove('hidden'); } if(cat === 'عقارات') { showDynamic = true; document.getElementById('section-realestate').classList.remove('hidden'); const reFeats = ["أمن وحراسة", "جراج", "حديقة", "اسانسير", "كاميرات مراقبة", "انترنت", "غاز طبيعي", "بلكونة", "قرب مواصلات"]; const reFeatCont = document.getElementById('re-features-list'); reFeatCont.innerHTML = ''; reFeats.forEach(f => reFeatCont.innerHTML += `<label class="cursor-pointer"><input type="checkbox" class="feature-checkbox hidden" value="${f}"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">${f}</div></label>`); } if(showDynamic) dynamicFields.classList.remove('hidden'); }
     window.toggleShipGov = () => { const mode = document.querySelector('input[name="ship-mode"]:checked').value; const container = document.getElementById('ship-gov-container'); if(mode === 'specific') container.classList.remove('hidden'); else container.classList.add('hidden'); }
-
-    window.resetForm = () => {
-        document.getElementById('preview-area').innerHTML = ''; state.images = [];
-        document.getElementById('in-title').value = '';
-        document.getElementById('in-price').value = '';
-        document.getElementById('in-phone').value = '';
-        document.getElementById('in-desc').value = '';
-        document.getElementById('in-cat').selectedIndex = 0;
-        document.getElementById('in-condition').selectedIndex = 0;
-        document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
-        document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
-        document.querySelector('input[name="badge"][value="none"]').checked = true;
-        document.querySelector('input[name="ship-mode"][value="all"]').checked = true;
-        document.querySelector('input[name="car-type"][value="car"]').checked = true;
-        document.querySelector('input[name="pet-type"][value="sale"]').checked = true;
-        document.querySelector('input[name="re-type"][value="sale"]').checked = true;
-
-        document.getElementById('in-car-brand').selectedIndex = 0;
-        document.getElementById('in-car-model').value = '';
-        document.getElementById('in-car-year').value = '';
-        document.getElementById('in-car-km').value = '';
-        document.getElementById('in-car-cc').value = '';
-        document.getElementById('in-car-acc-name').value = '';
-        document.getElementById('in-elec-brand').value = '';
-        document.getElementById('in-elec-battery').value = '';
-        document.getElementById('in-re-area').value = '';
-        document.getElementById('in-re-rooms').value = '';
-        document.getElementById('in-re-bath').value = '';
-        document.getElementById('in-re-floor').value = '';
-
-        updateFormFields();
-        toggleShipGov();
-    }
-
-    window.submitListing=async()=>{
-        if(!state.user) return showToast('يجب تسجيل الدخول أولاً', 'e');
-        if(!state.images.length) return showToast('مطلوب صورة واحدة على الأقل','e');
-
-        const btn = document.getElementById('btn-publish'); 
-        btn.disabled = true; 
-        btn.innerHTML = '<span>جاري النشر...</span>';
-
-        try {
-            const bdg=document.querySelector('input[name="badge"]:checked').value;
-            const cond=document.getElementById('in-condition').value;
-            const cat=document.getElementById('in-cat').value;
-            const feats=[]; document.querySelectorAll('.chip-checkbox:checked').forEach(c=>feats.push(c.value));
-
-            const sizes = []; document.querySelectorAll('input[name="smart-size"]:checked').forEach(c => sizes.push(c.value));
-            const colors = []; document.querySelectorAll('input[name="smart-color"]:checked').forEach(c => colors.push(c.value));
-            const shipMode = document.querySelector('input[name="ship-mode"]:checked').value;
-            let shipGovs = []; if(shipMode === 'specific') { document.querySelectorAll('input[name="ship-gov-check"]:checked').forEach(c => shipGovs.push(c.value)); if(shipGovs.length === 0) { throw new Error("shipping_error"); } }
-            const userGov = state.userData ? state.userData.governorate : '';
-
-            const data = {
-                title:document.getElementById('in-title').value,
-                price:Number(document.getElementById('in-price').value),
-                category:cat, condition:cond, 
-                size: sizes.length > 0 ? sizes : null, 
-                color: colors.length > 0 ? colors : null, 
-                shippingMode: shipMode, shippingGov: shipMode === 'specific' ? shipGovs : null, 
-                phone:document.getElementById('in-phone').value, desc:document.getElementById('in-desc').value, 
-                features:feats, images:state.images, badge:bdg, status:'available', 
-                governorate: userGov, createdAt:serverTimestamp(), authorId:state.user.uid
-            };
-
-            if(cat === 'سيارات') {
-                const carType = document.querySelector('input[name="car-type"]:checked').value;
-                data.carType = carType;
-                if(carType === 'car') {
-                    data.carBrand = document.getElementById('in-car-brand').value;
-                    data.carModel = document.getElementById('in-car-model').value;
-                    data.carYear = document.getElementById('in-car-year').value;
-                    data.carFuel = document.getElementById('in-car-fuel').value;
-                    data.carTrans = document.getElementById('in-car-trans').value;
-                    data.carKm = document.getElementById('in-car-km').value;
-                    data.carCc = document.getElementById('in-car-cc').value;
-                    const carFeats = []; document.querySelectorAll('#car-features-list .feature-checkbox:checked').forEach(c => carFeats.push(c.value));
-                    data.features = [...data.features, ...carFeats];
-                } else {
-                    data.carAccName = document.getElementById('in-car-acc-name').value;
-                    data.condition = document.getElementById('in-car-acc-cond').value; 
-                }
-            }
-            else if(cat === 'الكترونيات وموبيلات') {
-                data.elecType = document.getElementById('in-elec-type').value;
-                data.elecBrand = document.getElementById('in-elec-brand').value;
-                data.elecRam = document.getElementById('in-elec-ram').value;
-                data.elecStorage = document.getElementById('in-elec-storage').value;
-                data.elecBattery = document.getElementById('in-elec-battery').value;
-            }
-            else if(cat === 'حيوانات أليفة') {
-                data.petType = document.querySelector('input[name="pet-type"]:checked').value;
-                if(data.petType === 'sale') {
-                    data.petCat = document.getElementById('in-pet-cat').value;
-                    data.petBreed = document.getElementById('in-pet-breed').value;
-                    data.petAge = document.getElementById('in-pet-age').value;
-                    data.petGender = document.getElementById('in-pet-gender').value;
-                }
-            }
-            else if(cat === 'أدوات منزلية') {
-                data.htType = document.getElementById('in-ht-type').value;
-                data.htMat = document.getElementById('in-ht-material').value;
-            }
-            else if(cat === 'أجهزة كهربائية') {
-                data.eaType = document.getElementById('in-ea-type').value;
-                data.eaBrand = document.getElementById('in-ea-brand').value;
-                data.eaCap = document.getElementById('in-ea-cap').value;
-            }
-            else if(cat === 'أثاث منزلي') {
-                data.furnType = document.getElementById('in-furn-type').value;
-                data.furnMat = document.getElementById('in-furn-mat').value;
-                data.furnDim = document.getElementById('in-furn-dim').value;
-            }
-            else if(cat === 'مواد خام') {
-                data.rawType = document.getElementById('in-raw-type').value;
-                data.rawQty = document.getElementById('in-raw-qty').value;
-            }
-            else if(cat === 'مستلزمات بناء وتشطيب ') {
-                data.constType = document.getElementById('in-const-type').value;
-                data.constQty = document.getElementById('in-const-qty').value;
-            }
-            else if(cat === 'كاميرات مراقبة ') {
-                data.camType = document.getElementById('in-cam-type').value;
-                data.camRes = document.getElementById('in-cam-res').value;
-            }
-            else if(cat === 'ديكور منزلي') {
-                data.decType = document.getElementById('in-dec-type').value;
-                data.decDim = document.getElementById('in-dec-dim').value;
-            }
-            else if(cat === 'عقارات') {
-                data.reType = document.querySelector('input[name="re-type"]:checked').value;
-                data.reCat = document.getElementById('in-re-cat').value;
-                data.reArea = document.getElementById('in-re-area').value;
-                data.reRooms = document.getElementById('in-re-rooms').value;
-                data.reBath = document.getElementById('in-re-bath').value;
-                data.reFinish = document.getElementById('in-re-finish').value;
-                data.reFloor = document.getElementById('in-re-floor').value;
-                data.rePay = document.getElementById('in-re-pay').value;
-                data.reFurnished = document.getElementById('in-re-furnished').value;
-                const reFeats = []; document.querySelectorAll('#re-features-list .feature-checkbox:checked').forEach(c => reFeats.push(c.value));
-                data.features = [...data.features, ...reFeats];
-            }
-
-            Object.keys(data).forEach(key => (data[key] === undefined || data[key] === '') && delete data[key]);
-
-            await addDoc(collection(db,"listings"), data);
-            showToast('تم النشر بنجاح'); 
-            toggleAddModal(); 
-            resetForm();
-            loadListings(); 
-        } catch (e) {
-            console.error(e);
-            if(e.message === "shipping_error") showToast('يرجى اختيار محافظة واحدة على الأقل للشحن', 'e');
-            else showToast('حدث خطأ أثناء النشر، حاول مرة أخرى', 'e');
-        } finally {
-            btn.disabled = false; 
-            btn.innerHTML = '<span>نشر المنتج</span><i data-lucide="arrow-left" class="w-4 h-4"></i>'; 
-            lucide.createIcons();
-        }
-    };
-
-    window.del = async (e, id) => { 
-        if(e) e.stopPropagation(); 
-        if(confirm('هل أنت متأكد من حذف هذا المنتج نهائياً؟')) { 
-            if(state.isAdmin) {
-                await deleteDoc(doc(db, "listings", id)); 
-                showToast('تم الحذف بواسطة الأدمن'); 
-            } else {
-                await deleteDoc(doc(db, "listings", id)); 
-                showToast('تم الحذف بنجاح'); 
-            }
-            closeDetails(); 
-            loadListings(); 
-        } 
-    };
-
-    window.toggleStatus = async (e, id, currentStatus) => { 
-        if(e) e.stopPropagation(); 
-        let nextStatus = currentStatus === 'available' ? 'sold' : 'available'; 
-        if(state.isAdmin) {
-            await updateDoc(doc(db, "listings", id), { status: nextStatus }); 
-            showToast(`تم تغيير الحالة (أدمن): ${nextStatus === 'available' ? 'متاح' : 'مُباع'}`); 
-        } else {
-            await updateDoc(doc(db, "listings", id), { status: nextStatus }); 
-            showToast(`تم تغيير الحالة إلى: ${nextStatus === 'available' ? 'متاح' : 'مُباع'}`); 
-        }
-        if(!document.getElementById('details-modal').classList.contains('hidden')) { openDetails(id); } 
-        loadListings(); 
-    };
-
+    window.resetForm = () => { document.getElementById('preview-area').innerHTML = ''; state.images = []; document.getElementById('in-title').value = ''; document.getElementById('in-price').value = ''; document.getElementById('in-phone').value = ''; document.getElementById('in-desc').value = ''; document.getElementById('in-cat').selectedIndex = 0; document.getElementById('in-condition').selectedIndex = 0; document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false); document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false); document.querySelector('input[name="badge"][value="none"]').checked = true; document.querySelector('input[name="ship-mode"][value="all"]').checked = true; document.querySelector('input[name="car-type"][value="car"]').checked = true; document.querySelector('input[name="pet-type"][value="sale"]').checked = true; document.querySelector('input[name="re-type"][value="sale"]').checked = true; document.getElementById('in-car-brand').selectedIndex = 0; document.getElementById('in-car-model').value = ''; document.getElementById('in-car-year').value = ''; document.getElementById('in-car-km').value = ''; document.getElementById('in-car-cc').value = ''; document.getElementById('in-car-acc-name').value = ''; document.getElementById('in-elec-brand').value = ''; document.getElementById('in-elec-battery').value = ''; document.getElementById('in-re-area').value = ''; document.getElementById('in-re-rooms').value = ''; document.getElementById('in-re-bath').value = ''; document.getElementById('in-re-floor').value = ''; updateFormFields(); toggleShipGov(); }
+    window.submitListing=async()=>{ if(!state.user) return showToast('يجب تسجيل الدخول أولاً', 'e'); if(!state.images.length) return showToast('مطلوب صورة واحدة على الأقل','e'); const btn = document.getElementById('btn-publish'); btn.disabled = true; btn.innerHTML = '<span>جاري النشر...</span>'; try { const bdg=document.querySelector('input[name="badge"]:checked').value; const cond=document.getElementById('in-condition').value; const cat=document.getElementById('in-cat').value; const feats=[]; document.querySelectorAll('.chip-checkbox:checked').forEach(c=>feats.push(c.value)); const sizes = []; document.querySelectorAll('input[name="smart-size"]:checked').forEach(c => sizes.push(c.value)); const colors = []; document.querySelectorAll('input[name="smart-color"]:checked').forEach(c => colors.push(c.value)); const shipMode = document.querySelector('input[name="ship-mode"]:checked').value; let shipGovs = []; if(shipMode === 'specific') { document.querySelectorAll('input[name="ship-gov-check"]:checked').forEach(c => shipGovs.push(c.value)); if(shipGovs.length === 0) { throw new Error("shipping_error"); } } const userGov = state.userData ? state.userData.governorate : ''; const data = { title:document.getElementById('in-title').value, price:Number(document.getElementById('in-price').value), category:cat, condition:cond, size: sizes.length > 0 ? sizes : null, color: colors.length > 0 ? colors : null, shippingMode: shipMode, shippingGov: shipMode === 'specific' ? shipGovs : null, phone:document.getElementById('in-phone').value, desc:document.getElementById('in-desc').value, features:feats, images:state.images, badge:bdg, status:'available', governorate: userGov, createdAt:serverTimestamp(), authorId:state.user.uid }; if(cat === 'سيارات') { const carType = document.querySelector('input[name="car-type"]:checked').value; data.carType = carType; if(carType === 'car') { data.carBrand = document.getElementById('in-car-brand').value; data.carModel = document.getElementById('in-car-model').value; data.carYear = document.getElementById('in-car-year').value; data.carFuel = document.getElementById('in-car-fuel').value; data.carTrans = document.getElementById('in-car-trans').value; data.carKm = document.getElementById('in-car-km').value; data.carCc = document.getElementById('in-car-cc').value; const carFeats = []; document.querySelectorAll('#car-features-list .feature-checkbox:checked').forEach(c => carFeats.push(c.value)); data.features = [...data.features, ...carFeats]; } else { data.carAccName = document.getElementById('in-car-acc-name').value; data.condition = document.getElementById('in-car-acc-cond').value; } } else if(cat === 'الكترونيات وموبيلات') { data.elecType = document.getElementById('in-elec-type').value; data.elecBrand = document.getElementById('in-elec-brand').value; data.elecRam = document.getElementById('in-elec-ram').value; data.elecStorage = document.getElementById('in-elec-storage').value; data.elecBattery = document.getElementById('in-elec-battery').value; } else if(cat === 'حيوانات أليفة') { data.petType = document.querySelector('input[name="pet-type"]:checked').value; if(data.petType === 'sale') { data.petCat = document.getElementById('in-pet-cat').value; data.petBreed = document.getElementById('in-pet-breed').value; data.petAge = document.getElementById('in-pet-age').value; data.petGender = document.getElementById('in-pet-gender').value; } } else if(cat === 'أدوات منزلية') { data.htType = document.getElementById('in-ht-type').value; data.htMat = document.getElementById('in-ht-material').value; } else if(cat === 'أجهزة كهربائية') { data.eaType = document.getElementById('in-ea-type').value; data.eaBrand = document.getElementById('in-ea-brand').value; data.eaCap = document.getElementById('in-ea-cap').value; } else if(cat === 'أثاث منزلي') { data.furnType = document.getElementById('in-furn-type').value; data.furnMat = document.getElementById('in-furn-mat').value; data.furnDim = document.getElementById('in-furn-dim').value; } else if(cat === 'مواد خام') { data.rawType = document.getElementById('in-raw-type').value; data.rawQty = document.getElementById('in-raw-qty').value; } else if(cat === 'مستلزمات بناء وتشطيب ') { data.constType = document.getElementById('in-const-type').value; data.constQty = document.getElementById('in-const-qty').value; } else if(cat === 'كاميرات مراقبة ') { data.camType = document.getElementById('in-cam-type').value; data.camRes = document.getElementById('in-cam-res').value; } else if(cat === 'ديكور منزلي') { data.decType = document.getElementById('in-dec-type').value; data.decDim = document.getElementById('in-dec-dim').value; } else if(cat === 'عقارات') { data.reType = document.querySelector('input[name="re-type"]:checked').value; data.reCat = document.getElementById('in-re-cat').value; data.reArea = document.getElementById('in-re-area').value; data.reRooms = document.getElementById('in-re-rooms').value; data.reBath = document.getElementById('in-re-bath').value; data.reFinish = document.getElementById('in-re-finish').value; data.reFloor = document.getElementById('in-re-floor').value; data.rePay = document.getElementById('in-re-pay').value; data.reFurnished = document.getElementById('in-re-furnished').value; const reFeats = []; document.querySelectorAll('#re-features-list .feature-checkbox:checked').forEach(c => reFeats.push(c.value)); data.features = [...data.features, ...reFeats]; } Object.keys(data).forEach(key => (data[key] === undefined || data[key] === '') && delete data[key]); await addDoc(collection(db,"listings"), data); showToast('تم النشر بنجاح'); toggleAddModal(); resetForm(); loadListings(); } catch (e) { console.error(e); if(e.message === "shipping_error") showToast('يرجى اختيار محافظة واحدة على الأقل للشحن', 'e'); else showToast('حدث خطأ أثناء النشر، حاول مرة أخرى', 'e'); } finally { btn.disabled = false; btn.innerHTML = '<span>نشر المنتج</span><i data-lucide="arrow-left" class="w-4 h-4"></i>'; lucide.createIcons(); } };
+    window.del = async (e, id) => { if(e) e.stopPropagation(); if(confirm('هل أنت متأكد من حذف هذا المنتج نهائياً؟')) { if(state.isAdmin) { await deleteDoc(doc(db, "listings", id)); showToast('تم الحذف بواسطة الأدمن'); } else { await deleteDoc(doc(db, "listings", id)); showToast('تم الحذف بنجاح'); } closeDetails(); loadListings(); } };
+    window.toggleStatus = async (e, id, currentStatus) => { if(e) e.stopPropagation(); let nextStatus = currentStatus === 'available' ? 'sold' : 'available'; if(state.isAdmin) { await updateDoc(doc(db, "listings", id), { status: nextStatus }); showToast(`تم تغيير الحالة (أدمن): ${nextStatus === 'available' ? 'متاح' : 'مُباع'}`); } else { await updateDoc(doc(db, "listings", id), { status: nextStatus }); showToast(`تم تغيير الحالة إلى: ${nextStatus === 'available' ? 'متاح' : 'مُباع'}`); } if(!document.getElementById('details-modal').classList.contains('hidden')) { openDetails(id); } loadListings(); };
     window.toggleDarkMode = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('souq_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); }
     if(localStorage.getItem('souq_theme') === 'dark') document.documentElement.classList.add('dark');
     window.showToast=(m,t='s')=>{ const d=document.createElement('div'); const bgClass = t==='e' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'; d.className=`toast px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 text-xs font-bold ${bgClass}`; d.innerHTML=`<i data-lucide="${t==='e'?'alert-circle':'check-circle'}" class="w-4 h-4"></i> ${m}`; document.getElementById('toast-container').appendChild(d); lucide.createIcons(); setTimeout(()=>{d.classList.add('hiding');setTimeout(()=>d.remove(),300)},3000) };
@@ -1661,98 +1101,22 @@
     window.navigateLightbox = (dir) => { if (!state.lightboxImages.length) return; state.lightboxIndex += dir; if (state.lightboxIndex >= state.lightboxImages.length) { state.lightboxIndex = 0; } else if (state.lightboxIndex < 0) { state.lightboxIndex = state.lightboxImages.length - 1; } document.getElementById('lightbox-img').src = state.lightboxImages[state.lightboxIndex]; }
     window.closeLightbox = () => { document.getElementById('lightbox').classList.add('hidden'); state.lightboxImages = []; state.lightboxIndex = 0; }
     function toggleModal(id) { const m=document.getElementById(id); m.classList.toggle('hidden'); if(!m.classList.contains('hidden')) document.body.style.overflow='hidden'; else document.body.style.overflow=''; return !m.classList.contains('hidden'); }
-
-    // Updated Add Modal Toggle Logic
-    window.toggleAddModal=()=>{ 
-        if(state.userRole !== 'marketer') { 
-            // Customer trying to open Add Modal
-            if(confirm("عفواً لا يمكن عرض هذه الصفحة لغير المسوقين وأصحاب العمل.\nهل تريد أن تصبح مسوق؟")) { 
-                state.userRole = 'marketer'; 
-                updateDoc(doc(db, "users", state.user.uid), { role: 'marketer' }).then(() => { 
-                    showToast(`أهلاً بك في شركتنا 👋`, 's'); 
-                    updateNavUI(); // Refresh Nav Button
-                    openAddModalLogic(); 
-                }); 
-            } else { 
-                showToast("هذه الصفحة مخصصة للمسوقين ومقدمي الخدمات", 'e'); 
-            } 
-        } else { 
-            openAddModalLogic(); 
-        } 
-    };
+    window.toggleAddModal=()=>{ if(state.userRole !== 'marketer') { if(confirm("عفواً لا يمكن عرض هذه الصفحة لغير المسوقين وأصحاب العمل.\nهل تريد أن تصبح مسوق؟")) { state.userRole = 'marketer'; updateDoc(doc(db, "users", state.user.uid), { role: 'marketer' }).then(() => { showToast(`أهلاً بك في شركتنا 👋`, 's'); updateNavUI(); openAddModalLogic(); }); } else { showToast("هذه الصفحة مخصصة للمسوقين ومقدمي الخدمات", 'e'); } } else { openAddModalLogic(); } };
     function openAddModalLogic() { if(toggleModal('add-modal')) { resetForm(); } }
-
     window.toggleChat=()=>{ if(toggleModal('chat-modal')){ if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){ state.welcomeSent=true; const name = state.user.displayName || 'يا صديقي'; setTimeout(()=>botMsg(`مرحباً ${name} 👋<br>معك المساعد الذكي للسوق  وياك اخبرني بطلبك لتحويلك للدعم الفني؟`),100); } } };
     window.sendMsg=async()=>{ const t=document.getElementById('chat-msg').value.trim(); if(!t)return; document.getElementById('chat-msg').value=''; userMsg(t); if(!state.chatId){ if(state.chatStep===0){ state.chatStep=2; try { const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:t, status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id); } catch (err) { console.error("Chat creation failed:", err); botMsg("عفواً، حدث خطأ أثناء محاولة توصيلك بالدعم."); } } } else { const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId))); if(!s.empty){ const m=s.docs[0].data().messages; m.push({s:'user',t,d:new Date()}); await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'}); } } };
-
-    window.sendImageMsg = async (input) => {
-        if(input.files && input.files[0]) {
-            showToast('جاري رفع الصورة...', 's');
-            const url = await uploadToCloudinary(input.files[0]);
-            if(url) {
-                const imgHtml = `<img src="${url}" class="rounded-lg max-w-full h-auto border border-white/20" onclick="openLightbox(this.src)">`;
-                userMsg(imgHtml);
-                if(!state.chatId){
-                    try {
-                        const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:'[صورة]', status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t:imgHtml,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id);
-                    } catch(e) { console.error(e); }
-                } else {
-                    const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));
-                    if(!s.empty){
-                        const m=s.docs[0].data().messages;
-                        m.push({s:'user',t:imgHtml,d:new Date()});
-                        await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:'[صورة]',status:'waiting'});
-                    }
-                }
-            }
-        }
-    }
-
+    window.sendImageMsg = async (input) => { if(input.files && input.files[0]) { showToast('جاري رفع الصورة...', 's'); const url = await uploadToCloudinary(input.files[0]); if(url) { const imgHtml = `<img src="${url}" class="rounded-lg max-w-full h-auto border border-white/20" onclick="openLightbox(this.src)">`; userMsg(imgHtml); if(!state.chatId){ try { const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:'[صورة]', status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t:imgHtml,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id); } catch(e) { console.error(e); } } else { const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId))); if(!s.empty){ const m=s.docs[0].data().messages; m.push({s:'user',t:imgHtml,d:new Date()}); await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:'[صورة]',status:'waiting'}); } } } } }
     function listenChat(id){onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data();if(d.status==='closed'){state.chatId=null;state.chatStep=0;state.welcomeSent=false;document.getElementById('chat-box').innerHTML='';showToast("تم إنهاء المحادثة");toggleModal('chat-modal');return}document.getElementById('chat-box').innerHTML='';d.messages.forEach(m=>{if(typeof m.t === 'string' && !m.t.startsWith('الاسم'))(m.s==='user'?userMsg:botMsg)(m.t)})}})};
     function checkUserChat(){onSnapshot(query(collection(db,"chats"),where('userId','==',state.user.uid),where('status','!=','closed')),s=>{if(!s.empty){state.chatId=s.docs[0].id;state.chatStep=2;listenChat(state.chatId)}})};
     function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%] overflow-hidden">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
     function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%] overflow-hidden">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
     window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
-
-    // Master Admin Functions
     window.toggleMasterModal = () => { toggleModal('master-modal'); }
-    window.saveMasterChanges = async () => {
-        const phone = document.getElementById('master-target-phone').value.trim();
-        const isVerified = document.getElementById('master-check-verified').checked;
-        const isAdmin = document.getElementById('master-check-admin').checked;
-
-        if(!phone) return showToast("يرجى إدخال رقم الهاتف", "e");
-        let cleanPhone = phone.replace(/\D/g, '');
-        if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
-        const fullPhone = `0${cleanPhone}`;
-
-        // Find user by phone
-        const q = query(collection(db, "users"), where("phone", "==", fullPhone));
-        const snap = await getDocs(q);
-
-        if(snap.empty) {
-            showToast("لم يتم العثور على مستخدم بهذا الرقم", "e");
-        } else {
-            const uid = snap.docs[0].id;
-            try {
-                await updateDoc(doc(db, "users", uid), {
-                    isVerified: isVerified,
-                    isAdmin: isAdmin
-                });
-                showToast(`تم تحديث الصلاحيات للرقم ${fullPhone}`);
-                toggleMasterModal();
-            } catch(e) {
-                console.error(e);
-                showToast("حدث خطأ أثناء التحديث", "e");
-            }
-        }
-    }
-
+    window.saveMasterChanges = async () => { const phone = document.getElementById('master-target-phone').value.trim(); const isVerified = document.getElementById('master-check-verified').checked; const isAdmin = document.getElementById('master-check-admin').checked; if(!phone) return showToast("يرجى إدخال رقم الهاتف", "e"); let cleanPhone = phone.replace(/\D/g, ''); if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1); const fullPhone = `0${cleanPhone}`; const q = query(collection(db, "users"), where("phone", "==", fullPhone)); const snap = await getDocs(q); if(snap.empty) { showToast("لم يتم العثور على مستخدم بهذا الرقم", "e"); } else { const uid = snap.docs[0].id; try { await updateDoc(doc(db, "users", uid), { isVerified: isVerified, isAdmin: isAdmin }); showToast(`تم تحديث الصلاحيات للرقم ${fullPhone}`); toggleMasterModal(); } catch(e) { console.error(e); showToast("حدث خطأ أثناء التحديث", "e"); } } }
     window.refreshAdmin=()=>{ onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{ const l=document.getElementById('admin-users-list'); l.innerHTML=''; let chats = []; s.forEach(d => chats.push({id: d.id, ...d.data()})); chats.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); chats.forEach(dt => { l.innerHTML+=`<div onclick="loadAdmin('${dt.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>` }); }) };
     window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'} overflow-hidden">${m.t}</span></div>`});b.scrollTop=9999})};
     window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
     window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
-
     window.toggleProfile = async (userId = null) => { if(toggleModal('profile-modal')) { const targetId = userId || (auth.currentUser ? auth.currentUser.uid : null); if(!targetId) return; state.viewingProfileId = targetId; const isOwner = auth.currentUser && auth.currentUser.uid === targetId; document.getElementById('prof-name').innerText = '...'; document.getElementById('prof-role').innerText = '...'; document.getElementById('prof-phone').innerText = '...'; document.getElementById('prof-address').innerText = '...'; document.getElementById('prof-joined').innerText = ''; document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`; document.getElementById('prof-password-section').classList.add('hidden'); document.getElementById('prof-reviews-section').classList.add('hidden'); document.getElementById('prof-rate-user-section').classList.add('hidden'); document.getElementById('prof-rating-display').classList.add('hidden'); document.getElementById('global-edit-btn').classList.add('hidden'); document.getElementById('prof-view-mode').classList.remove('hidden'); document.getElementById('prof-edit-mode').classList.add('hidden'); document.getElementById('prof-verified-badge').classList.add('hidden'); let data = null; if (isOwner && state.userData) { data = state.userData; } else { try { const snap = await getDoc(doc(db, "users", targetId)); if(snap.exists()) data = snap.data(); } catch(e) { console.error(e); } } if(data) { document.getElementById('prof-name').innerText = data.name || 'مستخدم'; document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل'; document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل'; document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || ''); document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt); if(data.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`; } calculateUserRating(targetId); if(data.isVerified) { document.getElementById('prof-verified-badge').classList.remove('hidden'); } if(isOwner) { document.getElementById('global-edit-btn').classList.remove('hidden'); document.getElementById('prof-password-section').classList.remove('hidden'); } else { document.getElementById('prof-rate-user-section').classList.remove('hidden'); } if(data.role === 'marketer') { document.getElementById('prof-reviews-section').classList.remove('hidden'); state.profileReviewsLimit = 3; loadProfileReviews(false); } } lucide.createIcons(); } }
     window.toggleEditMode = () => { const viewMode = document.getElementById('prof-view-mode'); const editMode = document.getElementById('prof-edit-mode'); if(editMode.classList.contains('hidden')) { viewMode.classList.add('hidden'); editMode.classList.remove('hidden'); document.getElementById('edit-name').value = state.userData.name || ''; document.getElementById('edit-phone').value = state.userData.phone || ''; document.getElementById('edit-address').value = state.userData.address || ''; document.getElementById('edit-gov').value = state.userData.governorate || ''; updateEditCities(); document.getElementById('edit-city').value = state.userData.city || ''; if(state.userData.image) { document.getElementById('edit-img-preview').src = state.userData.image; document.getElementById('edit-img-preview').classList.remove('hidden'); document.getElementById('edit-img-placeholder').classList.add('hidden'); } } else { editMode.classList.add('hidden'); viewMode.classList.remove('hidden'); } }
     window.saveProfile = async () => { const name = document.getElementById('edit-name').value.trim(); const address = document.getElementById('edit-address').value.trim(); const gov = document.getElementById('edit-gov').value; const city = document.getElementById('edit-city').value; if(!name || !address || !gov || !city) return showToast("يرجى ملء جميع الحقول", "e"); const updateData = { name, address, governorate: gov, city }; if(state.tempEditImage) { updateData.image = state.tempEditImage; } try { await updateDoc(doc(db, "users", state.user.uid), updateData); state.userData = { ...state.userData, ...updateData }; state.tempEditImage = null; document.getElementById('prof-name').innerText = name; document.getElementById('prof-address').innerText = address + ' - ' + gov; if(updateData.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${updateData.image}" class="w-full h-full object-cover">`; } showToast("تم حفظ التعديلات بنجاح"); toggleEditMode(); } catch(e) { showToast("فشل الحفظ", "e"); } }
