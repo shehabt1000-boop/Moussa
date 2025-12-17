@@ -100,11 +100,15 @@
         .verified-badge svg { width: 10px; height: 10px; }
 
         /* --- FIX START: إصلاح مشكلة صندوق الماستر --- */
+        /* هذا الكود يجبر الصندوق على الظهور فوق كل العناصر عند تفعيله */
+        #master-modal {
+            z-index: 99999 !important; /* طبقة عالية جداً */
+        }
         #master-modal.hidden {
             display: none !important;
         }
-        #master-modal {
-            z-index: 9999 !important;
+        #master-modal:not(.hidden) {
+            display: flex !important;
         }
         /* --- FIX END --- */
 
@@ -1022,7 +1026,17 @@
             } else { await signInWithEmailAndPassword(auth, email, pass); }
 
             btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`; btn.classList.replace('bg-navy', 'bg-green-600');
-            setTimeout(() => { document.getElementById('login-view').classList.add('hidden'); document.getElementById('app-content').classList.remove('hidden'); showToast(`أهلاً بك في السوق وياك 👋`, 's'); }, 500);
+            
+            // --- FIX START: Auto Refresh on Login/Signup ---
+            setTimeout(() => { 
+                document.getElementById('login-view').classList.add('hidden'); 
+                document.getElementById('app-content').classList.remove('hidden'); 
+                showToast(`أهلاً بك في السوق وياك 👋`, 's'); 
+                // Force reload to ensure profile data is fresh
+                window.location.reload();
+            }, 500);
+            // --- FIX END ---
+            
         } catch (error) {
             console.error("Auth Error:", error); let msg = `حدث خطأ: ${error.code}`; 
             if(error.message === "missing_fields") msg = "يرجى إكمال جميع البيانات"; 
