@@ -98,6 +98,16 @@
         .dark .details-table td:last-child { color: #f8fafc; }
         .verified-badge { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background-color: #3b82f6; border-radius: 50%; color: white; margin-right: 4px; }
         .verified-badge svg { width: 10px; height: 10px; }
+
+        /* --- FIX START: إصلاح مشكلة صندوق الماستر --- */
+        #master-modal.hidden {
+            display: none !important;
+        }
+        #master-modal {
+            z-index: 9999 !important;
+        }
+        /* --- FIX END --- */
+
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
@@ -153,7 +163,7 @@
                     </div>
                 </div>
                 <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">كلمة المرور</label><div class="relative"><input id="auth-pass" type="password" class="form-input" placeholder="******"><i data-lucide="lock" class="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none"></i></div></div>
-                
+
                 <div id="signup-fields" class="hidden space-y-2 border-t border-slate-100 dark:border-slate-700 pt-2 mt-1">
                     <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">الاسم الكامل (عربي)</label><input id="auth-name-ar" type="text" class="form-input" placeholder="مثال: أحمد محمد"></div>
                     <!-- Removed secondary phone input as main input serves both -->
@@ -191,10 +201,10 @@
                     <button onclick="window.location.reload()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-primary hover:bg-slate-200 transition"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
                     <button onclick="toggleProfile(null)" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
                     <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
-                    
+
                     <!-- Master Admin Button -->
                     <button onclick="toggleMasterModal()" id="btn-master-control" class="hidden bg-yellow-500 p-1.5 rounded-full text-white hover:bg-yellow-600 shadow-lg animate-pulse"><i data-lucide="crown" class="w-4 h-4"></i></button>
-                    
+
                     <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
                     <button onclick="logout()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600 hover:bg-red-100 transition"><i data-lucide="log-out" class="w-4 h-4"></i></button>
                 </div>
@@ -251,10 +261,10 @@
         <!-- NAV BAR -->
         <nav id="bottom-nav" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
             <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
-            
+
             <!-- Dynamic Middle Button (Add for Marketers/Admins, Profile for Customers) -->
             <div id="nav-middle-btn-container"></div>
-            
+
             <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
         </nav>
 
@@ -698,7 +708,7 @@
 
     const CLOUD_NAME = "db9h7zm1h"; 
     const UPLOAD_PRESET = "souq_upload"; 
-    
+
     // Master Admin Config
     const MASTER_UID = "Yfh6ZMvgxOWBNpXQUe6aEgxvUS52";
 
@@ -917,7 +927,7 @@
 
                     state.isAdmin = data.isAdmin === true;
                     if(state.isAdmin) document.getElementById('btn-admin-top').classList.remove('hidden');
-                    
+
                     // Master Admin Check
                     if(u.uid === MASTER_UID) {
                         document.getElementById('btn-master-control').classList.remove('hidden');
@@ -927,7 +937,7 @@
                     document.getElementById('welcome-text').classList.remove('hidden');
                 }
             } catch(e) { console.warn("Role fetch failed", e); }
-            
+
             updateNavUI(); // Update Nav based on Role
             document.getElementById('login-view').classList.add('hidden'); document.getElementById('app-content').classList.remove('hidden');
             if(globalLoader) { globalLoader.classList.add('fade-out'); setTimeout(() => globalLoader.style.display = 'none', 500); }
@@ -960,33 +970,33 @@
         const pass = document.getElementById('auth-pass').value; 
         const errDiv = document.getElementById('auth-error'); 
         const btn = document.getElementById('btn-auth-action');
-        
+
         errDiv.classList.add('hidden'); errDiv.innerText = "";
-        
+
         // Validate Phone
         let cleanPhone = rawPhone.replace(/\D/g, '');
         if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
         if (cleanPhone.length !== 10) { errDiv.innerText = "رقم الهاتف غير صحيح (يجب أن يكون 11 رقم)"; errDiv.classList.remove('hidden'); return; }
-        
+
         const fullPhone = `0${cleanPhone}`;
         const email = `${fullPhone}@souq.local`; // Dummy Email Generation
 
         if (pass.length < 6) { errDiv.innerText = "كلمة المرور يجب أن تكون 6 أرقام/حروف على الأقل"; errDiv.classList.remove('hidden'); return; }
-        
+
         const originalBtnText = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<div class="spinner"></div> جاري المعالجة...`;
-        
+
         try {
             if (state.authType === 'signup') {
                 const nameAr = document.getElementById('auth-name-ar').value.trim(); 
                 const gov = document.getElementById('auth-gov').value; 
                 const city = document.getElementById('auth-city').value; 
                 const address = document.getElementById('auth-address').value.trim();
-                
+
                 if (!nameAr || !gov || !city || !address) throw new Error("missing_fields");
-                
+
                 const userCredential = await createUserWithEmailAndPassword(auth, email, pass); const user = userCredential.user;
                 await updateProfile(user, { displayName: nameAr });
-                
+
                 const newUser = { 
                     username: fullPhone, // Using phone as username
                     name: nameAr, 
@@ -1001,16 +1011,16 @@
                     image: state.authImageBase64 || null, 
                     createdAt: serverTimestamp() 
                 };
-                
+
                 await setDoc(doc(db, "users", user.uid), newUser);
                 state.userData = newUser; state.userRole = state.authRole; state.user = user;
                 document.getElementById('header-username').innerText = nameAr; document.getElementById('welcome-text').classList.remove('hidden');
-                
+
                 // Fix Profile Bug: Pre-load profile data immediately
                 updateNavUI();
-                
+
             } else { await signInWithEmailAndPassword(auth, email, pass); }
-            
+
             btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`; btn.classList.replace('bg-navy', 'bg-green-600');
             setTimeout(() => { document.getElementById('login-view').classList.add('hidden'); document.getElementById('app-content').classList.remove('hidden'); showToast(`أهلاً بك في السوق وياك 👋`, 's'); }, 500);
         } catch (error) {
@@ -1161,7 +1171,7 @@
         const minP = Number(document.getElementById('filter-min-price').value);
         const maxP = Number(document.getElementById('filter-max-price').value);
         const cont = document.getElementById('grid-container'); 
-        
+
         let filtered = state.listings.filter(item => { 
             let matchType = true; 
             if (state.currentFilter === 'fav') matchType = (state.favorites || []).includes(item.id);
@@ -1696,7 +1706,7 @@
     window.navigateLightbox = (dir) => { if (!state.lightboxImages.length) return; state.lightboxIndex += dir; if (state.lightboxIndex >= state.lightboxImages.length) { state.lightboxIndex = 0; } else if (state.lightboxIndex < 0) { state.lightboxIndex = state.lightboxImages.length - 1; } document.getElementById('lightbox-img').src = state.lightboxImages[state.lightboxIndex]; }
     window.closeLightbox = () => { document.getElementById('lightbox').classList.add('hidden'); state.lightboxImages = []; state.lightboxIndex = 0; }
     function toggleModal(id) { const m=document.getElementById(id); m.classList.toggle('hidden'); if(!m.classList.contains('hidden')) document.body.style.overflow='hidden'; else document.body.style.overflow=''; return !m.classList.contains('hidden'); }
-    
+
     // Updated Add Modal Toggle Logic
     window.toggleAddModal=()=>{ 
         if(state.userRole !== 'marketer') { 
@@ -1748,7 +1758,7 @@
     function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%] overflow-hidden">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
     function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%] overflow-hidden">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
     window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
-    
+
     // Master Admin Functions
     window.toggleMasterModal = () => { toggleModal('master-modal'); }
     window.saveMasterChanges = async () => {
