@@ -144,11 +144,19 @@
                         </div>
                     </div>
                 </div>
-                <div><label id="lbl-username" class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">اسم المستخدم (إنجليزي)</label><div class="relative"><input id="auth-username" type="text" class="form-input text-left" placeholder="username" style="direction: ltr;"><i data-lucide="at-sign" class="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none"></i></div></div>
+                <!-- Main Login Field: Phone -->
+                <div>
+                    <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">رقم الهاتف</label>
+                    <div class="relative">
+                        <input id="auth-main-phone" type="tel" class="form-input text-left" placeholder="01xxxxxxxxx" style="direction: ltr;">
+                        <i data-lucide="phone" class="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none"></i>
+                    </div>
+                </div>
                 <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">كلمة المرور</label><div class="relative"><input id="auth-pass" type="password" class="form-input" placeholder="******"><i data-lucide="lock" class="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none"></i></div></div>
+                
                 <div id="signup-fields" class="hidden space-y-2 border-t border-slate-100 dark:border-slate-700 pt-2 mt-1">
                     <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">الاسم الكامل (عربي)</label><input id="auth-name-ar" type="text" class="form-input" placeholder="مثال: أحمد محمد"></div>
-                    <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">رقم الهاتف</label><input id="auth-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx"></div>
+                    <!-- Removed secondary phone input as main input serves both -->
                     <div class="grid grid-cols-2 gap-2">
                         <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">المحافظة</label><select id="auth-gov" onchange="updateCities()" class="form-input text-xs"></select></div>
                         <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">المركز/المدينة</label><select id="auth-city" class="form-input text-xs"><option value="">اختر المحافظة</option></select></div>
@@ -183,6 +191,10 @@
                     <button onclick="window.location.reload()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-primary hover:bg-slate-200 transition"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
                     <button onclick="toggleProfile(null)" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
                     <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
+                    
+                    <!-- Master Admin Button -->
+                    <button onclick="toggleMasterModal()" id="btn-master-control" class="hidden bg-yellow-500 p-1.5 rounded-full text-white hover:bg-yellow-600 shadow-lg animate-pulse"><i data-lucide="crown" class="w-4 h-4"></i></button>
+                    
                     <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
                     <button onclick="logout()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600 hover:bg-red-100 transition"><i data-lucide="log-out" class="w-4 h-4"></i></button>
                 </div>
@@ -228,7 +240,7 @@
             <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar"></div>
             <div id="home-grid" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4"></div>
             <div id="grid-container" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-2 mt-2"></div>
-            
+
             <div id="load-more-container" class="hidden text-center pb-10 pt-2">
                 <button onclick="loadMoreItems()" id="btn-load-more" class="bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow text-xs font-bold text-primary border border-slate-200 dark:border-slate-700">عرض المزيد 👇</button>
             </div>
@@ -237,9 +249,12 @@
         </main>
 
         <!-- NAV BAR -->
-        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
+        <nav id="bottom-nav" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
             <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
-            <button id="nav-add-btn" onclick="toggleAddModal()" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
+            
+            <!-- Dynamic Middle Button (Add for Marketers/Admins, Profile for Customers) -->
+            <div id="nav-middle-btn-container"></div>
+            
             <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
         </nav>
 
@@ -250,6 +265,34 @@
         </div>
     </div>
 
+    <!-- Master Admin Modal -->
+    <div id="master-modal" class="hidden modal-overlay">
+        <div class="bg-white dark:bg-darkbg p-5 rounded-2xl w-full max-w-xs border border-slate-200 dark:border-slate-700 shadow-2xl animate-pop">
+            <h3 class="font-black text-center text-lg mb-4 text-navy dark:text-white">👑 تحكم الماستر</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="form-label">رقم هاتف المستخدم</label>
+                    <input id="master-target-phone" type="tel" class="form-input text-center font-bold" placeholder="01xxxxxxxxx">
+                </div>
+                <div class="flex gap-2 justify-center py-2">
+                    <label class="flex items-center gap-2 cursor-pointer bg-slate-100 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-600">
+                        <input type="checkbox" id="master-check-verified" class="w-4 h-4 rounded text-primary focus:ring-primary">
+                        <span class="text-xs font-bold">توثيق ✅</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-slate-100 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-600">
+                        <input type="checkbox" id="master-check-admin" class="w-4 h-4 rounded text-red-500 focus:ring-red-500">
+                        <span class="text-xs font-bold text-red-500">أدمن 🛡️</span>
+                    </label>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="saveMasterChanges()" class="flex-1 bg-navy dark:bg-primary text-white py-2 rounded-xl font-bold text-sm">حفظ التعديلات</button>
+                    <button onclick="toggleMasterModal()" class="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white py-2 rounded-xl font-bold text-sm">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal, Order Modal, Add Modal, Details Modal, Chat Modal, Lightbox, Admin Panel ... (Keep existing structure) -->
     <!-- Profile Modal -->
     <div id="profile-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
@@ -270,10 +313,7 @@
                                 <h2 id="prof-name" class="font-black text-xl text-navy dark:text-white">...</h2>
                                 <div id="prof-verified-badge" class="hidden verified-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.491 4.491 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></div>
                             </div>
-                            
-                            <!-- Verify Button -->
-                            <button id="btn-verify-account" onclick="verifyAccount()" class="hidden mt-1 px-3 py-1 bg-blue-600 text-white rounded-full text-[10px] font-bold hover:bg-blue-700 transition">توثيق الحساب</button>
-                            
+
                             <div class="flex items-center justify-center gap-2 mt-1">
                                 <button id="global-edit-btn" onclick="toggleEditMode()" class="hidden flex items-center gap-1 text-primary hover:text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full transition"><i data-lucide="pen-tool" class="w-3 h-3"></i> <span class="text-[10px] font-bold">تعديل</span></button>
                             </div>
@@ -320,7 +360,7 @@
                         <span class="text-[10px] text-primary font-bold">اضغط لتغيير الصورة</span>
                     </div>
                     <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">الاسم الكامل</label><input id="edit-name" type="text" class="form-input"></div>
-                    <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">رقم الهاتف</label><input id="edit-phone" type="tel" class="form-input"></div>
+                    <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">رقم الهاتف</label><input id="edit-phone" type="tel" class="form-input" disabled style="opacity: 0.7;"></div>
                     <div class="grid grid-cols-2 gap-2">
                         <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">المحافظة</label><select id="edit-gov" onchange="updateEditCities()" class="form-input text-xs"></select></div>
                         <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">المركز/المدينة</label><select id="edit-city" class="form-input text-xs"></select></div>
@@ -336,6 +376,7 @@
         </div>
     </div>
 
+    <!-- Rest of Modals (Order, Add, Details, Chat, Lightbox, Admin) - Preserved -->
     <!-- Order Modal -->
     <div id="order-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
@@ -386,11 +427,9 @@
 
                 <!-- Dynamic Fields Container -->
                 <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group space-y-2 hidden">
-                    
                     <!-- Clothes/Shoes -->
                     <div id="field-size-chips" class="hidden"><label class="form-label text-primary">المقاسات المتاحة</label><div id="size-chips-container" class="flex flex-wrap gap-1.5"></div></div>
                     <div id="field-color-chips" class="hidden"><label class="form-label text-primary">الألوان المتاحة</label><div id="color-chips-container" class="flex flex-wrap gap-1.5"></div></div>
-                    
                     <!-- 1. Cars -->
                     <div id="section-cars" class="hidden space-y-2">
                         <div class="flex gap-2 mb-1">
@@ -419,7 +458,6 @@
                             <select id="in-car-acc-cond" class="form-input"><option value="new">جديد</option><option value="used">مستعمل</option></select>
                         </div>
                     </div>
-
                     <!-- 2. Electronics -->
                     <div id="section-electronics" class="hidden space-y-2">
                         <select id="in-elec-type" class="form-input"><option value="">النوع</option><option value="phone">هاتف</option><option value="laptop">لابتوب</option><option value="tablet">تابلت</option><option value="pc">كمبيوتر</option><option value="watch">ساعة ذكية</option><option value="headphone">سماعات</option></select>
@@ -430,7 +468,6 @@
                         </div>
                         <input id="in-elec-battery" type="text" class="form-input" placeholder="حالة البطارية %">
                     </div>
-
                     <!-- 3. Pets -->
                     <div id="section-pets" class="hidden space-y-2">
                         <div class="flex gap-2 mb-1">
@@ -446,51 +483,43 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- 4. Home Appliances -->
                     <div id="section-home-tools" class="hidden space-y-2">
                         <input id="in-ht-type" class="form-input" placeholder="نوع الأداة (أواني، ديكور...)">
                         <input id="in-ht-material" class="form-input" placeholder="المادة (خشب، زجاج...)">
                     </div>
-
                     <!-- 5. Electrical Appliances -->
                     <div id="section-electrical" class="hidden space-y-2">
                         <select id="in-ea-type" class="form-input"><option value="">الجهاز</option><option value="fridge">ثلاجة</option><option value="washer">غسالة</option><option value="stove">بوتاجاز</option><option value="ac">تكييف</option><option value="tv">تلفزيون</option></select>
                         <input id="in-ea-brand" class="form-input" placeholder="الماركة">
                         <input id="in-ea-cap" class="form-input" placeholder="السعة/القدرة (مثلاً: 14 قدم)">
                     </div>
-
                     <!-- 6. Furniture -->
                     <div id="section-furniture" class="hidden space-y-2">
                         <select id="in-furn-type" class="form-input"><option value="">النوع</option><option value="bed">سرير</option><option value="sofa">كنب/أنتريه</option><option value="table">ترابيزة</option><option value="wardrobe">دولاب</option></select>
                         <input id="in-furn-mat" class="form-input" placeholder="الخامة (خشب زان، معدن...)">
                         <input id="in-furn-dim" class="form-input" placeholder="المقاسات">
                     </div>
-
                     <!-- 7. Raw Materials -->
                     <div id="section-raw" class="hidden space-y-2">
                         <select id="in-raw-type" class="form-input"><option value="">النوع</option><option value="wood">خشب</option><option value="iron">حديد</option><option value="plastic">بلاستيك</option><option value="alum">ألومنيوم</option></select>
                         <input id="in-raw-qty" class="form-input" placeholder="الكمية / الوزن">
                     </div>
-
                     <!-- 8. Construction -->
                     <div id="section-const" class="hidden space-y-2">
                         <select id="in-const-type" class="form-input"><option value="">المستلزم</option><option value="cement">أسمنت</option><option value="sand">رمل</option><option value="paint">دهانات</option><option value="ceramic">سيراميك</option></select>
                         <input id="in-const-qty" class="form-input" placeholder="الكمية">
                     </div>
-
                     <!-- 9. Cameras -->
                     <div id="section-cams" class="hidden space-y-2">
                         <select id="in-cam-type" class="form-input"><option value="">النوع</option><option value="cam">كاميرا</option><option value="dvr">DVR/NVR</option></select>
                         <select id="in-cam-res" class="form-input"><option value="">الدقة</option><option value="hd">HD</option><option value="fhd">FHD</option><option value="4k">4K</option></select>
                     </div>
-
                     <!-- 10. Decor -->
                     <div id="section-decor" class="hidden space-y-2">
                         <input id="in-dec-type" class="form-input" placeholder="النوع (لوحات، نجف...)">
                         <input id="in-dec-dim" class="form-input" placeholder="المقاس">
                     </div>
-
                     <!-- 11. Real Estate -->
                     <div id="section-realestate" class="hidden space-y-2">
                         <div class="flex gap-2 mb-1">
@@ -555,7 +584,7 @@
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
                 <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse"><i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج</button>
-                
+
                 <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
                      <div class="flex items-center gap-2">
                          <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
@@ -578,15 +607,15 @@
                         <tr><td>تاريخ النشر:</td><td id="d-date">...</td></tr>
                     </tbody>
                 </table>
-                
+
                 <!-- CONDITION BADGE -->
                 <div id="d-condition-badge" class="mb-3 hidden"></div>
-                
+
                 <div id="d-variants-container" class="space-y-2 mb-4">
                     <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">المقاسات:</span><div id="d-sizes-list" class="flex flex-wrap gap-1"></div></div>
                     <div id="d-colors-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">الألوان:</span><div id="d-colors-list" class="flex flex-wrap gap-1"></div></div>
                 </div>
-                
+
                 <!-- Dynamic Specs Container (GRID) -->
                 <div id="d-dynamic-specs" class="mb-4 hidden"></div>
 
@@ -595,9 +624,9 @@
                     <h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 mb-2">المميزات:</h3>
                     <div id="d-features" class="flex flex-wrap gap-2"></div>
                 </div>
-                
+
                 <div class="space-y-1 mb-6"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium select-text"></p></div>
-                
+
                 <!-- Shipping Info (Moved here) -->
                 <div id="d-shipping-bar" class="mb-4 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
                     <div id="d-shipping-info" class="flex items-center gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-300"></div>
@@ -669,6 +698,9 @@
 
     const CLOUD_NAME = "db9h7zm1h"; 
     const UPLOAD_PRESET = "souq_upload"; 
+    
+    // Master Admin Config
+    const MASTER_UID = "iKVejvie0dQHS4qOUzRFPm9cZpj2";
 
     // Optimized Image Compression (Faster)
     async function compressImage(file, maxWidth = 600, quality = 0.5) {
@@ -882,20 +914,21 @@
                 if (userDoc.exists()) {
                     const data = userDoc.data();
                     state.userData = data; state.userRole = data.role || 'customer'; 
+
+                    state.isAdmin = data.isAdmin === true;
+                    if(state.isAdmin) document.getElementById('btn-admin-top').classList.remove('hidden');
                     
-                    if(localStorage.getItem('souq_admin_mode') === 'true' || data.username === 'admin') {
-                        state.isAdmin = true;
-                        localStorage.setItem('souq_admin_mode', 'true'); 
-                        document.getElementById('btn-admin-top').classList.remove('hidden');
-                    } else {
-                        state.isAdmin = data.isAdmin === true;
+                    // Master Admin Check
+                    if(u.uid === MASTER_UID) {
+                        document.getElementById('btn-master-control').classList.remove('hidden');
                     }
 
                     document.getElementById('header-username').innerText = data.name || u.displayName;
                     document.getElementById('welcome-text').classList.remove('hidden');
-                    if(state.isAdmin) document.getElementById('btn-admin-top').classList.remove('hidden');
                 }
             } catch(e) { console.warn("Role fetch failed", e); }
+            
+            updateNavUI(); // Update Nav based on Role
             document.getElementById('login-view').classList.add('hidden'); document.getElementById('app-content').classList.remove('hidden');
             if(globalLoader) { globalLoader.classList.add('fade-out'); setTimeout(() => globalLoader.style.display = 'none', 500); }
             loadListings(); checkUserChat(); initFavs(); initCats(); 
@@ -906,32 +939,86 @@
         }
     });
 
+    // Function to update Nav based on Role
+    function updateNavUI() {
+        const container = document.getElementById('nav-middle-btn-container');
+        if(state.userRole === 'customer') {
+             // Show Profile Button
+             container.innerHTML = `<button onclick="toggleProfile(null)" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="user" class="w-6 h-6"></i></button>`;
+        } else {
+             // Show Add Product Button (Marketer/Admin)
+             container.innerHTML = `<button id="nav-add-btn" onclick="toggleAddModal()" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>`;
+        }
+        lucide.createIcons();
+    }
+
     window.setAuthRole = (role) => { state.authRole = role; document.getElementById('btn-role-customer').className = role === 'customer' ? "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md" : "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"; document.getElementById('btn-role-marketer').className = role === 'marketer' ? "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md" : "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"; }
-    window.setAuthType = (type) => { state.authType = type; const btnLogin = document.getElementById('btn-type-login'); const btnSignup = document.getElementById('btn-type-signup'); const actionBtn = document.getElementById('btn-auth-action'); const imgField = document.getElementById('auth-image-field'); const signupFields = document.getElementById('signup-fields'); if (type === 'login') { btnLogin.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md"; btnSignup.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white"; actionBtn.innerHTML = `<span>دخول للحساب</span> <i data-lucide="arrow-left" class="w-4 h-4"></i>`; imgField.classList.add('hidden'); imgField.classList.remove('flex'); signupFields.classList.add('hidden'); document.getElementById('lbl-username').innerText = "اسم المستخدم (إنجليزي)"; } else { btnSignup.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md"; btnLogin.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white"; actionBtn.innerHTML = `<span>إنشاء حساب جديد</span> <i data-lucide="plus-circle" class="w-4 h-4"></i>`; imgField.classList.remove('hidden'); imgField.classList.add('flex'); signupFields.classList.remove('hidden'); document.getElementById('lbl-username').innerText = "اسم المستخدم (إنجليزي)"; } lucide.createIcons(); }
+    window.setAuthType = (type) => { state.authType = type; const btnLogin = document.getElementById('btn-type-login'); const btnSignup = document.getElementById('btn-type-signup'); const actionBtn = document.getElementById('btn-auth-action'); const imgField = document.getElementById('auth-image-field'); const signupFields = document.getElementById('signup-fields'); if (type === 'login') { btnLogin.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md"; btnSignup.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white"; actionBtn.innerHTML = `<span>دخول للحساب</span> <i data-lucide="arrow-left" class="w-4 h-4"></i>`; imgField.classList.add('hidden'); imgField.classList.remove('flex'); signupFields.classList.add('hidden'); } else { btnSignup.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md"; btnLogin.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white"; actionBtn.innerHTML = `<span>إنشاء حساب جديد</span> <i data-lucide="plus-circle" class="w-4 h-4"></i>`; imgField.classList.remove('hidden'); imgField.classList.add('flex'); signupFields.classList.remove('hidden'); } lucide.createIcons(); }
 
     window.processAuth = async () => {
-        const username = document.getElementById('auth-username').value.trim().toLowerCase(); const pass = document.getElementById('auth-pass').value; const errDiv = document.getElementById('auth-error'); const btn = document.getElementById('btn-auth-action');
+        const rawPhone = document.getElementById('auth-main-phone').value.trim();
+        const pass = document.getElementById('auth-pass').value; 
+        const errDiv = document.getElementById('auth-error'); 
+        const btn = document.getElementById('btn-auth-action');
+        
         errDiv.classList.add('hidden'); errDiv.innerText = "";
-        if (!username || !pass) { errDiv.innerText = "يرجى ملء اسم المستخدم وكلمة المرور"; errDiv.classList.remove('hidden'); return; }
-        if (!/^[a-z0-9_]+$/.test(username)) { errDiv.innerText = "اسم المستخدم يجب أن يكون حروف إنجليزية وأرقام فقط"; errDiv.classList.remove('hidden'); return; }
+        
+        // Validate Phone
+        let cleanPhone = rawPhone.replace(/\D/g, '');
+        if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
+        if (cleanPhone.length !== 10) { errDiv.innerText = "رقم الهاتف غير صحيح (يجب أن يكون 11 رقم)"; errDiv.classList.remove('hidden'); return; }
+        
+        const fullPhone = `0${cleanPhone}`;
+        const email = `${fullPhone}@souq.local`; // Dummy Email Generation
+
         if (pass.length < 6) { errDiv.innerText = "كلمة المرور يجب أن تكون 6 أرقام/حروف على الأقل"; errDiv.classList.remove('hidden'); return; }
-        const email = `${username}@souq.local`; const originalBtnText = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<div class="spinner"></div> جاري المعالجة...`;
+        
+        const originalBtnText = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<div class="spinner"></div> جاري المعالجة...`;
+        
         try {
             if (state.authType === 'signup') {
-                const nameAr = document.getElementById('auth-name-ar').value.trim(); const phone = document.getElementById('auth-phone').value.trim(); const gov = document.getElementById('auth-gov').value; const city = document.getElementById('auth-city').value; const address = document.getElementById('auth-address').value.trim();
-                if (!nameAr || !gov || !city || !address || !phone) throw new Error("missing_fields");
+                const nameAr = document.getElementById('auth-name-ar').value.trim(); 
+                const gov = document.getElementById('auth-gov').value; 
+                const city = document.getElementById('auth-city').value; 
+                const address = document.getElementById('auth-address').value.trim();
+                
+                if (!nameAr || !gov || !city || !address) throw new Error("missing_fields");
+                
                 const userCredential = await createUserWithEmailAndPassword(auth, email, pass); const user = userCredential.user;
                 await updateProfile(user, { displayName: nameAr });
-                const newUser = { username: username, name: nameAr, phone: phone, email: email, role: state.authRole, governorate: gov, city: city, address: address, isAdmin: false, isVerified: false, image: state.authImageBase64 || null, createdAt: serverTimestamp() };
+                
+                const newUser = { 
+                    username: fullPhone, // Using phone as username
+                    name: nameAr, 
+                    phone: fullPhone, 
+                    email: email, 
+                    role: state.authRole, 
+                    governorate: gov, 
+                    city: city, 
+                    address: address, 
+                    isAdmin: false, 
+                    isVerified: false, 
+                    image: state.authImageBase64 || null, 
+                    createdAt: serverTimestamp() 
+                };
+                
                 await setDoc(doc(db, "users", user.uid), newUser);
                 state.userData = newUser; state.userRole = state.authRole; state.user = user;
                 document.getElementById('header-username').innerText = nameAr; document.getElementById('welcome-text').classList.remove('hidden');
+                
+                // Fix Profile Bug: Pre-load profile data immediately
+                updateNavUI();
+                
             } else { await signInWithEmailAndPassword(auth, email, pass); }
+            
             btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`; btn.classList.replace('bg-navy', 'bg-green-600');
             setTimeout(() => { document.getElementById('login-view').classList.add('hidden'); document.getElementById('app-content').classList.remove('hidden'); showToast(`أهلاً بك في السوق وياك 👋`, 's'); }, 500);
         } catch (error) {
             console.error("Auth Error:", error); let msg = `حدث خطأ: ${error.code}`; 
-            if(error.message === "missing_fields") msg = "يرجى إكمال جميع البيانات"; else if(error.code === 'auth/email-already-in-use') msg = "اسم المستخدم هذا موجود بالفعل"; else if(error.code === 'auth/wrong-password') msg = "كلمة المرور غير صحيحة"; else if(error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') msg = "بيانات الدخول غير صحيحة";
+            if(error.message === "missing_fields") msg = "يرجى إكمال جميع البيانات"; 
+            else if(error.code === 'auth/email-already-in-use') msg = "رقم الهاتف هذا مسجل بالفعل"; 
+            else if(error.code === 'auth/wrong-password') msg = "كلمة المرور غير صحيحة"; 
+            else if(error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') msg = "بيانات الدخول غير صحيحة";
             errDiv.innerText = msg; errDiv.classList.remove('hidden'); btn.disabled = false; btn.innerHTML = originalBtnText; lucide.createIcons();
         }
     }
@@ -990,7 +1077,6 @@
     }
     renderCategoryCards();
 
-    // SCALABILITY FIX: Pagination Logic
     async function loadListings(isNext = false) {
         if(state.isLoadingMore) return;
         state.isLoadingMore = true;
@@ -1005,13 +1091,12 @@
 
         try {
             let q = query(collection(db, "listings"), orderBy("createdAt", "desc"), limit(10));
-            
             if (isNext && state.lastVisibleDoc) {
                 q = query(collection(db, "listings"), orderBy("createdAt", "desc"), startAfter(state.lastVisibleDoc), limit(10));
             }
 
             const snap = await getDocs(q);
-            
+
             if (!snap.empty) {
                 state.lastVisibleDoc = snap.docs[snap.docs.length - 1];
                 snap.forEach(d => state.listings.push({id: d.id, ...d.data()}));
@@ -1019,12 +1104,11 @@
             } else {
                 document.getElementById('load-more-container').classList.add('hidden');
             }
-            
+
             // Handle Deep Link
             const params = new URLSearchParams(window.location.search); 
             const linkedProdId = params.get('product_id');
             if(linkedProdId && !state.currentItem && !isNext) { 
-                // If deep linked item is not in first batch, fetch it specifically
                 const item = state.listings.find(i => i.id === linkedProdId); 
                 if(item) openDetails(item.id);
                 else {
@@ -1052,17 +1136,8 @@
         if (state.currentView === 'home') {
             renderCategoryCards();
         } else {
-            // Simple client-side search on loaded items for responsiveness
-            // For full scalability, you'd need a dedicated search service (Algolia/Typesense)
-            // or simple Firestore queries (limited).
             const q = document.getElementById('search-input').value;
-            if(q.length > 0) {
-                // If searching, we rely on what's loaded OR fetch a specific batch (complex without external service)
-                // Here we stick to client side filtering of loaded items + maybe fetch more if empty
-                renderProducts();
-            } else {
-                renderProducts();
-            }
+            if(q.length > 0) { renderProducts(); } else { renderProducts(); }
         }
     };
 
@@ -1086,14 +1161,13 @@
         const minP = Number(document.getElementById('filter-min-price').value);
         const maxP = Number(document.getElementById('filter-max-price').value);
         const cont = document.getElementById('grid-container'); 
-        const loadMore = document.getElementById('load-more-container');
-
+        
         let filtered = state.listings.filter(item => { 
             let matchType = true; 
             if (state.currentFilter === 'fav') matchType = (state.favorites || []).includes(item.id);
             else if (state.currentFilter === 'عروض') matchType = item.badge === 'hot';
             else matchType = state.currentFilter === 'all' || item.category === state.currentFilter; 
-            
+
             const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); 
             let matchGov = govFilter ? item.governorate === govFilter : true;
             let matchCond = condFilter ? item.condition === condFilter : true;
@@ -1110,7 +1184,6 @@
         if(!filtered.length) { cont.innerHTML = ''; document.getElementById('empty-state').classList.remove('hidden'); } 
         else { 
             document.getElementById('empty-state').classList.add('hidden'); 
-            // Render all filtered items (since we paginate the source, rendering 10-20 items is fine)
             cont.innerHTML = filtered.map(item => createCard(item)).join('');
         } 
         lucide.createIcons(); 
@@ -1131,7 +1204,7 @@
         let badge = item.badge === 'hot' ? `<span class="absolute top-1 right-1 bg-orange-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow animate-pulse z-10">🔥 عرض</span>` : '';
         let statusOverlay = ''; let isClickable = true; 
         if(item.status && item.status !== 'available') { const txt = item.status === 'sold' ? 'تم البيع' : 'غير متاح'; statusOverlay = `<div class="absolute inset-0 z-20 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center"><span class="bg-red-600 text-white font-bold px-4 py-2 rounded-xl shadow-xl transform -rotate-12 text-sm">${txt}</span></div>`; }
-        
+
         let extraInfo = '';
         if(item.category === 'عقارات') extraInfo = `<span class="bg-slate-100 dark:bg-white/5 px-1 rounded">${item.reType === 'sale' ? 'بيع' : 'إيجار'}</span>`;
         else if(item.category === 'سيارات') {
@@ -1153,8 +1226,7 @@
     window.scrollDetails = (dir) => { const total = state.detailsSliderImages.length; if (total <= 1) return; goToDetailsSlide(state.detailsSliderIndex - dir); }
     function updateSliderDots() { if (state.detailsSliderImages.length <= 1) return; for (let i = 0; i < state.detailsSliderImages.length; i++) { const dot = document.getElementById(`dot-${i}`); if (dot) dot.className = i === state.detailsSliderIndex ? 'w-4 h-2 rounded-full bg-white shadow transition-all' : 'w-2 h-2 rounded-full bg-white/40 transition-all'; } }
     window.copyDetails = () => { if(!state.currentItem) return; const text = `المنتج: ${state.currentItem.title}\nالسعر: ${Number(state.currentItem.price).toLocaleString()} ج.م\nالوصف: ${state.currentItem.desc}\nللتواصل: ${state.currentItem.phone}`; navigator.clipboard.writeText(text).then(() => { showToast('تم نسخ التفاصيل بنجاح ✅'); }).catch(err => { showToast('فشل النسخ', 'e'); }); }
-    
-    // Download Image Function
+
     window.downloadImg = async () => {
         const src = document.getElementById('details-img').src;
         if(!src) return;
@@ -1172,11 +1244,10 @@
             showToast('جاري التنزيل...', 's');
         } catch(e) {
             console.error(e);
-            window.open(src, '_blank'); // Fallback
+            window.open(src, '_blank'); 
         }
     }
 
-    // Helper to render spec item in grid
     function renderSpecItem(label, value) {
         if(!value) return '';
         return `
@@ -1201,12 +1272,8 @@
                 html += renderSpecItem('الفتيس', item.carTrans);
                 html += renderSpecItem('العداد', item.carKm ? item.carKm + ' كم' : '');
                 html += renderSpecItem('سعة المحرك', item.carCc ? item.carCc + ' CC' : '');
-                
-                // Smart Feature Integration
                 if(item.features && item.features.length > 0) {
-                    item.features.forEach(f => {
-                         html += renderSpecItem('ميزة', f);
-                    });
+                    item.features.forEach(f => { html += renderSpecItem('ميزة', f); });
                 }
             }
         } else if(item.category === 'الكترونيات وموبيلات') {
@@ -1253,8 +1320,7 @@
         document.getElementById('d-title').innerText = item.title; document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; 
         document.getElementById('d-cat').innerText = 'قسم' + item.category; 
         document.getElementById('d-desc').innerText = item.desc; document.getElementById('d-date').innerText = formatDate(item.createdAt);
-        
-        // Condition Badge Logic
+
         const badgeContainer = document.getElementById('d-condition-badge');
         if(USED_CATS.includes(item.category)) {
             const condText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
@@ -1264,7 +1330,6 @@
             badgeContainer.classList.add('hidden');
         }
 
-        // Render Dynamic Specs
         const specsContainer = document.getElementById('d-dynamic-specs');
         const specsHTML = renderSpecs(item);
         if(specsHTML) {
@@ -1278,14 +1343,13 @@
         const pubName = document.getElementById('d-pub-name'); const pubImg = document.getElementById('d-pub-img'); const pubBadge = document.getElementById('d-pub-verified');
         pubName.innerText = "جاري التحميل..."; pubImg.innerHTML = `<div class="animate-pulse bg-slate-300 w-full h-full"></div>`; pubBadge.classList.add('hidden');
         document.getElementById('d-pub-bar').onclick = () => toggleProfile(item.authorId);
-        
+
         const amCont = document.getElementById('d-features'); amCont.innerHTML=''; 
         const sizeRow = document.getElementById('d-sizes-row'); const sizeList = document.getElementById('d-sizes-list'); const colorRow = document.getElementById('d-colors-row'); const colorList = document.getElementById('d-colors-list');
         sizeRow.classList.add('hidden'); colorRow.classList.add('hidden'); sizeList.innerHTML = ''; colorList.innerHTML = '';
         if(item.size && Array.isArray(item.size) && item.size.length > 0) { sizeRow.classList.remove('hidden'); item.size.forEach(s => { sizeList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm min-w-[30px] text-center">${s}</span>`; }); }
         if(item.color && Array.isArray(item.color) && item.color.length > 0) { colorRow.classList.remove('hidden'); item.color.forEach(c => { colorList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm">${c}</span>`; }); }
-        
-        // Features Logic (Hide for Cars/Real Estate as they are in Specs)
+
         const featContainer = document.getElementById('d-features-container');
         if(item.category === 'سيارات' || item.category === 'عقارات') {
              featContainer.classList.add('hidden');
@@ -1297,7 +1361,7 @@
                  featContainer.classList.add('hidden');
              }
         }
-        
+
         const shipInfo = document.getElementById('d-shipping-info');
         if(item.shippingMode === 'specific' && item.shippingGov) { let govText = Array.isArray(item.shippingGov) ? item.shippingGov.join('، ') : item.shippingGov; shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> <span class="whitespace-normal leading-tight text-right">الشحن متاح لـ: ${govText}</span>`; } else { shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> شحن لكل المحافظات`; }
         document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=استفسار بخصوص: ${item.title}`; document.getElementById('d-call').href = `tel:${item.phone}`;
@@ -1306,8 +1370,7 @@
         dotsContainer.innerHTML = ''; if (imgs.length > 1) { dotsContainer.innerHTML = imgs.map((_, index) => `<span id="dot-${index}" class="w-2 h-2 rounded-full bg-white/40 transition-all"></span>`).join(''); } document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
         toggleModal('details-modal'); goToDetailsSlide(0, 'auto'); 
         const url = new URL(window.location); url.searchParams.set('product_id', id); window.history.replaceState({}, '', url);
-        
-        // Publisher Data with Caching
+
         (async () => {
             if (state.authorCache[item.authorId]) {
                 const uData = state.authorCache[item.authorId];
@@ -1333,12 +1396,12 @@
         const pubName = document.getElementById('d-pub-name'); 
         const pubImg = document.getElementById('d-pub-img');
         const pubBadge = document.getElementById('d-pub-verified');
-        
+
         state.currentAuthor = uData;
         pubName.innerText = uData.name || "مستخدم"; 
         if(uData.image) { pubImg.innerHTML = `<img src="${uData.image}" class="w-full h-full object-cover">`; } 
         else { pubImg.innerHTML = `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; lucide.createIcons(); }
-        
+
         if(uData.isVerified) pubBadge.classList.remove('hidden');
         else pubBadge.classList.add('hidden');
     }
@@ -1348,13 +1411,11 @@
     window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); if(state.currentView === 'category') renderProducts(); };
     function updateFavBadge() { const b = document.getElementById('fav-count'); if(b){ if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); }}
     window.toggleFavView = () => { 
-        // Save current view before switching
         localStorage.setItem('prev_view', state.currentView);
         localStorage.setItem('prev_filter', state.currentFilter);
         state.currentView = 'category'; state.currentFilter = 'fav'; renderView(); showToast("عرض المفضلة ❤️"); 
     };
-    
-    // Fix Back Button Logic
+
     const originalSwitchToHome = window.switchToHomeView;
     window.switchToHomeView = () => {
         if(state.currentFilter === 'fav') {
@@ -1375,11 +1436,10 @@
         document.getElementById('field-condition').classList.toggle('hidden', !USED_CATS.includes(cat));
         const isClothes = CLOTHES_CATS.includes(cat); const isShoes = SHOES_CATS.includes(cat);
         const sizeContainer = document.getElementById('field-size-chips'); const sizeChips = document.getElementById('size-chips-container'); const colorContainer = document.getElementById('field-color-chips'); const colorChips = document.getElementById('color-chips-container'); const dynamicFields = document.getElementById('dynamic-fields');
-        
-        // Hide all custom sections first
+
         document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
         sizeContainer.classList.add('hidden'); colorContainer.classList.add('hidden'); dynamicFields.classList.add('hidden');
-        
+
         let showDynamic = false;
 
         if (isClothes || isShoes) {
@@ -1395,14 +1455,12 @@
             BASIC_COLORS.forEach(c => { colorChips.innerHTML += `<label class="cursor-pointer"><input type="checkbox" name="smart-color" value="${c}" class="smart-option hidden"><div class="px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 font-bold text-[10px] text-slate-500 hover:border-navy transition">${c}</div></label>`; });
         }
 
-        // Logic for new categories
         if(cat === 'سيارات') { 
             showDynamic = true; document.getElementById('section-cars').classList.remove('hidden'); 
             const carType = document.querySelector('input[name="car-type"]:checked').value;
             if(carType === 'car') {
                 document.getElementById('car-fields-main').classList.remove('hidden');
                 document.getElementById('car-fields-acc').classList.add('hidden');
-                // Generate features for cars
                 const carFeats = ["تكييف", "فتحة سقف", "ABS", "AIRBAG", "سنتر لوك", "حساسات", "كاميرا خلفية", "شاشة", "مثبت سرعة", "جنوط"];
                 const featCont = document.getElementById('car-features-list'); featCont.innerHTML = '';
                 carFeats.forEach(f => featCont.innerHTML += `<label class="cursor-pointer"><input type="checkbox" class="feature-checkbox hidden" value="${f}"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">${f}</div></label>`);
@@ -1452,8 +1510,7 @@
         document.querySelector('input[name="car-type"][value="car"]').checked = true;
         document.querySelector('input[name="pet-type"][value="sale"]').checked = true;
         document.querySelector('input[name="re-type"][value="sale"]').checked = true;
-        
-        // Reset specific inputs
+
         document.getElementById('in-car-brand').selectedIndex = 0;
         document.getElementById('in-car-model').value = '';
         document.getElementById('in-car-year').value = '';
@@ -1466,7 +1523,7 @@
         document.getElementById('in-re-rooms').value = '';
         document.getElementById('in-re-bath').value = '';
         document.getElementById('in-re-floor').value = '';
-        
+
         updateFormFields();
         toggleShipGov();
     }
@@ -1474,7 +1531,7 @@
     window.submitListing=async()=>{
         if(!state.user) return showToast('يجب تسجيل الدخول أولاً', 'e');
         if(!state.images.length) return showToast('مطلوب صورة واحدة على الأقل','e');
-        
+
         const btn = document.getElementById('btn-publish'); 
         btn.disabled = true; 
         btn.innerHTML = '<span>جاري النشر...</span>';
@@ -1484,14 +1541,13 @@
             const cond=document.getElementById('in-condition').value;
             const cat=document.getElementById('in-cat').value;
             const feats=[]; document.querySelectorAll('.chip-checkbox:checked').forEach(c=>feats.push(c.value));
-            
+
             const sizes = []; document.querySelectorAll('input[name="smart-size"]:checked').forEach(c => sizes.push(c.value));
             const colors = []; document.querySelectorAll('input[name="smart-color"]:checked').forEach(c => colors.push(c.value));
             const shipMode = document.querySelector('input[name="ship-mode"]:checked').value;
             let shipGovs = []; if(shipMode === 'specific') { document.querySelectorAll('input[name="ship-gov-check"]:checked').forEach(c => shipGovs.push(c.value)); if(shipGovs.length === 0) { throw new Error("shipping_error"); } }
             const userGov = state.userData ? state.userData.governorate : '';
 
-            // Base Data
             const data = {
                 title:document.getElementById('in-title').value,
                 price:Number(document.getElementById('in-price').value),
@@ -1504,7 +1560,6 @@
                 governorate: userGov, createdAt:serverTimestamp(), authorId:state.user.uid
             };
 
-            // Conditional Data Injection to prevent cross-contamination
             if(cat === 'سيارات') {
                 const carType = document.querySelector('input[name="car-type"]:checked').value;
                 data.carType = carType;
@@ -1520,7 +1575,7 @@
                     data.features = [...data.features, ...carFeats];
                 } else {
                     data.carAccName = document.getElementById('in-car-acc-name').value;
-                    data.condition = document.getElementById('in-car-acc-cond').value; // Override condition
+                    data.condition = document.getElementById('in-car-acc-cond').value; 
                 }
             }
             else if(cat === 'الكترونيات وموبيلات') {
@@ -1583,14 +1638,13 @@
                 data.features = [...data.features, ...reFeats];
             }
 
-            // Remove undefined/empty keys to keep DB clean
             Object.keys(data).forEach(key => (data[key] === undefined || data[key] === '') && delete data[key]);
 
             await addDoc(collection(db,"listings"), data);
             showToast('تم النشر بنجاح'); 
             toggleAddModal(); 
             resetForm();
-            loadListings(); // Refresh list
+            loadListings(); 
         } catch (e) {
             console.error(e);
             if(e.message === "shipping_error") showToast('يرجى اختيار محافظة واحدة على الأقل للشحن', 'e');
@@ -1605,7 +1659,6 @@
     window.del = async (e, id) => { 
         if(e) e.stopPropagation(); 
         if(confirm('هل أنت متأكد من حذف هذا المنتج نهائياً؟')) { 
-            // Admin Bypass Logic: If admin, delete directly
             if(state.isAdmin) {
                 await deleteDoc(doc(db, "listings", id)); 
                 showToast('تم الحذف بواسطة الأدمن'); 
@@ -1614,15 +1667,13 @@
                 showToast('تم الحذف بنجاح'); 
             }
             closeDetails(); 
-            loadListings(); // Refresh
+            loadListings(); 
         } 
     };
 
     window.toggleStatus = async (e, id, currentStatus) => { 
         if(e) e.stopPropagation(); 
         let nextStatus = currentStatus === 'available' ? 'sold' : 'available'; 
-        
-        // Admin Bypass Logic
         if(state.isAdmin) {
             await updateDoc(doc(db, "listings", id), { status: nextStatus }); 
             showToast(`تم تغيير الحالة (أدمن): ${nextStatus === 'available' ? 'متاح' : 'مُباع'}`); 
@@ -1630,9 +1681,8 @@
             await updateDoc(doc(db, "listings", id), { status: nextStatus }); 
             showToast(`تم تغيير الحالة إلى: ${nextStatus === 'available' ? 'متاح' : 'مُباع'}`); 
         }
-        
         if(!document.getElementById('details-modal').classList.contains('hidden')) { openDetails(id); } 
-        loadListings(); // Refresh
+        loadListings(); 
     };
 
     window.toggleDarkMode = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('souq_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); }
@@ -1646,12 +1696,30 @@
     window.navigateLightbox = (dir) => { if (!state.lightboxImages.length) return; state.lightboxIndex += dir; if (state.lightboxIndex >= state.lightboxImages.length) { state.lightboxIndex = 0; } else if (state.lightboxIndex < 0) { state.lightboxIndex = state.lightboxImages.length - 1; } document.getElementById('lightbox-img').src = state.lightboxImages[state.lightboxIndex]; }
     window.closeLightbox = () => { document.getElementById('lightbox').classList.add('hidden'); state.lightboxImages = []; state.lightboxIndex = 0; }
     function toggleModal(id) { const m=document.getElementById(id); m.classList.toggle('hidden'); if(!m.classList.contains('hidden')) document.body.style.overflow='hidden'; else document.body.style.overflow=''; return !m.classList.contains('hidden'); }
-    window.toggleAddModal=()=>{ if(state.userRole !== 'marketer') { if(confirm("عفواً لا يمكن عرض هذه الصفحة لغير المسوقين وأصحاب العمل.\nهل تريد أن تصبح مسوق؟")) { state.userRole = 'marketer'; updateDoc(doc(db, "users", state.user.uid), { role: 'marketer' }).then(() => { showToast(`أهلاً بك في شركتنا 👋`, 's'); openAddModalLogic(); }); } else { showToast("هذه الصفحة مخصصة للمسوقين ومقدمي الخدمات", 'e'); } } else { openAddModalLogic(); } };
+    
+    // Updated Add Modal Toggle Logic
+    window.toggleAddModal=()=>{ 
+        if(state.userRole !== 'marketer') { 
+            // Customer trying to open Add Modal
+            if(confirm("عفواً لا يمكن عرض هذه الصفحة لغير المسوقين وأصحاب العمل.\nهل تريد أن تصبح مسوق؟")) { 
+                state.userRole = 'marketer'; 
+                updateDoc(doc(db, "users", state.user.uid), { role: 'marketer' }).then(() => { 
+                    showToast(`أهلاً بك في شركتنا 👋`, 's'); 
+                    updateNavUI(); // Refresh Nav Button
+                    openAddModalLogic(); 
+                }); 
+            } else { 
+                showToast("هذه الصفحة مخصصة للمسوقين ومقدمي الخدمات", 'e'); 
+            } 
+        } else { 
+            openAddModalLogic(); 
+        } 
+    };
     function openAddModalLogic() { if(toggleModal('add-modal')) { resetForm(); } }
+
     window.toggleChat=()=>{ if(toggleModal('chat-modal')){ if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){ state.welcomeSent=true; const name = state.user.displayName || 'يا صديقي'; setTimeout(()=>botMsg(`مرحباً ${name} 👋<br>معك المساعد الذكي للسوق  وياك اخبرني بطلبك لتحويلك للدعم الفني؟`),100); } } };
     window.sendMsg=async()=>{ const t=document.getElementById('chat-msg').value.trim(); if(!t)return; document.getElementById('chat-msg').value=''; userMsg(t); if(!state.chatId){ if(state.chatStep===0){ state.chatStep=2; try { const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:t, status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id); } catch (err) { console.error("Chat creation failed:", err); botMsg("عفواً، حدث خطأ أثناء محاولة توصيلك بالدعم."); } } } else { const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId))); if(!s.empty){ const m=s.docs[0].data().messages; m.push({s:'user',t,d:new Date()}); await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'}); } } };
-    
-    // Chat Image Logic
+
     window.sendImageMsg = async (input) => {
         if(input.files && input.files[0]) {
             showToast('جاري رفع الصورة...', 's');
@@ -1659,9 +1727,7 @@
             if(url) {
                 const imgHtml = `<img src="${url}" class="rounded-lg max-w-full h-auto border border-white/20" onclick="openLightbox(this.src)">`;
                 userMsg(imgHtml);
-                
                 if(!state.chatId){
-                    // Create chat if not exists
                     try {
                         const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:'[صورة]', status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t:imgHtml,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id);
                     } catch(e) { console.error(e); }
@@ -1682,45 +1748,49 @@
     function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%] overflow-hidden">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
     function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%] overflow-hidden">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
     window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
-    document.getElementById('logo-trigger').addEventListener('click',()=>{ 
-        if(prompt('Code:')==='1532'){ 
-            if(state.user) { 
-                state.isAdmin = true; 
-                localStorage.setItem('souq_admin_mode', 'true'); // Persist Admin
-                document.getElementById('btn-admin-top').classList.remove('hidden'); 
-                showToast('تم تفعيل وضع الأدمن (محلي)'); 
-                updateDoc(doc(db, "users", state.user.uid), { isAdmin: true }).catch(e => console.log("DB Update blocked by rules, local admin active")); 
-            } else { showToast("يجب تسجيل الدخول أولاً", "e"); } 
-        } 
-    });
-    window.refreshAdmin=()=>{ onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{ const l=document.getElementById('admin-users-list'); l.innerHTML=''; let chats = []; s.forEach(d => chats.push({id: d.id, ...d.data()})); chats.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); chats.forEach(dt => { l.innerHTML+=`<div onclick="loadAdmin('${dt.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>` }); }) };
-    window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'} overflow-hidden">${m.t}</span></div>`});b.scrollTop=9999})};
-    window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
-    window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
     
-    // Verification Logic (Static Code)
-    window.verifyAccount = async () => {
-        const code = prompt("أدخل كود التوثيق (ثابت):");
-        if(!code) return;
-        
-        if(code === '1032') {
+    // Master Admin Functions
+    window.toggleMasterModal = () => { toggleModal('master-modal'); }
+    window.saveMasterChanges = async () => {
+        const phone = document.getElementById('master-target-phone').value.trim();
+        const isVerified = document.getElementById('master-check-verified').checked;
+        const isAdmin = document.getElementById('master-check-admin').checked;
+
+        if(!phone) return showToast("يرجى إدخال رقم الهاتف", "e");
+        let cleanPhone = phone.replace(/\D/g, '');
+        if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
+        const fullPhone = `0${cleanPhone}`;
+
+        // Find user by phone
+        const q = query(collection(db, "users"), where("phone", "==", fullPhone));
+        const snap = await getDocs(q);
+
+        if(snap.empty) {
+            showToast("لم يتم العثور على مستخدم بهذا الرقم", "e");
+        } else {
+            const uid = snap.docs[0].id;
             try {
-                await updateDoc(doc(db, "users", state.user.uid), { isVerified: true });
-                state.userData.isVerified = true;
-                toggleProfile(); // Refresh profile UI
-                showToast("تم توثيق حسابك بنجاح! 🎉");
+                await updateDoc(doc(db, "users", uid), {
+                    isVerified: isVerified,
+                    isAdmin: isAdmin
+                });
+                showToast(`تم تحديث الصلاحيات للرقم ${fullPhone}`);
+                toggleMasterModal();
             } catch(e) {
                 console.error(e);
                 showToast("حدث خطأ أثناء التحديث", "e");
             }
-        } else {
-            showToast("الكود غير صحيح", "e");
         }
     }
 
-    window.toggleProfile = async (userId = null) => { if(toggleModal('profile-modal')) { const targetId = userId || (auth.currentUser ? auth.currentUser.uid : null); if(!targetId) return; state.viewingProfileId = targetId; const isOwner = auth.currentUser && auth.currentUser.uid === targetId; document.getElementById('prof-name').innerText = '...'; document.getElementById('prof-role').innerText = '...'; document.getElementById('prof-phone').innerText = '...'; document.getElementById('prof-address').innerText = '...'; document.getElementById('prof-joined').innerText = ''; document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`; document.getElementById('prof-password-section').classList.add('hidden'); document.getElementById('prof-reviews-section').classList.add('hidden'); document.getElementById('prof-rate-user-section').classList.add('hidden'); document.getElementById('prof-rating-display').classList.add('hidden'); document.getElementById('global-edit-btn').classList.add('hidden'); document.getElementById('prof-view-mode').classList.remove('hidden'); document.getElementById('prof-edit-mode').classList.add('hidden'); document.getElementById('btn-verify-account').classList.add('hidden'); document.getElementById('prof-verified-badge').classList.add('hidden'); let data = null; if (isOwner && state.userData) { data = state.userData; } else { try { const snap = await getDoc(doc(db, "users", targetId)); if(snap.exists()) data = snap.data(); } catch(e) { console.error(e); } } if(data) { document.getElementById('prof-name').innerText = data.name || 'مستخدم'; document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل'; document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل'; document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || ''); document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt); if(data.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`; } calculateUserRating(targetId); if(data.isVerified) { document.getElementById('prof-verified-badge').classList.remove('hidden'); } else if(isOwner) { document.getElementById('btn-verify-account').classList.remove('hidden'); } if(isOwner) { document.getElementById('global-edit-btn').classList.remove('hidden'); document.getElementById('prof-password-section').classList.remove('hidden'); } else { document.getElementById('prof-rate-user-section').classList.remove('hidden'); } if(data.role === 'marketer') { document.getElementById('prof-reviews-section').classList.remove('hidden'); state.profileReviewsLimit = 3; loadProfileReviews(false); } } lucide.createIcons(); } }
+    window.refreshAdmin=()=>{ onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{ const l=document.getElementById('admin-users-list'); l.innerHTML=''; let chats = []; s.forEach(d => chats.push({id: d.id, ...d.data()})); chats.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); chats.forEach(dt => { l.innerHTML+=`<div onclick="loadAdmin('${dt.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>` }); }) };
+    window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'} overflow-hidden">${m.t}</span></div>`});b.scrollTop=9999})};
+    window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
+    window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
+
+    window.toggleProfile = async (userId = null) => { if(toggleModal('profile-modal')) { const targetId = userId || (auth.currentUser ? auth.currentUser.uid : null); if(!targetId) return; state.viewingProfileId = targetId; const isOwner = auth.currentUser && auth.currentUser.uid === targetId; document.getElementById('prof-name').innerText = '...'; document.getElementById('prof-role').innerText = '...'; document.getElementById('prof-phone').innerText = '...'; document.getElementById('prof-address').innerText = '...'; document.getElementById('prof-joined').innerText = ''; document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`; document.getElementById('prof-password-section').classList.add('hidden'); document.getElementById('prof-reviews-section').classList.add('hidden'); document.getElementById('prof-rate-user-section').classList.add('hidden'); document.getElementById('prof-rating-display').classList.add('hidden'); document.getElementById('global-edit-btn').classList.add('hidden'); document.getElementById('prof-view-mode').classList.remove('hidden'); document.getElementById('prof-edit-mode').classList.add('hidden'); document.getElementById('prof-verified-badge').classList.add('hidden'); let data = null; if (isOwner && state.userData) { data = state.userData; } else { try { const snap = await getDoc(doc(db, "users", targetId)); if(snap.exists()) data = snap.data(); } catch(e) { console.error(e); } } if(data) { document.getElementById('prof-name').innerText = data.name || 'مستخدم'; document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل'; document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل'; document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || ''); document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt); if(data.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`; } calculateUserRating(targetId); if(data.isVerified) { document.getElementById('prof-verified-badge').classList.remove('hidden'); } if(isOwner) { document.getElementById('global-edit-btn').classList.remove('hidden'); document.getElementById('prof-password-section').classList.remove('hidden'); } else { document.getElementById('prof-rate-user-section').classList.remove('hidden'); } if(data.role === 'marketer') { document.getElementById('prof-reviews-section').classList.remove('hidden'); state.profileReviewsLimit = 3; loadProfileReviews(false); } } lucide.createIcons(); } }
     window.toggleEditMode = () => { const viewMode = document.getElementById('prof-view-mode'); const editMode = document.getElementById('prof-edit-mode'); if(editMode.classList.contains('hidden')) { viewMode.classList.add('hidden'); editMode.classList.remove('hidden'); document.getElementById('edit-name').value = state.userData.name || ''; document.getElementById('edit-phone').value = state.userData.phone || ''; document.getElementById('edit-address').value = state.userData.address || ''; document.getElementById('edit-gov').value = state.userData.governorate || ''; updateEditCities(); document.getElementById('edit-city').value = state.userData.city || ''; if(state.userData.image) { document.getElementById('edit-img-preview').src = state.userData.image; document.getElementById('edit-img-preview').classList.remove('hidden'); document.getElementById('edit-img-placeholder').classList.add('hidden'); } } else { editMode.classList.add('hidden'); viewMode.classList.remove('hidden'); } }
-    window.saveProfile = async () => { const name = document.getElementById('edit-name').value.trim(); const phone = document.getElementById('edit-phone').value.trim(); const address = document.getElementById('edit-address').value.trim(); const gov = document.getElementById('edit-gov').value; const city = document.getElementById('edit-city').value; if(!name || !phone || !address || !gov || !city) return showToast("يرجى ملء جميع الحقول", "e"); const updateData = { name, phone, address, governorate: gov, city }; if(state.tempEditImage) { updateData.image = state.tempEditImage; } try { await updateDoc(doc(db, "users", state.user.uid), updateData); state.userData = { ...state.userData, ...updateData }; state.tempEditImage = null; document.getElementById('prof-name').innerText = name; document.getElementById('prof-phone').innerText = phone; document.getElementById('prof-address').innerText = address + ' - ' + gov; if(updateData.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${updateData.image}" class="w-full h-full object-cover">`; } showToast("تم حفظ التعديلات بنجاح"); toggleEditMode(); } catch(e) { showToast("فشل الحفظ", "e"); } }
+    window.saveProfile = async () => { const name = document.getElementById('edit-name').value.trim(); const address = document.getElementById('edit-address').value.trim(); const gov = document.getElementById('edit-gov').value; const city = document.getElementById('edit-city').value; if(!name || !address || !gov || !city) return showToast("يرجى ملء جميع الحقول", "e"); const updateData = { name, address, governorate: gov, city }; if(state.tempEditImage) { updateData.image = state.tempEditImage; } try { await updateDoc(doc(db, "users", state.user.uid), updateData); state.userData = { ...state.userData, ...updateData }; state.tempEditImage = null; document.getElementById('prof-name').innerText = name; document.getElementById('prof-address').innerText = address + ' - ' + gov; if(updateData.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${updateData.image}" class="w-full h-full object-cover">`; } showToast("تم حفظ التعديلات بنجاح"); toggleEditMode(); } catch(e) { showToast("فشل الحفظ", "e"); } }
     window.changePassword = async () => { const newPass = document.getElementById('new-password').value; if(!newPass || newPass.length < 6) return showToast("كلمة المرور قصيرة جداً", "e"); try { await updatePassword(auth.currentUser, newPass); showToast("تم تحديث كلمة المرور بنجاح"); document.getElementById('new-password').value = ''; } catch(e) { showToast("يجب إعادة تسجيل الدخول لتغيير كلمة المرور", "e"); } }
     window.setUserRating = (n) => { state.currentUserRating = n; }
     window.submitUserReview = async () => { if(!state.user) return showToast("يجب تسجيل الدخول للتقييم", "e"); if(!state.viewingProfileId) return; if(state.currentUserRating === 0) return showToast("يرجى تحديد عدد النجوم", "e"); const text = document.getElementById('user-review-text').value; await addDoc(collection(db, "user_reviews"), { targetUserId: state.viewingProfileId, reviewerId: state.user.uid, reviewerName: state.userData.name || 'مستخدم', reviewerImage: state.userData.image || null, rating: state.currentUserRating, text: text, timestamp: serverTimestamp() }); showToast("تم إرسال التقييم"); document.getElementById('user-review-text').value = ''; calculateUserRating(state.viewingProfileId); state.profileReviewsLimit = 3; loadProfileReviews(false); }
