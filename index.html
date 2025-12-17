@@ -295,7 +295,12 @@
                 <div class="space-y-4">
                     <div>
                         <label class="form-label text-sm mb-2">رقم هاتف المستخدم</label>
-                        <input id="master-target-phone" type="tel" class="form-input text-center font-bold h-10 text-lg" placeholder="01xxxxxxxxx">
+                        <div class="flex gap-2">
+                            <input id="master-target-phone" type="tel" class="form-input text-center font-bold h-10 text-lg" placeholder="01xxxxxxxxx">
+                            <button onclick="searchMasterUser()" class="bg-primary text-white px-4 rounded-lg font-bold shadow-md hover:bg-green-600 transition"><i data-lucide="search" class="w-5 h-5"></i></button>
+                        </div>
+                        <!-- Search Result Container -->
+                        <div id="master-user-result" class="mt-3 text-center text-sm font-bold min-h-[1.5rem] transition-all"></div>
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
                         <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition">
@@ -849,7 +854,7 @@
     const auth = getAuth(app);
     enableIndexedDbPersistence(db).catch((err) => { console.log('Persistence error', err); });
 
-    let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false };
+    let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null };
 
     // Updated Categories List
     const CATEGORIES = [
@@ -1067,8 +1072,7 @@
                 if (userDoc.exists()) {
                     const data = userDoc.data();
                     
-                    // --- FIX 1: ROLE VALIDATION ---
-                    // If user selects 'marketer' but is 'customer' in DB -> Error
+                    // --- ROLE VALIDATION ---
                     if(data.role !== state.authRole) {
                         await signOut(auth); // Sign out immediately
                         const neededRole = data.role === 'marketer' ? 'مقدم خدمة' : 'عميل';
@@ -1082,17 +1086,18 @@
                 }
             }
 
-            // --- FIX 4: SMOOTH REFRESH ---
-            // Show global loader to cover the transition
-            document.getElementById('global-loader').classList.remove('fade-out');
-            document.getElementById('global-loader').style.display = 'flex';
+            // --- FIX: NO RELOAD - SMOOTH TRANSITION ---
+            // onAuthStateChanged will trigger automatically.
+            // We just update button state and let the listener handle the view switch.
             
             btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`; 
             btn.classList.replace('bg-navy', 'bg-green-600');
             
-            // Reload page to refresh state cleanly
+            // Just in case listener lags, manually hide login view after a moment
+            // (Though listener usually fires instantly)
             setTimeout(() => {
-                 window.location.reload();
+                 document.getElementById('login-view').classList.add('hidden');
+                 document.getElementById('app-content').classList.remove('hidden');
             }, 500);
 
         } catch (error) {
@@ -1841,43 +1846,95 @@
     window.toggleAdminView=()=>{ const view = document.getElementById('admin-view'); view.classList.toggle('hidden'); if(!view.classList.contains('hidden')) refreshAdmin(); };
 
     // Master Admin Functions (Full View)
-    window.toggleMasterView = () => { document.getElementById('master-view').classList.toggle('hidden'); }
+    window.toggleMasterView = () => { 
+        document.getElementById('master-view').classList.toggle('hidden'); 
+        if(document.getElementById('master-view').classList.contains('hidden')) {
+            // Reset fields on close
+            document.getElementById('master-target-phone').value = '';
+            document.getElementById('master-user-result').innerHTML = '';
+            document.getElementById('master-check-verified').checked = false;
+            document.getElementById('master-check-admin').checked = false;
+            document.getElementById('master-check-banned').checked = false;
+            state.masterTargetUid = null;
+        }
+    }
     
-    window.saveMasterChanges = async () => {
+    // NEW FUNCTION: Search User for Master Panel
+    window.searchMasterUser = async () => {
         const phone = document.getElementById('master-target-phone').value.trim();
-        const isVerified = document.getElementById('master-check-verified').checked;
-        const isAdmin = document.getElementById('master-check-admin').checked;
-        const isBanned = document.getElementById('master-check-banned').checked;
+        const resDiv = document.getElementById('master-user-result');
+        
+        resDiv.innerHTML = '<span class="text-slate-400">جاري البحث...</span>';
+        state.masterTargetUid = null;
 
-        if(!phone) return showToast("يرجى إدخال رقم الهاتف", "e");
+        if(!phone) {
+            resDiv.innerHTML = '<span class="text-red-500">يرجى إدخال رقم الهاتف</span>';
+            return;
+        }
+
         let cleanPhone = phone.replace(/\D/g, '');
         if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
         const fullPhone = `0${cleanPhone}`;
 
-        // Find user by phone
-        const q = query(collection(db, "users"), where("phone", "==", fullPhone));
-        const snap = await getDocs(q);
+        try {
+            const q = query(collection(db, "users"), where("phone", "==", fullPhone));
+            const snap = await getDocs(q);
 
-        if(snap.empty) {
-            showToast("لم يتم العثور على مستخدم بهذا الرقم", "e");
-        } else {
-            const uid = snap.docs[0].id;
-            try {
-                await updateDoc(doc(db, "users", uid), {
-                    isVerified: isVerified,
-                    isAdmin: isAdmin,
-                    isBanned: isBanned
-                });
+            if(snap.empty) {
+                resDiv.innerHTML = '<span class="text-red-500">مستخدم غير موجود</span>';
+            } else {
+                const userDoc = snap.docs[0];
+                const uData = userDoc.data();
+                state.masterTargetUid = userDoc.id;
                 
-                let msg = `تم تحديث الصلاحيات للرقم ${fullPhone}`;
-                if(isBanned) msg += " (محظور 🚫)";
+                // Update Checkboxes
+                document.getElementById('master-check-verified').checked = !!uData.isVerified;
+                document.getElementById('master-check-admin').checked = !!uData.isAdmin;
+                document.getElementById('master-check-banned').checked = !!uData.isBanned;
+
+                let roleText = uData.role === 'marketer' ? 'مقدم خدمة' : 'عميل';
+                let statusText = uData.isBanned ? '<span class="text-red-600 font-bold">(محظور)</span>' : '<span class="text-green-600 font-bold">(نشط)</span>';
                 
-                showToast(msg);
-                toggleMasterView();
-            } catch(e) {
-                console.error(e);
-                showToast("حدث خطأ أثناء التحديث", "e");
+                resDiv.innerHTML = `
+                    <div class="bg-slate-100 dark:bg-slate-700 p-2 rounded-lg border border-slate-200 dark:border-slate-600 inline-block">
+                        <div class="text-primary text-sm">${uData.name}</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-300">${roleText} - ${statusText}</div>
+                    </div>
+                `;
             }
+        } catch(e) {
+            console.error(e);
+            resDiv.innerHTML = '<span class="text-red-500">خطأ في البحث</span>';
+        }
+    }
+    
+    window.saveMasterChanges = async () => {
+        // If user didn't search first, try to find user by phone now
+        if(!state.masterTargetUid) {
+            await searchMasterUser();
+            if(!state.masterTargetUid) return; // Still not found
+        }
+
+        const isVerified = document.getElementById('master-check-verified').checked;
+        const isAdmin = document.getElementById('master-check-admin').checked;
+        const isBanned = document.getElementById('master-check-banned').checked;
+
+        try {
+            await updateDoc(doc(db, "users", state.masterTargetUid), {
+                isVerified: isVerified,
+                isAdmin: isAdmin,
+                isBanned: isBanned
+            });
+            
+            let msg = `تم التحديث بنجاح`;
+            if(isBanned) msg += " (تم الحظر 🚫)";
+            
+            showToast(msg);
+            // Don't close modal automatically, let admin see result or search another
+            // toggleMasterView(); 
+        } catch(e) {
+            console.error(e);
+            showToast("حدث خطأ أثناء التحديث", "e");
         }
     }
 
