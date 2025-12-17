@@ -99,18 +99,22 @@
         .verified-badge { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background-color: #3b82f6; border-radius: 50%; color: white; margin-right: 4px; }
         .verified-badge svg { width: 10px; height: 10px; }
 
-        /* --- FIX START: إصلاح مشكلة صندوق الماستر --- */
-        /* هذا الكود يجبر الصندوق على الظهور فوق كل العناصر عند تفعيله */
-        #master-modal {
-            z-index: 99999 !important; /* طبقة عالية جداً */
+        /* Full Screen Views for Admin & Master */
+        .full-screen-view {
+            position: fixed;
+            inset: 0;
+            z-index: 300; /* Higher than login */
+            background-color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
         }
-        #master-modal.hidden {
+        .dark .full-screen-view {
+            background-color: #0f172a;
+        }
+        .full-screen-view.hidden {
             display: none !important;
         }
-        #master-modal:not(.hidden) {
-            display: flex !important;
-        }
-        /* --- FIX END --- */
 
     </style>
 </head>
@@ -170,7 +174,6 @@
 
                 <div id="signup-fields" class="hidden space-y-2 border-t border-slate-100 dark:border-slate-700 pt-2 mt-1">
                     <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">الاسم الكامل (عربي)</label><input id="auth-name-ar" type="text" class="form-input" placeholder="مثال: أحمد محمد"></div>
-                    <!-- Removed secondary phone input as main input serves both -->
                     <div class="grid grid-cols-2 gap-2">
                         <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">المحافظة</label><select id="auth-gov" onchange="updateCities()" class="form-input text-xs"></select></div>
                         <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">المركز/المدينة</label><select id="auth-city" class="form-input text-xs"><option value="">اختر المحافظة</option></select></div>
@@ -203,13 +206,14 @@
                 </div>
                 <div class="flex gap-1.5 items-center">
                     <button onclick="window.location.reload()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-primary hover:bg-slate-200 transition"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
-                    <button onclick="toggleProfile(null)" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
+                    <!-- Header Profile Button - Hidden for Customers if Bottom Nav present -->
+                    <button id="header-profile-btn" onclick="toggleProfile(null)" class="hidden p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
                     <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
 
                     <!-- Master Admin Button -->
-                    <button onclick="toggleMasterModal()" id="btn-master-control" class="hidden bg-yellow-500 p-1.5 rounded-full text-white hover:bg-yellow-600 shadow-lg animate-pulse"><i data-lucide="crown" class="w-4 h-4"></i></button>
+                    <button onclick="toggleMasterView()" id="btn-master-control" class="hidden bg-yellow-500 p-1.5 rounded-full text-white hover:bg-yellow-600 shadow-lg animate-pulse"><i data-lucide="crown" class="w-4 h-4"></i></button>
 
-                    <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
+                    <button onclick="toggleAdminView()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
                     <button onclick="logout()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600 hover:bg-red-100 transition"><i data-lucide="log-out" class="w-4 h-4"></i></button>
                 </div>
             </div>
@@ -279,35 +283,70 @@
         </div>
     </div>
 
-    <!-- Master Admin Modal -->
-    <div id="master-modal" class="hidden modal-overlay">
-        <div class="bg-white dark:bg-darkbg p-5 rounded-2xl w-full max-w-xs border border-slate-200 dark:border-slate-700 shadow-2xl animate-pop">
-            <h3 class="font-black text-center text-lg mb-4 text-navy dark:text-white">👑 تحكم الماستر</h3>
-            <div class="space-y-3">
-                <div>
-                    <label class="form-label">رقم هاتف المستخدم</label>
-                    <input id="master-target-phone" type="tel" class="form-input text-center font-bold" placeholder="01xxxxxxxxx">
-                </div>
-                <div class="flex gap-2 justify-center py-2">
-                    <label class="flex items-center gap-2 cursor-pointer bg-slate-100 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <input type="checkbox" id="master-check-verified" class="w-4 h-4 rounded text-primary focus:ring-primary">
-                        <span class="text-xs font-bold">توثيق ✅</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-slate-100 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <input type="checkbox" id="master-check-admin" class="w-4 h-4 rounded text-red-500 focus:ring-red-500">
-                        <span class="text-xs font-bold text-red-500">أدمن 🛡️</span>
-                    </label>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="saveMasterChanges()" class="flex-1 bg-navy dark:bg-primary text-white py-2 rounded-xl font-bold text-sm">حفظ التعديلات</button>
-                    <button onclick="toggleMasterModal()" class="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white py-2 rounded-xl font-bold text-sm">إلغاء</button>
+    <!-- FULL SCREEN MASTER VIEW -->
+    <div id="master-view" class="full-screen-view hidden">
+        <div class="p-4 bg-white dark:bg-darkbg shadow-md border-b border-slate-200 dark:border-slate-700 flex justify-between items-center sticky top-0 z-50">
+            <h2 class="font-black text-xl text-navy dark:text-white">👑 تحكم الماستر</h2>
+            <button onclick="toggleMasterView()" class="bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"><i data-lucide="x" class="w-6 h-6"></i></button>
+        </div>
+        <div class="flex-1 p-6 container mx-auto max-w-lg space-y-6">
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
+                <h3 class="font-bold text-lg mb-4 text-center">إدارة المستخدمين</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="form-label text-sm mb-2">رقم هاتف المستخدم</label>
+                        <input id="master-target-phone" type="tel" class="form-input text-center font-bold h-10 text-lg" placeholder="01xxxxxxxxx">
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                        <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition">
+                            <input type="checkbox" id="master-check-verified" class="w-5 h-5 rounded text-primary focus:ring-primary">
+                            <span class="text-sm font-bold">توثيق الحساب ✅</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition">
+                            <input type="checkbox" id="master-check-admin" class="w-5 h-5 rounded text-red-500 focus:ring-red-500">
+                            <span class="text-sm font-bold text-red-500">ترقية إلى أدمن 🛡️</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/10">
+                            <input type="checkbox" id="master-check-banned" class="w-5 h-5 rounded text-red-700 focus:ring-red-700">
+                            <span class="text-sm font-bold text-red-700 dark:text-red-400">حظر المستخدم (Ban) 🚫</span>
+                        </label>
+                    </div>
+                    <button onclick="saveMasterChanges()" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-xl transform active:scale-95 transition">حفظ التعديلات</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Profile Modal, Order Modal, Add Modal, Details Modal, Chat Modal, Lightbox, Admin Panel ... (Keep existing structure) -->
-    <!-- Profile Modal -->
+    <!-- FULL SCREEN ADMIN VIEW -->
+    <div id="admin-view" class="full-screen-view hidden bg-navy text-white">
+        <div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38] shrink-0 h-14">
+            <h2 class="font-bold flex items-center gap-2 text-base"><i data-lucide="shield" class="w-5 h-5 text-primary"></i> لوحة التحكم</h2>
+            <div class="flex gap-3">
+                <button onclick="refreshAdmin()" class="bg-white/10 p-2 rounded-full hover:bg-white/20"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+                <button onclick="toggleAdminView()" class="bg-red-600/80 p-2 rounded-full hover:bg-red-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+        </div>
+        <div class="flex-1 flex overflow-hidden">
+            <div class="w-1/3 border-l border-white/10 bg-[#001f3f] flex flex-col">
+                <div class="p-2 border-b border-white/10 text-[10px] text-gray-400 font-bold text-center">المحادثات</div>
+                <div id="admin-users-list" class="flex-1 overflow-y-auto p-2"></div>
+            </div>
+            <div class="w-2/3 flex flex-col bg-navy relative">
+                <div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38] shrink-0">
+                    <span class="text-xs font-bold">اختر محادثة</span>
+                    <button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>
+                </div>
+                <div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div>
+                <div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38] shrink-0">
+                    <input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد...">
+                    <button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Profile Modal (Kept as Modal as requested, but logic below hides header button) -->
     <div id="profile-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
@@ -390,7 +429,7 @@
         </div>
     </div>
 
-    <!-- Rest of Modals (Order, Add, Details, Chat, Lightbox, Admin) - Preserved -->
+    <!-- Rest of Modals (Order, Add, Details, Chat, Lightbox) -->
     <!-- Order Modal -->
     <div id="order-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
@@ -687,24 +726,6 @@
         <div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div>
     </div>
 
-    <!-- Admin Panel -->
-    <div id="admin-panel" class="hidden fixed inset-0 bg-navy z-[130] flex flex-col text-white">
-        <div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38] shrink-0">
-            <h2 class="font-bold flex items-center gap-2 text-sm"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> التحكم</h2>
-            <div class="flex gap-3"><button onclick="refreshAdmin()"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button onclick="toggleAdminPanel()"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-        </div>
-        <div class="flex-1 flex overflow-hidden">
-            <div class="w-1/3 border-l border-white/10 bg-[#001f3f] flex flex-col">
-                <div id="admin-users-list" class="flex-1 overflow-y-auto p-2"></div>
-            </div>
-            <div class="w-2/3 flex flex-col bg-navy relative">
-                <div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38] shrink-0"><span class="text-xs font-bold">اختر محادثة</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button></div>
-                <div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div>
-                <div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38] shrink-0"><input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد..."><button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button></div>
-            </div>
-        </div>
-    </div>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -806,7 +827,7 @@
         });
     };
 
-    // Service Worker Registration (Separate File)
+    // Service Worker Registration
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
@@ -927,6 +948,14 @@
                 const userDoc = await getDoc(doc(db, "users", u.uid));
                 if (userDoc.exists()) {
                     const data = userDoc.data();
+                    
+                    // --- Ban Check ---
+                    if (data.isBanned) {
+                        await signOut(auth);
+                        showToast("تم حظر حسابك. تواصل مع الدعم الفني.", "e");
+                        return; // Stop execution
+                    }
+
                     state.userData = data; state.userRole = data.role || 'customer'; 
 
                     state.isAdmin = data.isAdmin === true;
@@ -956,12 +985,21 @@
     // Function to update Nav based on Role
     function updateNavUI() {
         const container = document.getElementById('nav-middle-btn-container');
+        const headerProfileBtn = document.getElementById('header-profile-btn');
+
         if(state.userRole === 'customer') {
-             // Show Profile Button
+             // Show Profile Button in Bottom Nav
              container.innerHTML = `<button onclick="toggleProfile(null)" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="user" class="w-6 h-6"></i></button>`;
+             
+             // HIDE Header Profile Button to avoid duplication
+             if(headerProfileBtn) headerProfileBtn.classList.add('hidden');
+
         } else {
              // Show Add Product Button (Marketer/Admin)
              container.innerHTML = `<button id="nav-add-btn" onclick="toggleAddModal()" class="w-12 h-12 bg-navy dark:bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-slate-50 dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>`;
+             
+             // SHOW Header Profile Button
+             if(headerProfileBtn) headerProfileBtn.classList.remove('hidden');
         }
         lucide.createIcons();
     }
@@ -977,7 +1015,6 @@
 
         errDiv.classList.add('hidden'); errDiv.innerText = "";
 
-        // Validate Phone
         let cleanPhone = rawPhone.replace(/\D/g, '');
         if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
         if (cleanPhone.length !== 10) { errDiv.innerText = "رقم الهاتف غير صحيح (يجب أن يكون 11 رقم)"; errDiv.classList.remove('hidden'); return; }
@@ -1002,7 +1039,7 @@
                 await updateProfile(user, { displayName: nameAr });
 
                 const newUser = { 
-                    username: fullPhone, // Using phone as username
+                    username: fullPhone, 
                     name: nameAr, 
                     phone: fullPhone, 
                     email: email, 
@@ -1012,37 +1049,65 @@
                     address: address, 
                     isAdmin: false, 
                     isVerified: false, 
+                    isBanned: false,
                     image: state.authImageBase64 || null, 
                     createdAt: serverTimestamp() 
                 };
 
                 await setDoc(doc(db, "users", user.uid), newUser);
-                state.userData = newUser; state.userRole = state.authRole; state.user = user;
-                document.getElementById('header-username').innerText = nameAr; document.getElementById('welcome-text').classList.remove('hidden');
+                // Success logic below
 
-                // Fix Profile Bug: Pre-load profile data immediately
-                updateNavUI();
+            } else { 
+                // LOGIN
+                const userCredential = await signInWithEmailAndPassword(auth, email, pass); 
+                const user = userCredential.user;
+                
+                // Fetch user data to validate Role
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    
+                    // --- FIX 1: ROLE VALIDATION ---
+                    // If user selects 'marketer' but is 'customer' in DB -> Error
+                    if(data.role !== state.authRole) {
+                        await signOut(auth); // Sign out immediately
+                        const neededRole = data.role === 'marketer' ? 'مقدم خدمة' : 'عميل';
+                        throw new Error(`role_mismatch:${neededRole}`);
+                    }
+                    
+                    if(data.isBanned) {
+                        await signOut(auth);
+                        throw new Error("user_banned");
+                    }
+                }
+            }
 
-            } else { await signInWithEmailAndPassword(auth, email, pass); }
-
-            btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`; btn.classList.replace('bg-navy', 'bg-green-600');
+            // --- FIX 4: SMOOTH REFRESH ---
+            // Show global loader to cover the transition
+            document.getElementById('global-loader').classList.remove('fade-out');
+            document.getElementById('global-loader').style.display = 'flex';
             
-            // --- FIX START: Auto Refresh on Login/Signup ---
-            setTimeout(() => { 
-                document.getElementById('login-view').classList.add('hidden'); 
-                document.getElementById('app-content').classList.remove('hidden'); 
-                showToast(`أهلاً بك في السوق وياك 👋`, 's'); 
-                // Force reload to ensure profile data is fresh
-                window.location.reload();
+            btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`; 
+            btn.classList.replace('bg-navy', 'bg-green-600');
+            
+            // Reload page to refresh state cleanly
+            setTimeout(() => {
+                 window.location.reload();
             }, 500);
-            // --- FIX END ---
-            
+
         } catch (error) {
             console.error("Auth Error:", error); let msg = `حدث خطأ: ${error.code}`; 
+            
             if(error.message === "missing_fields") msg = "يرجى إكمال جميع البيانات"; 
+            else if(error.message.startsWith("role_mismatch")) {
+                const correctRole = error.message.split(':')[1];
+                msg = `عفواً، هذا الحساب مسجل كـ "${correctRole}". يرجى اختيار نوع الحساب الصحيح من الأعلى.`;
+            }
+            else if(error.message === "user_banned") msg = "تم حظر هذا الحساب. يرجى التواصل مع الإدارة.";
             else if(error.code === 'auth/email-already-in-use') msg = "رقم الهاتف هذا مسجل بالفعل"; 
             else if(error.code === 'auth/wrong-password') msg = "كلمة المرور غير صحيحة"; 
             else if(error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') msg = "بيانات الدخول غير صحيحة";
+            
             errDiv.innerText = msg; errDiv.classList.remove('hidden'); btn.disabled = false; btn.innerHTML = originalBtnText; lucide.createIcons();
         }
     }
@@ -1771,14 +1836,18 @@
     function checkUserChat(){onSnapshot(query(collection(db,"chats"),where('userId','==',state.user.uid),where('status','!=','closed')),s=>{if(!s.empty){state.chatId=s.docs[0].id;state.chatStep=2;listenChat(state.chatId)}})};
     function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%] overflow-hidden">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
     function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%] overflow-hidden">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
-    window.toggleAdminPanel=()=>{document.getElementById('admin-panel').classList.toggle('hidden');if(!document.getElementById('admin-panel').classList.contains('hidden'))refreshAdmin()};
+    
+    // New Toggle for Full Screen Admin View
+    window.toggleAdminView=()=>{ const view = document.getElementById('admin-view'); view.classList.toggle('hidden'); if(!view.classList.contains('hidden')) refreshAdmin(); };
 
-    // Master Admin Functions
-    window.toggleMasterModal = () => { toggleModal('master-modal'); }
+    // Master Admin Functions (Full View)
+    window.toggleMasterView = () => { document.getElementById('master-view').classList.toggle('hidden'); }
+    
     window.saveMasterChanges = async () => {
         const phone = document.getElementById('master-target-phone').value.trim();
         const isVerified = document.getElementById('master-check-verified').checked;
         const isAdmin = document.getElementById('master-check-admin').checked;
+        const isBanned = document.getElementById('master-check-banned').checked;
 
         if(!phone) return showToast("يرجى إدخال رقم الهاتف", "e");
         let cleanPhone = phone.replace(/\D/g, '');
@@ -1796,10 +1865,15 @@
             try {
                 await updateDoc(doc(db, "users", uid), {
                     isVerified: isVerified,
-                    isAdmin: isAdmin
+                    isAdmin: isAdmin,
+                    isBanned: isBanned
                 });
-                showToast(`تم تحديث الصلاحيات للرقم ${fullPhone}`);
-                toggleMasterModal();
+                
+                let msg = `تم تحديث الصلاحيات للرقم ${fullPhone}`;
+                if(isBanned) msg += " (محظور 🚫)";
+                
+                showToast(msg);
+                toggleMasterView();
             } catch(e) {
                 console.error(e);
                 showToast("حدث خطأ أثناء التحديث", "e");
@@ -1807,7 +1881,7 @@
         }
     }
 
-    window.refreshAdmin=()=>{ onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{ const l=document.getElementById('admin-users-list'); l.innerHTML=''; let chats = []; s.forEach(d => chats.push({id: d.id, ...d.data()})); chats.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); chats.forEach(dt => { l.innerHTML+=`<div onclick="loadAdmin('${dt.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>` }); }) };
+    window.refreshAdmin=()=>{ onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{ const l=document.getElementById('admin-users-list'); l.innerHTML=''; let chats = []; s.forEach(d => chats.push({id: d.id, ...d.data()})); chats.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); chats.forEach(dt => { l.innerHTML+=`<div onclick="loadAdmin('${dt.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10 hover:bg-white/10 transition"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>` }); }) };
     window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'} overflow-hidden">${m.t}</span></div>`});b.scrollTop=9999})};
     window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
     window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
