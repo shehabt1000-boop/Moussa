@@ -1109,24 +1109,38 @@
                 }
             }
 
-            // --- Success UI Update ---
+            // --- Success UI Update (MANUAL because listener is blocked) ---
             btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`; 
             btn.classList.replace('bg-navy', 'bg-green-600');
             
-            // Allow manual UI switch
-            state.isProcessingAuth = false;
-            
+            // Allow manual UI switch logic below
             state.user = auth.currentUser;
+            
             if(state.userData) {
+                 // 1. Set Role
+                 state.userRole = state.userData.role || 'customer';
+                 state.isAdmin = state.userData.isAdmin === true;
+
+                 // 2. Unhide Admin/Master Buttons Manually
+                 if(state.isAdmin) document.getElementById('btn-admin-top').classList.remove('hidden');
+                 if(auth.currentUser.uid === MASTER_UID) document.getElementById('btn-master-control').classList.remove('hidden');
+
+                 // 3. Update Header
                  document.getElementById('header-username').innerText = state.userData.name;
                  document.getElementById('welcome-text').classList.remove('hidden');
+                 
+                 // 4. Update Nav (Add Button vs Profile)
                  updateNavUI();
+                 
+                 // 5. Load Data
                  loadListings(); checkUserChat(); initFavs(); initCats();
             }
 
             setTimeout(() => {
                  document.getElementById('login-view').classList.add('hidden');
                  document.getElementById('app-content').classList.remove('hidden');
+                 // Re-enable listener after transition
+                 state.isProcessingAuth = false;
             }, 500);
 
         } catch (error) {
