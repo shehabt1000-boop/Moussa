@@ -31,7 +31,6 @@
 
         .glass-nav { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); z-index: 50; height: 60px; }
         
-        /* Loader Styles Updated */
         #loader { position: fixed; inset: 0; z-index: 9999; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-in-out, visibility 0.5s; }
         .loader-hidden { opacity: 0; visibility: hidden; }
         
@@ -41,10 +40,12 @@
         * { -ms-overflow-style: none; scrollbar-width: none; }
         input[type="file"]::file-selector-button { margin-left: 0.5rem; background-color: #0d9488; color: white; border: 0; border-radius: 0.5rem; padding: 0.25rem 0.75rem; cursor: pointer; }
         .ltr { direction: ltr; }
-        .marquee-wrapper { overflow: hidden; width: 100%; position: relative; }
-        .marquee-content { display: flex; width: max-content; animation: scrollLeft 45s linear infinite; transform: translateZ(0); backface-visibility: hidden; }
+        
+        .marquee-wrapper { overflow: hidden; width: 100%; position: relative; white-space: nowrap; }
+        .marquee-content { display: inline-flex; min-width: 100%; animation: scrollLeft 40s linear infinite; will-change: transform; }
         .marquee-wrapper:hover .marquee-content { animation-play-state: paused; }
         @keyframes scrollLeft { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
+
         .lightbox { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
         .lightbox.active { opacity: 1; pointer-events: all; }
         .lightbox img, .lightbox video { max-width: 95%; max-height: 80vh; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
@@ -107,6 +108,7 @@
         let isEditing = false, editTripId = null, oldImages = [], pendingDelete = null, currentBookingTrip = null;
         let isTripsReady = false, isBannerReady = false, initialLoadComplete = false; 
         let pendingNotifications = [], unreadNotificationsCount = 0;
+        let remindersChecked = false; 
 
         function optimizeUrl(url) {
             if (url && url.includes('cloudinary.com') && !url.includes('video')) {
@@ -180,19 +182,37 @@
                 const loader = document.getElementById('loader');
                 if (loader) {
                     loader.classList.add('loader-hidden'); initialLoadComplete = true;
-                    setTimeout(() => { loader.remove(); processPendingNotifications(); }, 500);
+                    setTimeout(() => { 
+                        loader.remove(); 
+                        processPendingNotifications(); 
+                        if (!remindersChecked) {
+                            setTimeout(checkUpcomingReminders, 3500);
+                            remindersChecked = true;
+                        }
+                    }, 500);
                 }
             }
         }
-        // تقليل وقت الانتظار لـ 3 ثواني
         setTimeout(() => { isTripsReady = true; isBannerReady = true; tryRemoveLoader(); }, 3000); 
 
         window.showNotification = function(msg, type) {
             const container = document.getElementById('toast-container');
             if (!container) return;
             const notif = document.createElement('div');
-            notif.className = `transform transition-all duration-300 ease-in-out translate-x-full opacity-0 flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl backdrop-blur-md border border-white/10 min-w-[300px] ${type === 'error' ? 'bg-red-900/90 text-red-100' : type === 'success' ? 'bg-green-900/90 text-green-100' : 'bg-gray-800/90 text-gray-100'}`;
-            let icon = type === 'error' ? '<i class="fas fa-exclamation-circle text-xl"></i>' : type === 'success' ? '<i class="fas fa-check-circle text-xl"></i>' : '<i class="fas fa-info-circle text-teal-400 text-xl"></i>';
+            
+            // تنسيق الألوان
+            let bgClass = 'bg-gray-800/90 text-gray-100';
+            if (type === 'error') bgClass = 'bg-red-900/90 text-red-100 border border-red-500/50';
+            else if (type === 'success') bgClass = 'bg-green-900/90 text-green-100 border border-green-500/50'; // أخضر مع إطار
+            else if (type === 'reminder') bgClass = 'bg-teal-900/90 text-teal-100 border border-teal-500/50'; // تيل مع إطار
+
+            notif.className = `transform transition-all duration-300 ease-in-out translate-x-full opacity-0 flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl backdrop-blur-md border border-white/10 min-w-[300px] ${bgClass}`;
+            
+            let icon = '<i class="fas fa-info-circle text-xl"></i>';
+            if (type === 'error') icon = '<i class="fas fa-exclamation-circle text-xl"></i>';
+            else if (type === 'success') icon = '<i class="fas fa-check-circle text-xl"></i>';
+            else if (type === 'reminder') icon = '<i class="fas fa-stopwatch text-xl animate-pulse"></i>';
+
             notif.innerHTML = `<div>${icon}</div><div class="font-medium text-sm">${msg}</div>`;
             container.appendChild(notif);
             requestAnimationFrame(() => { notif.classList.remove('translate-x-full', 'opacity-0'); });
@@ -265,7 +285,7 @@
 
         async function initApp() {
             const app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app);
-            try { messaging = getMessaging(app); onMessage(messaging, (payload) => { const title = payload.notification?.title || "تنبيه جديد"; const body = payload.notification?.body || ""; showNotification(`${title}: ${body}`, "info"); playNotificationSound(); }); } catch(e) {}
+            try { messaging = getMessaging(app); onMessage(messaging, (payload) => { const title = payload.notification?.title || "تنبيه جديد"; const body = payload.notification?.body || ""; showNotification(`${title}: ${body}`, "success"); playNotificationSound(); }); } catch(e) {}
 
             onAuthStateChanged(auth, (user) => {
                 if (user && user.uid === ADMIN_UID) { isAdmin = true; updateUIForAdmin(true); showNotification("أهلاً بك يا مدير النظام", "success"); } 
@@ -393,78 +413,47 @@
             observeVideos(container);
         }
 
+        function checkUpcomingReminders() {
+            const now = new Date();
+            const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            let delay = 0;
+
+            tripsData.forEach(trip => {
+                if (!trip.departureDate || trip.status === 'expired') return;
+
+                const depDate = new Date(trip.departureDate);
+                const tripMidnight = new Date(depDate.getFullYear(), depDate.getMonth(), depDate.getDate());
+                const diffTime = tripMidnight - todayMidnight;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays >= 0 && diffDays <= 3) {
+                    setTimeout(() => {
+                        const msg = diffDays === 0 ? `تذكير: رحلة ${trip.title} اليوم! نتمنى لك وقتاً ممتعاً` : `تذكير: رحلة ${trip.title} متبقي عليها ${diffDays} أيام فقط!`;
+                        showNotification(msg, "reminder");
+                        playNotificationSound();
+                    }, delay);
+                    delay += 1500; 
+                }
+            });
+        }
+
         function renderBanner(items) {
             const track = document.getElementById('marquee-track'); const videoContainer = document.getElementById('video-container'); const videoSection = document.getElementById('video-section');
             const images = items.filter(item => !isVideo(item.url)); const videos = items.filter(item => isVideo(item.url));
-            if (images.length === 0) track.innerHTML = ''; 
-            else {
-                const allImages = [...images, ...images, ...images]; 
+            
+            if (images.length > 0) {
+                const allImages = [...images, ...images, ...images, ...images]; 
                 track.innerHTML = allImages.map(img => `<div class="relative w-48 h-32 md:w-60 md:h-40 mx-2 flex-shrink-0 rounded-xl overflow-hidden border border-gray-800 group bg-gray-900 transform translate-z-0"><img src="${optimizeUrl(img.url)}" onclick="openLightbox('${img.url}')" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-90 hover:opacity-100 cursor-pointer">${isAdmin ? `<button onclick="event.stopPropagation(); confirmDelete('${img.id}', 'صورة من المعرض', 'banner')" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm shadow-md z-10 backdrop-blur-sm transition-all hover:scale-110"><i class="fas fa-trash-alt"></i></button>` : ''}</div>`).join('');
+            } else {
+                track.innerHTML = '';
             }
+
             if (videos.length > 0) {
                 videoSection.classList.remove('hidden');
                 videoContainer.innerHTML = videos.map(vid => `<div class="relative w-full mx-auto rounded-2xl overflow-hidden shadow-2xl border border-gray-700 bg-gray-900/50 mb-8 last:mb-0"><video controls playsinline loop class="w-full h-56 md:h-80 object-cover cursor-pointer"><source src="${vid.url}" type="video/mp4"></video>${isAdmin ? `<button onclick="confirmDelete('${vid.id}', 'الفيديو', 'banner')" class="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm shadow-lg z-10 backdrop-blur-md flex items-center gap-2"><i class="fas fa-trash-alt"></i> حذف الفيديو</button>` : ''}</div>`).join('');
                 observeVideos(videoContainer);
             } else { videoSection.classList.add('hidden'); videoContainer.innerHTML = ''; }
         }
-
-        // دالة إضافة البيانات التجريبية لقاعدة البيانات
-        window.injectDummyData = async function() {
-            if(!isAdmin) return;
-            const confirmAction = confirm("هل تريد إضافة بيانات تجريبية لقاعدة البيانات؟");
-            if(!confirmAction) return;
-
-            const dummyTrips = [
-                {
-                    title: "رحلة دهب والغطس",
-                    price: "1500",
-                    location: "دهب، جنوب سيناء",
-                    description: "استمتع بأجمل رحلة غطس في البلو هول، شاملة الانتقالات والإقامة في فندق 4 نجوم.",
-                    departureDate: new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16), // بعد 5 أيام
-                    availableSeats: 15,
-                    durationText: "3 أيام / 2 ليالي",
-                    mainImageUrl: "https://images.pexels.com/photos/3355788/pexels-photo-3355788.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-                    images: ["https://images.pexels.com/photos/3355788/pexels-photo-3355788.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"],
-                    whatsappPhone: DEFAULT_PHONE
-                },
-                {
-                    title: "سفاري الصحراء البيضاء",
-                    price: "2200",
-                    location: "الواحات البحرية",
-                    description: "تخييم تحت النجوم، وجبات بدوية، وزيارة جبل الكريستال.",
-                    departureDate: new Date(new Date().getTime() + 10 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
-                    availableSeats: 8,
-                    durationText: "2 أيام / 1 ليلة",
-                    mainImageUrl: "https://images.pexels.com/photos/2440021/pexels-photo-2440021.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-                    images: ["https://images.pexels.com/photos/2440021/pexels-photo-2440021.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"],
-                    whatsappPhone: DEFAULT_PHONE
-                },
-                {
-                    title: "رحلة الأقصر وأسوان",
-                    price: "4500",
-                    location: "الأقصر",
-                    description: "نايل كروز 5 نجوم، زيارة المعابد، والتمتع بسحر النيل.",
-                    departureDate: new Date(new Date().getTime() + 20 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
-                    availableSeats: 4,
-                    durationText: "4 أيام / 3 ليالي",
-                    mainImageUrl: "https://images.pexels.com/photos/2670327/pexels-photo-2670327.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-                    images: ["https://images.pexels.com/photos/2670327/pexels-photo-2670327.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"],
-                    whatsappPhone: DEFAULT_PHONE
-                }
-            ];
-
-            try {
-                showNotification("جاري إضافة البيانات...", "info");
-                for (const trip of dummyTrips) {
-                    const code = 'TRIP-' + Math.floor(1000 + Math.random() * 9000);
-                    await addDoc(collection(db, tripsPath), { ...trip, code, status: 'active', createdAt: Timestamp.now() });
-                }
-                showNotification("تم إضافة البيانات التجريبية بنجاح! يمكنك تعديلها الآن.", "success");
-            } catch (e) {
-                console.error(e);
-                showNotification("حدث خطأ أثناء الإضافة", "error");
-            }
-        };
 
         window.handleTripSubmit = async function(event) {
             event.preventDefault(); if (!isAdmin) return;
@@ -482,8 +471,8 @@
         }
 
         function queueNewTripNotification(title, tripId) { if (!isAdmin) { addToNotificationHistory(title, tripId); pendingNotifications.push({title, tripId}); } }
-        function notifyNewTripLive(title, tripId) { if (!isAdmin) { addToNotificationHistory(title, tripId); showNotification(`رحلة جديدة: ${title}`, "info"); playNotificationSound(); } }
-        function processPendingNotifications() { if (pendingNotifications.length > 0) { pendingNotifications.forEach((notif, index) => { setTimeout(() => { showNotification(`رحلة جديدة: ${notif.title}`, "info"); playNotificationSound(); }, index * 800); }); pendingNotifications = []; } }
+        function notifyNewTripLive(title, tripId) { if (!isAdmin) { addToNotificationHistory(title, tripId); showNotification(`رحلة جديدة: ${title}`, "success"); playNotificationSound(); } }
+        function processPendingNotifications() { if (pendingNotifications.length > 0) { pendingNotifications.forEach((notif, index) => { setTimeout(() => { showNotification(`رحلة جديدة: ${notif.title}`, "success"); playNotificationSound(); }, index * 800); }); pendingNotifications = []; } }
 
         function listenForTrips() { 
             onSnapshot(query(collection(db, tripsPath), orderBy("createdAt", "desc")), (snap) => { 
@@ -577,7 +566,6 @@
                 <div class="flex-shrink-0 flex items-center gap-3">
                     <div class="hidden md:block">
                         <div id="desktopAdminGroup" class="hidden flex items-center gap-2">
-                            <button onclick="injectDummyData()" class="bg-yellow-600/20 hover:bg-yellow-600/40 border border-yellow-500/30 text-yellow-200 px-2 py-1 rounded-lg text-xs flex items-center gap-1 backdrop-blur-md transition-all"><i class="fas fa-database"></i> بيانات تجريبية</button>
                             <button onclick="toggleBannerModal()" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-2 py-1 rounded-lg text-xs flex items-center gap-1 backdrop-blur-md transition-all"><i class="fas fa-images text-teal-400"></i> المعرض</button>
                             <button onclick="toggleTripModal()" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-2 py-1 rounded-lg text-xs flex items-center gap-1 backdrop-blur-md transition-all"><i class="fas fa-plus text-teal-400"></i> رحلة</button>
                             <button onclick="handleLogout()" class="text-red-400 hover:text-red-300 text-xs px-2"><i class="fas fa-sign-out-alt"></i></button>
@@ -606,7 +594,6 @@
                 <button id="mobileLoginBtn" onclick="toggleLoginModal()" class="w-full text-gray-300 hover:text-white border border-gray-600/50 bg-gray-800/50 px-4 py-2.5 rounded-xl transition-all flex items-center gap-3 mb-3"><i class="fas fa-lock w-5 text-center text-teal-500"></i> <span>دخول الإدارة</span></button>
                 <button id="mobileLogoutBtn" onclick="handleLogout()" class="hidden w-full text-red-400 hover:text-red-300 border border-red-900/30 bg-red-900/10 px-4 py-2.5 rounded-xl transition-all flex items-center gap-3 mb-3"><i class="fas fa-sign-out-alt w-5 text-center"></i> <span>خروج</span></button>
                 <div id="mobileAdminActions" class="hidden grid-cols-2 gap-3">
-                    <button onclick="injectDummyData(); toggleMobileMenu();" class="col-span-2 flex flex-col items-center justify-center bg-yellow-900/20 border border-yellow-500/30 text-yellow-100 py-3 rounded-xl text-xs gap-2 hover:bg-yellow-900/40"><i class="fas fa-database text-lg"></i> إضافة بيانات تجريبية</button>
                     <button onclick="toggleBannerModal(); toggleMobileMenu();" class="flex flex-col items-center justify-center bg-teal-900/20 border border-teal-500/30 text-teal-100 py-3 rounded-xl text-xs gap-2 hover:bg-teal-900/40"><i class="fas fa-images text-lg"></i> إضافة صور</button>
                     <button onclick="toggleTripModal(); toggleMobileMenu();" class="flex flex-col items-center justify-center bg-teal-900/20 border border-teal-500/30 text-teal-100 py-3 rounded-xl text-xs gap-2 hover:bg-teal-900/40"><i class="fas fa-plus text-lg"></i> إضافة رحلة</button>
                 </div>
