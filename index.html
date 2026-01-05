@@ -43,18 +43,19 @@
         .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; }
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        /* Modal & Overlay Fixes */
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
-        /* Z-Index Hierarchy Fix */
-        #chat-list-modal .mobile-full-modal { z-index: 85; }
-        #profile-modal .mobile-full-modal { z-index: 90; }
-        #order-modal .mobile-full-modal { z-index: 95; }
-        #chat-modal .mobile-full-modal { z-index: 100; } /* Chat always on top */
         
+        /* Ensure hidden modals don't block clicks */
+        .modal-overlay.hidden { display: none !important; pointer-events: none; }
+        
+        /* Z-Index Hierarchy */
         #chat-list-modal.modal-overlay { z-index: 85; }
         #profile-modal.modal-overlay { z-index: 90; }
         #order-modal.modal-overlay { z-index: 95; }
-        #chat-modal.modal-overlay { z-index: 100; }
+        #chat-modal.modal-overlay { z-index: 100; } /* Chat always on top */
 
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 750px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); } 
@@ -293,6 +294,7 @@
             <!-- Chat List Button (Replaces old Support Button) -->
             <button onclick="toggleChatList()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative">
                 <i data-lucide="message-square" class="w-5 h-5 group-hover:scale-110 transition"></i>
+                <span id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></span>
             </button>
         </nav>
 
@@ -717,6 +719,8 @@
                              <span class="text-[8px] text-slate-400">اضغط لعرض حساب الناشر </span>
                          </div>
                      </div>
+                     <!-- P2P Chat Button in Details -->
+                     <button id="d-chat-btn" class="bg-primary/10 text-primary p-2 rounded-full hover:bg-primary/20 transition"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
                 </div>
 
                 <!-- Main Details Table -->
@@ -1068,6 +1072,7 @@
                     initFavs(); 
                     initCats(); 
                     initNotifications(); // Start listening for notifications
+                    initChatBadges(); // Start listening for chat badges
                 }
             } catch(e) { 
                 console.warn("Role fetch failed", e); 
@@ -1552,6 +1557,15 @@
         pubName.innerText = "جاري التحميل..."; pubImg.innerHTML = `<div class="animate-pulse bg-slate-300 w-full h-full"></div>`; pubBadge.classList.add('hidden');
         document.getElementById('d-pub-bar').onclick = () => toggleProfile(item.authorId);
 
+        // P2P Chat Button in Details
+        const chatBtn = document.getElementById('d-chat-btn');
+        if(chatBtn) {
+            chatBtn.onclick = (e) => {
+                e.stopPropagation();
+                startPrivateChat(item.authorId, pubName.innerText);
+            };
+        }
+
         const amCont = document.getElementById('d-features'); amCont.innerHTML=''; 
         const sizeRow = document.getElementById('d-sizes-row'); const sizeList = document.getElementById('d-sizes-list'); const colorRow = document.getElementById('d-colors-row'); const colorList = document.getElementById('d-colors-list');
         sizeRow.classList.add('hidden'); colorRow.classList.add('hidden'); sizeList.innerHTML = ''; colorList.innerHTML = '';
@@ -1960,7 +1974,7 @@
     function openAddModalLogic() { if(toggleModal('add-modal')) { resetForm(); } }
 
     window.toggleChat=()=>{ if(toggleModal('chat-modal')){ if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){ state.welcomeSent=true; const name = state.user.displayName || 'يا صديقي'; setTimeout(()=>botMsg(`مرحباً ${name} 👋<br>معك المساعد الذكي للسوق  وياك اخبرني بطلبك لتحويلك للدعم الفني؟`),100); } } };
-    window.sendMsg=async()=>{ const t=document.getElementById('chat-msg').value.trim(); if(!t)return; document.getElementById('chat-msg').value=''; userMsg(t); if(!state.chatId){ if(state.chatStep===0){ state.chatStep=2; try { const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:t, status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id); } catch (err) { console.error("Chat creation failed:", err); botMsg("عفواً، حدث خطأ أثناء محاولة توصيلك بالدعم."); } } } else { const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId))); if(!s.empty){ const m=s.docs[0].data().messages; m.push({s:'user',t,d:new Date()}); await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'}); } } };
+    window.sendMsg=async()=>{ const t=document.getElementById('chat-msg').value.trim(); if(!t)return; document.getElementById('chat-msg').value=''; userMsg(t); if(!state.chatId){ if(state.chatStep===0){ state.chatStep=2; try { const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:t, lastSenderId: state.user.uid, status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id); } catch (err) { console.error("Chat creation failed:", err); botMsg("عفواً، حدث خطأ أثناء محاولة توصيلك بالدعم."); } } } else { const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId))); if(!s.empty){ const m=s.docs[0].data().messages; m.push({s:'user',t,d:new Date()}); await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,lastSenderId: state.user.uid, status:'waiting'}); } } };
 
     window.sendImageMsg = async (input) => {
         if(input.files && input.files[0]) {
@@ -1971,14 +1985,14 @@
                 userMsg(imgHtml);
                 if(!state.chatId){
                     try {
-                        const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:'[صورة]', status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t:imgHtml,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id);
+                        const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:'[صورة]', lastSenderId: state.user.uid, status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t:imgHtml,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id);
                     } catch(e) { console.error(e); }
                 } else {
                     const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));
                     if(!s.empty){
                         const m=s.docs[0].data().messages;
                         m.push({s:'user',t:imgHtml,d:new Date()});
-                        await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:'[صورة]',status:'waiting'});
+                        await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:'[صورة]',lastSenderId: state.user.uid, status:'waiting'});
                     }
                 }
             }
@@ -2109,7 +2123,7 @@
 
     window.refreshAdmin=()=>{ onSnapshot(query(collection(db,"chats"),where('status','!=','closed')),s=>{ const l=document.getElementById('admin-users-list'); l.innerHTML=''; let chats = []; s.forEach(d => chats.push({id: d.id, ...d.data()})); chats.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); chats.forEach(dt => { l.innerHTML+=`<div onclick="loadAdmin('${dt.id}','${dt.userName}')" class="p-3 mb-2 bg-white/5 rounded-xl cursor-pointer border border-white/10 hover:bg-white/10 transition"><div class="font-bold text-xs text-white flex justify-between"><span>${dt.userName}</span>${dt.status==='waiting'?'<span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>':''}</div><div class="text-[10px] text-gray-400 truncate mt-1">${dt.lastMsg}</div></div>` }); }) };
     window.loadAdmin=(id,n)=>{state.activeAdminChat=id;document.getElementById('admin-chat-header').innerHTML=`<span>${n}</span><button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>`;document.getElementById('btn-end-chat').classList.remove('hidden');onSnapshot(doc(db,"chats",id),s=>{const b=document.getElementById('admin-msg-area');b.innerHTML='';if(!s.exists())return;s.data().messages.forEach(m=>{b.innerHTML+=`<div class="${m.s==='support'?'text-left':'text-right'} mb-2"><span class="inline-block px-3 py-2 rounded-lg text-xs ${m.s==='support'?'bg-primary text-white':'bg-white/10'} overflow-hidden">${m.t}</span></div>`});b.scrollTop=9999})};
-    window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
+    window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active', lastSenderId: 'support'})};
     window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
 
     // --- CHAT LIST LOGIC (NEW) ---
@@ -2183,18 +2197,20 @@
                 }
                 
                 const time = formatDate(chat.lastUpdated || chat.createdAt);
+                const isUnread = chat.lastSenderId && chat.lastSenderId !== state.user.uid;
 
                 container.innerHTML += `
                     <div onclick="openChatFromList('${doc.id}')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                        <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 relative">
                             <i data-lucide="user" class="w-5 h-5"></i>
+                            ${isUnread ? '<span class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white"></span>' : ''}
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-center mb-1">
                                 <h4 class="font-bold text-sm text-navy dark:text-white">${otherName}</h4>
                                 <span class="text-[8px] text-slate-400">${time}</span>
                             </div>
-                            <p class="text-[10px] text-slate-500 truncate">${chat.lastMsg || '...'}</p>
+                            <p class="text-[10px] text-slate-500 truncate ${isUnread ? 'font-bold text-navy dark:text-white' : ''}">${chat.lastMsg || '...'}</p>
                         </div>
                     </div>
                 `;
@@ -2248,6 +2264,7 @@
                         [targetId]: targetName
                     },
                     lastMsg: "بدء المحادثة",
+                    lastSenderId: state.user.uid,
                     createdAt: serverTimestamp(),
                     lastUpdated: serverTimestamp(),
                     messages: []
@@ -2273,6 +2290,31 @@
         onSnapshot(q, (snap) => {
             const badge = document.getElementById('notif-badge');
             if(!snap.empty) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        });
+    }
+
+    // --- CHAT BADGE LOGIC (NEW) ---
+    function initChatBadges() {
+        if(!state.user) return;
+        // Listen for chats where I am a participant
+        const q = query(collection(db, "chats"), where("participants", "array-contains", state.user.uid));
+        
+        onSnapshot(q, (snap) => {
+            let hasUnread = false;
+            snap.forEach(doc => {
+                const chat = doc.data();
+                // If last message was NOT sent by me, it's unread
+                if(chat.lastSenderId && chat.lastSenderId !== state.user.uid) {
+                    hasUnread = true;
+                }
+            });
+
+            const badge = document.getElementById('chat-badge');
+            if(hasUnread) {
                 badge.classList.remove('hidden');
             } else {
                 badge.classList.add('hidden');
