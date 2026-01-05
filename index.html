@@ -45,8 +45,17 @@
         .animate-pop { animation: popIn 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
-        #profile-modal .mobile-full-modal, #order-modal .mobile-full-modal, #notif-modal .mobile-full-modal, #chat-list-modal .mobile-full-modal { z-index: 90; } 
-        #profile-modal.modal-overlay, #order-modal.modal-overlay, #notif-modal.modal-overlay, #chat-list-modal.modal-overlay { z-index: 90; }
+        /* Z-Index Hierarchy Fix */
+        #chat-list-modal .mobile-full-modal { z-index: 85; }
+        #profile-modal .mobile-full-modal { z-index: 90; }
+        #order-modal .mobile-full-modal { z-index: 95; }
+        #chat-modal .mobile-full-modal { z-index: 100; } /* Chat always on top */
+        
+        #chat-list-modal.modal-overlay { z-index: 85; }
+        #profile-modal.modal-overlay { z-index: 90; }
+        #order-modal.modal-overlay { z-index: 95; }
+        #chat-modal.modal-overlay { z-index: 100; }
+
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 750px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); } 
             .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); } 
@@ -389,9 +398,12 @@
                                 <div id="prof-verified-badge" class="hidden verified-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.491 4.491 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></div>
                             </div>
 
-                            <div class="flex items-center justify-center gap-2 mt-1">
-                                <button id="global-edit-btn" onclick="toggleEditMode()" class="hidden flex items-center gap-1 text-primary hover:text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full transition"><i data-lucide="pen-tool" class="w-3 h-3"></i> <span class="text-[10px] font-bold">تعديل</span></button>
+                            <!-- P2P Chat Button -->
+                            <div id="prof-action-buttons" class="flex items-center justify-center gap-2 mt-2">
+                                <button id="global-edit-btn" onclick="toggleEditMode()" class="hidden flex items-center gap-1 text-primary hover:text-primary/80 bg-primary/10 px-3 py-1 rounded-full transition"><i data-lucide="pen-tool" class="w-3 h-3"></i> <span class="text-[10px] font-bold">تعديل</span></button>
+                                <!-- Message Button (Injected via JS) -->
                             </div>
+
                             <div id="prof-rating-display" class="flex justify-center items-center gap-1 mt-1 text-yellow-400 text-xs font-bold hidden"><span>★</span> <span id="prof-rating-val">0.0</span></div>
                             <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
                             <p id="prof-joined" class="text-[10px] text-slate-400 mt-1 text-black dark:text-white font-bold"></p>
@@ -760,8 +772,8 @@
     <div id="chat-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2"><div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">الدعم الفني</h4></div></div>
-                <div class="flex items-center gap-2"><a href="https://wa.me/201206244875" target="_blank" class="bg-[#25D366] px-2 py-1 rounded-full flex items-center gap-1 text-[10px] font-bold hover:opacity-90 transition"><i data-lucide="message-circle" class="w-3 h-3"></i> للتواصل مع الدعم عبر الواتساب </a><button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+                <div class="flex items-center gap-2"><div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">المحادثة</h4></div></div>
+                <div class="flex items-center gap-2"><button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             </div>
             <div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
             <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe">
@@ -1216,6 +1228,9 @@
                 loader.style.display = 'flex';
             }
 
+            // Reset State completely
+            state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentView: 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: true, notifLimit: 5 };
+
             await signOut(auth);
             localStorage.clear();
             
@@ -1589,6 +1604,7 @@
         const pubName = document.getElementById('d-pub-name'); 
         const pubImg = document.getElementById('d-pub-img');
         const pubBadge = document.getElementById('d-pub-verified');
+        const actionBtns = document.getElementById('prof-action-buttons');
 
         state.currentAuthor = uData;
         pubName.innerText = uData.name || "مستخدم"; 
@@ -1597,6 +1613,24 @@
 
         if(uData.isVerified) pubBadge.classList.remove('hidden');
         else pubBadge.classList.add('hidden');
+
+        // Add Message Button if not own profile
+        const isOwner = state.user && state.user.uid === state.viewingProfileId;
+        if(!isOwner && state.user) {
+            // Check if button already exists to avoid duplicates
+            if(!document.getElementById('btn-msg-user')) {
+                const msgBtn = document.createElement('button');
+                msgBtn.id = 'btn-msg-user';
+                msgBtn.className = "flex items-center gap-1 text-white bg-primary hover:bg-green-600 px-3 py-1 rounded-full transition shadow-sm";
+                msgBtn.innerHTML = `<i data-lucide="message-circle" class="w-3 h-3"></i> <span class="text-[10px] font-bold">مراسلة</span>`;
+                msgBtn.onclick = () => startPrivateChat(state.viewingProfileId, uData.name);
+                actionBtns.appendChild(msgBtn);
+                lucide.createIcons();
+            }
+        } else {
+            const existingBtn = document.getElementById('btn-msg-user');
+            if(existingBtn) existingBtn.remove();
+        }
     }
 
     window.closeDetails = () => { 
@@ -2085,6 +2119,13 @@
         }
     }
 
+    window.openChatFromList = (id) => {
+        state.chatId = id;
+        // Close the list modal first to fix Z-Index issue
+        document.getElementById('chat-list-modal').classList.add('hidden');
+        toggleChat();
+    }
+
     window.renderChatList = async () => {
         const container = document.getElementById('chat-list-container');
         container.innerHTML = '<div class="flex justify-center py-4"><div class="spinner border-slate-400"></div></div>';
@@ -2094,16 +2135,72 @@
             return;
         }
 
-        // Currently, we only have Support Chat. In future, query for P2P chats.
-        // Check if user has an active support chat
-        const q = query(collection(db, "chats"), where("userId", "==", state.user.uid), where("status", "!=", "closed"));
+        // 1. Support Chats
+        const qSupport = query(collection(db, "chats"), where("userId", "==", state.user.uid), where("status", "!=", "closed"));
         
+        // 2. P2P Chats (Using 'participants' array)
+        const qP2P = query(collection(db, "chats"), where("participants", "array-contains", state.user.uid));
+
         try {
-            const snap = await getDocs(q);
+            const [snapSupport, snapP2P] = await Promise.all([getDocs(qSupport), getDocs(qP2P)]);
             container.innerHTML = '';
 
-            if(snap.empty) {
-                // No active chat, show "Start Support Chat" option
+            let hasChats = false;
+
+            // Render Support Chats
+            snapSupport.forEach(doc => {
+                // Avoid duplicates if migrated to participants logic later
+                if(doc.data().participants) return; 
+                hasChats = true;
+                const chat = doc.data();
+                const time = formatDate(chat.createdAt);
+                container.innerHTML += `
+                    <div onclick="openChatFromList('${doc.id}')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary relative">
+                            <i data-lucide="headset" class="w-5 h-5"></i>
+                            ${chat.status === 'waiting' ? '<span class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white"></span>' : ''}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center mb-1">
+                                <h4 class="font-bold text-sm text-navy dark:text-white">الدعم الفني</h4>
+                                <span class="text-[8px] text-slate-400">${time}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-500 truncate">${chat.lastMsg || '...'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Render P2P Chats
+            snapP2P.forEach(doc => {
+                hasChats = true;
+                const chat = doc.data();
+                // Determine other user name
+                let otherName = "مستخدم";
+                if(chat.userNames) {
+                    const otherId = chat.participants.find(id => id !== state.user.uid);
+                    otherName = chat.userNames[otherId] || "مستخدم";
+                }
+                
+                const time = formatDate(chat.lastUpdated || chat.createdAt);
+
+                container.innerHTML += `
+                    <div onclick="openChatFromList('${doc.id}')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">
+                            <i data-lucide="user" class="w-5 h-5"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center mb-1">
+                                <h4 class="font-bold text-sm text-navy dark:text-white">${otherName}</h4>
+                                <span class="text-[8px] text-slate-400">${time}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-500 truncate">${chat.lastMsg || '...'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if(!hasChats) {
                 container.innerHTML = `
                     <div onclick="toggleChat(); toggleModal('chat-list-modal')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
                         <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -2115,32 +2212,55 @@
                         </div>
                     </div>
                 `;
-            } else {
-                snap.forEach(doc => {
-                    const chat = doc.data();
-                    const time = formatDate(chat.createdAt); // Or last message time if available
-                    container.innerHTML += `
-                        <div onclick="state.chatId='${doc.id}'; toggleChat(); toggleModal('chat-list-modal')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary relative">
-                                <i data-lucide="headset" class="w-5 h-5"></i>
-                                ${chat.status === 'waiting' ? '<span class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white"></span>' : ''}
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between items-center mb-1">
-                                    <h4 class="font-bold text-sm text-navy dark:text-white">الدعم الفني</h4>
-                                    <span class="text-[8px] text-slate-400">${time}</span>
-                                </div>
-                                <p class="text-[10px] text-slate-500 truncate">${chat.lastMsg || '...'}</p>
-                            </div>
-                        </div>
-                    `;
-                });
             }
             lucide.createIcons();
         } catch(e) {
             console.error(e);
-            container.innerHTML = '<div class="text-center text-red-400 text-xs">خطأ في التحميل</div>';
+            container.innerHTML = '<div class="text-center text-red-400 text-xs">خطأ في التحميل (تأكد من الفهارس)</div>';
         }
+    }
+
+    window.startPrivateChat = async (targetId, targetName) => {
+        if(!state.user) return showToast("يجب تسجيل الدخول", "e");
+        
+        // Check if chat exists
+        const q = query(collection(db, "chats"), where("participants", "array-contains", state.user.uid));
+        const snap = await getDocs(q);
+        let existingChatId = null;
+
+        snap.forEach(doc => {
+            const data = doc.data();
+            if(data.participants.includes(targetId)) {
+                existingChatId = doc.id;
+            }
+        });
+
+        if(existingChatId) {
+            openChatFromList(existingChatId);
+        } else {
+            // Create new chat
+            try {
+                const myName = state.userData.name || "مستخدم";
+                const newChat = {
+                    participants: [state.user.uid, targetId],
+                    userNames: {
+                        [state.user.uid]: myName,
+                        [targetId]: targetName
+                    },
+                    lastMsg: "بدء المحادثة",
+                    createdAt: serverTimestamp(),
+                    lastUpdated: serverTimestamp(),
+                    messages: []
+                };
+                const docRef = await addDoc(collection(db, "chats"), newChat);
+                openChatFromList(docRef.id);
+            } catch(e) {
+                console.error(e);
+                showToast("فشل بدء المحادثة", "e");
+            }
+        }
+        // Close profile modal
+        toggleModal('profile-modal');
     }
 
     // --- NOTIFICATIONS LOGIC ---
