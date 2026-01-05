@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -49,7 +49,6 @@
         .dark .mobile-full-modal { background-color: #0f172a; }
         .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); z-index: 100; }
         
-        /* Ensure hidden is strictly enforced */
         .hidden { display: none !important; }
 
         /* Z-Index Hierarchy */
@@ -933,7 +932,7 @@
     const auth = getAuth(app);
     enableIndexedDbPersistence(db).catch((err) => { console.log('Persistence error', err); });
 
-    let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: false, notifLimit: 5, isSupportChat: false };
+    let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: false, notifLimit: 5, isSupportChat: false, chatUnsubscribe: null };
 
     // Updated Categories List
     const CATEGORIES = [
@@ -1241,7 +1240,7 @@
             }
 
             // Reset State completely
-            state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentView: 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: true, notifLimit: 5, isSupportChat: false };
+            state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentView: 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: true, notifLimit: 5, isSupportChat: false, chatUnsubscribe: null };
 
             await signOut(auth);
             localStorage.clear();
@@ -2008,14 +2007,23 @@
 
     // --- SUPPORT CHAT LOGIC (FAB) ---
     window.toggleSupportChat = () => {
+        // Clean up any existing chat listener first
+        if (state.chatUnsubscribe) {
+            state.chatUnsubscribe();
+            state.chatUnsubscribe = null;
+        }
+        
         state.isSupportChat = true;
+        state.chatId = null; // Reset chat ID to force check/create
+        
         if(toggleModal('chat-modal')){ 
             // Update Header for Support
             document.getElementById('chat-header-name').innerText = "الدعم الفني";
             document.getElementById('chat-header-img').innerHTML = `<i data-lucide="headset" class="w-5 h-5 text-white"></i>`;
             document.getElementById('chat-header-img').className = "w-8 h-8 rounded-full bg-primary flex items-center justify-center";
-            
-            if(!state.chatId && state.chatStep===0 && !state.welcomeSent){ 
+            document.getElementById('chat-box').innerHTML = ''; // Clear previous messages
+
+            if(state.chatStep===0 && !state.welcomeSent){ 
                 state.welcomeSent=true; 
                 const name = state.user.displayName || 'يا صديقي'; 
                 setTimeout(()=>botMsg(`مرحباً ${name} 👋<br>معك المساعد الذكي للسوق وياك، كيف يمكنني مساعدتك؟`),100); 
@@ -2035,6 +2043,12 @@
     }
 
     window.closeChatModal = () => {
+        // Unsubscribe listener
+        if (state.chatUnsubscribe) {
+            state.chatUnsubscribe();
+            state.chatUnsubscribe = null;
+        }
+        
         document.getElementById('chat-modal').classList.add('hidden');
         // If it was P2P chat, reopen list
         if(!state.isSupportChat) {
@@ -2124,7 +2138,31 @@
         }
     }
 
-    function listenChat(id){onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data();if(d.status==='closed' && state.isSupportChat){state.chatId=null;state.chatStep=0;state.welcomeSent=false;document.getElementById('chat-box').innerHTML='';showToast("تم إنهاء المحادثة");document.getElementById('chat-modal').classList.add('hidden');return}document.getElementById('chat-box').innerHTML='';d.messages.forEach(m=>{if(typeof m.t === 'string' && !m.t.startsWith('الاسم'))(m.s==='user'?userMsg:botMsg)(m.t)})}})};
+    function listenChat(id){
+        // Unsubscribe previous listener if exists
+        if (state.chatUnsubscribe) {
+            state.chatUnsubscribe();
+        }
+        
+        state.chatUnsubscribe = onSnapshot(doc(db,"chats",id),s=>{
+            if(s.exists()){
+                const d=s.data();
+                if(d.status==='closed' && state.isSupportChat){
+                    state.chatId=null;
+                    state.chatStep=0;
+                    state.welcomeSent=false;
+                    document.getElementById('chat-box').innerHTML='';
+                    showToast("تم إنهاء المحادثة");
+                    document.getElementById('chat-modal').classList.add('hidden');
+                    return
+                }
+                document.getElementById('chat-box').innerHTML='';
+                d.messages.forEach(m=>{
+                    if(typeof m.t === 'string' && !m.t.startsWith('الاسم'))(m.s==='user'?userMsg:botMsg)(m.t)
+                })
+            }
+        });
+    };
     
     function checkUserChat(){
         // Only check for support chats here
@@ -2265,6 +2303,12 @@
     }
 
     window.openChatFromList = (id, name, img) => {
+        // Clean up previous listener
+        if (state.chatUnsubscribe) {
+            state.chatUnsubscribe();
+            state.chatUnsubscribe = null;
+        }
+
         state.chatId = id;
         state.isSupportChat = false;
         
