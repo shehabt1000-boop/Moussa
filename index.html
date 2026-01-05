@@ -44,22 +44,27 @@
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
-        /* Modal & Overlay Fixes */
-        .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
+        /* --- FIX: Z-INDEX HIERARCHY --- */
+        .mobile-full-modal { position: fixed; inset: 0; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         
-        /* Ensure hidden modals don't block clicks */
-        .modal-overlay.hidden { display: none !important; pointer-events: none; }
+        /* الطبقات مرتبة من الأسفل للأعلى */
+        #chat-list-modal .mobile-full-modal { z-index: 80; }
+        #profile-modal .mobile-full-modal { z-index: 90; }
+        #order-modal .mobile-full-modal { z-index: 100; }
+        #notif-modal .mobile-full-modal { z-index: 105; }
+        #chat-modal .mobile-full-modal { z-index: 110; } /* الشات دائماً في الأعلى */
         
-        /* Z-Index Hierarchy */
-        #chat-list-modal.modal-overlay { z-index: 85; }
+        /* Overlays matching the modals */
+        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); }
+        #chat-list-modal.modal-overlay { z-index: 80; }
         #profile-modal.modal-overlay { z-index: 90; }
-        #order-modal.modal-overlay { z-index: 95; }
-        #chat-modal.modal-overlay { z-index: 100; } /* Chat always on top */
+        #order-modal.modal-overlay { z-index: 100; }
+        #notif-modal.modal-overlay { z-index: 105; }
+        #chat-modal.modal-overlay { z-index: 110; }
 
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 750px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); } 
-            .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); } 
             main { max-width: 40rem !important; margin: 0 auto; }
             #search-container { max-width: 40rem; margin: 0 auto; left: 0; right: 0; }
         }
@@ -1970,7 +1975,7 @@
         } else { 
             openAddModalLogic(); 
         } 
-    };
+        };
     function openAddModalLogic() { if(toggleModal('add-modal')) { resetForm(); } }
 
     window.toggleChat=()=>{ if(toggleModal('chat-modal')){ if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){ state.welcomeSent=true; const name = state.user.displayName || 'يا صديقي'; setTimeout(()=>botMsg(`مرحباً ${name} 👋<br>معك المساعد الذكي للسوق  وياك اخبرني بطلبك لتحويلك للدعم الفني؟`),100); } } };
