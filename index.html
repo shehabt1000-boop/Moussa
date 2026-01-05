@@ -45,8 +45,8 @@
         .animate-pop { animation: popIn 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
-        #profile-modal .mobile-full-modal, #order-modal .mobile-full-modal, #notif-modal .mobile-full-modal { z-index: 90; } 
-        #profile-modal.modal-overlay, #order-modal.modal-overlay, #notif-modal.modal-overlay { z-index: 90; }
+        #profile-modal .mobile-full-modal, #order-modal .mobile-full-modal, #notif-modal .mobile-full-modal, #chat-list-modal .mobile-full-modal { z-index: 90; } 
+        #profile-modal.modal-overlay, #order-modal.modal-overlay, #notif-modal.modal-overlay, #chat-list-modal.modal-overlay { z-index: 90; }
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 750px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); } 
             .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); } 
@@ -269,6 +269,11 @@
             <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
         </main>
 
+        <!-- Floating Action Button (Support) -->
+        <button id="fab-support" onclick="toggleChat()" class="fixed bottom-20 left-4 z-[75] bg-primary text-white p-3 rounded-full shadow-xl hover:scale-110 transition animate-bounce-slow border-2 border-white dark:border-navy">
+            <i data-lucide="headset" class="w-6 h-6"></i>
+        </button>
+
         <!-- NAV BAR -->
         <nav id="bottom-nav" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
             <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
@@ -276,7 +281,10 @@
             <!-- Dynamic Middle Button (Add for Marketers/Admins, Profile for Customers) -->
             <div id="nav-middle-btn-container"></div>
 
-            <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
+            <!-- Chat List Button (Replaces old Support Button) -->
+            <button onclick="toggleChatList()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative">
+                <i data-lucide="message-square" class="w-5 h-5 group-hover:scale-110 transition"></i>
+            </button>
         </nav>
 
         <!-- PWA Install Banner -->
@@ -457,6 +465,21 @@
                 <div id="notif-list" class="space-y-3"></div>
                 <div id="notif-load-more" class="hidden text-center mt-4">
                     <button onclick="loadNotifications(true)" class="text-xs font-bold text-primary underline">عرض المزيد</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat List Modal (New) -->
+    <div id="chat-list-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-sm">المحادثات</h3>
+                <button onclick="toggleChatList()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
+                <div id="chat-list-container" class="space-y-2">
+                    <!-- Chat items will be injected here -->
                 </div>
             </div>
         </div>
@@ -758,6 +781,11 @@
         <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
         <div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div>
     </div>
+
+    <!-- Floating Action Button (Support) -->
+    <button id="fab-support" onclick="toggleChat()" class="fixed bottom-20 left-4 z-[75] bg-primary text-white p-3 rounded-full shadow-xl hover:scale-110 transition animate-bounce-slow border-2 border-white dark:border-navy">
+        <i data-lucide="headset" class="w-6 h-6"></i>
+    </button>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -2050,121 +2078,71 @@
     window.sendAdminMsg=async()=>{const t=document.getElementById('admin-input').value;if(!t||!state.activeAdminChat)return;document.getElementById('admin-input').value='';const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.activeAdminChat)));const m=s.docs[0].data().messages;m.push({s:'support',t,d:new Date()});await updateDoc(doc(db,"chats",state.activeAdminChat),{messages:m,status:'active'})};
     window.kickUser=async()=>{if(confirm("إنهاء؟")){await updateDoc(doc(db,"chats",state.activeAdminChat),{status:'closed'});document.getElementById('admin-msg-area').innerHTML='';document.getElementById('btn-end-chat').classList.add('hidden');state.activeAdminChat=null}};
 
-    window.toggleProfile = async (userId = null) => { if(toggleModal('profile-modal')) { const targetId = userId || (auth.currentUser ? auth.currentUser.uid : null); if(!targetId) return; state.viewingProfileId = targetId; const isOwner = auth.currentUser && auth.currentUser.uid === targetId; document.getElementById('prof-name').innerText = '...'; document.getElementById('prof-role').innerText = '...'; document.getElementById('prof-phone').innerText = '...'; document.getElementById('prof-address').innerText = '...'; document.getElementById('prof-joined').innerText = ''; document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`; document.getElementById('prof-password-section').classList.add('hidden'); document.getElementById('prof-reviews-section').classList.add('hidden'); document.getElementById('prof-rate-user-section').classList.add('hidden'); document.getElementById('prof-rating-display').classList.add('hidden'); document.getElementById('global-edit-btn').classList.add('hidden'); document.getElementById('prof-view-mode').classList.remove('hidden'); document.getElementById('prof-edit-mode').classList.add('hidden'); document.getElementById('prof-verified-badge').classList.add('hidden'); let data = null; if (isOwner && state.userData) { data = state.userData; } else { try { const snap = await getDoc(doc(db, "users", targetId)); if(snap.exists()) data = snap.data(); } catch(e) { console.error(e); } } if(data) { document.getElementById('prof-name').innerText = data.name || 'مستخدم'; document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل'; document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل'; document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || ''); document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt); if(data.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`; } calculateUserRating(targetId); if(data.isVerified) { document.getElementById('prof-verified-badge').classList.remove('hidden'); } if(isOwner) { document.getElementById('global-edit-btn').classList.remove('hidden'); document.getElementById('prof-password-section').classList.remove('hidden'); } else { document.getElementById('prof-rate-user-section').classList.remove('hidden'); } if(data.role === 'marketer') { document.getElementById('prof-reviews-section').classList.remove('hidden'); state.profileReviewsLimit = 3; loadProfileReviews(false); } } lucide.createIcons(); } }
-    window.toggleEditMode = () => { const viewMode = document.getElementById('prof-view-mode'); const editMode = document.getElementById('prof-edit-mode'); if(editMode.classList.contains('hidden')) { viewMode.classList.add('hidden'); editMode.classList.remove('hidden'); document.getElementById('edit-name').value = state.userData.name || ''; document.getElementById('edit-phone').value = state.userData.phone || ''; document.getElementById('edit-address').value = state.userData.address || ''; document.getElementById('edit-gov').value = state.userData.governorate || ''; updateEditCities(); document.getElementById('edit-city').value = state.userData.city || ''; if(state.userData.image) { document.getElementById('edit-img-preview').src = state.userData.image; document.getElementById('edit-img-preview').classList.remove('hidden'); document.getElementById('edit-img-placeholder').classList.add('hidden'); } } else { editMode.classList.add('hidden'); viewMode.classList.remove('hidden'); } }
-    window.saveProfile = async () => { const name = document.getElementById('edit-name').value.trim(); const address = document.getElementById('edit-address').value.trim(); const gov = document.getElementById('edit-gov').value; const city = document.getElementById('edit-city').value; if(!name || !address || !gov || !city) return showToast("يرجى ملء جميع الحقول", "e"); const updateData = { name, address, governorate: gov, city }; if(state.tempEditImage) { updateData.image = state.tempEditImage; } try { await updateDoc(doc(db, "users", state.user.uid), updateData); state.userData = { ...state.userData, ...updateData }; state.tempEditImage = null; document.getElementById('prof-name').innerText = name; document.getElementById('prof-address').innerText = address + ' - ' + gov; if(updateData.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${updateData.image}" class="w-full h-full object-cover">`; } showToast("تم حفظ التعديلات بنجاح"); toggleEditMode(); } catch(e) { showToast("فشل الحفظ", "e"); } }
-    window.changePassword = async () => { const newPass = document.getElementById('new-password').value; if(!newPass || newPass.length < 6) return showToast("كلمة المرور قصيرة جداً", "e"); try { await updatePassword(auth.currentUser, newPass); showToast("تم تحديث كلمة المرور بنجاح"); document.getElementById('new-password').value = ''; } catch(e) { showToast("يجب إعادة تسجيل الدخول لتغيير كلمة المرور", "e"); } }
-    window.setUserRating = (n) => { state.currentUserRating = n; }
-    
-    window.submitUserReview = async () => { 
-        if(!state.user) return showToast("يجب تسجيل الدخول للتقييم", "e"); 
-        if(!state.viewingProfileId) return; 
-        if(state.currentUserRating === 0) return showToast("يرجى تحديد عدد النجوم", "e"); 
-        
-        const textInput = document.getElementById('user-review-text');
-        const text = textInput.value; 
-        
-        try {
-            await addDoc(collection(db, "user_reviews"), { 
-                targetUserId: state.viewingProfileId, 
-                reviewerId: state.user.uid, 
-                reviewerName: state.userData.name || 'مستخدم', 
-                reviewerImage: state.userData.image || null, 
-                rating: state.currentUserRating, 
-                text: text, 
-                timestamp: serverTimestamp() 
-            }); 
-
-            // Create Notification
-            await addDoc(collection(db, "notifications"), {
-                recipientId: state.viewingProfileId,
-                senderName: state.userData.name || 'مستخدم',
-                senderImage: state.userData.image || null,
-                type: 'profile_review',
-                text: text,
-                targetId: state.viewingProfileId,
-                isRead: false,
-                timestamp: serverTimestamp()
-            });
-            
-            showToast("تم إرسال التقييم"); 
-            
-            // تنظيف الحقول
-            textInput.value = ''; 
-            state.currentUserRating = 0;
-            // إلغاء تحديد النجوم
-            document.querySelectorAll('input[name="u-rating"]').forEach(el => el.checked = false);
-            
-            calculateUserRating(state.viewingProfileId); 
-            state.profileReviewsLimit = 3; 
-            loadProfileReviews(false); 
-        } catch(e) {
-            console.error(e);
-            showToast("فشل إرسال التقييم", "e");
+    // --- CHAT LIST LOGIC (NEW) ---
+    window.toggleChatList = () => {
+        if(toggleModal('chat-list-modal')) {
+            renderChatList();
         }
     }
 
-    async function calculateUserRating(userId) { const q = query(collection(db, "user_reviews"), where("targetUserId", "==", userId)); const snap = await getDocs(q); if(!snap.empty) { let total = 0; snap.forEach(d => total += d.data().rating); const avg = (total / snap.size).toFixed(1); document.getElementById('prof-rating-val').innerText = avg; document.getElementById('prof-rating-display').classList.remove('hidden'); } else { document.getElementById('prof-rating-display').classList.add('hidden'); } }
-    window.setRating = (n) => { state.currentRating = n; }
-    
-    window.submitProductReview = async () => { 
-        if(!state.user) return showToast("يجب تسجيل الدخول للتقييم", "e"); 
-        if(!state.currentItem) return; 
-        if(state.currentRating === 0) return showToast("يرجى تحديد عدد النجوم", "e"); 
-        
-        const textInput = document.getElementById('review-text');
-        const text = textInput.value; 
+    window.renderChatList = async () => {
+        const container = document.getElementById('chat-list-container');
+        container.innerHTML = '<div class="flex justify-center py-4"><div class="spinner border-slate-400"></div></div>';
+
+        if(!state.user) {
+            container.innerHTML = '<div class="text-center text-slate-400 text-xs py-4">يجب تسجيل الدخول</div>';
+            return;
+        }
+
+        // Currently, we only have Support Chat. In future, query for P2P chats.
+        // Check if user has an active support chat
+        const q = query(collection(db, "chats"), where("userId", "==", state.user.uid), where("status", "!=", "closed"));
         
         try {
-            await addDoc(collection(db, "product_reviews"), { 
-                productId: state.currentItem.id, 
-                productAuthorId: state.currentItem.authorId, 
-                userId: state.user.uid, 
-                userName: state.userData.name || 'مستخدم', 
-                userImage: state.userData.image || null, 
-                rating: state.currentRating, 
-                text: text, 
-                timestamp: serverTimestamp() 
-            }); 
+            const snap = await getDocs(q);
+            container.innerHTML = '';
 
-            // Create Notification
-            await addDoc(collection(db, "notifications"), {
-                recipientId: state.currentItem.authorId,
-                senderName: state.userData.name || 'مستخدم',
-                senderImage: state.userData.image || null,
-                type: 'product_review',
-                productName: state.currentItem.title,
-                text: text,
-                targetId: state.currentItem.id,
-                isRead: false,
-                timestamp: serverTimestamp()
-            });
-            
-            showToast("تم نشر التقييم"); 
-            
-            // تنظيف الحقول
-            textInput.value = ''; 
-            state.currentRating = 0;
-            // إلغاء تحديد النجوم
-            document.querySelectorAll('input[name="rating"]').forEach(el => el.checked = false);
-            
-            state.productReviewsLimit = 1; 
-            loadProductReviews(false); 
+            if(snap.empty) {
+                // No active chat, show "Start Support Chat" option
+                container.innerHTML = `
+                    <div onclick="toggleChat(); toggleModal('chat-list-modal')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <i data-lucide="headset" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-navy dark:text-white">الدعم الفني</h4>
+                            <p class="text-[10px] text-slate-500">اضغط لبدء محادثة جديدة</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                snap.forEach(doc => {
+                    const chat = doc.data();
+                    const time = formatDate(chat.createdAt); // Or last message time if available
+                    container.innerHTML += `
+                        <div onclick="state.chatId='${doc.id}'; toggleChat(); toggleModal('chat-list-modal')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary relative">
+                                <i data-lucide="headset" class="w-5 h-5"></i>
+                                ${chat.status === 'waiting' ? '<span class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white"></span>' : ''}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-bold text-sm text-navy dark:text-white">الدعم الفني</h4>
+                                    <span class="text-[8px] text-slate-400">${time}</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 truncate">${chat.lastMsg || '...'}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            lucide.createIcons();
         } catch(e) {
             console.error(e);
-            showToast("فشل نشر التقييم", "e");
+            container.innerHTML = '<div class="text-center text-red-400 text-xs">خطأ في التحميل</div>';
         }
     }
 
-    window.loadProductReviews = async (append = false, reduce = false) => { if(!state.currentItem) return; const list = document.getElementById('product-reviews-list'); const btnMore = document.getElementById('load-more-reviews'); const btnLess = document.getElementById('load-less-reviews'); if(reduce) { state.productReviewsLimit = 1; append = false; } else if(append) { state.productReviewsLimit += 3; } const q = query( collection(db, "product_reviews"), where("productId", "==", state.currentItem.id), orderBy("timestamp", "desc"), limit(state.productReviewsLimit + 1) ); const snap = await getDocs(q); if(!append) list.innerHTML = ''; let count = 0; snap.forEach(doc => { if(count < state.productReviewsLimit) { const r = doc.data(); const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating); const img = r.userImage ? `<img src="${r.userImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; if(append && list.innerHTML.includes(r.text)) return; list.innerHTML += `<div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700"><div class="flex items-center gap-2 mb-1"><div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div><span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span><span class="text-yellow-400 text-xs tracking-tighter">${stars}</span><span class="text-[8px] text-slate-300 mr-auto">${formatDate(r.timestamp)}</span></div><p class="text-[10px] text-slate-600 dark:text-slate-300 pr-8">${r.text || ''}</p></div>`; } count++; }); if(snap.size > state.productReviewsLimit) { btnMore.classList.remove('hidden'); } else { btnMore.classList.add('hidden'); } if(state.productReviewsLimit > 1) { btnLess.classList.remove('hidden'); } else { btnLess.classList.add('hidden'); } lucide.createIcons(); }
-    window.loadProfileReviews = async (append = false, reduce = false) => { if(!state.viewingProfileId) return; const list = document.getElementById('prof-reviews-list'); const btnMore = document.getElementById('prof-reviews-more'); const btnLess = document.getElementById('prof-reviews-less'); if(reduce) { state.profileReviewsLimit = 3; append = false; } else if(append) { state.profileReviewsLimit += 3; } const q = query( collection(db, "user_reviews"), where("targetUserId", "==", state.viewingProfileId), orderBy("timestamp", "desc"), limit(state.profileReviewsLimit + 1) ); try { const snap = await getDocs(q); if(!append) list.innerHTML = ''; if(snap.empty) { list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">لا توجد تقييمات بعد</p>'; btnMore.classList.add('hidden'); btnLess.classList.add('hidden'); return; } let count = 0; snap.forEach(doc => { if(count < state.profileReviewsLimit) { const r = doc.data(); const stars = "★".repeat(r.rating); const img = r.reviewerImage ? `<img src="${r.reviewerImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; list.innerHTML += `<div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-xs"><div class="flex justify-between mb-1"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div><span class="font-bold">${r.reviewerName || 'مستخدم'}</span></div><span class="text-yellow-400">${stars}</span></div><p class="text-slate-600 dark:text-slate-300 pr-8">${r.text}</p><span class="text-[8px] text-slate-300 block mt-1">${formatDate(r.timestamp)}</span></div>`; } count++; }); if(snap.size > state.profileReviewsLimit) btnMore.classList.remove('hidden'); else btnMore.classList.add('hidden'); if(state.profileReviewsLimit > 3) btnLess.classList.remove('hidden'); else btnLess.classList.add('hidden'); } catch(e) { console.log("Index might be missing for profile reviews", e); list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">جاري تفعيل نظام التقييمات...</p>'; } }
-    window.toggleOrderModal = () => { if(toggleModal('order-modal')) { if(!state.currentItem) return; document.getElementById('ord-img').src = Array.isArray(state.currentItem.images) ? state.currentItem.images[0] : state.currentItem.image; document.getElementById('ord-title').innerText = state.currentItem.title; document.getElementById('ord-price').innerText = Number(state.currentItem.price).toLocaleString() + ' ج.م'; if(state.userData) { document.getElementById('ord-phone').value = state.userData.phone || ''; document.getElementById('ord-gov').value = state.userData.governorate || ''; updateOrderCities(); document.getElementById('ord-city').value = state.userData.city || ''; document.getElementById('ord-address').value = state.userData.address || ''; } state.orderItems = []; document.getElementById('order-items-container').innerHTML = ''; addOrderItem(); } }
-    window.addOrderItem = () => { const index = state.orderItems.length; state.orderItems.push({ qty: 1, size: '', color: '' }); const container = document.getElementById('order-items-container'); const itemDiv = document.createElement('div'); itemDiv.className = "bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-600 relative"; itemDiv.id = `ord-item-${index}`; let sizeOptions = ''; if(state.currentItem.size && Array.isArray(state.currentItem.size)) { sizeOptions = `<select onchange="updateOrderItem(${index}, 'size', this.value)" class="form-input text-xs h-8 w-full mb-1"><option value="">المقاس</option>${state.currentItem.size.map(s => `<option value="${s}">${s}</option>`).join('')}</select>`; } let colorOptions = ''; if(state.currentItem.color && Array.isArray(state.currentItem.color)) { colorOptions = `<select onchange="updateOrderItem(${index}, 'color', this.value)" class="form-input text-xs h-8 w-full mb-1"><option value="">اللون</option>${state.currentItem.color.map(c => `<option value="${c}">${c}</option>`).join('')}</select>`; } itemDiv.innerHTML = `<div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-primary">المنتج #${index + 1}</span>${index > 0 ? `<button onclick="removeOrderItem(${index})" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}</div><div class="grid grid-cols-3 gap-2"><input type="number" value="" min="1" onchange="updateOrderItem(${index}, 'qty', this.value)" class="form-input text-xs h-8 text-center" placeholder="العدد"><div class="col-span-2 flex gap-1">${sizeOptions}${colorOptions}</div></div>`; container.appendChild(itemDiv); calculateOrderTotal(); lucide.createIcons(); }
-    window.updateOrderItem = (index, field, value) => { if(state.orderItems[index]) { state.orderItems[index][field] = field === 'qty' ? Number(value) : value; calculateOrderTotal(); } }
-    window.removeOrderItem = (index) => { document.getElementById(`ord-item-${index}`).classList.add('hidden'); state.orderItems[index].qty = 0; calculateOrderTotal(); }
-    window.calculateOrderTotal = () => { let totalQty = 0; state.orderItems.forEach(i => totalQty += i.qty); const total = totalQty * Number(state.currentItem.price); document.getElementById('ord-total').innerText = total.toLocaleString() + ' ج.م'; }
-    window.confirmOrder = () => { const phone = document.getElementById('ord-phone').value; const gov = document.getElementById('ord-gov').value; const city = document.getElementById('ord-city').value; const address = document.getElementById('ord-address').value; if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e"); let rawSellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : ''); let cleanPhone = rawSellerPhone ? rawSellerPhone.toString().replace(/\D/g, '') : ''; if (!cleanPhone) { return showToast("عذراً، لا يوجد رقم هاتف مسجل لهذا البائع", "e"); } if (cleanPhone.startsWith('0')) { cleanPhone = cleanPhone.substring(1); } if (cleanPhone.length < 10) { return showToast("رقم هاتف البائع غير صحيح أو غير مكتمل", "e"); } const fullPhone = `20${cleanPhone}`; const now = new Date(); const dateStr = now.toLocaleDateString('ar-EG'); const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }); const productUrl = `${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}`; let msg = `طلب جديد من تطبيق السوق وياك🏠📥\n`; msg += `📅 وقت الطلب: ${dateStr} - ${timeStr}\n\n`; msg += `📦 معلومات المنتج:\n`; msg += `*الاسم:* ${state.currentItem.title}\n`; msg += `*القسم:* ${state.currentItem.category || 'غير محدد'}\n`; msg += `*سعر القطعة:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n\n`; msg += `📝 تفاصيل الطلب:\n`; let totalQty = 0; state.orderItems.forEach((item, idx) => { if(item.qty > 0) { msg += `اختيار #${idx+1}:          (عدد ${item.qty})`; if(item.size) msg += ` | مقاس: ${item.size}`; if(item.color) msg += ` | لون: ${item.color}`; msg += `\n`; totalQty += item.qty; } }); if(totalQty === 0) return showToast("يرجى إضافة قطعة واحدة على الأقل", "e"); msg += `\nاجمالي الفاتورة: ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`; msg += `----------------\n`; msg += `👤 بيانات العميل:\n`; msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`; msg += `رقم الهاتف: ${phone}\n`; msg += `العنوان: ${gov} - ${city} - ${address}\n\n`; msg += `🔗 رابط المنتج: ${productUrl}`; const url = `https://api.whatsapp.com/send?phone=${fullPhone}&text=${encodeURIComponent(msg)}`; window.location.href = url; toggleOrderModal(); }
-    
     // --- NOTIFICATIONS LOGIC ---
     window.toggleNotifications = () => { toggleModal('notif-modal'); if(!document.getElementById('notif-modal').classList.contains('hidden')) { state.notifLimit = 5; loadNotifications(false); } };
     
