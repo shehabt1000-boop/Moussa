@@ -45,8 +45,8 @@
         .animate-pop { animation: popIn 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .mobile-full-modal { position: fixed; inset: 0; z-index: 80; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
-        #profile-modal .mobile-full-modal, #order-modal .mobile-full-modal { z-index: 90; } 
-        #profile-modal.modal-overlay, #order-modal.modal-overlay { z-index: 90; }
+        #profile-modal .mobile-full-modal, #order-modal .mobile-full-modal, #notif-modal .mobile-full-modal { z-index: 90; } 
+        #profile-modal.modal-overlay, #order-modal.modal-overlay, #notif-modal.modal-overlay { z-index: 90; }
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 750px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); } 
             .modal-overlay { position: fixed; inset: 0; z-index: 80; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); } 
@@ -204,7 +204,12 @@
                     </div>
                 </div>
                 <div class="flex gap-1.5 items-center">
-                    <button onclick="window.location.reload()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-primary hover:bg-slate-200 transition"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+                    <!-- Notification Bell -->
+                    <button onclick="toggleNotifications()" class="relative p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition">
+                        <i data-lucide="bell" class="w-4 h-4"></i>
+                        <span id="notif-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-darkbg"></span>
+                    </button>
+
                     <!-- Header Profile Button - Hidden for Customers if Bottom Nav present -->
                     <button id="header-profile-btn" onclick="toggleProfile(null)" class="hidden p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
                     <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
@@ -213,7 +218,6 @@
                     <button onclick="toggleMasterView()" id="btn-master-control" class="hidden bg-yellow-500 p-1.5 rounded-full text-white hover:bg-yellow-600 shadow-lg animate-pulse"><i data-lucide="crown" class="w-4 h-4"></i></button>
 
                     <button onclick="toggleAdminView()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
-                    <button onclick="logout()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-red-600 hover:bg-red-100 transition"><i data-lucide="log-out" class="w-4 h-4"></i></button>
                 </div>
             </div>
         </header>
@@ -349,7 +353,7 @@
         </div>
     </div>
 
-    <!-- Profile Modal (Kept as Modal as requested, but logic below hides header button) -->
+    <!-- Profile Modal -->
     <div id="profile-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
@@ -357,7 +361,14 @@
                     <h3 class="font-bold text-sm">الملف الشخصي</h3>
                     <button onclick="window.location.reload()" class="bg-white/20 hover:bg-white/30 p-1 rounded text-[10px] flex items-center gap-1"><i data-lucide="refresh-cw" class="w-3 h-3"></i> تحديث</button>
                 </div>
-                <button onclick="toggleProfile()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <div class="flex items-center gap-2">
+                    <!-- Logout Button in Profile Header -->
+                    <button onclick="logout()" class="bg-red-500/20 hover:bg-red-500/40 text-red-200 px-2 py-1 rounded-lg flex items-center gap-1 transition border border-red-500/30">
+                        <i data-lucide="log-out" class="w-3 h-3"></i>
+                        <span class="text-[0.5rem] font-bold">تسجيل خروج</span>
+                    </button>
+                    <button onclick="toggleProfile()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
             </div>
             <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
                 <!-- VIEW MODE -->
@@ -427,6 +438,25 @@
                         <div class="flex gap-2"><input id="new-password" type="password" class="form-input text-xs" placeholder="كلمة المرور الجديدة"><button onclick="changePassword()" class="bg-navy dark:bg-primary text-white px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap">تحديث</button></div>
                     </div>
                     <div class="flex gap-2 pt-4"><button onclick="saveProfile()" class="flex-1 bg-primary text-white py-2 rounded-xl font-bold text-sm shadow-lg">حفظ التعديلات</button><button onclick="toggleEditMode()" class="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-white py-2 rounded-xl font-bold text-sm">إلغاء</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div id="notif-modal" class="hidden modal-overlay">
+        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
+            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-sm">الإشعارات</h3>
+                    <button onclick="clearNotifications()" class="bg-white/20 hover:bg-white/30 p-1 rounded text-[10px] flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> حذف الكل</button>
+                </div>
+                <button onclick="toggleNotifications()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
+                <div id="notif-list" class="space-y-3"></div>
+                <div id="notif-load-more" class="hidden text-center mt-4">
+                    <button onclick="loadNotifications(true)" class="text-xs font-bold text-primary underline">عرض المزيد</button>
                 </div>
             </div>
         </div>
@@ -732,7 +762,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, limit, orderBy, startAfter, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, limit, orderBy, startAfter, enableIndexedDbPersistence, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const CLOUD_NAME = "db9h7zm1h"; 
     const UPLOAD_PRESET = "souq_upload"; 
@@ -852,7 +882,7 @@
     const auth = getAuth(app);
     enableIndexedDbPersistence(db).catch((err) => { console.log('Persistence error', err); });
 
-    let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: false };
+    let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: false, notifLimit: 5 };
 
     // Updated Categories List
     const CATEGORIES = [
@@ -997,6 +1027,7 @@
                     checkUserChat(); 
                     initFavs(); 
                     initCats(); 
+                    initNotifications(); // Start listening for notifications
                 }
             } catch(e) { 
                 console.warn("Role fetch failed", e); 
@@ -2043,6 +2074,18 @@
                 text: text, 
                 timestamp: serverTimestamp() 
             }); 
+
+            // Create Notification
+            await addDoc(collection(db, "notifications"), {
+                recipientId: state.viewingProfileId,
+                senderName: state.userData.name || 'مستخدم',
+                senderImage: state.userData.image || null,
+                type: 'profile_review',
+                text: text,
+                targetId: state.viewingProfileId,
+                isRead: false,
+                timestamp: serverTimestamp()
+            });
             
             showToast("تم إرسال التقييم"); 
             
@@ -2083,6 +2126,19 @@
                 text: text, 
                 timestamp: serverTimestamp() 
             }); 
+
+            // Create Notification
+            await addDoc(collection(db, "notifications"), {
+                recipientId: state.currentItem.authorId,
+                senderName: state.userData.name || 'مستخدم',
+                senderImage: state.userData.image || null,
+                type: 'product_review',
+                productName: state.currentItem.title,
+                text: text,
+                targetId: state.currentItem.id,
+                isRead: false,
+                timestamp: serverTimestamp()
+            });
             
             showToast("تم نشر التقييم"); 
             
@@ -2108,6 +2164,126 @@
     window.removeOrderItem = (index) => { document.getElementById(`ord-item-${index}`).classList.add('hidden'); state.orderItems[index].qty = 0; calculateOrderTotal(); }
     window.calculateOrderTotal = () => { let totalQty = 0; state.orderItems.forEach(i => totalQty += i.qty); const total = totalQty * Number(state.currentItem.price); document.getElementById('ord-total').innerText = total.toLocaleString() + ' ج.م'; }
     window.confirmOrder = () => { const phone = document.getElementById('ord-phone').value; const gov = document.getElementById('ord-gov').value; const city = document.getElementById('ord-city').value; const address = document.getElementById('ord-address').value; if(!phone || !gov || !city || !address) return showToast("يرجى إكمال جميع البيانات", "e"); let rawSellerPhone = state.currentItem.phone || (state.currentAuthor ? state.currentAuthor.phone : ''); let cleanPhone = rawSellerPhone ? rawSellerPhone.toString().replace(/\D/g, '') : ''; if (!cleanPhone) { return showToast("عذراً، لا يوجد رقم هاتف مسجل لهذا البائع", "e"); } if (cleanPhone.startsWith('0')) { cleanPhone = cleanPhone.substring(1); } if (cleanPhone.length < 10) { return showToast("رقم هاتف البائع غير صحيح أو غير مكتمل", "e"); } const fullPhone = `20${cleanPhone}`; const now = new Date(); const dateStr = now.toLocaleDateString('ar-EG'); const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }); const productUrl = `${window.location.origin}${window.location.pathname}?product_id=${state.currentItem.id}`; let msg = `طلب جديد من تطبيق السوق وياك🏠📥\n`; msg += `📅 وقت الطلب: ${dateStr} - ${timeStr}\n\n`; msg += `📦 معلومات المنتج:\n`; msg += `*الاسم:* ${state.currentItem.title}\n`; msg += `*القسم:* ${state.currentItem.category || 'غير محدد'}\n`; msg += `*سعر القطعة:* ${Number(state.currentItem.price).toLocaleString()} ج.م\n\n`; msg += `📝 تفاصيل الطلب:\n`; let totalQty = 0; state.orderItems.forEach((item, idx) => { if(item.qty > 0) { msg += `اختيار #${idx+1}:          (عدد ${item.qty})`; if(item.size) msg += ` | مقاس: ${item.size}`; if(item.color) msg += ` | لون: ${item.color}`; msg += `\n`; totalQty += item.qty; } }); if(totalQty === 0) return showToast("يرجى إضافة قطعة واحدة على الأقل", "e"); msg += `\nاجمالي الفاتورة: ${(totalQty * state.currentItem.price).toLocaleString()} ج.م\n`; msg += `----------------\n`; msg += `👤 بيانات العميل:\n`; msg += `الاسم: ${state.userData ? state.userData.name : 'ضيف'}\n`; msg += `رقم الهاتف: ${phone}\n`; msg += `العنوان: ${gov} - ${city} - ${address}\n\n`; msg += `🔗 رابط المنتج: ${productUrl}`; const url = `https://api.whatsapp.com/send?phone=${fullPhone}&text=${encodeURIComponent(msg)}`; window.location.href = url; toggleOrderModal(); }
+    
+    // --- NOTIFICATIONS LOGIC ---
+    window.toggleNotifications = () => { toggleModal('notif-modal'); if(!document.getElementById('notif-modal').classList.contains('hidden')) { state.notifLimit = 5; loadNotifications(false); } };
+    
+    function initNotifications() {
+        if(!state.user) return;
+        // Listen for unread count
+        const q = query(collection(db, "notifications"), where("recipientId", "==", state.user.uid), where("isRead", "==", false));
+        onSnapshot(q, (snap) => {
+            const badge = document.getElementById('notif-badge');
+            if(!snap.empty) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        });
+    }
+
+    window.loadNotifications = async (append = false) => {
+        if(!state.user) return;
+        const list = document.getElementById('notif-list');
+        const loadMoreBtn = document.getElementById('notif-load-more');
+        
+        if(!append) {
+            list.innerHTML = '<div class="flex justify-center py-4"><div class="spinner border-slate-400"></div></div>';
+            state.notifLimit = 5;
+        } else {
+            state.notifLimit += 5;
+        }
+
+        const q = query(collection(db, "notifications"), where("recipientId", "==", state.user.uid), orderBy("timestamp", "desc"), limit(state.notifLimit));
+        
+        try {
+            const snap = await getDocs(q);
+            if(!append) list.innerHTML = '';
+            
+            if(snap.empty) {
+                list.innerHTML = '<div class="text-center text-slate-400 text-xs py-10">لا توجد إشعارات حالياً</div>';
+                loadMoreBtn.classList.add('hidden');
+                return;
+            }
+
+            // Mark as read (batch)
+            const batch = writeBatch(db);
+            let hasUnread = false;
+
+            snap.forEach(docSnap => {
+                const n = docSnap.data();
+                if(!n.isRead) {
+                    batch.update(doc(db, "notifications", docSnap.id), { isRead: true });
+                    hasUnread = true;
+                }
+
+                // Prevent duplicates if appending
+                if(append && document.getElementById(`notif-${docSnap.id}`)) return;
+
+                let icon = '';
+                let title = '';
+                let body = '';
+
+                if(n.type === 'profile_review') {
+                    icon = `<div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i data-lucide="user" class="w-4 h-4"></i></div>`;
+                    title = `قام <span class="font-bold text-navy dark:text-white">${n.senderName}</span> بتقييم ملفك الشخصي`;
+                    body = `"${n.text}"`;
+                } else if (n.type === 'product_review') {
+                    icon = `<div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i data-lucide="shopping-bag" class="w-4 h-4"></i></div>`;
+                    title = `قام <span class="font-bold text-navy dark:text-white">${n.senderName}</span> بتقييم منتجك <span class="font-bold text-primary">${n.productName}</span>`;
+                    body = `"${n.text}"`;
+                }
+
+                const time = formatDate(n.timestamp);
+                const isNew = !n.isRead ? '<span class="w-2 h-2 bg-red-500 rounded-full absolute top-2 left-2"></span>' : '';
+
+                list.innerHTML += `
+                    <div id="notif-${docSnap.id}" class="relative bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 flex gap-3 items-start animate-pop">
+                        ${isNew}
+                        ${icon}
+                        <div class="flex-1">
+                            <p class="text-[10px] text-slate-600 dark:text-slate-300 leading-relaxed">${title}</p>
+                            <p class="text-[10px] font-bold text-slate-800 dark:text-white mt-1 bg-white dark:bg-slate-800 p-1.5 rounded border border-slate-200 dark:border-slate-600">${body}</p>
+                            <span class="text-[8px] text-slate-400 mt-1 block">${time}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if(hasUnread) await batch.commit();
+
+            if(snap.size >= state.notifLimit) {
+                loadMoreBtn.classList.remove('hidden');
+            } else {
+                loadMoreBtn.classList.add('hidden');
+            }
+            lucide.createIcons();
+
+        } catch(e) {
+            console.error(e);
+            list.innerHTML = '<div class="text-center text-red-400 text-xs">حدث خطأ في تحميل الإشعارات</div>';
+        }
+    }
+
+    window.clearNotifications = async () => {
+        if(!confirm("هل أنت متأكد من حذف جميع الإشعارات؟")) return;
+        const list = document.getElementById('notif-list');
+        list.innerHTML = '<div class="flex justify-center py-4"><div class="spinner border-slate-400"></div></div>';
+        
+        try {
+            const q = query(collection(db, "notifications"), where("recipientId", "==", state.user.uid));
+            const snap = await getDocs(q);
+            const batch = writeBatch(db);
+            snap.forEach(d => batch.delete(d.ref));
+            await batch.commit();
+            loadNotifications(false);
+            showToast("تم حذف الإشعارات");
+        } catch(e) {
+            console.error(e);
+            showToast("فشل الحذف", "e");
+        }
+    }
+
     lucide.createIcons();
 </script>
 </body>
