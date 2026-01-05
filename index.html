@@ -52,6 +52,13 @@
         /* Ensure hidden is strictly enforced */
         .hidden { display: none !important; }
 
+        /* Z-Index Hierarchy */
+        #chat-list-modal.modal-overlay { z-index: 85; }
+        #profile-modal.modal-overlay { z-index: 90; }
+        #order-modal.modal-overlay { z-index: 95; }
+        #notif-modal.modal-overlay { z-index: 105; }
+        #chat-modal.modal-overlay { z-index: 110; } /* Chat always on top */
+
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 750px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); } 
             main { max-width: 40rem !important; margin: 0 auto; }
@@ -274,7 +281,7 @@
         </main>
 
         <!-- Floating Action Button (Support) -->
-        <button id="fab-support" onclick="toggleChat()" class="fixed bottom-20 left-4 z-[75] bg-primary text-white p-3 rounded-full shadow-xl hover:scale-110 transition animate-bounce-slow border-2 border-white dark:border-navy">
+        <button id="fab-support" onclick="toggleSupportChat()" class="fixed bottom-20 left-4 z-[75] bg-primary text-white p-3 rounded-full shadow-xl hover:scale-110 transition animate-bounce-slow border-2 border-white dark:border-navy">
             <i data-lucide="headset" class="w-6 h-6"></i>
         </button>
 
@@ -770,8 +777,14 @@
     <div id="chat-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2"><div class="bg-white/10 p-1.5 rounded-full"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div><div><h4 class="font-bold text-xs">المحادثة</h4></div></div>
-                <div class="flex items-center gap-2"><button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+                <div class="flex items-center gap-2">
+                    <div id="chat-header-img" class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-5 h-5"></i></div>
+                    <div><h4 id="chat-header-name" class="font-bold text-xs">المحادثة</h4></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="deleteCurrentChat()" class="hover:bg-white/20 p-1.5 rounded-full text-red-200"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <button onclick="closeChatModal()" class="hover:bg-white/20 p-1.5 rounded-full"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                </div>
             </div>
             <div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
             <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe">
@@ -793,7 +806,7 @@
     </div>
 
     <!-- Floating Action Button (Support) -->
-    <button id="fab-support" onclick="toggleChat()" class="fixed bottom-20 left-4 z-[75] bg-primary text-white p-3 rounded-full shadow-xl hover:scale-110 transition animate-bounce-slow border-2 border-white dark:border-navy">
+    <button id="fab-support" onclick="toggleSupportChat()" class="fixed bottom-20 left-4 z-[75] bg-primary text-white p-3 rounded-full shadow-xl hover:scale-110 transition animate-bounce-slow border-2 border-white dark:border-navy">
         <i data-lucide="headset" class="w-6 h-6"></i>
     </button>
 
@@ -920,7 +933,7 @@
     const auth = getAuth(app);
     enableIndexedDbPersistence(db).catch((err) => { console.log('Persistence error', err); });
 
-    let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: false, notifLimit: 5 };
+    let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: false, notifLimit: 5, isSupportChat: false };
 
     // Updated Categories List
     const CATEGORIES = [
@@ -1228,7 +1241,7 @@
             }
 
             // Reset State completely
-            state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentView: 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: true, notifLimit: 5 };
+            state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', currentView: 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: true, notifLimit: 5, isSupportChat: false };
 
             await signOut(auth);
             localStorage.clear();
@@ -1993,8 +2006,91 @@
     };
     function openAddModalLogic() { if(toggleModal('add-modal')) { resetForm(); } }
 
-    window.toggleChat=()=>{ if(toggleModal('chat-modal')){ if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){ state.welcomeSent=true; const name = state.user.displayName || 'يا صديقي'; setTimeout(()=>botMsg(`مرحباً ${name} 👋<br>معك المساعد الذكي للسوق  وياك اخبرني بطلبك لتحويلك للدعم الفني؟`),100); } } };
-    window.sendMsg=async()=>{ const t=document.getElementById('chat-msg').value.trim(); if(!t)return; document.getElementById('chat-msg').value=''; userMsg(t); if(!state.chatId){ if(state.chatStep===0){ state.chatStep=2; try { const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:t, lastSenderId: state.user.uid, status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id); } catch (err) { console.error("Chat creation failed:", err); botMsg("عفواً، حدث خطأ أثناء محاولة توصيلك بالدعم."); } } } else { const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId))); if(!s.empty){ const m=s.docs[0].data().messages; m.push({s:'user',t,d:new Date()}); await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,lastSenderId: state.user.uid, status:'waiting'}); } } };
+    // --- SUPPORT CHAT LOGIC (FAB) ---
+    window.toggleSupportChat = () => {
+        state.isSupportChat = true;
+        if(toggleModal('chat-modal')){ 
+            // Update Header for Support
+            document.getElementById('chat-header-name').innerText = "الدعم الفني";
+            document.getElementById('chat-header-img').innerHTML = `<i data-lucide="headset" class="w-5 h-5 text-white"></i>`;
+            document.getElementById('chat-header-img').className = "w-8 h-8 rounded-full bg-primary flex items-center justify-center";
+            
+            if(!state.chatId && state.chatStep===0 && !state.welcomeSent){ 
+                state.welcomeSent=true; 
+                const name = state.user.displayName || 'يا صديقي'; 
+                setTimeout(()=>botMsg(`مرحباً ${name} 👋<br>معك المساعد الذكي للسوق وياك، كيف يمكنني مساعدتك؟`),100); 
+            } 
+            // If existing support chat, load it
+            checkUserChat();
+            lucide.createIcons();
+        }
+    };
+
+    // --- P2P CHAT LOGIC ---
+    window.toggleChat = () => {
+        // This function is now mainly for opening P2P chats from list
+        if(toggleModal('chat-modal')) {
+            // Header is updated in openChatFromList
+        }
+    }
+
+    window.closeChatModal = () => {
+        document.getElementById('chat-modal').classList.add('hidden');
+        // If it was P2P chat, reopen list
+        if(!state.isSupportChat) {
+            document.getElementById('chat-list-modal').classList.remove('hidden');
+        }
+        state.chatId = null;
+        state.isSupportChat = false;
+    }
+
+    window.sendMsg=async()=>{ 
+        const t=document.getElementById('chat-msg').value.trim(); 
+        if(!t)return; 
+        document.getElementById('chat-msg').value=''; 
+        userMsg(t); 
+        
+        if(!state.chatId){ 
+            // Create NEW Support Chat
+            if(state.isSupportChat && state.chatStep===0){ 
+                state.chatStep=2; 
+                try { 
+                    const r=await addDoc(collection(db,"chats"),{ 
+                        userId:state.user.uid, 
+                        userName:state.user.displayName || state.user.email, 
+                        lastMsg:t, 
+                        lastSenderId: state.user.uid, 
+                        status:'waiting', 
+                        messages:[ 
+                            {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, 
+                            {s:'user',t,d:new Date()}, 
+                            {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر الرد',d:new Date()} 
+                        ], 
+                        createdAt:serverTimestamp() 
+                    }); 
+                    state.chatId=r.id; 
+                    listenChat(r.id); 
+                } catch (err) { 
+                    console.error("Chat creation failed:", err); 
+                    botMsg("عفواً، حدث خطأ أثناء محاولة توصيلك بالدعم."); 
+                } 
+            } 
+        } else { 
+            // Existing Chat (Support or P2P)
+            const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId))); 
+            if(!s.empty){ 
+                const m=s.docs[0].data().messages; 
+                m.push({s:'user',t,d:new Date()}); 
+                await updateDoc(doc(db,"chats",state.chatId),{
+                    messages:m,
+                    lastMsg:t,
+                    lastSenderId: state.user.uid,
+                    status: state.isSupportChat ? 'waiting' : 'active',
+                    lastUpdated: serverTimestamp()
+                }); 
+            } 
+        } 
+    };
 
     window.sendImageMsg = async (input) => {
         if(input.files && input.files[0]) {
@@ -2004,23 +2100,38 @@
                 const imgHtml = `<img src="${url}" class="rounded-lg max-w-full h-auto border border-white/20" onclick="openLightbox(this.src)">`;
                 userMsg(imgHtml);
                 if(!state.chatId){
-                    try {
-                        const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:'[صورة]', lastSenderId: state.user.uid, status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t:imgHtml,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر  الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id);
-                    } catch(e) { console.error(e); }
+                    // New Support Chat with Image
+                    if(state.isSupportChat) {
+                        try {
+                            const r=await addDoc(collection(db,"chats"),{ userId:state.user.uid, userName:state.user.displayName || state.user.email, lastMsg:'[صورة]', lastSenderId: state.user.uid, status:'waiting', messages:[ {s:'bot',t:`الاسم: ${state.user.displayName}`,d:new Date()}, {s:'user',t:imgHtml,d:new Date()}, {s:'bot',t:'تم تحويلك لاحد ممثلي خدمة العملاء انتظر الرد',d:new Date()} ], createdAt:serverTimestamp() }); state.chatId=r.id; listenChat(r.id);
+                        } catch(e) { console.error(e); }
+                    }
                 } else {
                     const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));
                     if(!s.empty){
                         const m=s.docs[0].data().messages;
                         m.push({s:'user',t:imgHtml,d:new Date()});
-                        await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:'[صورة]',lastSenderId: state.user.uid, status:'waiting'});
+                        await updateDoc(doc(db,"chats",state.chatId),{
+                            messages:m,
+                            lastMsg:'[صورة]',
+                            lastSenderId: state.user.uid,
+                            status: state.isSupportChat ? 'waiting' : 'active',
+                            lastUpdated: serverTimestamp()
+                        });
                     }
                 }
             }
         }
     }
 
-    function listenChat(id){onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data();if(d.status==='closed'){state.chatId=null;state.chatStep=0;state.welcomeSent=false;document.getElementById('chat-box').innerHTML='';showToast("تم إنهاء المحادثة");toggleModal('chat-modal');return}document.getElementById('chat-box').innerHTML='';d.messages.forEach(m=>{if(typeof m.t === 'string' && !m.t.startsWith('الاسم'))(m.s==='user'?userMsg:botMsg)(m.t)})}})};
-    function checkUserChat(){onSnapshot(query(collection(db,"chats"),where('userId','==',state.user.uid),where('status','!=','closed')),s=>{if(!s.empty){state.chatId=s.docs[0].id;state.chatStep=2;listenChat(state.chatId)}})};
+    function listenChat(id){onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data();if(d.status==='closed' && state.isSupportChat){state.chatId=null;state.chatStep=0;state.welcomeSent=false;document.getElementById('chat-box').innerHTML='';showToast("تم إنهاء المحادثة");document.getElementById('chat-modal').classList.add('hidden');return}document.getElementById('chat-box').innerHTML='';d.messages.forEach(m=>{if(typeof m.t === 'string' && !m.t.startsWith('الاسم'))(m.s==='user'?userMsg:botMsg)(m.t)})}})};
+    
+    function checkUserChat(){
+        // Only check for support chats here
+        if(!state.isSupportChat) return;
+        onSnapshot(query(collection(db,"chats"),where('userId','==',state.user.uid),where('status','!=','closed')),s=>{if(!s.empty){state.chatId=s.docs[0].id;state.chatStep=2;listenChat(state.chatId)}})
+    };
+    
     function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-primary text-white px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%] overflow-hidden">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
     function botMsg(t){const d=document.createElement('div');d.className="flex justify-end";d.innerHTML=`<div class="bg-white dark:bg-slate-700 dark:text-white text-slate-800 px-3 py-2 rounded-xl rounded-tl-none shadow-sm text-xs max-w-[85%] overflow-hidden">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
     
@@ -2153,11 +2264,40 @@
         }
     }
 
-    window.openChatFromList = (id) => {
+    window.openChatFromList = (id, name, img) => {
         state.chatId = id;
-        // Close the list modal first to fix Z-Index issue
+        state.isSupportChat = false;
+        
+        // Update Header
+        document.getElementById('chat-header-name').innerText = name || "مستخدم";
+        if(img) {
+            document.getElementById('chat-header-img').innerHTML = `<img src="${img}" class="w-full h-full object-cover">`;
+        } else {
+            document.getElementById('chat-header-img').innerHTML = `<i data-lucide="user" class="w-5 h-5"></i>`;
+        }
+        document.getElementById('chat-header-img').className = "w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center overflow-hidden text-blue-600 dark:text-blue-300";
+
+        // Close list, open chat
         document.getElementById('chat-list-modal').classList.add('hidden');
-        toggleChat();
+        document.getElementById('chat-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        listenChat(id);
+        lucide.createIcons();
+    }
+
+    window.deleteCurrentChat = async () => {
+        if(!state.chatId) return;
+        if(confirm("هل أنت متأكد من حذف هذه المحادثة؟")) {
+            try {
+                await deleteDoc(doc(db, "chats", state.chatId));
+                showToast("تم حذف المحادثة");
+                closeChatModal();
+            } catch(e) {
+                console.error(e);
+                showToast("فشل الحذف", "e");
+            }
+        }
     }
 
     window.renderChatList = async () => {
@@ -2169,60 +2309,42 @@
             return;
         }
 
-        // 1. Support Chats
-        const qSupport = query(collection(db, "chats"), where("userId", "==", state.user.uid), where("status", "!=", "closed"));
-        
-        // 2. P2P Chats (Using 'participants' array)
+        // Only P2P Chats
         const qP2P = query(collection(db, "chats"), where("participants", "array-contains", state.user.uid));
 
         try {
-            const [snapSupport, snapP2P] = await Promise.all([getDocs(qSupport), getDocs(qP2P)]);
+            const snapP2P = await getDocs(qP2P);
             container.innerHTML = '';
 
-            let hasChats = false;
+            if(snapP2P.empty) {
+                container.innerHTML = '<div class="text-center text-slate-400 text-xs py-10">لا توجد محادثات</div>';
+                return;
+            }
 
-            // Render Support Chats
-            snapSupport.forEach(doc => {
-                // Avoid duplicates if migrated to participants logic later
-                if(doc.data().participants) return; 
-                hasChats = true;
-                const chat = doc.data();
-                const time = formatDate(chat.createdAt);
-                container.innerHTML += `
-                    <div onclick="openChatFromList('${doc.id}')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary relative">
-                            <i data-lucide="headset" class="w-5 h-5"></i>
-                            ${chat.status === 'waiting' ? '<span class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white"></span>' : ''}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-center mb-1">
-                                <h4 class="font-bold text-sm text-navy dark:text-white">الدعم الفني</h4>
-                                <span class="text-[8px] text-slate-400">${time}</span>
-                            </div>
-                            <p class="text-[10px] text-slate-500 truncate">${chat.lastMsg || '...'}</p>
-                        </div>
-                    </div>
-                `;
-            });
-
-            // Render P2P Chats
             snapP2P.forEach(doc => {
-                hasChats = true;
                 const chat = doc.data();
-                // Determine other user name
+                // Determine other user
                 let otherName = "مستخدم";
+                let otherImg = null;
+                
                 if(chat.userNames) {
                     const otherId = chat.participants.find(id => id !== state.user.uid);
                     otherName = chat.userNames[otherId] || "مستخدم";
+                    // Try to get image from userImages map if exists
+                    if(chat.userImages) otherImg = chat.userImages[otherId];
                 }
                 
                 const time = formatDate(chat.lastUpdated || chat.createdAt);
                 const isUnread = chat.lastSenderId && chat.lastSenderId !== state.user.uid;
 
+                const imgHtml = otherImg 
+                    ? `<img src="${otherImg}" class="w-full h-full object-cover">`
+                    : `<i data-lucide="user" class="w-5 h-5"></i>`;
+
                 container.innerHTML += `
-                    <div onclick="openChatFromList('${doc.id}')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                        <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 relative">
-                            <i data-lucide="user" class="w-5 h-5"></i>
+                    <div onclick="openChatFromList('${doc.id}', '${otherName}', '${otherImg || ''}')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 relative overflow-hidden">
+                            ${imgHtml}
                             ${isUnread ? '<span class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white"></span>' : ''}
                         </div>
                         <div class="flex-1 min-w-0">
@@ -2235,20 +2357,6 @@
                     </div>
                 `;
             });
-
-            if(!hasChats) {
-                container.innerHTML = `
-                    <div onclick="toggleChat(); toggleModal('chat-list-modal')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                            <i data-lucide="headset" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-sm text-navy dark:text-white">الدعم الفني</h4>
-                            <p class="text-[10px] text-slate-500">اضغط لبدء محادثة جديدة</p>
-                        </div>
-                    </div>
-                `;
-            }
             lucide.createIcons();
         } catch(e) {
             console.error(e);
@@ -2263,25 +2371,43 @@
         const q = query(collection(db, "chats"), where("participants", "array-contains", state.user.uid));
         const snap = await getDocs(q);
         let existingChatId = null;
+        let existingChatData = null;
 
         snap.forEach(doc => {
             const data = doc.data();
             if(data.participants.includes(targetId)) {
                 existingChatId = doc.id;
+                existingChatData = data;
             }
         });
 
         if(existingChatId) {
-            openChatFromList(existingChatId);
+            // Get target image from existing data if available
+            let targetImg = null;
+            if(existingChatData.userImages) targetImg = existingChatData.userImages[targetId];
+            openChatFromList(existingChatId, targetName, targetImg);
         } else {
             // Create new chat
             try {
                 const myName = state.userData.name || "مستخدم";
+                const myImg = state.userData.image || null;
+                
+                // Fetch target user image to store in chat
+                let targetImg = null;
+                try {
+                    const targetSnap = await getDoc(doc(db, "users", targetId));
+                    if(targetSnap.exists()) targetImg = targetSnap.data().image || null;
+                } catch(e) {}
+
                 const newChat = {
                     participants: [state.user.uid, targetId],
                     userNames: {
                         [state.user.uid]: myName,
                         [targetId]: targetName
+                    },
+                    userImages: {
+                        [state.user.uid]: myImg,
+                        [targetId]: targetImg
                     },
                     lastMsg: "بدء المحادثة",
                     lastSenderId: state.user.uid,
@@ -2290,14 +2416,14 @@
                     messages: []
                 };
                 const docRef = await addDoc(collection(db, "chats"), newChat);
-                openChatFromList(docRef.id);
+                openChatFromList(docRef.id, targetName, targetImg);
             } catch(e) {
                 console.error(e);
                 showToast("فشل بدء المحادثة", "e");
             }
         }
         // Close profile modal
-        toggleModal('profile-modal');
+        document.getElementById('profile-modal').classList.add('hidden');
     }
 
     // --- NOTIFICATIONS LOGIC ---
