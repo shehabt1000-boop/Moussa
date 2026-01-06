@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -44,19 +44,22 @@
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
-        /* Modal Fixes */
-        .mobile-full-modal { position: fixed; inset: 0; background-color: white; display: flex; flex-direction: column; height: 100dvh; z-index: 100; }
+        /* --- FIX: Z-Index Hierarchy & Modal Fixes --- */
+        .mobile-full-modal { position: fixed; inset: 0; background-color: white; display: flex; flex-direction: column; height: 100dvh; z-index: 200; } /* Increased Z-Index */
         .dark .mobile-full-modal { background-color: #0f172a; }
-        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); z-index: 100; }
+        
+        /* Modal Overlay must be higher than Bottom Nav (70) and FAB (75) */
+        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); z-index: 150; }
         
         .hidden { display: none !important; }
 
-        /* Z-Index Hierarchy */
-        #chat-list-modal.modal-overlay { z-index: 85; }
-        #profile-modal.modal-overlay { z-index: 90; }
-        #order-modal.modal-overlay { z-index: 95; }
-        #notif-modal.modal-overlay { z-index: 105; }
-        #chat-modal.modal-overlay { z-index: 110; } /* Chat always on top */
+        /* Specific Z-Index Layers */
+        #chat-list-modal.modal-overlay { z-index: 160; }
+        #profile-modal.modal-overlay { z-index: 170; }
+        #order-modal.modal-overlay { z-index: 180; }
+        #notif-modal.modal-overlay { z-index: 190; }
+        #chat-modal.modal-overlay { z-index: 210; } /* Chat always on top */
+        #lightbox { z-index: 300; } /* Lightbox highest */
 
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 750px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); } 
@@ -70,7 +73,11 @@
         .form-label { display: block; font-size: 0.65rem; font-weight: 800; color: #334155; margin-bottom: 0.1rem; }
         .dark .form-label { color: #cbd5e1; }
         .form-input { width: 100%; background-color: #ffffff; border: 1px solid #cbd5e1 !important; border-radius: 0.4rem; padding: 0 0.4rem; height: 2rem; display: flex; align-items: center; font-size: 0.7rem; font-weight: 600; color: #1e293b; outline: none; transition: all 0.1s; line-height: normal; }
+        
+        /* FIX: Select Arrow Color in Dark Mode */
         select.form-input { padding-top: 0; padding-bottom: 0; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: left 0.5rem center; background-repeat: no-repeat; background-size: 1em 1em; padding-left: 1.8rem; }
+        .dark select.form-input { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); }
+
         textarea.form-input { height: auto; padding-top: 0.4rem; padding-bottom: 0.4rem; }
         .form-input:focus { border-color: #10b981 !important; box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2); }
         .dark .form-input { background-color: #1e293b; border-color: #475569 !important; color: white; }
@@ -797,17 +804,12 @@
     </div>
 
     <!-- Lightbox -->
-    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center select-none">
+    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[300] flex flex-col items-center justify-center select-none">
         <button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button>
         <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
         <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
         <div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div>
     </div>
-
-    <!-- Floating Action Button (Support) -->
-    <button id="fab-support" onclick="toggleSupportChat()" class="fixed bottom-20 left-4 z-[75] bg-primary text-white p-3 rounded-full shadow-xl hover:scale-110 transition animate-bounce-slow border-2 border-white dark:border-navy">
-        <i data-lucide="headset" class="w-6 h-6"></i>
-    </button>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -930,7 +932,11 @@
     const app = initializeApp(firebaseConfig); 
     const db = getFirestore(app); 
     const auth = getAuth(app);
-    enableIndexedDbPersistence(db).catch((err) => { console.log('Persistence error', err); });
+    
+    // FIX: Persistence Error Handling
+    try {
+        enableIndexedDbPersistence(db).catch((err) => { console.log('Persistence error (likely incognito)', err); });
+    } catch(e) { console.log('Persistence not supported'); }
 
     let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: false, notifLimit: 5, isSupportChat: false, chatUnsubscribe: null };
 
@@ -1044,8 +1050,7 @@
                         return;
                     }
 
-                    // التحقق من تطابق الدور (إذا كان المستخدم يسجل دخول الآن)
-                    // نمنع ظهور الواجهة إذا كان الدور المسجل في القاعدة يختلف عن المطلوب
+                    // FIX: Allow logout if role mismatch
                     if (state.authType === 'login' && document.getElementById('login-view').classList.contains('hidden') === false) {
                          if (data.role !== state.authRole) {
                              // لا تفعل شيئاً هنا، دع processAuth يعالج الخطأ ويقوم بالخروج
@@ -1976,6 +1981,7 @@
             // Close others first to prevent overlap
             closeAllModals();
             m.classList.remove('hidden');
+            // FIX: Ensure body scroll is locked when any modal is open
             document.body.style.overflow = 'hidden';
             return true;
         } else {
@@ -2365,8 +2371,12 @@
                 return;
             }
 
-            snapP2P.forEach(doc => {
-                const chat = doc.data();
+            // FIX: Sort chats by date (newest first)
+            let chats = [];
+            snapP2P.forEach(doc => chats.push({id: doc.id, ...doc.data()}));
+            chats.sort((a, b) => (b.lastUpdated?.seconds || 0) - (a.lastUpdated?.seconds || 0));
+
+            chats.forEach(chat => {
                 // Determine other user
                 let otherName = "مستخدم";
                 let otherImg = null;
@@ -2386,7 +2396,7 @@
                     : `<i data-lucide="user" class="w-5 h-5"></i>`;
 
                 container.innerHTML += `
-                    <div onclick="openChatFromList('${doc.id}', '${otherName}', '${otherImg || ''}')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    <div onclick="openChatFromList('${chat.id}', '${otherName}', '${otherImg || ''}')" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
                         <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 relative overflow-hidden">
                             ${imgHtml}
                             ${isUnread ? '<span class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white"></span>' : ''}
