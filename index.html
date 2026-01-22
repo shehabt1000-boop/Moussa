@@ -3,191 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pro CV Builder - السيرة الذاتية المحترفة</title>
+    <title>CV Maker Pro - 10 Designs</title>
     
-    <!-- خطوط عربية وأيقونات -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- الخطوط -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- مكتبات JS -->
+    <!-- المكتبات -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
-            --primary: #2c3e50;    /* كحلي غامق */
-            --secondary: #d35400;  /* برتقالي محروق */
-            --bg-light: #f8f9fa;
-            --border-color: #e9ecef;
-            --paper-w: 210mm;
-            --paper-h: 297mm;
+            --bg-app: #f0f2f5;
+            --paper-w: 794px;
+            --paper-h: 1123px;
         }
 
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; outline: none; }
-        body { margin: 0; padding: 0; background-color: #eef2f3; height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; outline: none; }
+        body { margin: 0; padding: 0; background-color: var(--bg-app); height: 100vh; overflow: hidden; font-family: 'Cairo', sans-serif; }
 
-        /* --- الهيكل العام --- */
         .app-container { display: flex; height: 100%; }
 
-        /* --- 1. لوحة التحكم (يمين) --- */
+        /* ================= 1. المحرر ================= */
         .editor-panel {
-            width: 400px;
-            background: white;
-            border-left: 1px solid #ccc;
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 100px; /* مساحة للأزرار */
-            z-index: 10;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.05);
+            width: 400px; background: white; border-left: 1px solid #ddd;
+            overflow-y: auto; padding: 20px; padding-bottom: 100px; z-index: 20;
         }
 
-        .section-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-top: 25px; margin-bottom: 15px; padding-bottom: 5px;
-            border-bottom: 2px solid var(--primary); color: var(--primary);
+        /* --- مبدل القوالب --- */
+        .template-selector {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+            margin-bottom: 20px; background: #f8f9fa; padding: 10px; border-radius: 8px;
         }
-        .section-header h3 { margin: 0; font-size: 16px; font-weight: 700; }
-        .btn-add {
-            background: var(--primary); color: white; border: none; padding: 5px 10px;
-            border-radius: 4px; cursor: pointer; font-size: 12px;
+        .tpl-btn {
+            aspect-ratio: 1; border: 2px solid #ddd; border-radius: 4px; cursor: pointer;
+            font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; background: white; color: #555;
         }
+        .tpl-btn:hover { border-color: #3498db; }
+        .tpl-btn.active { background: #3498db; color: white; border-color: #3498db; }
 
-        .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #666; }
+        /* الحقول */
+        .section-title { font-size: 14px; font-weight: 700; color: #2c3e50; margin: 20px 0 10px; border-bottom: 2px solid #eee; padding-bottom: 5px; display: flex; justify-content: space-between; }
+        .btn-add { background: #2c3e50; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .input-group { margin-bottom: 10px; }
+        .input-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #7f8c8d; }
         .input-group input, .input-group textarea {
-            width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px;
-            font-size: 13px; transition: 0.2s; background: #fafafa;
+            width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; background: #fafafa;
         }
-        .input-group input:focus { border-color: var(--secondary); background: white; }
+        .input-group input:focus { border-color: #3498db; background: white; }
 
-        /* كروت الإضافة الديناميكية */
-        .dynamic-card {
-            background: #f8f9fa; border: 1px solid #e9ecef; padding: 10px;
-            border-radius: 6px; margin-bottom: 10px; position: relative;
-        }
-        .btn-remove {
-            position: absolute; top: 5px; left: 5px; color: #c0392b;
-            background: none; border: none; cursor: pointer; font-size: 14px;
-        }
+        /* كروت الديناميك */
+        .d-card { background: white; border: 1px solid #eee; padding: 10px; margin-bottom: 8px; position: relative; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .btn-del { position: absolute; top: 5px; left: 5px; color: #e74c3c; background: none; border: none; cursor: pointer; }
 
-        /* أزرار الرفع */
-        .upload-area {
-            border: 2px dashed #ccc; padding: 15px; text-align: center; border-radius: 8px;
-            cursor: pointer; transition: 0.3s; position: relative;
-        }
-        .upload-area:hover { border-color: var(--secondary); background: #fff5f0; }
-        .upload-area input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
-        
-        /* --- 2. لوحة المعاينة (يسار) --- */
+        /* الرفع */
+        .upload-row { display: flex; gap: 10px; }
+        .up-box { flex: 1; border: 1px dashed #ccc; padding: 10px; text-align: center; border-radius: 6px; cursor: pointer; position: relative; }
+        .up-box input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+        .up-box i { font-size: 18px; color: #95a5a6; }
+        .up-msg { font-size: 10px; display: block; font-weight: bold; margin-top: 4px; }
+
+        /* ================= 2. المعاينة ================= */
         .preview-panel {
             flex: 1; background: #525659; display: flex; justify-content: center;
-            overflow-y: auto; padding: 30px;
+            overflow: hidden; padding: 20px; position: relative;
         }
-
-        /* ورقة الـ CV */
+        .paper-scaler { transform-origin: top center; transition: 0.3s; margin-bottom: 50px; }
+        
         .cv-paper {
-            width: var(--paper-w); min-height: var(--paper-h);
+            width: var(--paper-w); height: var(--paper-h);
             background: white; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column;
-            transform-origin: top center; /* للتصغير */
+            display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* --- تصميم الـ CV الداخلي (Modern Clean) --- */
-        .cv-header {
-            background: var(--primary); color: white; padding: 30px 40px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .header-txt h1 { margin: 0; font-size: 36px; font-weight: 800; line-height: 1.2; }
-        .header-txt h2 { margin: 5px 0 0; font-size: 18px; font-weight: 400; opacity: 0.9; color: var(--secondary); }
+        /* ============================================================
+           3. تصميمات القوالب (The 10 Templates CSS)
+           ============================================================ */
         
-        .header-img {
-            width: 130px; height: 130px; border-radius: 50%; border: 5px solid rgba(255,255,255,0.2);
-            overflow: hidden; background: #fff;
-        }
-        .header-img img { width: 100%; height: 100%; object-fit: cover; }
-
+        /* --- الأساسيات المشتركة --- */
+        .cv-header { padding: 30px; display: flex; align-items: center; justify-content: space-between; }
+        .cv-photo { width: 140px; height: 140px; border-radius: 50%; overflow: hidden; object-fit: cover; }
         .cv-body { display: flex; flex: 1; }
-        
-        /* العمود الجانبي */
-        .cv-sidebar {
-            width: 32%; background: #f4f6f7; padding: 25px; border-left: 1px solid #e0e0e0;
-        }
-        
-        /* العمود الرئيسي */
-        .cv-main { width: 68%; padding: 30px; }
+        .cv-side { width: 32%; padding: 25px; }
+        .cv-main { width: 68%; padding: 25px; }
+        .cv-h-title { font-size: 18px; font-weight: 700; margin: 20px 0 10px; text-transform: uppercase; }
+        .contact-row { display: flex; align-items: center; margin-bottom: 10px; font-size: 14px; }
+        .contact-row i { width: 25px; text-align: center; }
+        .skill-tag { display: inline-block; padding: 4px 8px; border-radius: 4px; margin: 2px; font-size: 12px; font-weight: bold; }
+        .exp-item { margin-bottom: 20px; }
+        .exp-item h4 { margin: 0; font-size: 18px; }
+        .exp-item span { font-size: 13px; display: block; margin-bottom: 5px; opacity: 0.8; }
 
-        /* عناوين الأقسام */
-        .cv-title {
-            font-size: 15px; font-weight: 700; color: var(--primary); text-transform: uppercase;
-            border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; margin-top: 25px;
-            display: flex; align-items: center;
-        }
-        .cv-title i { margin-left: 8px; color: var(--secondary); }
-        .cv-title:first-child { margin-top: 0; }
+        /* --- Template 1: الكلاسيكي (أزرق/رمادي) --- */
+        .t1 .cv-header { background: #2c3e50; color: white; }
+        .t1 .cv-side { background: #f4f4f4; border-left: 1px solid #ddd; }
+        .t1 .cv-h-title { color: #2c3e50; border-bottom: 2px solid #e67e22; padding-bottom: 5px; }
+        .t1 .contact-row i { color: #e67e22; }
+        .t1 .skill-tag { background: #dcdcdc; color: #333; }
 
-        /* عناصر الجانبي */
-        .contact-item { display: flex; align-items: center; margin-bottom: 12px; font-size: 12px; color: #444; }
-        .contact-item i { width: 25px; color: var(--primary); }
+        /* --- Template 2: المودرن (أحمر/أسود - سايدبار يمين) --- */
+        .t2 .cv-body { flex-direction: row-reverse; } /* عكس الاتجاه */
+        .t2 .cv-header { background: #fff; color: #333; border-bottom: 5px solid #c0392b; }
+        .t2 .cv-side { background: #222; color: white; }
+        .t2 .cv-h-title { color: #c0392b; border-bottom: 1px solid #555; }
+        .t2 .cv-side .cv-h-title { color: white; border-color: #444; }
+        .t2 .contact-row i { color: #c0392b; }
+        .t2 .skill-tag { background: #c0392b; color: white; }
 
-        .skill-tag {
-            display: inline-block; background: white; border: 1px solid #ddd;
-            padding: 4px 8px; border-radius: 4px; font-size: 11px; margin: 2px;
-            font-weight: 600; color: #333;
-        }
+        /* --- Template 3: الأخضر (هيدر جانبي) --- */
+        .t3 .cv-header { display: none; } /* إخفاء الهيدر العلوي */
+        .t3 .cv-body { display: flex; height: 100%; }
+        .t3 .cv-side { width: 35%; background: #27ae60; color: white; padding-top: 50px; text-align: center; }
+        .t3 .cv-main { width: 65%; padding: 40px; }
+        .t3 .side-header-content { display: block !important; margin-bottom: 30px; } /* إظهار المحتوى في السايدبار */
+        .t3 .cv-photo { margin: 0 auto 15px; border: 5px solid rgba(255,255,255,0.3); }
+        .t3 .cv-h-title { color: #27ae60; border-left: 5px solid #27ae60; padding-left: 10px; }
+        .t3 .cv-side .cv-h-title { color: white; border-left: none; border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .t3 .contact-row { justify-content: center; }
+        .t3 .skill-tag { background: rgba(255,255,255,0.2); color: white; }
 
-        .qr-section {
-            background: white; padding: 15px; border-radius: 8px; text-align: center;
-            border: 1px solid #ddd; margin-top: 20px;
-        }
-        .qr-section p { font-size: 10px; margin: 5px 0 0; color: #666; }
+        /* --- Template 4: البنفسجي (أنيق) --- */
+        .t4 { font-family: 'Tajawal', sans-serif; }
+        .t4 .cv-header { background: #8e44ad; color: white; flex-direction: column; text-align: center; padding: 40px; }
+        .t4 .cv-photo { margin-bottom: 15px; border: 3px solid white; }
+        .t4 .cv-side { background: #fbfbfb; }
+        .t4 .cv-h-title { color: #8e44ad; letter-spacing: 1px; border-bottom: 1px dashed #8e44ad; }
+        .t4 .skill-tag { background: #8e44ad; color: white; border-radius: 20px; }
 
-        /* عناصر الرئيسي (Timeline) */
-        .timeline-item {
-            position: relative; padding-right: 20px; margin-bottom: 20px; border-right: 2px solid #e0e0e0;
-        }
-        .timeline-item::after {
-            content: ''; position: absolute; right: -6px; top: 5px;
-            width: 10px; height: 10px; background: var(--secondary); border-radius: 50%;
-        }
-        .timeline-item h4 { margin: 0; font-size: 16px; color: #222; font-weight: 700; }
-        .timeline-item .sub-title { font-size: 13px; color: var(--primary); font-weight: 600; margin: 2px 0; }
-        .timeline-item .date { font-size: 11px; color: #888; font-style: italic; display: block; margin-bottom: 5px; }
-        .timeline-item p { margin: 0; font-size: 13px; line-height: 1.6; color: #555; text-align: justify; }
+        /* --- Template 5: الاحترافي (رمادي غامق كامل) --- */
+        .t5 .cv-header { background: #34495e; color: white; }
+        .t5 .cv-side { background: #ecf0f1; }
+        .t5 .cv-h-title { color: #34495e; background: #ecf0f1; padding: 5px 10px; border-radius: 4px; }
+        .t5 .cv-side .cv-h-title { background: #bdc3c7; }
+        .t5 .exp-item { border-right: 2px solid #34495e; padding-right: 15px; }
 
-        /* --- الموبايل --- */
-        .mobile-nav {
-            display: none; position: fixed; bottom: 0; left: 0; width: 100%;
-            background: white; border-top: 1px solid #ddd; z-index: 100;
-        }
-        .nav-btn {
-            flex: 1; padding: 15px; border: none; background: none; font-weight: bold; color: #777;
-        }
-        .nav-btn.active { color: var(--primary); border-top: 3px solid var(--secondary); background: #f9f9f9; }
+        /* --- Template 6: المينيمال (أبيض وأسود) --- */
+        .t6 .cv-header { background: white; color: black; border-bottom: 1px solid #000; }
+        .t6 .cv-side { background: white; border-left: 1px solid #000; }
+        .t6 .cv-h-title { color: black; font-weight: 900; text-decoration: underline; }
+        .t6 .skill-tag { border: 1px solid black; background: white; color: black; }
+        .t6 .cv-photo { border-radius: 0; }
 
-        .fab-save {
-            position: fixed; bottom: 30px; left: 30px; background: var(--secondary); color: white;
-            padding: 12px 25px; border-radius: 30px; box-shadow: 0 4px 15px rgba(211, 84, 0, 0.4);
-            cursor: pointer; font-weight: bold; z-index: 90; display: flex; align-items: center; gap: 10px;
-            transition: transform 0.2s;
-        }
-        .fab-save:active { transform: scale(0.95); }
+        /* --- Template 7: الأزرق السماوي (Grid) --- */
+        .t7 .cv-header { background: #d1ecf1; color: #0c5460; }
+        .t7 .cv-side { background: #0c5460; color: white; }
+        .t7 .cv-h-title { color: #0c5460; }
+        .t7 .cv-side .cv-h-title { color: #d1ecf1; border-bottom: 1px solid #17a2b8; }
+        .t7 .contact-row i { color: #17a2b8; }
+        .t7 .skill-tag { background: #17a2b8; color: white; }
+
+        /* --- Template 8: الذهبي (فخم) --- */
+        .t8 { font-family: 'Amiri', serif; }
+        .t8 .cv-header { background: #1a1a1a; color: #d4af37; text-align: center; display: block; }
+        .t8 .cv-photo { margin: 0 auto 10px; border: 2px solid #d4af37; }
+        .t8 .cv-side { background: #fff; border-left: 2px solid #d4af37; }
+        .t8 .cv-h-title { color: #1a1a1a; border-bottom: 2px solid #d4af37; display: inline-block; }
+        .t8 .skill-tag { background: #1a1a1a; color: #d4af37; }
+
+        /* --- Template 9: البرتقالي (شبابي) --- */
+        .t9 .cv-header { background: white; color: #333; }
+        .t9 .cv-photo { border-radius: 10px; }
+        .t9 .cv-side { background: #fff5e6; }
+        .t9 .cv-h-title { color: #e67e22; font-size: 20px; }
+        .t9 .exp-item h4 { color: #d35400; }
+        .t9 .skill-tag { background: #e67e22; color: white; border-radius: 0; }
+
+        /* --- Template 10: التيك (Tech - Dark Mode) --- */
+        .t10 { background: #1e1e1e; color: #e0e0e0; }
+        .t10 .cv-paper { background: #1e1e1e; }
+        .t10 .cv-header { background: #000; color: #00ff00; border-bottom: 1px solid #333; }
+        .t10 .cv-side { background: #111; border-left: 1px solid #333; }
+        .t10 .cv-h-title { color: #00ff00; border-bottom: 1px dashed #00ff00; }
+        .t10 .contact-row i { color: #00ff00; }
+        .t10 .skill-tag { background: #333; color: #00ff00; border: 1px solid #00ff00; }
+        .t10 p, .t10 span { color: #bbb; }
+
+        /* ============================================================ */
+
+        /* الموبايل */
+        .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; height: 60px; z-index: 100; }
+        .nav-btn { flex: 1; border: none; background: none; font-weight: bold; color: #777; }
+        .nav-btn.active { color: #2c3e50; }
+
+        .fab-save { position: fixed; bottom: 80px; left: 20px; background: #2c3e50; color: white; padding: 15px 30px; border-radius: 50px; cursor: pointer; font-weight: bold; z-index: 90; display: flex; gap: 10px; }
 
         @media (max-width: 900px) {
             .app-container { display: block; }
             .editor-panel { width: 100%; height: 100vh; padding-bottom: 80px; }
-            .preview-panel {
-                display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-                z-index: 50; padding: 10px; align-items: flex-start;
-            }
+            .preview-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 50; padding: 0; background: #333; align-items: flex-start; }
             .preview-panel.active { display: flex; }
             .mobile-nav { display: flex; }
-            
-            /* تصغير الورقة للموبايل */
-            .cv-paper { transform: scale(0.44); margin-top: -240px; }
-            .fab-save { bottom: 80px; left: 20px; width: 50px; height: 50px; justify-content: center; padding: 0; }
-            .fab-save span { display: none; }
+            .paper-scaler { margin-top: 20px; }
         }
-
+        
+        /* Helper for T3 (Green) to show header info in sidebar */
+        .side-header-content { display: none; text-align: center; }
+        .side-header-content h1 { font-size: 24px; margin: 10px 0 5px; }
+        .side-header-content h2 { font-size: 16px; opacity: 0.9; font-weight: normal; margin: 0; }
     </style>
 </head>
 <body>
@@ -196,149 +210,117 @@
     
     <!-- 1. المحرر -->
     <div id="editor" class="editor-panel">
-        <div style="text-align: center; margin-bottom: 20px;">
-            <h2 style="color: var(--primary); margin: 0;">CV Maker <span style="color: var(--secondary)">Pro</span></h2>
-            <p style="font-size: 12px; color: #777;">اصنع مستقبلك باحترافية</p>
-        </div>
-
-        <!-- المعلومات الأساسية -->
-        <div class="section-header">
-            <h3><i class="fas fa-user-circle"></i> المعلومات الشخصية</h3>
-        </div>
-        <div class="input-group">
-            <label>الاسم بالكامل</label>
-            <input type="text" id="inName" placeholder="محمد أحمد" oninput="renderCV()">
-        </div>
-        <div class="input-group">
-            <label>المسمى الوظيفي</label>
-            <input type="text" id="inTitle" placeholder="Software Engineer" oninput="renderCV()">
-        </div>
+        <h3 style="text-align:center; color:#2c3e50; margin-top:0;">اختر التصميم</h3>
         
-        <div style="display: flex; gap: 10px;">
-            <div class="input-group" style="flex:1">
-                <label>الصورة الشخصية</label>
-                <div class="upload-area">
-                    <i class="fas fa-camera"></i>
-                    <input type="file" id="uplImage" accept="image/*">
-                </div>
-                <small id="stImg" style="display:block; text-align:center; font-size:10px;">اختر صورة</small>
+        <!-- مبدل القوالب -->
+        <div class="template-selector">
+            <div class="tpl-btn active" onclick="setTpl(1)">1. كلاسيك</div>
+            <div class="tpl-btn" onclick="setTpl(2)">2. مودرن</div>
+            <div class="tpl-btn" onclick="setTpl(3)">3. جانبي</div>
+            <div class="tpl-btn" onclick="setTpl(4)">4. أنيق</div>
+            <div class="tpl-btn" onclick="setTpl(5)">5. رسمي</div>
+            <div class="tpl-btn" onclick="setTpl(6)">6. بسيط</div>
+            <div class="tpl-btn" onclick="setTpl(7)">7. سماوي</div>
+            <div class="tpl-btn" onclick="setTpl(8)">8. ذهبي</div>
+            <div class="tpl-btn" onclick="setTpl(9)">9. شبابي</div>
+            <div class="tpl-btn" onclick="setTpl(10)">10. تيك</div>
+        </div>
+
+        <div class="section-title">البيانات الشخصية</div>
+        <div class="input-group"><label>الاسم</label><input id="inName" oninput="render()" placeholder="الاسم"></div>
+        <div class="input-group"><label>الوظيفة</label><input id="inTitle" oninput="render()" placeholder="الوظيفة"></div>
+        
+        <div class="upload-row">
+            <div class="up-box">
+                <i class="fas fa-camera"></i>
+                <input type="file" id="uplImg" accept="image/*">
+                <span id="stImg" class="up-msg">صورة</span>
             </div>
-            <div class="input-group" style="flex:1">
-                <label>فيديو (QR Code)</label>
-                <div class="upload-area">
-                    <i class="fas fa-video"></i>
-                    <input type="file" id="uplVideo" accept="video/*">
-                </div>
-                <small id="stVid" style="display:block; text-align:center; font-size:10px;">اختر فيديو</small>
+            <div class="up-box">
+                <i class="fas fa-video"></i>
+                <input type="file" id="uplVid" accept="video/*">
+                <span id="stVid" class="up-msg">فيديو QR</span>
             </div>
         </div>
 
-        <div class="input-group">
-            <label>رقم الهاتف</label>
-            <input type="text" id="inPhone" placeholder="010xxxxxxx" oninput="renderCV()">
-        </div>
-        <div class="input-group">
-            <label>البريد الإلكتروني</label>
-            <input type="email" id="inEmail" placeholder="example@mail.com" oninput="renderCV()">
-        </div>
-        <div class="input-group">
-            <label>العنوان / الموقع</label>
-            <input type="text" id="inLoc" placeholder="القاهرة، مصر" oninput="renderCV()">
-        </div>
+        <div class="section-title">التواصل</div>
+        <div class="input-group"><label>هاتف</label><input id="inPhone" oninput="render()"></div>
+        <div class="input-group"><label>إيميل</label><input id="inEmail" oninput="render()"></div>
+        <div class="input-group"><label>عنوان</label><input id="inLoc" oninput="render()"></div>
+        <div class="input-group"><label>نبذة</label><textarea id="inSum" rows="3" oninput="render()"></textarea></div>
 
-        <!-- نبذة -->
-        <div class="section-header">
-            <h3><i class="fas fa-align-right"></i> الملخص المهني</h3>
-        </div>
-        <div class="input-group">
-            <textarea id="inSummary" rows="4" placeholder="اكتب ملخصاً قوياً يجذب صاحب العمل..." oninput="renderCV()"></textarea>
-        </div>
+        <div class="section-title">الخبرات <button class="btn-add" onclick="addExp()">+</button></div>
+        <div id="expList"></div>
 
-        <!-- الخبرات (ديناميكي) -->
-        <div class="section-header">
-            <h3><i class="fas fa-briefcase"></i> الخبرات العملية</h3>
-            <button class="btn-add" onclick="addExperienceField()">+ إضافة</button>
-        </div>
-        <div id="expContainer"></div>
+        <div class="section-title">التعليم <button class="btn-add" onclick="addEdu()">+</button></div>
+        <div id="eduList"></div>
 
-        <!-- التعليم (ديناميكي) -->
-        <div class="section-header">
-            <h3><i class="fas fa-graduation-cap"></i> المؤهلات الدراسية</h3>
-            <button class="btn-add" onclick="addEduField()">+ إضافة</button>
-        </div>
-        <div id="eduContainer"></div>
-
-        <!-- المهارات -->
-        <div class="section-header">
-            <h3><i class="fas fa-star"></i> المهارات</h3>
-        </div>
-        <div class="input-group">
-            <label>اكتب المهارات مفصولة بفاصلة</label>
-            <textarea id="inSkills" rows="2" placeholder="HTML, CSS, Leadership, Sales" oninput="renderCV()"></textarea>
-        </div>
+        <div class="section-title">المهارات</div>
+        <div class="input-group"><textarea id="inSkills" rows="2" oninput="render()" placeholder="مهارة 1, مهارة 2"></textarea></div>
     </div>
 
     <!-- 2. المعاينة -->
     <div id="preview" class="preview-panel">
-        <div id="cvTemplate" class="cv-paper">
-            <!-- رأس الصفحة -->
-            <div class="cv-header">
-                <div class="header-txt">
-                    <h1 id="outName">الاسم هنا</h1>
-                    <h2 id="outTitle">المسمى الوظيفي</h2>
-                </div>
-                <div class="header-img">
-                    <img id="outImg" src="https://via.placeholder.com/150" alt="Profile">
-                </div>
-            </div>
-
-            <div class="cv-body">
-                <!-- الجانبي -->
-                <div class="cv-sidebar">
-                    <div class="cv-title"><i class="fas fa-address-card"></i> التواصل</div>
-                    <div class="contact-item"><i class="fas fa-phone-alt"></i> <span id="outPhone">---</span></div>
-                    <div class="contact-item"><i class="fas fa-envelope"></i> <span id="outEmail">---</span></div>
-                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i> <span id="outLoc">---</span></div>
-
-                    <div class="cv-title"><i class="fas fa-lightbulb"></i> المهارات</div>
-                    <div id="outSkills"></div>
-
-                    <div class="qr-section" id="qrSection" style="display:none;">
-                        <div id="qrcode"></div>
-                        <p>شاهد الفيديو التعريفي</p>
+        <div id="scaler" class="paper-scaler">
+            <!-- الورقة: نضيف لها كلاس القالب هنا -->
+            <div id="cvPaper" class="cv-paper t1">
+                
+                <!-- الهيدر العلوي -->
+                <div class="cv-header">
+                    <div class="header-info">
+                        <h1 id="outName" style="margin:0; font-size:32px;">الاسم</h1>
+                        <h2 id="outTitle" style="margin:5px 0 0; font-size:18px; opacity:0.9;">الوظيفة</h2>
                     </div>
+                    <img id="outImg" class="cv-photo" src="https://via.placeholder.com/150">
                 </div>
 
-                <!-- الرئيسي -->
-                <div class="cv-main">
-                    <div class="cv-title"><i class="fas fa-user"></i> نبذة عني</div>
-                    <p id="outSummary" style="font-size: 13px; color: #555; line-height: 1.6;">...</p>
+                <div class="cv-body">
+                    <!-- الجانبي -->
+                    <div class="cv-side">
+                        <!-- محتوى خاص للقالب رقم 3 -->
+                        <div class="side-header-content">
+                            <img id="outImgSide" class="cv-photo" src="https://via.placeholder.com/150" style="width:120px; height:120px;">
+                            <h1 id="outNameSide">الاسم</h1>
+                            <h2 id="outTitleSide">الوظيفة</h2>
+                        </div>
 
-                    <div class="cv-title"><i class="fas fa-briefcase"></i> الخبرات العملية</div>
-                    <div id="outExp">
-                        <!-- الخبرات ستظهر هنا -->
-                        <p style="color:#999; font-size:12px;">أضف خبراتك من القائمة الجانبية</p>
+                        <div class="cv-h-title">التواصل</div>
+                        <div class="contact-row"><i class="fas fa-phone"></i> <span id="outPhone">---</span></div>
+                        <div class="contact-row"><i class="fas fa-envelope"></i> <span id="outEmail">---</span></div>
+                        <div class="contact-row"><i class="fas fa-map-marker-alt"></i> <span id="outLoc">---</span></div>
+
+                        <div class="cv-h-title">المهارات</div>
+                        <div id="outSkills"></div>
+
+                        <div id="qrBox" style="display:none; text-align:center; margin-top:30px; background:white; padding:10px; border-radius:8px;">
+                            <div id="qrcode"></div>
+                            <p style="font-size:10px; margin:5px 0 0; color:black;">فيديو</p>
+                        </div>
                     </div>
 
-                    <div class="cv-title"><i class="fas fa-university"></i> التعليم</div>
-                    <div id="outEdu">
-                        <!-- التعليم سيظهر هنا -->
+                    <!-- الرئيسي -->
+                    <div class="cv-main">
+                        <div class="cv-h-title">نبذة عني</div>
+                        <p id="outSum">...</p>
+
+                        <div class="cv-h-title">الخبرات</div>
+                        <div id="outExp"></div>
+
+                        <div class="cv-h-title">التعليم</div>
+                        <div id="outEdu"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- زر الحفظ العائم -->
     <div class="fab-save" onclick="downloadPDF()">
-        <i class="fas fa-file-download"></i>
-        <span>تحميل PDF</span>
+        <i class="fas fa-download"></i> <span id="btnTxt">PDF</span>
     </div>
 
-    <!-- تنقل الموبايل -->
     <div class="mobile-nav">
-        <button class="nav-btn active" onclick="setTab('edit')"><i class="fas fa-pen"></i> تعديل</button>
-        <button class="nav-btn" onclick="setTab('view')"><i class="fas fa-eye"></i> معاينة</button>
+        <button class="nav-btn active" onclick="tab('edit')">تعديل</button>
+        <button class="nav-btn" onclick="tab('view')">معاينة</button>
     </div>
 
 </div>
@@ -347,7 +329,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-    // إعدادات Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyDn6kABt5ISTZUIc12nik0s3_OmnL0PRVU",
       authDomain: "occasions-pwa.firebaseapp.com",
@@ -356,227 +337,140 @@
       messagingSenderId: "271278039483",
       appId: "1:271278039483:web:999409ab6fddd9853ca49e"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const CLOUD_NAME = "db9h7zm1h";
     const UPLOAD_PRESET = "souq_upload";
 
-    // --- إدارة البيانات الديناميكية ---
-    window.expList = [];
-    window.eduList = [];
-
-    // إضافة حقل خبرة جديد
-    window.addExperienceField = () => {
-        const id = Date.now();
-        window.expList.push({ id, role: '', company: '', date: '', desc: '' });
-        renderExpInputs();
-    };
-
-    // إضافة حقل تعليم جديد
-    window.addEduField = () => {
-        const id = Date.now();
-        window.eduList.push({ id, degree: '', school: '', date: '' });
-        renderEduInputs();
-    };
-
-    // رسم حقول الإدخال للخبرات
-    function renderExpInputs() {
-        const container = document.getElementById('expContainer');
-        container.innerHTML = window.expList.map(item => `
-            <div class="dynamic-card">
-                <button class="btn-remove" onclick="removeExp(${item.id})"><i class="fas fa-trash"></i></button>
-                <div class="input-group">
-                    <input type="text" placeholder="المسمى الوظيفي" value="${item.role}" oninput="updateExp(${item.id}, 'role', this.value)">
-                </div>
-                <div class="input-group">
-                    <input type="text" placeholder="اسم الشركة" value="${item.company}" oninput="updateExp(${item.id}, 'company', this.value)">
-                </div>
-                <div class="input-group">
-                    <input type="text" placeholder="الفترة (مثال: 2020 - الآن)" value="${item.date}" oninput="updateExp(${item.id}, 'date', this.value)">
-                </div>
-                <div class="input-group">
-                    <textarea rows="2" placeholder="وصف المهام..." oninput="updateExp(${item.id}, 'desc', this.value)">${item.desc}</textarea>
-                </div>
-            </div>
-        `).join('');
-        renderCV(); // تحديث المعاينة
-    }
-
-    // رسم حقول الإدخال للتعليم
-    function renderEduInputs() {
-        const container = document.getElementById('eduContainer');
-        container.innerHTML = window.eduList.map(item => `
-            <div class="dynamic-card">
-                <button class="btn-remove" onclick="removeEdu(${item.id})"><i class="fas fa-trash"></i></button>
-                <div class="input-group">
-                    <input type="text" placeholder="الدرجة العلمية" value="${item.degree}" oninput="updateEdu(${item.id}, 'degree', this.value)">
-                </div>
-                <div class="input-group">
-                    <input type="text" placeholder="الجامعة / المدرسة" value="${item.school}" oninput="updateEdu(${item.id}, 'school', this.value)">
-                </div>
-                <div class="input-group">
-                    <input type="text" placeholder="سنة التخرج" value="${item.date}" oninput="updateEdu(${item.id}, 'date', this.value)">
-                </div>
-            </div>
-        `).join('');
-        renderCV();
-    }
-
-    // دوال مساعدة للتحديث والحذف
-    window.removeExp = (id) => { window.expList = window.expList.filter(x => x.id !== id); renderExpInputs(); };
-    window.removeEdu = (id) => { window.eduList = window.eduList.filter(x => x.id !== id); renderEduInputs(); };
-    
-    window.updateExp = (id, field, val) => {
-        const item = window.expList.find(x => x.id === id);
-        if(item) { item[field] = val; renderCV(); }
-    };
-    window.updateEdu = (id, field, val) => {
-        const item = window.eduList.find(x => x.id === id);
-        if(item) { item[field] = val; renderCV(); }
-    };
-
-    // --- دالة رسم الـ CV (المعاينة) ---
-    window.renderCV = () => {
-        // النصوص الأساسية
-        document.getElementById('outName').innerText = document.getElementById('inName').value || "الاسم هنا";
-        document.getElementById('outTitle').innerText = document.getElementById('inTitle').value || "المسمى الوظيفي";
-        document.getElementById('outPhone').innerText = document.getElementById('inPhone').value || "---";
-        document.getElementById('outEmail').innerText = document.getElementById('inEmail').value || "---";
-        document.getElementById('outLoc').innerText = document.getElementById('inLoc').value || "---";
-        document.getElementById('outSummary').innerText = document.getElementById('inSummary').value || "اكتب نبذة عنك...";
-
-        // المهارات
-        const skillsDiv = document.getElementById('outSkills');
-        skillsDiv.innerHTML = "";
-        const skillsTxt = document.getElementById('inSkills').value;
-        if(skillsTxt) {
-            skillsTxt.split(/,|،/).forEach(s => {
-                if(s.trim()) {
-                    const span = document.createElement('span');
-                    span.className = 'skill-tag';
-                    span.innerText = s.trim();
-                    skillsDiv.appendChild(span);
-                }
-            });
-        }
-
-        // الخبرات (Timeline)
-        const expDiv = document.getElementById('outExp');
-        if(window.expList.length > 0) {
-            expDiv.innerHTML = window.expList.map(item => `
-                <div class="timeline-item">
-                    <h4>${item.role}</h4>
-                    <div class="sub-title">${item.company}</div>
-                    <span class="date">${item.date}</span>
-                    <p>${item.desc}</p>
-                </div>
-            `).join('');
-        } else {
-            expDiv.innerHTML = '<p style="color:#ccc; font-size:12px;">لا توجد خبرات مضافة</p>';
-        }
-
-        // التعليم
-        const eduDiv = document.getElementById('outEdu');
-        if(window.eduList.length > 0) {
-            eduDiv.innerHTML = window.eduList.map(item => `
-                <div class="timeline-item" style="border:none; padding-bottom:0;">
-                    <h4>${item.degree}</h4>
-                    <div class="sub-title">${item.school}</div>
-                    <span class="date">${item.date}</span>
-                </div>
-            `).join('');
-        } else {
-            eduDiv.innerHTML = '<p style="color:#ccc; font-size:12px;">لا يوجد تعليم مضاف</p>';
-        }
-    };
-
-    // --- رفع الملفات (Cloudinary) ---
-    async function uploadFile(file, type, statusId) {
-        const status = document.getElementById(statusId);
-        status.innerText = "جاري الرفع... ⏳"; status.style.color = "orange";
+    // --- تبديل القوالب ---
+    window.setTpl = (n) => {
+        // تغيير الكلاس في الورقة
+        const paper = document.getElementById('cvPaper');
+        paper.className = `cv-paper t${n}`;
         
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", UPLOAD_PRESET);
+        // تحديث الأزرار
+        document.querySelectorAll('.tpl-btn').forEach((b, i) => {
+            b.classList.toggle('active', i + 1 === n);
+        });
+    };
 
-        try {
-            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${type}/upload`, { method: "POST", body: formData });
-            const data = await res.json();
-            status.innerText = "تم الرفع ✅"; status.style.color = "green";
-            return data.secure_url;
-        } catch (e) {
-            status.innerText = "فشل ❌"; status.style.color = "red";
-            return null;
-        }
+    // --- البيانات ---
+    window.exps = []; window.edus = [];
+
+    window.addExp = () => { window.exps.push({id:Date.now(), r:'', c:'', d:''}); renderInp(); };
+    window.addEdu = () => { window.edus.push({id:Date.now(), deg:'', s:'', d:''}); renderInp(); };
+
+    window.upd = (t, id, k, v) => {
+        const arr = t==='e'?window.exps:window.edus;
+        const i = arr.find(x=>x.id===id); if(i){i[k]=v; render();}
+    };
+    window.del = (t, id) => {
+        if(t==='e') window.exps=window.exps.filter(x=>x.id!==id);
+        else window.edus=window.edus.filter(x=>x.id!==id);
+        renderInp(); render();
+    };
+
+    function renderInp(){
+        document.getElementById('expList').innerHTML = window.exps.map(x=>`
+            <div class="d-card">
+                <button class="btn-del" onclick="del('e',${x.id})">x</button>
+                <div class="input-group"><input placeholder="الوظيفة" value="${x.r}" oninput="upd('e',${x.id},'r',this.value)"></div>
+                <div class="input-group"><input placeholder="الشركة" value="${x.c}" oninput="upd('e',${x.id},'c',this.value)"></div>
+                <div class="input-group"><input placeholder="التاريخ" value="${x.d}" oninput="upd('e',${x.id},'d',this.value)"></div>
+            </div>`).join('');
+        document.getElementById('eduList').innerHTML = window.edus.map(x=>`
+            <div class="d-card">
+                <button class="btn-del" onclick="del('d',${x.id})">x</button>
+                <div class="input-group"><input placeholder="الدرجة" value="${x.deg}" oninput="upd('d',${x.id},'deg',this.value)"></div>
+                <div class="input-group"><input placeholder="الجامعة" value="${x.s}" oninput="upd('d',${x.id},'s',this.value)"></div>
+                <div class="input-group"><input placeholder="التاريخ" value="${x.d}" oninput="upd('d',${x.id},'d',this.value)"></div>
+            </div>`).join('');
     }
 
-    document.getElementById('uplImage').addEventListener('change', async (e) => {
-        const url = await uploadFile(e.target.files[0], 'image', 'stImg');
-        if(url) document.getElementById('outImg').src = url;
-    });
+    window.render = () => {
+        const ids = ['Name','Title','Phone','Email','Loc','Sum'];
+        ids.forEach(k => {
+            const val = document.getElementById('in'+k).value || '---';
+            document.getElementById('out'+k).innerText = val;
+            // تحديث النسخة الجانبية للقالب 3
+            if(k==='Name') document.getElementById('outNameSide').innerText = val;
+            if(k==='Title') document.getElementById('outTitleSide').innerText = val;
+        });
 
-    document.getElementById('uplVideo').addEventListener('change', async (e) => {
-        const url = await uploadFile(e.target.files[0], 'video', 'stVid');
-        if(url) {
-            document.getElementById('qrSection').style.display = 'block';
-            const qrBox = document.getElementById("qrcode");
-            qrBox.innerHTML = "";
-            new QRCode(qrBox, { text: url, width: 90, height: 90 });
-            window.videoUrl = url;
+        const s = document.getElementById('inSkills').value;
+        document.getElementById('outSkills').innerHTML = s?s.split(/,|،/).map(i=>`<span class="skill-tag">${i.trim()}</span>`).join(''):'';
+
+        document.getElementById('outExp').innerHTML = window.exps.map(x=>`
+            <div class="exp-item"><h4>${x.r}</h4><span>${x.c} | ${x.d}</span></div>`).join('');
+        document.getElementById('outEdu').innerHTML = window.edus.map(x=>`
+            <div class="exp-item"><h4>${x.deg}</h4><span>${x.s} | ${x.d}</span></div>`).join('');
+    };
+
+    // --- الزوم ---
+    window.fit = () => {
+        const sc = document.getElementById('scaler');
+        const w = window.innerWidth - 20;
+        if(w < 794) {
+            const s = w / 794;
+            sc.style.transform = `scale(${s})`;
+            sc.style.height = `${1123*s}px`;
+        } else {
+            sc.style.transform = `scale(1)`;
+            sc.style.height = `auto`;
+        }
+    };
+    window.addEventListener('resize', fit);
+
+    // --- الرفع ---
+    async function upl(f, t, id) {
+        document.getElementById(id).innerText = "..";
+        const fd = new FormData(); fd.append("file", f); fd.append("upload_preset", UPLOAD_PRESET);
+        try {
+            const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${t}/upload`, {method:"POST", body:fd});
+            const d = await r.json();
+            document.getElementById(id).innerText = "تم";
+            return d.secure_url;
+        } catch(e){ document.getElementById(id).innerText = "خطأ"; return null; }
+    }
+
+    document.getElementById('uplImg').addEventListener('change', async e => {
+        const u = await upl(e.target.files[0], 'image', 'stImg');
+        if(u) {
+            document.getElementById('outImg').src = u;
+            document.getElementById('outImgSide').src = u;
         }
     });
 
-    // --- تحميل PDF ---
+    document.getElementById('uplVid').addEventListener('change', async e => {
+        const u = await upl(e.target.files[0], 'video', 'stVid');
+        if(u) {
+            document.getElementById('qrBox').style.display = 'block';
+            document.getElementById('qrcode').innerHTML = "";
+            new QRCode(document.getElementById('qrcode'), {text:u, width:80, height:80});
+            window.vidUrl = u;
+        }
+    });
+
     window.downloadPDF = async () => {
-        const element = document.getElementById('cvTemplate');
+        const el = document.getElementById('cvPaper');
+        const btn = document.getElementById('btnTxt');
+        btn.innerText = "...";
+        try{ await addDoc(collection(db,"resumes"),{name:document.getElementById('inName').value, date:new Date(), vid:window.vidUrl||""}); }catch(e){}
         
-        // حفظ في Firebase
-        try {
-            await addDoc(collection(db, "pro_resumes"), {
-                name: document.getElementById('inName').value,
-                createdAt: new Date(),
-                video: window.videoUrl || ""
-            });
-        } catch(e) { console.log("Offline save"); }
-
-        const opt = {
-            margin: 0,
-            filename: 'Professional_CV.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        const btn = document.querySelector('.fab-save');
-        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i>";
-        
-        await html2pdf().set(opt).from(element).save();
-        
-        btn.innerHTML = "<i class='fas fa-file-download'></i> <span>تحميل PDF</span>";
+        const opt = { margin:0, filename:'CV.pdf', image:{type:'jpeg',quality:1}, html2canvas:{scale:2,useCORS:true,width:794,height:1123}, jsPDF:{unit:'px',format:[794,1123],orientation:'portrait'} };
+        await html2pdf().set(opt).from(el).save();
+        btn.innerText = "PDF";
     };
 
-    // --- التبديل للموبايل ---
-    window.setTab = (mode) => {
-        const editor = document.getElementById('editor');
-        const preview = document.getElementById('preview');
-        const btns = document.querySelectorAll('.nav-btn');
-        
-        if(mode === 'edit') {
-            editor.style.display = 'block';
-            preview.classList.remove('active');
-            btns[0].classList.add('active'); btns[1].classList.remove('active');
-        } else {
-            editor.style.display = 'none';
-            preview.classList.add('active');
-            btns[0].classList.remove('active'); btns[1].classList.add('active');
-        }
+    window.tab = (t) => {
+        const e = document.getElementById('editor');
+        const p = document.getElementById('preview');
+        const b = document.querySelectorAll('.nav-btn');
+        if(t==='edit'){ e.style.display='block'; p.classList.remove('active'); b[0].classList.add('active'); b[1].classList.remove('active'); }
+        else { e.style.display='none'; p.classList.add('active'); b[0].classList.remove('active'); b[1].classList.add('active'); fit(); }
     };
 
-    // تشغيل مبدئي لإضافة حقل واحد
-    window.addExperienceField();
-    window.addEduField();
+    window.addExp(); window.addEdu();
 </script>
-
 </body>
 </html>
