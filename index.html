@@ -2,1259 +2,581 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-    <title>السوق وياك | 2026</title>
-
-    <meta property="og:image" content="https://raw.githubusercontent.com/shehabt1000-boop/Moussa/main/647557c3-c686-4ae6-925e-9fd3765180a7.jpeg">
-    <meta name="theme-color" content="#0f172a">
-    <link id="manifest-link" rel="manifest">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: { 
-                extend: { 
-                    colors: { 
-                        navy: '#0f172a', 
-                        darkbg: '#1e293b', 
-                        primary: '#10b981', 
-                        secondary: '#3b82f6' 
-                    },
-                    fontFamily: {
-                        cairo: ['Cairo', 'sans-serif']
-                    }
-                } 
-            }
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pro CV Builder - السيرة الذاتية المحترفة</title>
+    
+    <!-- خطوط عربية وأيقونات -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- مكتبات JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        body { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: 80px; overscroll-behavior-y: none; background-color: #f8fafc; }
-        .dark body { background-color: #0f172a; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .select-none { user-select: none; }
-        .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #0f172a; border-radius: 10px; }
-        .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
-        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; }
-        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: popIn 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        /* Modal Fixes & Z-Index Hierarchy */
-        .mobile-full-modal { position: fixed; inset: 0; background-color: white; display: flex; flex-direction: column; height: 100dvh; z-index: 200; }
-        .dark .mobile-full-modal { background-color: #0f172a; }
-        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); z-index: 150; }
-        
-        .hidden { display: none !important; }
-
-        /* Corrected Z-Index to allow Profile over Details */
-        #chat-list-modal.modal-overlay { z-index: 160; }
-        #order-modal.modal-overlay { z-index: 180; }
-        #notif-modal.modal-overlay { z-index: 190; }
-        #details-modal.modal-overlay { z-index: 200; } /* Details */
-        #profile-modal.modal-overlay { z-index: 210; } /* Profile must be higher than Details */
-        #chat-modal.modal-overlay { z-index: 220; } 
-        #lightbox { z-index: 300; }
-
-        @media (min-width: 768px) { 
-            .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 750px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); } 
-            main { max-width: 40rem !important; margin: 0 auto; }
-            #search-container { max-width: 40rem; margin: 0 auto; left: 0; right: 0; }
+        :root {
+            --primary: #2c3e50;    /* كحلي غامق */
+            --secondary: #d35400;  /* برتقالي محروق */
+            --bg-light: #f8f9fa;
+            --border-color: #e9ecef;
+            --paper-w: 210mm;
+            --paper-h: 297mm;
         }
-        .toast { animation: slideInDown 0.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; width: max-content; max-width: 90vw; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2); backdrop-filter: blur(8px); }
-        .toast.hiding { animation: fadeOut 0.1s ease-in forwards; }
-        @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-        .form-label { display: block; font-size: 0.65rem; font-weight: 800; color: #334155; margin-bottom: 0.1rem; }
-        .dark .form-label { color: #cbd5e1; }
-        .form-input { width: 100%; background-color: #ffffff; border: 1px solid #cbd5e1 !important; border-radius: 0.4rem; padding: 0 0.4rem; height: 2rem; display: flex; align-items: center; font-size: 0.7rem; font-weight: 600; color: #1e293b; outline: none; transition: all 0.1s; line-height: normal; }
-        select.form-input { padding-top: 0; padding-bottom: 0; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: left 0.5rem center; background-repeat: no-repeat; background-size: 1em 1em; padding-left: 1.8rem; }
-        .dark select.form-input { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); }
-        textarea.form-input { height: auto; padding-top: 0.4rem; padding-bottom: 0.4rem; }
-        .form-input:focus { border-color: #10b981 !important; box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2); }
-        .dark .form-input { background-color: #1e293b; border-color: #475569 !important; color: white; }
-        .dark .form-input:focus { border-color: #10b981 !important; }
-        .chip-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
-        .smart-option:checked + div { background-color: #0f172a; color: white; border-color: #0f172a; }
-        .dark .smart-option:checked + div { background-color: #10b981; border-color: #10b981; }
-        .star-rating input { display: none; }
-        .star-rating label { cursor: pointer; color: #cbd5e1; transition: color 0.1s; }
-        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }
-        .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
-        #login-view { position: fixed; inset: 0; z-index: 200; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-        #login-view.hidden { display: none !important; } 
-        .dark #login-view { background-color: #0f172a; }
-        .login-scroll { max-height: 65vh; overflow-y: auto; padding: 2px; }
-        .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 16px; height: 16px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #global-loader { position: fixed; inset: 0; z-index: 10000; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out, visibility 0.5s ease-out; }
-        #global-loader.fade-out { opacity: 0; visibility: hidden; }
-        .loader-spinner { width: 40px; height: 40px; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #10b981; animation: spin 0.8s ease-in-out infinite; }
-        .feature-checkbox:checked + div { background-color: #3b82f6; color: white; border-color: #3b82f6; }
-        .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; }
-        .spec-item { display: flex; flex-direction: column; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.4rem 0.6rem; overflow: hidden; }
-        .dark .spec-item { background-color: #1e293b; border-color: #334155; }
-        .spec-label { font-size: 0.6rem; color: #64748b; font-weight: 700; margin-bottom: 0.1rem; }
-        .dark .spec-label { color: #94a3b8; }
-        .spec-value { font-size: 0.75rem; color: #0f172a; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .dark .spec-value { color: #f1f5f9; }
-        .details-table { width: 100%; font-size: 0.75rem; border-collapse: separate; border-spacing: 0; margin-bottom: 0.5rem; }
-        .details-table td { padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
-        .dark .details-table td { border-color: #334155; }
-        .details-table td:first-child { color: #64748b; font-weight: 700; width: 35%; }
-        .dark .details-table td:first-child { color: #94a3b8; }
-        .details-table td:last-child { color: #0f172a; font-weight: 800; text-align: left; }
-        .dark .details-table td:last-child { color: #f8fafc; }
-        .verified-badge { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background-color: #3b82f6; border-radius: 50%; color: white; margin-right: 4px; }
-        .verified-badge svg { width: 10px; height: 10px; }
 
-        /* Full Screen Views for Admin & Master */
-        .full-screen-view {
-            position: fixed;
-            inset: 0;
-            z-index: 300; /* Higher than login */
-            background-color: #f8fafc;
-            display: flex;
-            flex-direction: column;
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; outline: none; }
+        body { margin: 0; padding: 0; background-color: #eef2f3; height: 100vh; overflow: hidden; }
+
+        /* --- الهيكل العام --- */
+        .app-container { display: flex; height: 100%; }
+
+        /* --- 1. لوحة التحكم (يمين) --- */
+        .editor-panel {
+            width: 400px;
+            background: white;
+            border-left: 1px solid #ccc;
             overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 100px; /* مساحة للأزرار */
+            z-index: 10;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.05);
         }
-        .dark .full-screen-view {
-            background-color: #0f172a;
+
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 25px; margin-bottom: 15px; padding-bottom: 5px;
+            border-bottom: 2px solid var(--primary); color: var(--primary);
         }
-        .full-screen-view.hidden {
-            display: none !important;
+        .section-header h3 { margin: 0; font-size: 16px; font-weight: 700; }
+        .btn-add {
+            background: var(--primary); color: white; border: none; padding: 5px 10px;
+            border-radius: 4px; cursor: pointer; font-size: 12px;
         }
+
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #666; }
+        .input-group input, .input-group textarea {
+            width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px;
+            font-size: 13px; transition: 0.2s; background: #fafafa;
+        }
+        .input-group input:focus { border-color: var(--secondary); background: white; }
+
+        /* كروت الإضافة الديناميكية */
+        .dynamic-card {
+            background: #f8f9fa; border: 1px solid #e9ecef; padding: 10px;
+            border-radius: 6px; margin-bottom: 10px; position: relative;
+        }
+        .btn-remove {
+            position: absolute; top: 5px; left: 5px; color: #c0392b;
+            background: none; border: none; cursor: pointer; font-size: 14px;
+        }
+
+        /* أزرار الرفع */
+        .upload-area {
+            border: 2px dashed #ccc; padding: 15px; text-align: center; border-radius: 8px;
+            cursor: pointer; transition: 0.3s; position: relative;
+        }
+        .upload-area:hover { border-color: var(--secondary); background: #fff5f0; }
+        .upload-area input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+        
+        /* --- 2. لوحة المعاينة (يسار) --- */
+        .preview-panel {
+            flex: 1; background: #525659; display: flex; justify-content: center;
+            overflow-y: auto; padding: 30px;
+        }
+
+        /* ورقة الـ CV */
+        .cv-paper {
+            width: var(--paper-w); min-height: var(--paper-h);
+            background: white; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+            transform-origin: top center; /* للتصغير */
+        }
+
+        /* --- تصميم الـ CV الداخلي (Modern Clean) --- */
+        .cv-header {
+            background: var(--primary); color: white; padding: 30px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .header-txt h1 { margin: 0; font-size: 36px; font-weight: 800; line-height: 1.2; }
+        .header-txt h2 { margin: 5px 0 0; font-size: 18px; font-weight: 400; opacity: 0.9; color: var(--secondary); }
+        
+        .header-img {
+            width: 130px; height: 130px; border-radius: 50%; border: 5px solid rgba(255,255,255,0.2);
+            overflow: hidden; background: #fff;
+        }
+        .header-img img { width: 100%; height: 100%; object-fit: cover; }
+
+        .cv-body { display: flex; flex: 1; }
+        
+        /* العمود الجانبي */
+        .cv-sidebar {
+            width: 32%; background: #f4f6f7; padding: 25px; border-left: 1px solid #e0e0e0;
+        }
+        
+        /* العمود الرئيسي */
+        .cv-main { width: 68%; padding: 30px; }
+
+        /* عناوين الأقسام */
+        .cv-title {
+            font-size: 15px; font-weight: 700; color: var(--primary); text-transform: uppercase;
+            border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; margin-top: 25px;
+            display: flex; align-items: center;
+        }
+        .cv-title i { margin-left: 8px; color: var(--secondary); }
+        .cv-title:first-child { margin-top: 0; }
+
+        /* عناصر الجانبي */
+        .contact-item { display: flex; align-items: center; margin-bottom: 12px; font-size: 12px; color: #444; }
+        .contact-item i { width: 25px; color: var(--primary); }
+
+        .skill-tag {
+            display: inline-block; background: white; border: 1px solid #ddd;
+            padding: 4px 8px; border-radius: 4px; font-size: 11px; margin: 2px;
+            font-weight: 600; color: #333;
+        }
+
+        .qr-section {
+            background: white; padding: 15px; border-radius: 8px; text-align: center;
+            border: 1px solid #ddd; margin-top: 20px;
+        }
+        .qr-section p { font-size: 10px; margin: 5px 0 0; color: #666; }
+
+        /* عناصر الرئيسي (Timeline) */
+        .timeline-item {
+            position: relative; padding-right: 20px; margin-bottom: 20px; border-right: 2px solid #e0e0e0;
+        }
+        .timeline-item::after {
+            content: ''; position: absolute; right: -6px; top: 5px;
+            width: 10px; height: 10px; background: var(--secondary); border-radius: 50%;
+        }
+        .timeline-item h4 { margin: 0; font-size: 16px; color: #222; font-weight: 700; }
+        .timeline-item .sub-title { font-size: 13px; color: var(--primary); font-weight: 600; margin: 2px 0; }
+        .timeline-item .date { font-size: 11px; color: #888; font-style: italic; display: block; margin-bottom: 5px; }
+        .timeline-item p { margin: 0; font-size: 13px; line-height: 1.6; color: #555; text-align: justify; }
+
+        /* --- الموبايل --- */
+        .mobile-nav {
+            display: none; position: fixed; bottom: 0; left: 0; width: 100%;
+            background: white; border-top: 1px solid #ddd; z-index: 100;
+        }
+        .nav-btn {
+            flex: 1; padding: 15px; border: none; background: none; font-weight: bold; color: #777;
+        }
+        .nav-btn.active { color: var(--primary); border-top: 3px solid var(--secondary); background: #f9f9f9; }
+
+        .fab-save {
+            position: fixed; bottom: 30px; left: 30px; background: var(--secondary); color: white;
+            padding: 12px 25px; border-radius: 30px; box-shadow: 0 4px 15px rgba(211, 84, 0, 0.4);
+            cursor: pointer; font-weight: bold; z-index: 90; display: flex; align-items: center; gap: 10px;
+            transition: transform 0.2s;
+        }
+        .fab-save:active { transform: scale(0.95); }
+
+        @media (max-width: 900px) {
+            .app-container { display: block; }
+            .editor-panel { width: 100%; height: 100vh; padding-bottom: 80px; }
+            .preview-panel {
+                display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+                z-index: 50; padding: 10px; align-items: flex-start;
+            }
+            .preview-panel.active { display: flex; }
+            .mobile-nav { display: flex; }
+            
+            /* تصغير الورقة للموبايل */
+            .cv-paper { transform: scale(0.44); margin-top: -240px; }
+            .fab-save { bottom: 80px; left: 20px; width: 50px; height: 50px; justify-content: center; padding: 0; }
+            .fab-save span { display: none; }
+        }
+
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
+<body>
 
-    <!-- GLOBAL APP LOADER -->
-    <div id="global-loader">
-        <div class="flex flex-col items-center gap-6 animate-pop">
-            <div class="bg-white/10 p-5 rounded-full backdrop-blur-sm shadow-2xl">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
-                </svg>
+<div class="app-container">
+    
+    <!-- 1. المحرر -->
+    <div id="editor" class="editor-panel">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color: var(--primary); margin: 0;">CV Maker <span style="color: var(--secondary)">Pro</span></h2>
+            <p style="font-size: 12px; color: #777;">اصنع مستقبلك باحترافية</p>
+        </div>
+
+        <!-- المعلومات الأساسية -->
+        <div class="section-header">
+            <h3><i class="fas fa-user-circle"></i> المعلومات الشخصية</h3>
+        </div>
+        <div class="input-group">
+            <label>الاسم بالكامل</label>
+            <input type="text" id="inName" placeholder="محمد أحمد" oninput="renderCV()">
+        </div>
+        <div class="input-group">
+            <label>المسمى الوظيفي</label>
+            <input type="text" id="inTitle" placeholder="Software Engineer" oninput="renderCV()">
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <div class="input-group" style="flex:1">
+                <label>الصورة الشخصية</label>
+                <div class="upload-area">
+                    <i class="fas fa-camera"></i>
+                    <input type="file" id="uplImage" accept="image/*">
+                </div>
+                <small id="stImg" style="display:block; text-align:center; font-size:10px;">اختر صورة</small>
             </div>
-            <div class="text-center">
-                <h1 class="text-xl font-black text-white tracking-wide">السوق <span class="text-primary">وياك</span></h1>
+            <div class="input-group" style="flex:1">
+                <label>فيديو (QR Code)</label>
+                <div class="upload-area">
+                    <i class="fas fa-video"></i>
+                    <input type="file" id="uplVideo" accept="video/*">
+                </div>
+                <small id="stVid" style="display:block; text-align:center; font-size:10px;">اختر فيديو</small>
             </div>
-            <div class="loader-spinner mt-2"></div>
+        </div>
+
+        <div class="input-group">
+            <label>رقم الهاتف</label>
+            <input type="text" id="inPhone" placeholder="010xxxxxxx" oninput="renderCV()">
+        </div>
+        <div class="input-group">
+            <label>البريد الإلكتروني</label>
+            <input type="email" id="inEmail" placeholder="example@mail.com" oninput="renderCV()">
+        </div>
+        <div class="input-group">
+            <label>العنوان / الموقع</label>
+            <input type="text" id="inLoc" placeholder="القاهرة، مصر" oninput="renderCV()">
+        </div>
+
+        <!-- نبذة -->
+        <div class="section-header">
+            <h3><i class="fas fa-align-right"></i> الملخص المهني</h3>
+        </div>
+        <div class="input-group">
+            <textarea id="inSummary" rows="4" placeholder="اكتب ملخصاً قوياً يجذب صاحب العمل..." oninput="renderCV()"></textarea>
+        </div>
+
+        <!-- الخبرات (ديناميكي) -->
+        <div class="section-header">
+            <h3><i class="fas fa-briefcase"></i> الخبرات العملية</h3>
+            <button class="btn-add" onclick="addExperienceField()">+ إضافة</button>
+        </div>
+        <div id="expContainer"></div>
+
+        <!-- التعليم (ديناميكي) -->
+        <div class="section-header">
+            <h3><i class="fas fa-graduation-cap"></i> المؤهلات الدراسية</h3>
+            <button class="btn-add" onclick="addEduField()">+ إضافة</button>
+        </div>
+        <div id="eduContainer"></div>
+
+        <!-- المهارات -->
+        <div class="section-header">
+            <h3><i class="fas fa-star"></i> المهارات</h3>
+        </div>
+        <div class="input-group">
+            <label>اكتب المهارات مفصولة بفاصلة</label>
+            <textarea id="inSkills" rows="2" placeholder="HTML, CSS, Leadership, Sales" oninput="renderCV()"></textarea>
         </div>
     </div>
 
-    <!-- LOGIN VIEW -->
-    <div id="login-view" class="hidden">
-        <div class="w-full max-w-md bg-white dark:bg-darkbg p-4 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[95vh]">
-            <div class="flex flex-col items-center gap-1 mb-3 shrink-0">
-                <div class="bg-navy dark:bg-primary text-white p-2 rounded-xl shadow-lg rotate-3">
-                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+    <!-- 2. المعاينة -->
+    <div id="preview" class="preview-panel">
+        <div id="cvTemplate" class="cv-paper">
+            <!-- رأس الصفحة -->
+            <div class="cv-header">
+                <div class="header-txt">
+                    <h1 id="outName">الاسم هنا</h1>
+                    <h2 id="outTitle">المسمى الوظيفي</h2>
                 </div>
-                <h1 class="font-black text-lg text-navy dark:text-white">السوق <span class="text-primary">وياك</span></h1>
-            </div>
-            <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-2 border border-slate-200 dark:border-slate-700 shrink-0">
-                <button onclick="setAuthType('login')" id="btn-type-login" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md">تسجيل دخول</button>
-                <button onclick="setAuthType('signup')" id="btn-type-signup" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white">إنشاء حساب</button>
-            </div>
-            <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex mb-3 border border-slate-200 dark:border-slate-700 shrink-0">
-                <button onclick="setAuthRole('customer')" id="btn-role-customer" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy text-white shadow-md"><div class="flex items-center justify-center gap-2"><i data-lucide="user" class="w-3 h-3"></i> عميل</div></button>
-                <button onclick="setAuthRole('marketer')" id="btn-role-marketer" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"><div class="flex items-center justify-center gap-2"><i data-lucide="store" class="w-3 h-3"></i> مقدم خدمة</div></button>
-            </div>
-            <div class="login-scroll no-scrollbar space-y-2 flex-1">
-                <div id="auth-image-field" class="hidden flex-col items-center gap-2 transition-all duration-300">
-                    <div class="relative group cursor-pointer">
-                        <input type="file" id="auth-img-input" accept="image/*" onchange="handleAuthImage(this)" class="absolute inset-0 opacity-0 z-10 cursor-pointer">
-                        <div class="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-primary/50 flex items-center justify-center overflow-hidden relative hover:bg-primary/5 transition">
-                            <img id="auth-img-preview" src="" class="w-full h-full object-cover hidden">
-                            <div id="auth-img-placeholder" class="flex flex-col items-center text-slate-400"><i data-lucide="camera" class="w-5 h-5 mb-1"></i><span class="text-[8px] font-bold">صورة</span></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Main Login Field: Phone -->
-                <div>
-                    <label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">رقم الهاتف</label>
-                    <div class="relative">
-                        <input id="auth-main-phone" type="tel" class="form-input text-left" placeholder="01xxxxxxxxx" style="direction: ltr;">
-                        <i data-lucide="phone" class="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none"></i>
-                    </div>
-                </div>
-                <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">كلمة المرور</label><div class="relative"><input id="auth-pass" type="password" class="form-input" placeholder="******"><i data-lucide="lock" class="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none"></i></div></div>
-
-                <div id="signup-fields" class="hidden space-y-2 border-t border-slate-100 dark:border-slate-700 pt-2 mt-1">
-                    <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">الاسم الكامل (عربي)</label><input id="auth-name-ar" type="text" class="form-input" placeholder="مثال: أحمد محمد"></div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">المحافظة</label><select id="auth-gov" onchange="updateCities()" class="form-input text-xs"></select></div>
-                        <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">المركز/المدينة</label><select id="auth-city" class="form-input text-xs"><option value="">اختر المحافظة</option></select></div>
-                    </div>
-                    <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5 block mr-1">العنوان بالتفصيل</label><input id="auth-address" type="text" class="form-input" placeholder="الشارع، رقم المنزل..."></div>
-                </div>
-            </div>
-            <div class="mt-3 pt-2 border-t border-slate-100 dark:border-slate-700 shrink-0">
-                <button onclick="processAuth()" id="btn-auth-action" class="w-full bg-navy dark:bg-primary text-white py-2.5 rounded-xl font-bold shadow-lg shadow-navy/20 hover:opacity-90 transition-all active:scale-95 flex justify-center items-center gap-2 text-sm"><span>دخول للحساب</span> <i data-lucide="arrow-left" class="w-4 h-4"></i></button>
-                <div id="auth-error" class="text-red-600 dark:text-red-400 text-[10px] font-bold text-center hidden bg-red-50 dark:bg-red-900/20 p-2 rounded-lg border border-red-200 dark:border-red-800 mt-2 break-words" dir="ltr"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- APP CONTENT -->
-    <div id="app-content" class="hidden">
-        <div id="toast-container" class="fixed top-4 left-0 right-0 z-[1000] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
-
-        <!-- Header -->
-        <header class="fixed top-0 w-full z-[60] bg-white/95 dark:bg-navy/95 border-b border-slate-200 dark:border-slate-700 flex flex-col justify-center px-4 shadow-sm backdrop-blur-md h-12">
-            <div class="flex items-center justify-between w-full max-w-2xl mx-auto">
-                <div class="flex items-center gap-2" id="logo-trigger">
-                    <div class="bg-navy dark:bg-primary text-white p-1 rounded-md"><i data-lucide="shopping-bag" class="w-4 h-4"></i></div>
-                    <div class="flex flex-col leading-none">
-                        <h1 class="font-bold text-sm">السوق <span class="text-primary">وياك</span></h1>
-                        <div id="welcome-text" class="hidden text-[10px] font-bold mt-0.5">
-                             <span class="text-navy dark:text-white">أهلاً: </span><span id="header-username" class="text-primary"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex gap-1.5 items-center">
-                    <!-- Notification Bell -->
-                    <button onclick="toggleNotifications()" class="relative p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition">
-                        <i data-lucide="bell" class="w-4 h-4"></i>
-                        <span id="notif-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-darkbg"></span>
-                    </button>
-
-                    <!-- Header Profile Button - Hidden for Customers if Bottom Nav present -->
-                    <button id="header-profile-btn" onclick="toggleProfile(null)" class="hidden p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white hover:bg-slate-200 transition"><i data-lucide="user" class="w-4 h-4"></i></button>
-                    
-                    <!-- Dark Mode Toggle (Fixed Shape) -->
-                    <button onclick="toggleDarkMode()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition">
-                        <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
-                        <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
-                    </button>
-
-                    <!-- Master Admin Button -->
-                    <button onclick="toggleMasterView()" id="btn-master-control" class="hidden bg-yellow-500 p-1.5 rounded-full text-white hover:bg-yellow-600 shadow-lg animate-pulse"><i data-lucide="crown" class="w-4 h-4"></i></button>
-
-                    <button onclick="toggleAdminView()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
-                </div>
-            </div>
-        </header>
-
-        <main class="pt-14 container mx-auto px-4 max-w-6xl min-h-screen">
-            <div id="view-header" class="hidden flex items-center gap-2 pb-1">
-                <button onclick="switchToHomeView()" class="bg-white dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm"><i data-lucide="arrow-right" class="w-4 h-4 text-slate-600 dark:text-white"></i></button>
-                <h2 id="view-title" class="text-base font-bold text-slate-800 dark:text-white pt-0.5"></h2>
-            </div>
-
-            <div id="search-container" class="sticky top-12 z-[50] bg-slate-50/95 dark:bg-navy/95 backdrop-blur-lg pt-1.5 pb-1.5 -mx-4 px-4 transition-all">
-                <div class="relative max-w-3xl mx-auto flex gap-2 items-center">
-                    <div class="relative flex-1">
-                        <input type="text" id="search-input" oninput="handleSearch()" placeholder="ابحث..." class="w-full form-input pr-9 pl-20 h-8 shadow-sm text-xs">
-                        <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
-                        <div class="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
-                            <button id="btn-filter-toggle" onclick="toggleFilterPanel()" class="hidden text-secondary dark:text-blue-400 p-2 hover:scale-110 transition"><i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i></button>
-                            <button onclick="toggleFavView()" class="relative text-red-500 p-2 hover:scale-110 transition"><i data-lucide="heart" class="w-3.5 h-3.5"></i><span id="fav-count" class="absolute top-0 right-0 w-1.5 h-1.5 bg-red-600 rounded-full border border-white dark:border-darkbg hidden"></span></button>
-                        </div>
-                    </div>
-                </div>
-                <div id="filter-panel" class="hidden mt-1 bg-white dark:bg-darkbg p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl animate-pop relative z-50">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="font-bold text-[10px]">تصفية النتائج</span>
-                        <button onclick="resetFilters()" class="text-[10px] text-red-500 font-bold underline cursor-pointer p-1">إعادة تعيين</button>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <select id="filter-gov" onchange="applyFilters()" class="form-input text-xs h-7"><option value="">كل المحافظات</option></select>
-                        <select id="filter-price" onchange="applyFilters()" class="form-input text-xs h-7"><option value="">ترتيب السعر</option><option value="low">الأقل سعراً</option><option value="high">الأعلى سعراً</option></select>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <select id="filter-condition" onchange="applyFilters()" class="form-input text-xs h-7"><option value="">الحالة (الكل)</option><option value="new">جديد</option><option value="used">مستعمل</option></select>
-                        <div class="flex gap-1">
-                            <input type="number" id="filter-min-price" onchange="applyFilters()" placeholder="من" class="form-input text-xs h-7 text-center">
-                            <input type="number" id="filter-max-price" onchange="applyFilters()" placeholder="إلى" class="form-input text-xs h-7 text-center">
-                        </div>
-                    </div>
+                <div class="header-img">
+                    <img id="outImg" src="https://via.placeholder.com/150" alt="Profile">
                 </div>
             </div>
 
-            <div id="categories-container" class="hidden justify-start gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar"></div>
-            <div id="home-grid" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-10 mt-4"></div>
-            <div id="grid-container" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-2 mt-2"></div>
+            <div class="cv-body">
+                <!-- الجانبي -->
+                <div class="cv-sidebar">
+                    <div class="cv-title"><i class="fas fa-address-card"></i> التواصل</div>
+                    <div class="contact-item"><i class="fas fa-phone-alt"></i> <span id="outPhone">---</span></div>
+                    <div class="contact-item"><i class="fas fa-envelope"></i> <span id="outEmail">---</span></div>
+                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i> <span id="outLoc">---</span></div>
 
-            <div id="load-more-container" class="hidden text-center pb-10 pt-2">
-                <button onclick="loadMoreItems()" id="btn-load-more" class="bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow text-xs font-bold text-primary border border-slate-200 dark:border-slate-700">عرض المزيد⬇️</button>
-            </div>
+                    <div class="cv-title"><i class="fas fa-lightbulb"></i> المهارات</div>
+                    <div id="outSkills"></div>
 
-            <div id="empty-state" class="hidden text-center py-20 opacity-60 flex-col items-center"><div class="bg-slate-200 dark:bg-slate-800 p-4 rounded-full inline-block mb-2"><i data-lucide="shirt" class="w-8 h-8 text-slate-400"></i></div><p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p><button onclick="resetFilters()" class="mt-2 text-primary text-xs font-bold underline">إعادة تعيين</button></div>
-        </main>
-
-        <!-- Floating Action Button (Support) -->
-        <button id="fab-support" onclick="toggleSupportChat()" class="fixed bottom-20 left-4 z-[75] bg-primary text-white p-3 rounded-full shadow-xl hover:scale-110 transition animate-bounce-slow border-2 border-white dark:border-navy">
-            <i data-lucide="headset" class="w-6 h-6"></i>
-        </button>
-
-        <!-- NAV BAR -->
-        <nav id="bottom-nav" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-lg transform transition-all hover:scale-105">
-            <button onclick="switchToHomeView()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
-
-            <!-- Dynamic Middle Button (Add for Marketers/Admins, Profile for Customers) -->
-            <div id="nav-middle-btn-container"></div>
-
-            <!-- Chat List Button (Replaces old Support Button) -->
-            <button onclick="toggleChatList()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition group relative">
-                <i data-lucide="message-square" class="w-5 h-5 group-hover:scale-110 transition"></i>
-                <span id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></span>
-            </button>
-        </nav>
-
-        <!-- PWA Install Banner -->
-        <div id="install-banner" class="hidden fixed top-0 left-0 right-0 bg-navy dark:bg-white dark:text-navy text-white p-3 shadow-2xl z-[110] flex items-center justify-between install-banner border-b dark:border-slate-200">
-            <div class="flex items-center gap-3"><div class="bg-white/10 dark:bg-navy/10 p-2 rounded-lg"><i data-lucide="download" class="w-5 h-5"></i></div><div><h4 class="font-bold text-xs">تثبيت التطبيق</h4><p class="text-[10px] opacity-80">تجربة أسرع وأسهل</p></div></div>
-            <div class="flex gap-2"><button onclick="installPWA()" class="bg-primary text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow-lg">تثبيت</button><button onclick="closeInstall()" class="text-white dark:text-navy p-1"><i data-lucide="x" class="w-4 h-4"></i></button></div>
-        </div>
-    </div>
-
-    <!-- FULL SCREEN MASTER VIEW -->
-    <div id="master-view" class="full-screen-view hidden">
-        <div class="p-4 bg-white dark:bg-darkbg shadow-md border-b border-slate-200 dark:border-slate-700 flex justify-between items-center sticky top-0 z-50">
-            <h2 class="font-black text-xl text-navy dark:text-white">👑 تحكم الماستر</h2>
-            <button onclick="toggleMasterView()" class="bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"><i data-lucide="x" class="w-6 h-6"></i></button>
-        </div>
-        <div class="flex-1 p-6 container mx-auto max-w-lg space-y-6">
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
-                <h3 class="font-bold text-lg mb-4 text-center">إدارة المستخدمين</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="form-label text-sm mb-2">رقم هاتف المستخدم</label>
-                        <div class="flex gap-2">
-                            <input id="master-target-phone" type="tel" class="form-input text-center font-bold h-10 text-lg" placeholder="01xxxxxxxxx">
-                            <button onclick="searchMasterUser()" class="bg-primary text-white px-4 rounded-lg font-bold shadow-md hover:bg-green-600 transition"><i data-lucide="search" class="w-5 h-5"></i></button>
-                        </div>
-                        <!-- Search Result Container -->
-                        <div id="master-user-result" class="mt-3 text-center text-sm font-bold min-h-[1.5rem] transition-all"></div>
+                    <div class="qr-section" id="qrSection" style="display:none;">
+                        <div id="qrcode"></div>
+                        <p>شاهد الفيديو التعريفي</p>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
-                        <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition">
-                            <input type="checkbox" id="master-check-verified" class="w-5 h-5 rounded text-primary focus:ring-primary">
-                            <span class="text-sm font-bold">توثيق الحساب ✅</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition">
-                            <input type="checkbox" id="master-check-admin" class="w-5 h-5 rounded text-red-500 focus:ring-red-500">
-                            <span class="text-sm font-bold text-red-500">ترقية إلى أدمن 🛡️</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/10">
-                            <input type="checkbox" id="master-check-banned" class="w-5 h-5 rounded text-red-700 focus:ring-red-700">
-                            <span class="text-sm font-bold text-red-700 dark:text-red-400">حظر المستخدم (Ban) 🚫</span>
-                        </label>
+                </div>
+
+                <!-- الرئيسي -->
+                <div class="cv-main">
+                    <div class="cv-title"><i class="fas fa-user"></i> نبذة عني</div>
+                    <p id="outSummary" style="font-size: 13px; color: #555; line-height: 1.6;">...</p>
+
+                    <div class="cv-title"><i class="fas fa-briefcase"></i> الخبرات العملية</div>
+                    <div id="outExp">
+                        <!-- الخبرات ستظهر هنا -->
+                        <p style="color:#999; font-size:12px;">أضف خبراتك من القائمة الجانبية</p>
                     </div>
-                    <button onclick="saveMasterChanges()" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-xl transform active:scale-95 transition">حفظ التعديلات</button>
+
+                    <div class="cv-title"><i class="fas fa-university"></i> التعليم</div>
+                    <div id="outEdu">
+                        <!-- التعليم سيظهر هنا -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- FULL SCREEN ADMIN VIEW -->
-    <div id="admin-view" class="full-screen-view hidden bg-navy text-white">
-        <div class="p-3 border-b border-white/10 flex justify-between items-center bg-[#001a38] shrink-0 h-14">
-            <h2 class="font-bold flex items-center gap-2 text-base"><i data-lucide="shield" class="w-5 h-5 text-primary"></i> لوحة التحكم</h2>
-            <div class="flex gap-3">
-                <button onclick="refreshAdmin()" class="bg-white/10 p-2 rounded-full hover:bg-white/20"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
-                <button onclick="toggleAdminView()" class="bg-red-600/80 p-2 rounded-full hover:bg-red-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-        </div>
-        <div class="flex-1 flex overflow-hidden">
-            <div class="w-1/3 border-l border-white/10 bg-[#001f3f] flex flex-col">
-                <div class="p-2 border-b border-white/10 text-[10px] text-gray-400 font-bold text-center">المحادثات</div>
-                <div id="admin-users-list" class="flex-1 overflow-y-auto p-2"></div>
-            </div>
-            <div class="w-2/3 flex flex-col bg-navy relative">
-                <div id="admin-chat-header" class="h-12 border-b border-white/10 flex items-center justify-between px-3 bg-[#001a38] shrink-0">
-                    <span class="text-xs font-bold">اختر محادثة</span>
-                    <button onclick="kickUser()" id="btn-end-chat" class="hidden bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1"><i data-lucide="slash" class="w-3 h-3"></i> إنهاء</button>
-                </div>
-                <div id="admin-msg-area" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div>
-                <div class="p-2 border-t border-white/10 flex gap-2 bg-[#001a38] shrink-0">
-                    <input id="admin-input" class="flex-1 bg-white/5 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none" placeholder="الرد...">
-                    <button onclick="sendAdminMsg()" class="bg-primary px-4 py-1.5 rounded text-xs font-bold">إرسال</button>
-                </div>
-            </div>
-        </div>
+    <!-- زر الحفظ العائم -->
+    <div class="fab-save" onclick="downloadPDF()">
+        <i class="fas fa-file-download"></i>
+        <span>تحميل PDF</span>
     </div>
 
-    <!-- Profile Modal -->
-    <div id="profile-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2">
-                    <h3 class="font-bold text-sm">الملف الشخصي</h3>
-                    <button onclick="window.location.reload()" class="bg-white/20 hover:bg-white/30 p-1 rounded text-[10px] flex items-center gap-1"><i data-lucide="refresh-cw" class="w-3 h-3"></i> تحديث</button>
-                </div>
-                <div class="flex items-center gap-2">
-                    <!-- Logout Button in Profile Header -->
-                    <button onclick="logout()" class="bg-red-500/20 hover:bg-red-500/40 text-red-200 px-2 py-1 rounded-lg flex items-center gap-1 transition border border-red-500/30">
-                        <i data-lucide="log-out" class="w-3 h-3"></i>
-                        <span class="text-[0.5rem] font-bold">تسجيل خروج</span>
-                    </button>
-                    <button onclick="toggleProfile()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
-                </div>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <!-- VIEW MODE -->
-                <div id="prof-view-mode">
-                    <div class="flex flex-col items-center gap-3 mb-6">
-                        <div id="prof-img-container" class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg"><i data-lucide="user" class="w-10 h-10 text-slate-400"></i></div>
-                        <div class="text-center w-full">
-                            <div class="flex items-center justify-center gap-1">
-                                <h2 id="prof-name" class="font-black text-xl text-navy dark:text-white">...</h2>
-                                <div id="prof-verified-badge" class="hidden verified-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.491 4.491 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></div>
-                            </div>
-
-                            <!-- P2P Chat Button -->
-                            <div id="prof-action-buttons" class="flex items-center justify-center gap-2 mt-2">
-                                <button id="global-edit-btn" onclick="toggleEditMode()" class="hidden flex items-center gap-1 text-primary hover:text-primary/80 bg-primary/10 px-3 py-1 rounded-full transition"><i data-lucide="pen-tool" class="w-3 h-3"></i> <span class="text-[10px] font-bold">تعديل</span></button>
-                                <!-- Message Button (Injected via JS) -->
-                            </div>
-
-                            <div id="prof-rating-display" class="flex justify-center items-center gap-1 mt-1 text-yellow-400 text-xs font-bold hidden"><span>★</span> <span id="prof-rating-val">0.0</span></div>
-                            <span id="prof-role" class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-slate-500 dark:text-slate-300 font-bold mt-1 inline-block">...</span>
-                            <p id="prof-joined" class="text-[10px] text-slate-400 mt-1 text-black dark:text-white font-bold"></p>
-                        </div>
-                    </div>
-                    <div class="space-y-3 mb-6">
-                        <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700"><label class="text-[10px] font-bold text-slate-400 mb-1 block">رقم الهاتف</label><div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white"><i data-lucide="phone" class="w-4 h-4 text-primary"></i><span id="prof-phone">...</span></div></div>
-                        <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700"><label class="text-[10px] font-bold text-slate-400 mb-1 block">العنوان بالتفصيل</label><div class="flex items-center gap-2 font-bold text-sm text-navy dark:text-white"><i data-lucide="map-pin" class="w-4 h-4 text-primary"></i><span id="prof-address">...</span></div></div>
-                        <div id="prof-rate-user-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
-                            <label class="text-[10px] font-bold text-slate-400 mb-2 block">قيم هذا المستخدم</label>
-                            <div class="flex flex-col gap-2">
-                                <div class="star-rating text-lg self-end">
-                                    <input type="radio" id="u-star5" name="u-rating" value="5" onclick="setUserRating(5)"><label for="u-star5">★</label>
-                                    <input type="radio" id="u-star4" name="u-rating" value="4" onclick="setUserRating(4)"><label for="u-star4">★</label>
-                                    <input type="radio" id="u-star3" name="u-rating" value="3" onclick="setUserRating(3)"><label for="u-star3">★</label>
-                                    <input type="radio" id="u-star2" name="u-rating" value="2" onclick="setUserRating(2)"><label for="u-star2">★</label>
-                                    <input type="radio" id="u-star1" name="u-rating" value="1" onclick="setUserRating(1)"><label for="u-star1">★</label>
-                                </div>
-                                <textarea id="user-review-text" class="form-input text-xs w-full" rows="2" placeholder="اكتب تعليقك..."></textarea>
-                                <button onclick="submitUserReview()" class="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">إرسال التقييم</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="prof-reviews-section" class="hidden">
-                        <h3 class="font-bold text-sm text-navy dark:text-white mb-3 border-b pb-2 border-slate-100 dark:border-slate-700">آراء العملاء</h3>
-                        <div id="prof-reviews-list" class="space-y-3"></div>
-                        <div class="flex gap-2 mt-2">
-                            <button id="prof-reviews-more" onclick="loadProfileReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button>
-                            <button id="prof-reviews-less" onclick="loadProfileReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button>
-                        </div>
-                    </div>
-                </div>
-                <!-- EDIT MODE -->
-                <div id="prof-edit-mode" class="hidden space-y-3">
-                    <div class="flex flex-col items-center gap-2 mb-4">
-                        <div class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-primary shadow-lg relative group">
-                            <img id="edit-img-preview" src="" class="w-full h-full object-cover hidden">
-                            <div id="edit-img-placeholder" class="flex flex-col items-center text-slate-400"><i data-lucide="camera" class="w-8 h-8"></i></div>
-                            <input type="file" id="edit-img-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleEditImage(this)">
-                        </div>
-                        <span class="text-[10px] text-primary font-bold">اضغط لتغيير الصورة</span>
-                    </div>
-                    <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">الاسم الكامل</label><input id="edit-name" type="text" class="form-input"></div>
-                    <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">رقم الهاتف</label><input id="edit-phone" type="tel" class="form-input" disabled style="opacity: 0.7;"></div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">المحافظة</label><select id="edit-gov" onchange="updateEditCities()" class="form-input text-xs"></select></div>
-                        <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">المركز/المدينة</label><select id="edit-city" class="form-input text-xs"></select></div>
-                    </div>
-                    <div><label class="text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 block">العنوان بالتفصيل</label><input id="edit-address" type="text" class="form-input"></div>
-                    <div id="prof-password-section" class="hidden bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-4">
-                        <label class="text-[10px] font-bold text-slate-400 mb-2 block">تغيير كلمة المرور</label>
-                        <div class="flex gap-2"><input id="new-password" type="password" class="form-input text-xs" placeholder="كلمة المرور الجديدة"><button onclick="changePassword()" class="bg-navy dark:bg-primary text-white px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap">تحديث</button></div>
-                    </div>
-                    <div class="flex gap-2 pt-4"><button onclick="saveProfile()" class="flex-1 bg-primary text-white py-2 rounded-xl font-bold text-sm shadow-lg">حفظ التعديلات</button><button onclick="toggleEditMode()" class="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-white py-2 rounded-xl font-bold text-sm">إلغاء</button></div>
-                </div>
-            </div>
-        </div>
+    <!-- تنقل الموبايل -->
+    <div class="mobile-nav">
+        <button class="nav-btn active" onclick="setTab('edit')"><i class="fas fa-pen"></i> تعديل</button>
+        <button class="nav-btn" onclick="setTab('view')"><i class="fas fa-eye"></i> معاينة</button>
     </div>
 
-    <!-- Notifications Modal -->
-    <div id="notif-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2">
-                    <h3 class="font-bold text-sm">الإشعارات</h3>
-                    <button onclick="clearNotifications()" class="bg-white/20 hover:bg-white/30 p-1 rounded text-[10px] flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> حذف الكل</button>
-                </div>
-                <button onclick="toggleNotifications()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <div id="notif-list" class="space-y-3"></div>
-                <div id="notif-load-more" class="hidden text-center mt-4">
-                    <button onclick="loadNotifications(true)" class="text-xs font-bold text-primary underline">عرض المزيد</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Chat List Modal (New) -->
-    <div id="chat-list-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <h3 class="font-bold text-sm">المحادثات</h3>
-                <button onclick="toggleChatList()" class="bg-red-500 hover:bg-red-600 p-1.5 rounded-full text-white shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <div id="chat-list-container" class="space-y-2">
-                    <!-- Chat items will be injected here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Rest of Modals (Order, Add, Details, Chat, Lightbox) -->
-    <!-- Order Modal -->
-    <div id="order-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <h3 class="font-bold text-sm">طلب المنتج</h3>
-                <button onclick="toggleOrderModal()" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <div class="mb-4 p-2 bg-slate-50 dark:bg-slate-800 rounded-lg flex gap-3 items-center">
-                    <img id="ord-img" src="" class="w-12 h-12 rounded object-cover">
-                    <div><h4 id="ord-title" class="font-bold text-xs text-navy dark:text-white"></h4><span id="ord-price" class="text-primary font-black text-sm"></span></div>
-                </div>
-                <div id="order-items-container" class="space-y-3"></div>
-                <button onclick="addOrderItem()" class="w-full py-2 mt-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 text-xs font-bold hover:border-primary hover:text-primary transition flex items-center justify-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> إضافة قطعة أخرى</button>
-                <div class="mt-6 space-y-3 border-t border-slate-100 dark:border-slate-700 pt-4">
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="form-label">المحافظة</label><select id="ord-gov" onchange="updateOrderCities()" class="form-input text-xs"></select></div>
-                        <div><label class="form-label">المركز/المدينة</label><select id="ord-city" class="form-input text-xs"><option value="">اختر المحافظة</option></select></div>
-                    </div>
-                    <div><label class="form-label">العنوان بالتفصيل</label><input id="ord-address" type="text" class="form-input text-xs" placeholder="الشارع، رقم المنزل..."></div>
-                    <div><label class="form-label">رقم الهاتف</label><input id="ord-phone" type="tel" class="form-input text-xs" placeholder="01xxxxxxxxx"></div>
-                </div>
-            </div>
-            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg shrink-0">
-                <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-slate-500">الإجمالي:</span><span id="ord-total" class="text-lg font-black text-primary">0 ج.م</span></div>
-                <button onclick="confirmOrder()" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg">تأكيد الطلب عبر واتساب</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Modal -->
-    <div id="add-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 shrink-0 h-12">
-                <h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة منتج</h3>
-                <button onclick="toggleAddModal()" class="bg-white dark:bg-slate-700 p-1 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-white hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-white dark:bg-darkbg custom-scroll">
-                <div class="form-group"><span class="form-label">الصور (max 7)</span><div class="grid grid-cols-4 gap-1.5"><label class="aspect-square border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition text-primary relative overflow-hidden group"><input type="file" multiple accept="image/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1 group-hover:scale-110 transition"></i><span class="text-[9px] font-bold">إضافة</span></label><div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar items-center"></div></div></div>
-                <div class="grid grid-cols-2 gap-1.5">
-                    <div class="form-group"><label class="form-label">اسم المنتج</label><input id="in-title" class="form-input" placeholder="اسم المنتج..."></div>
-                    <div class="form-group"><label class="form-label">السعر</label><input id="in-price" type="number" class="form-input" placeholder="0"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-1.5">
-                    <div class="form-group"><label class="form-label">القسم</label><select id="in-cat" onchange="updateFormFields()" class="form-input bg-gray-50"></select></div>
-                    <div id="field-condition" class="form-group hidden"><label class="form-label">الحالة</label><select id="in-condition" class="form-input"><option value="new">جديد</option><option value="used">مستعمل</option><option value="openbox">كسر زيرو</option></select></div>
-                </div>
-
-                <!-- Dynamic Fields Container -->
-                <div id="dynamic-fields" class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 form-group space-y-2 hidden">
-                    <!-- Clothes/Shoes -->
-                    <div id="field-size-chips" class="hidden"><label class="form-label text-primary">المقاسات المتاحة</label><div id="size-chips-container" class="flex flex-wrap gap-1.5"></div></div>
-                    <div id="field-color-chips" class="hidden"><label class="form-label text-primary">الألوان المتاحة</label><div id="color-chips-container" class="flex flex-wrap gap-1.5"></div></div>
-                    <!-- 1. Cars -->
-                    <div id="section-cars" class="hidden space-y-2">
-                        <div class="flex gap-2 mb-1">
-                            <label class="flex-1 cursor-pointer"><input type="radio" name="car-type" value="car" checked onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">سيارة</div></label>
-                            <label class="flex-1 cursor-pointer"><input type="radio" name="car-type" value="accessory" onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">اكسسوارات</div></label>
-                        </div>
-                        <div id="car-fields-main">
-                            <select id="in-car-brand" class="form-input mb-2"><option value="">الماركة</option></select>
-                            <div class="grid grid-cols-2 gap-1.5 mb-2">
-                                <input id="in-car-model" class="form-input" placeholder="الموديل">
-                                <input id="in-car-year" type="number" class="form-input" placeholder="سنة الصنع">
-                            </div>
-                            <div class="grid grid-cols-2 gap-1.5 mb-2">
-                                <select id="in-car-fuel" class="form-input"><option value="">الوقود</option><option value="بنزين">بنزين</option><option value="ديزل">ديزل</option><option value="كهرباء">كهرباء</option><option value="هجين">هجين</option></select>
-                                <select id="in-car-trans" class="form-input"><option value="">الفتيس</option><option value="مانيوال">مانيوال</option><option value="أوتوماتيك">أوتوماتيك</option></select>
-                            </div>
-                            <div class="grid grid-cols-2 gap-1.5 mb-2">
-                                <input id="in-car-km" type="number" class="form-input" placeholder="كم مشت (كم)">
-                                <input id="in-car-cc" type="number" class="form-input" placeholder="سعة المحرك (CC)">
-                            </div>
-                            <label class="form-label text-primary">الميزات</label>
-                            <div class="flex flex-wrap gap-1.5" id="car-features-list"></div>
-                        </div>
-                        <div id="car-fields-acc" class="hidden">
-                            <input id="in-car-acc-name" class="form-input mb-2" placeholder="اسم الاكسسوار (إطارات، بطارية...)">
-                            <select id="in-car-acc-cond" class="form-input"><option value="new">جديد</option><option value="used">مستعمل</option></select>
-                        </div>
-                    </div>
-                    <!-- 2. Electronics -->
-                    <div id="section-electronics" class="hidden space-y-2">
-                        <select id="in-elec-type" class="form-input"><option value="">النوع</option><option value="phone">هاتف</option><option value="laptop">لابتوب</option><option value="tablet">تابلت</option><option value="pc">كمبيوتر</option><option value="watch">ساعة ذكية</option><option value="headphone">سماعات</option></select>
-                        <input id="in-elec-brand" class="form-input" placeholder="الماركة (مثل: Samsung, Apple)">
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <select id="in-elec-ram" class="form-input"><option value="">الرام</option><option value="2">2 GB</option><option value="4">4 GB</option><option value="6">6 GB</option><option value="8">8 GB</option><option value="12">12 GB</option><option value="16">16+ GB</option></select>
-                            <select id="in-elec-storage" class="form-input"><option value="">المساحة</option><option value="32">32 GB</option><option value="64">64 GB</option><option value="128">128 GB</option><option value="256">256 GB</option><option value="512">512 GB</option><option value="1024">1 TB</option></select>
-                        </div>
-                        <input id="in-elec-battery" type="text" class="form-input" placeholder="حالة البطارية %">
-                    </div>
-                    <!-- 3. Pets -->
-                    <div id="section-pets" class="hidden space-y-2">
-                        <div class="flex gap-2 mb-1">
-                            <label class="flex-1 cursor-pointer"><input type="radio" name="pet-type" value="sale" checked onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">حيوان للبيع</div></label>
-                            <label class="flex-1 cursor-pointer"><input type="radio" name="pet-type" value="supplies" onchange="updateFormFields()" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">مستلزمات</div></label>
-                        </div>
-                        <div id="pet-fields-sale">
-                            <select id="in-pet-cat" class="form-input mb-2"><option value="">النوع</option><option value="cat">قطط</option><option value="dog">كلاب</option><option value="bird">طيور</option><option value="fish">أسماك</option></select>
-                            <input id="in-pet-breed" class="form-input mb-2" placeholder="السلالة">
-                            <div class="grid grid-cols-2 gap-1.5">
-                                <input id="in-pet-age" class="form-input" placeholder="العمر">
-                                <select id="in-pet-gender" class="form-input"><option value="">الجنس</option><option value="male">ذكر</option><option value="female">أنثى</option></select>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 4. Home Appliances -->
-                    <div id="section-home-tools" class="hidden space-y-2">
-                        <input id="in-ht-type" class="form-input" placeholder="نوع الأداة (أواني، ديكور...)">
-                        <input id="in-ht-material" class="form-input" placeholder="المادة (خشب، زجاج...)">
-                    </div>
-                    <!-- 5. Electrical Appliances -->
-                    <div id="section-electrical" class="hidden space-y-2">
-                        <select id="in-ea-type" class="form-input"><option value="">الجهاز</option><option value="fridge">ثلاجة</option><option value="washer">غسالة</option><option value="stove">بوتاجاز</option><option value="ac">تكييف</option><option value="tv">تلفزيون</option></select>
-                        <input id="in-ea-brand" class="form-input" placeholder="الماركة">
-                        <input id="in-ea-cap" class="form-input" placeholder="السعة/القدرة (مثلاً: 14 قدم)">
-                    </div>
-                    <!-- 6. Furniture -->
-                    <div id="section-furniture" class="hidden space-y-2">
-                        <select id="in-furn-type" class="form-input"><option value="">النوع</option><option value="bed">سرير</option><option value="sofa">كنب/أنتريه</option><option value="table">ترابيزة</option><option value="wardrobe">دولاب</option></select>
-                        <input id="in-furn-mat" class="form-input" placeholder="الخامة (خشب زان، معدن...)">
-                        <input id="in-furn-dim" class="form-input" placeholder="المقاسات">
-                    </div>
-                    <!-- 7. Raw Materials -->
-                    <div id="section-raw" class="hidden space-y-2">
-                        <select id="in-raw-type" class="form-input"><option value="">النوع</option><option value="wood">خشب</option><option value="iron">حديد</option><option value="plastic">بلاستيك</option><option value="alum">ألومنيوم</option></select>
-                        <input id="in-raw-qty" class="form-input" placeholder="الكمية / الوزن">
-                    </div>
-                    <!-- 8. Construction -->
-                    <div id="section-const" class="hidden space-y-2">
-                        <select id="in-const-type" class="form-input"><option value="">المستلزم</option><option value="cement">أسمنت</option><option value="sand">رمل</option><option value="paint">دهانات</option><option value="ceramic">سيراميك</option></select>
-                        <input id="in-const-qty" class="form-input" placeholder="الكمية">
-                    </div>
-                    <!-- 9. Cameras -->
-                    <div id="section-cams" class="hidden space-y-2">
-                        <select id="in-cam-type" class="form-input"><option value="">النوع</option><option value="cam">كاميرا</option><option value="dvr">DVR/NVR</option></select>
-                        <select id="in-cam-res" class="form-input"><option value="">الدقة</option><option value="hd">HD</option><option value="fhd">FHD</option><option value="4k">4K</option></select>
-                    </div>
-                    <!-- 10. Decor -->
-                    <div id="section-decor" class="hidden space-y-2">
-                        <input id="in-dec-type" class="form-input" placeholder="النوع (لوحات، نجف...)">
-                        <input id="in-dec-dim" class="form-input" placeholder="المقاس">
-                    </div>
-                    <!-- 11. Real Estate -->
-                    <div id="section-realestate" class="hidden space-y-2">
-                        <div class="flex gap-2 mb-1">
-                            <label class="flex-1 cursor-pointer"><input type="radio" name="re-type" value="sale" checked class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">بيع</div></label>
-                            <label class="flex-1 cursor-pointer"><input type="radio" name="re-type" value="rent" class="hidden peer"><div class="text-center py-1 rounded border border-slate-300 text-[10px] peer-checked:bg-navy peer-checked:text-white">إيجار</div></label>
-                        </div>
-                        <select id="in-re-cat" class="form-input"><option value="">نوع العقار</option><option value="apt">شقة</option><option value="villa">فيلا</option><option value="shop">محل</option><option value="land">أرض</option><option value="chalet">شاليه</option></select>
-                        <div class="grid grid-cols-3 gap-1.5">
-                            <input id="in-re-area" type="number" class="form-input" placeholder="المساحة (م)">
-                            <input id="in-re-rooms" type="number" class="form-input" placeholder="غرف">
-                            <input id="in-re-bath" type="number" class="form-input" placeholder="حمام">
-                        </div>
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <select id="in-re-finish" class="form-input"><option value="">التشطيب</option><option value="super">سوبر لوكس</option><option value="full">كامل</option><option value="semi">نصف</option><option value="none">بدون</option></select>
-                            <input id="in-re-floor" type="number" class="form-input" placeholder="الدور">
-                        </div>
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <select id="in-re-pay" class="form-input"><option value="">نظام الدفع</option><option value="cash">كاش</option><option value="install">تقسيط</option></select>
-                            <select id="in-re-furnished" class="form-input"><option value="">مفروش؟</option><option value="yes">نعم</option><option value="no">لا</option></select>
-                        </div>
-                        <label class="form-label text-primary">الميزات</label>
-                        <div class="flex flex-wrap gap-1.5" id="re-features-list"></div>
-                    </div>
-                </div>
-
-                <div class="form-group bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
-                    <label class="form-label mb-1">أماكن الشحن</label>
-                    <div class="flex gap-2 mb-2">
-                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="all" onchange="toggleShipGov()" checked class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">كل المحافظات</div></label>
-                        <label class="flex-1 cursor-pointer"><input type="radio" name="ship-mode" value="specific" onchange="toggleShipGov()" class="hidden peer"><div class="text-center py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[10px] font-bold text-slate-500 peer-checked:border-primary peer-checked:text-primary peer-checked:bg-white dark:peer-checked:bg-slate-700 transition">محافظات محددة</div></label>
-                    </div>
-                    <div id="ship-gov-container" class="hidden">
-                        <div class="text-[10px] mb-1 text-slate-400">اختر المحافظات المتاحة:</div>
-                        <div id="ship-gov-list" class="max-h-24 overflow-y-auto custom-scroll grid grid-cols-2 gap-1 p-1 bg-white dark:bg-darkbg border border-slate-200 dark:border-slate-600 rounded-lg"></div>
-                    </div>
-                </div>
-                <div class="form-group"><label class="form-label">مواصفات إضافية:</label><div class="flex flex-wrap gap-1.5"><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="أصلي"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">أصلي</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="متوفر فاتورة"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">متوفر فاتورة</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="ضمان"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">ضمان</div></label><label class="cursor-pointer"><input type="checkbox" class="chip-checkbox hidden" value="توصيل"><div class="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:bg-slate-100">توصيل</div></label></div></div>
-                <div class="form-group"><label class="form-label">تمييز:</label><div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg"><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="none" checked class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:shadow-sm peer-checked:text-navy dark:peer-checked:text-white transition">عادي</div></label><label class="flex-1 cursor-pointer text-center"><input type="radio" name="badge" value="hot" class="hidden peer"><div class="text-center py-1 rounded-md text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white transition">🔥 عرض</div></label></div></div>
-                <div class="grid grid-cols-3 gap-1.5">
-                    <div class="form-group col-span-1"><label class="form-label">رقم الهاتف</label><input id="in-phone" type="tel" class="form-input" placeholder="01xxxxxxxxx"></div>
-                    <div class="form-group col-span-2"><label class="form-label">الوصف</label><textarea id="in-desc" rows="1" class="form-input" placeholder="تفاصيل..."></textarea></div>
-                </div>
-            </div>
-            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shrink-0 pb-8 md:pb-3"><button onclick="submitListing()" id="btn-publish" class="w-full bg-navy dark:bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-navy/20 hover:opacity-90 transition flex justify-center items-center gap-2"><span>نشر الآن</span><i data-lucide="arrow-left" class="w-4 h-4"></i></button></div>
-        </div>
-    </div>
-
-    <!-- Details Modal -->
-    <div id="details-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="relative h-72 bg-gray-100 dark:bg-slate-800 shrink-0 group">
-                <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
-                <div class="absolute top-3 right-3 flex gap-2 z-20">
-                    <div id="d-admin-controls" class="flex gap-2"></div>
-                    <button onclick="downloadImg()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="download" class="w-5 h-5"></i></button>
-                    <button onclick="copyDetails()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm hover:bg-white hover:text-primary transition"><i data-lucide="copy" class="w-5 h-5"></i></button>
-                    <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
-                </div>
-                <div id="details-slider-container" class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800"><img id="details-img" src="" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(this.src)"></div>
-                <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
-                <div id="details-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"></div>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-darkbg custom-scroll">
-                <button onclick="toggleOrderModal()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg mb-4 flex items-center justify-center gap-2 animate-pulse"><i data-lucide="shopping-cart" class="w-5 h-5"></i> طلب المنتج</button>
-
-                <div id="d-pub-bar" class="flex items-center justify-between mb-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 h-auto cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/80 transition">
-                     <div class="flex items-center gap-2">
-                         <div id="d-pub-img" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-3 h-3 text-slate-400"></i></div>
-                         <div class="flex flex-col justify-center">
-                             <div class="flex items-center gap-1">
-                                 <h4 id="d-pub-name" class="font-bold text-[10px] text-navy dark:text-white leading-tight">...</h4>
-                                 <div id="d-pub-verified" class="hidden verified-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.491 4.491 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></div>
-                             </div>
-                             <span class="text-[8px] text-slate-400">اضغط لعرض حساب الناشر </span>
-                         </div>
-                     </div>
-                     <!-- P2P Chat Button in Details -->
-                     <button id="d-chat-btn" class="bg-primary/10 text-primary p-2 rounded-full hover:bg-primary/20 transition"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
-                </div>
-
-                <!-- Main Details Table -->
-                <table class="details-table">
-                    <tbody>
-                        <tr><td>اسم المنتج:</td><td id="d-title">...</td></tr>
-                        <tr><td>السعر:</td><td id="d-price" class="text-primary">...</td></tr>
-                        <tr><td>القسم:</td><td id="d-cat">...</td></tr>
-                        <tr><td>تاريخ النشر:</td><td id="d-date">...</td></tr>
-                    </tbody>
-                </table>
-
-                <!-- CONDITION BADGE -->
-                <div id="d-condition-badge" class="mb-3 hidden"></div>
-
-                <div id="d-variants-container" class="space-y-2 mb-4">
-                    <div id="d-sizes-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">المقاسات:</span><div id="d-sizes-list" class="flex flex-wrap gap-1"></div></div>
-                    <div id="d-colors-row" class="hidden flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg"><span class="text-[10px] font-bold text-slate-400 shrink-0">الألوان:</span><div id="d-colors-list" class="flex flex-wrap gap-1"></div></div>
-                </div>
-
-                <!-- Dynamic Specs Container (GRID) -->
-                <div id="d-dynamic-specs" class="mb-4 hidden"></div>
-
-                <!-- Features -->
-                <div id="d-features-container" class="mb-4 hidden">
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 mb-2">المميزات:</h3>
-                    <div id="d-features" class="flex flex-wrap gap-2"></div>
-                </div>
-
-                <div class="space-y-1 mb-6"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium select-text"></p></div>
-
-                <!-- Shipping Info (Moved here) -->
-                <div id="d-shipping-bar" class="mb-4 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
-                    <div id="d-shipping-info" class="flex items-center gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-300"></div>
-                </div>
-
-                <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-white mb-3">التقييمات</h3>
-                    <div id="product-reviews-list" class="space-y-3 mb-3"></div>
-                    <div class="flex gap-2 mt-2"><button id="load-more-reviews" onclick="loadProductReviews(true)" class="hidden flex-1 text-center text-xs text-primary font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض المزيد</button><button id="load-less-reviews" onclick="loadProductReviews(false, true)" class="hidden flex-1 text-center text-xs text-red-500 font-bold py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">عرض أقل</button></div>
-                    <div id="add-review-form" class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2">
-                        <div class="flex justify-between items-center mb-2"><span class="text-[10px] font-bold">أضف تقييمك</span><div class="star-rating text-lg"><input type="radio" id="star5" name="rating" value="5" onclick="setRating(5)"><label for="star5">★</label><input type="radio" id="star4" name="rating" value="4" onclick="setRating(4)"><label for="star4">★</label><input type="radio" id="star3" name="rating" value="3" onclick="setRating(3)"><label for="star3">★</label><input type="radio" id="star2" name="rating" value="2" onclick="setRating(2)"><label for="star2">★</label><input type="radio" id="star1" name="rating" value="1" onclick="setRating(1)"><label for="star1">★</label></div></div>
-                        <textarea id="review-text" class="form-input text-xs w-full mb-2" rows="2" placeholder="اكتب رأيك هنا..."></textarea>
-                        <button onclick="submitProductReview()" class="bg-navy dark:bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold w-full">نشر التقييم</button>
-                    </div>
-                </div>
-            </div>
-            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex gap-2 shrink-0 pb-8 md:pb-3"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-navy dark:bg-primary text-white py-2.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-sm"><i data-lucide="phone" class="w-4 h-4"></i> اتصال</a></div>
-        </div>
-    </div>
-
-    <!-- Chat Modal -->
-    <div id="chat-modal" class="hidden modal-overlay">
-        <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
-            <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2">
-                    <div id="chat-header-img" class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden"><i data-lucide="user" class="w-5 h-5"></i></div>
-                    <div><h4 id="chat-header-name" class="font-bold text-xs">المحادثة</h4></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="deleteCurrentChat()" class="hover:bg-white/20 p-1.5 rounded-full text-red-200"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    <button onclick="closeChatModal()" class="hover:bg-white/20 p-1.5 rounded-full"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
-                </div>
-            </div>
-            <div id="chat-box" class="flex-1 bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto space-y-2 text-xs"></div>
-            <div class="p-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex items-center gap-2 shrink-0 pb-safe">
-                <label class="cursor-pointer p-2 bg-slate-100 dark:bg-slate-700 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition">
-                    <input type="file" accept="image/*" class="hidden" onchange="sendImageMsg(this)">
-                    <i data-lucide="image" class="w-4 h-4 text-slate-500 dark:text-white"></i>
-                </label>
-                <input id="chat-msg" type="text" class="flex-1 bg-slate-100 dark:bg-slate-700 border-0 rounded-full px-4 py-3 text-sm outline-none dark:text-white font-bold" placeholder="اكتب..."><button onclick="sendMsg()" class="w-8 h-8 bg-navy dark:bg-primary rounded-full text-white flex items-center justify-center shadow"><i data-lucide="send" class="w-4 h-4"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Lightbox -->
-    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[300] flex flex-col items-center justify-center select-none">
-        <button onclick="closeLightbox()" class="absolute top-4 left-4 bg-white/20 text-white p-2 rounded-full z-20"><i data-lucide="x" class="w-6 h-6"></i></button>
-        <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
-        <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full z-20 hover:bg-black/50 transition"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
-        <div class="relative w-full h-full flex items-center justify-center"><img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain"></div>
-    </div>
+</div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, getDocs, limit, orderBy, startAfter, enableIndexedDbPersistence, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-    const CLOUD_NAME = "db9h7zm1h"; 
-    const UPLOAD_PRESET = "souq_upload"; 
-    const MASTER_UID = "Yfh6ZMvgxOWBNpXQUe6aEgxvUS52";
+    // إعدادات Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDn6kABt5ISTZUIc12nik0s3_OmnL0PRVU",
+      authDomain: "occasions-pwa.firebaseapp.com",
+      projectId: "occasions-pwa",
+      storageBucket: "occasions-pwa.firebasestorage.app",
+      messagingSenderId: "271278039483",
+      appId: "1:271278039483:web:999409ab6fddd9853ca49e"
+    };
 
-    // --- HELPER FUNCTIONS ---
-    async function compressImage(file, maxWidth = 600, quality = 0.5) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = event => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    let width = img.width;
-                    let height = img.height;
-                    if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
-                    const canvas = document.createElement('canvas');
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    canvas.toBlob(blob => { resolve(blob); }, 'image/jpeg', quality);
-                };
-                img.onerror = error => reject(error);
-            };
-            reader.onerror = error => reject(error);
-        });
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const CLOUD_NAME = "db9h7zm1h";
+    const UPLOAD_PRESET = "souq_upload";
+
+    // --- إدارة البيانات الديناميكية ---
+    window.expList = [];
+    window.eduList = [];
+
+    // إضافة حقل خبرة جديد
+    window.addExperienceField = () => {
+        const id = Date.now();
+        window.expList.push({ id, role: '', company: '', date: '', desc: '' });
+        renderExpInputs();
+    };
+
+    // إضافة حقل تعليم جديد
+    window.addEduField = () => {
+        const id = Date.now();
+        window.eduList.push({ id, degree: '', school: '', date: '' });
+        renderEduInputs();
+    };
+
+    // رسم حقول الإدخال للخبرات
+    function renderExpInputs() {
+        const container = document.getElementById('expContainer');
+        container.innerHTML = window.expList.map(item => `
+            <div class="dynamic-card">
+                <button class="btn-remove" onclick="removeExp(${item.id})"><i class="fas fa-trash"></i></button>
+                <div class="input-group">
+                    <input type="text" placeholder="المسمى الوظيفي" value="${item.role}" oninput="updateExp(${item.id}, 'role', this.value)">
+                </div>
+                <div class="input-group">
+                    <input type="text" placeholder="اسم الشركة" value="${item.company}" oninput="updateExp(${item.id}, 'company', this.value)">
+                </div>
+                <div class="input-group">
+                    <input type="text" placeholder="الفترة (مثال: 2020 - الآن)" value="${item.date}" oninput="updateExp(${item.id}, 'date', this.value)">
+                </div>
+                <div class="input-group">
+                    <textarea rows="2" placeholder="وصف المهام..." oninput="updateExp(${item.id}, 'desc', this.value)">${item.desc}</textarea>
+                </div>
+            </div>
+        `).join('');
+        renderCV(); // تحديث المعاينة
     }
 
-    async function uploadToCloudinary(file) {
+    // رسم حقول الإدخال للتعليم
+    function renderEduInputs() {
+        const container = document.getElementById('eduContainer');
+        container.innerHTML = window.eduList.map(item => `
+            <div class="dynamic-card">
+                <button class="btn-remove" onclick="removeEdu(${item.id})"><i class="fas fa-trash"></i></button>
+                <div class="input-group">
+                    <input type="text" placeholder="الدرجة العلمية" value="${item.degree}" oninput="updateEdu(${item.id}, 'degree', this.value)">
+                </div>
+                <div class="input-group">
+                    <input type="text" placeholder="الجامعة / المدرسة" value="${item.school}" oninput="updateEdu(${item.id}, 'school', this.value)">
+                </div>
+                <div class="input-group">
+                    <input type="text" placeholder="سنة التخرج" value="${item.date}" oninput="updateEdu(${item.id}, 'date', this.value)">
+                </div>
+            </div>
+        `).join('');
+        renderCV();
+    }
+
+    // دوال مساعدة للتحديث والحذف
+    window.removeExp = (id) => { window.expList = window.expList.filter(x => x.id !== id); renderExpInputs(); };
+    window.removeEdu = (id) => { window.eduList = window.eduList.filter(x => x.id !== id); renderEduInputs(); };
+    
+    window.updateExp = (id, field, val) => {
+        const item = window.expList.find(x => x.id === id);
+        if(item) { item[field] = val; renderCV(); }
+    };
+    window.updateEdu = (id, field, val) => {
+        const item = window.eduList.find(x => x.id === id);
+        if(item) { item[field] = val; renderCV(); }
+    };
+
+    // --- دالة رسم الـ CV (المعاينة) ---
+    window.renderCV = () => {
+        // النصوص الأساسية
+        document.getElementById('outName').innerText = document.getElementById('inName').value || "الاسم هنا";
+        document.getElementById('outTitle').innerText = document.getElementById('inTitle').value || "المسمى الوظيفي";
+        document.getElementById('outPhone').innerText = document.getElementById('inPhone').value || "---";
+        document.getElementById('outEmail').innerText = document.getElementById('inEmail').value || "---";
+        document.getElementById('outLoc').innerText = document.getElementById('inLoc').value || "---";
+        document.getElementById('outSummary').innerText = document.getElementById('inSummary').value || "اكتب نبذة عنك...";
+
+        // المهارات
+        const skillsDiv = document.getElementById('outSkills');
+        skillsDiv.innerHTML = "";
+        const skillsTxt = document.getElementById('inSkills').value;
+        if(skillsTxt) {
+            skillsTxt.split(/,|،/).forEach(s => {
+                if(s.trim()) {
+                    const span = document.createElement('span');
+                    span.className = 'skill-tag';
+                    span.innerText = s.trim();
+                    skillsDiv.appendChild(span);
+                }
+            });
+        }
+
+        // الخبرات (Timeline)
+        const expDiv = document.getElementById('outExp');
+        if(window.expList.length > 0) {
+            expDiv.innerHTML = window.expList.map(item => `
+                <div class="timeline-item">
+                    <h4>${item.role}</h4>
+                    <div class="sub-title">${item.company}</div>
+                    <span class="date">${item.date}</span>
+                    <p>${item.desc}</p>
+                </div>
+            `).join('');
+        } else {
+            expDiv.innerHTML = '<p style="color:#ccc; font-size:12px;">لا توجد خبرات مضافة</p>';
+        }
+
+        // التعليم
+        const eduDiv = document.getElementById('outEdu');
+        if(window.eduList.length > 0) {
+            eduDiv.innerHTML = window.eduList.map(item => `
+                <div class="timeline-item" style="border:none; padding-bottom:0;">
+                    <h4>${item.degree}</h4>
+                    <div class="sub-title">${item.school}</div>
+                    <span class="date">${item.date}</span>
+                </div>
+            `).join('');
+        } else {
+            eduDiv.innerHTML = '<p style="color:#ccc; font-size:12px;">لا يوجد تعليم مضاف</p>';
+        }
+    };
+
+    // --- رفع الملفات (Cloudinary) ---
+    async function uploadFile(file, type, statusId) {
+        const status = document.getElementById(statusId);
+        status.innerText = "جاري الرفع... ⏳"; status.style.color = "orange";
+        
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", UPLOAD_PRESET);
+
         try {
-            const compressedBlob = await compressImage(file);
-            const formData = new FormData();
-            formData.append('file', compressedBlob);
-            formData.append('upload_preset', UPLOAD_PRESET);
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: formData });
-            if (!response.ok) throw new Error('فشل الرفع');
-            const data = await response.json();
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${type}/upload`, { method: "POST", body: formData });
+            const data = await res.json();
+            status.innerText = "تم الرفع ✅"; status.style.color = "green";
             return data.secure_url;
-        } catch (error) {
-            console.error("Cloudinary Error:", error);
-            showToast("فشل رفع الصورة، تأكد من الإنترنت", "e");
+        } catch (e) {
+            status.innerText = "فشل ❌"; status.style.color = "red";
             return null;
         }
     }
 
-    // --- GLOBAL STATE ---
-    let state = { user: null, userData: null, listings: [], images: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: localStorage.getItem('last_filter') || 'all', currentView: localStorage.getItem('last_view') || 'home', currentItem: null, lightboxImages: [], lightboxIndex: 0, detailsSliderIndex: 0, detailsSliderImages: [], authRole: 'customer', authType: 'login', authImageBase64: null, userRole: 'customer', currentRating: 0, currentUserRating: 0, productReviews: [], productReviewsLimit: 1, profileReviews: [], profileReviewsLimit: 3, viewingProfileId: null, orderItems: [], visibleLimit: 6, authorCache: {}, lastVisibleDoc: null, isLoadingMore: false, masterTargetUid: null, isLoggingOut: false, notifLimit: 5, isSupportChat: false, chatUnsubscribe: null };
+    document.getElementById('uplImage').addEventListener('change', async (e) => {
+        const url = await uploadFile(e.target.files[0], 'image', 'stImg');
+        if(url) document.getElementById('outImg').src = url;
+    });
 
-    // --- FIREBASE INIT ---
-    const firebaseConfig = { apiKey: "AIzaSyA5OiTcX95GBgiJoDHnY3y7N23o-j8hsQ8", authDomain: "services-cef84.firebaseapp.com", databaseURL: "https://services-cef84-default-rtdb.firebaseio.com", projectId: "services-cef84", storageBucket: "services-cef84.firebasestorage.app", messagingSenderId: "902396219187", appId: "1:902396219187:web:3ba084a724266afa8bb846" };
-    const app = initializeApp(firebaseConfig); 
-    const db = getFirestore(app); 
-    const auth = getAuth(app);
-    try { enableIndexedDbPersistence(db).catch((err) => { console.log('Persistence error', err); }); } catch(e) {}
-
-    // --- AUTH LISTENER ---
-    onAuthStateChanged(auth, async (u) => { 
-        const globalLoader = document.getElementById('global-loader');
-        if (state.isLoggingOut) return;
-        if(u) { 
-            state.user = u;
-            try {
-                const userDoc = await getDoc(doc(db, "users", u.uid));
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    if (data.isBanned) { await signOut(auth); showToast("تم حظر حسابك.", "e"); return; }
-                    state.userData = data; 
-                    state.userRole = data.role || 'customer'; 
-                    state.isAdmin = data.isAdmin === true;
-                    if(state.isAdmin) document.getElementById('btn-admin-top').classList.remove('hidden');
-                    if(u.uid === MASTER_UID) document.getElementById('btn-master-control').classList.remove('hidden');
-                    document.getElementById('header-username').innerText = data.name || u.displayName;
-                    document.getElementById('welcome-text').classList.remove('hidden');
-                    updateNavUI();
-                    document.getElementById('login-view').classList.add('hidden'); 
-                    document.getElementById('app-content').classList.remove('hidden');
-                    if(globalLoader) { globalLoader.classList.add('fade-out'); setTimeout(() => globalLoader.style.display = 'none', 500); }
-                    loadListings(); checkUserChat(); initFavs(); initCats(); initNotifications(); initChatBadges();
-                }
-            } catch(e) { 
-                console.warn("Role fetch failed", e); 
-                document.getElementById('login-view').classList.add('hidden'); 
-                document.getElementById('app-content').classList.remove('hidden');
-                if(globalLoader) globalLoader.style.display = 'none';
-            }
-        } else {
-            state.user = null;
-            document.getElementById('login-view').classList.remove('hidden'); 
-            document.getElementById('app-content').classList.add('hidden');
-            if(globalLoader) { globalLoader.classList.add('fade-out'); setTimeout(() => globalLoader.style.display = 'none', 500); }
+    document.getElementById('uplVideo').addEventListener('change', async (e) => {
+        const url = await uploadFile(e.target.files[0], 'video', 'stVid');
+        if(url) {
+            document.getElementById('qrSection').style.display = 'block';
+            const qrBox = document.getElementById("qrcode");
+            qrBox.innerHTML = "";
+            new QRCode(qrBox, { text: url, width: 90, height: 90 });
+            window.videoUrl = url;
         }
     });
 
-    // --- MODAL LOGIC (FIXED) ---
-    window.closeAllModals = () => {
-        const modals = ['profile-modal', 'order-modal', 'add-modal', 'details-modal', 'chat-modal', 'notif-modal', 'chat-list-modal'];
-        modals.forEach(id => { document.getElementById(id).classList.add('hidden'); });
-        document.body.style.overflow = '';
-    }
-
-    window.toggleModal = (id) => { 
-        const m = document.getElementById(id);
-        const isHidden = m.classList.contains('hidden');
-        if (isHidden) {
-            // Only close conflicting modals, NOT everything.
-            // If opening profile, keep details open if it was open.
-            if(id !== 'profile-modal' && id !== 'chat-modal') {
-                 closeAllModals();
-            }
-            m.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            return true;
-        } else {
-            m.classList.add('hidden');
-            // Only unlock scroll if NO other modals are open
-            const anyOpen = document.querySelectorAll('.mobile-full-modal:not(.hidden)').length > 0;
-            if(!anyOpen) document.body.style.overflow = '';
-            return false;
-        }
-    }
-
-    // --- PROFILE LOGIC (FIXED) ---
-    window.toggleProfile = async (userId = null) => { 
-        const targetId = userId || (state.user ? state.user.uid : null);
-        if(!targetId) { showToast("يجب تسجيل الدخول أولاً", "e"); return; }
-
-        if(toggleModal('profile-modal')) { 
-            state.viewingProfileId = targetId; 
-            const isOwner = state.user && state.user.uid === targetId; 
-            
-            // Reset UI
-            document.getElementById('prof-name').innerText = '...'; 
-            document.getElementById('prof-role').innerText = '...'; 
-            document.getElementById('prof-phone').innerText = '...'; 
-            document.getElementById('prof-address').innerText = '...'; 
-            document.getElementById('prof-joined').innerText = ''; 
-            document.getElementById('prof-img-container').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`; 
-            document.getElementById('prof-verified-badge').classList.add('hidden'); 
-            
-            // Toggle Sections based on Ownership
-            if(isOwner) {
-                document.getElementById('global-edit-btn').classList.remove('hidden'); 
-                document.getElementById('prof-password-section').classList.remove('hidden'); 
-                document.getElementById('prof-rate-user-section').classList.add('hidden'); // Hide rating for owner
-            } else {
-                document.getElementById('global-edit-btn').classList.add('hidden'); 
-                document.getElementById('prof-password-section').classList.add('hidden'); 
-                document.getElementById('prof-rate-user-section').classList.remove('hidden'); // Show rating for visitor
-            }
-
-            document.getElementById('prof-view-mode').classList.remove('hidden'); 
-            document.getElementById('prof-edit-mode').classList.add('hidden'); 
-
-            let data = null; 
-            if (isOwner && state.userData) { 
-                data = state.userData; 
-            } else { 
-                try { 
-                    const snap = await getDoc(doc(db, "users", targetId)); 
-                    if(snap.exists()) data = snap.data(); 
-                } catch(e) { console.error(e); } 
-            } 
-            
-            if(data) { 
-                document.getElementById('prof-name').innerText = data.name || 'مستخدم'; 
-                document.getElementById('prof-role').innerText = data.role === 'marketer' ? 'مسوق / بائع' : 'عميل'; 
-                document.getElementById('prof-phone').innerText = data.phone || 'غير مسجل'; 
-                document.getElementById('prof-address').innerText = (data.address || '') + ' - ' + (data.governorate || ''); 
-                document.getElementById('prof-joined').innerText = 'انضم: ' + formatDate(data.createdAt); 
-                if(data.image) { document.getElementById('prof-img-container').innerHTML = `<img src="${data.image}" class="w-full h-full object-cover">`; } 
-                
-                if(data.isVerified) { document.getElementById('prof-verified-badge').classList.remove('hidden'); } 
-                
-                calculateUserRating(targetId); 
-                
-                if(data.role === 'marketer') { 
-                    document.getElementById('prof-reviews-section').classList.remove('hidden'); 
-                    state.profileReviewsLimit = 3; 
-                    loadProfileReviews(false); 
-                } else {
-                    document.getElementById('prof-reviews-section').classList.add('hidden');
-                }
-            } 
-            lucide.createIcons(); 
-        } 
-    }
-
-    // --- RATING & REVIEWS FUNCTIONS (ADDED) ---
-    window.setRating = (n) => { state.currentRating = n; }
-    window.setUserRating = (n) => { state.currentUserRating = n; }
-
-    window.calculateUserRating = async (userId) => {
-        const q = query(collection(db, "user_reviews"), where("targetUserId", "==", userId));
-        const snap = await getDocs(q);
-        if(snap.empty) {
-            document.getElementById('prof-rating-display').classList.add('hidden');
-            return;
-        }
-        let total = 0;
-        snap.forEach(d => total += d.data().rating);
-        const avg = (total / snap.size).toFixed(1);
-        document.getElementById('prof-rating-val').innerText = avg;
-        document.getElementById('prof-rating-display').classList.remove('hidden');
-    }
-
-    window.loadProductReviews = async (append = false, reduce = false) => {
-        if(!state.currentItem) return;
-        const list = document.getElementById('product-reviews-list');
-        const moreBtn = document.getElementById('load-more-reviews');
-        const lessBtn = document.getElementById('load-less-reviews');
-
-        if(reduce) { state.productReviewsLimit = 1; append = false; }
-        else if(append) { state.productReviewsLimit += 3; }
-        else { state.productReviewsLimit = 1; }
-
-        const q = query(collection(db, "product_reviews"), where("productId", "==", state.currentItem.id), orderBy("timestamp", "desc"), limit(state.productReviewsLimit + 1));
-        const snap = await getDocs(q);
+    // --- تحميل PDF ---
+    window.downloadPDF = async () => {
+        const element = document.getElementById('cvTemplate');
         
-        if(!append) list.innerHTML = '';
-        
-        if(snap.empty) {
-            if(!append) list.innerHTML = '<div class="text-center text-slate-400 text-[10px]">لا توجد تقييمات بعد</div>';
-            moreBtn.classList.add('hidden');
-            lessBtn.classList.add('hidden');
-            return;
-        }
-
-        let count = 0;
-        snap.forEach(d => {
-            if(count < state.productReviewsLimit) {
-                const r = d.data();
-                const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
-                list.innerHTML += `
-                    <div class="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
-                        <div class="flex justify-between items-start">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-slate-200 overflow-hidden">${r.userImage ? `<img src="${r.userImage}" class="w-full h-full object-cover">` : '<i data-lucide="user" class="w-3 h-3 m-auto mt-1.5 text-slate-400"></i>'}</div>
-                                <span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span>
-                            </div>
-                            <span class="text-yellow-400 text-[10px] tracking-widest">${stars}</span>
-                        </div>
-                        <p class="text-[10px] text-slate-600 dark:text-slate-300 mt-1 pr-8">${r.text}</p>
-                    </div>
-                `;
-            }
-            count++;
-        });
-        lucide.createIcons();
-
-        if(snap.size > state.productReviewsLimit) moreBtn.classList.remove('hidden'); else moreBtn.classList.add('hidden');
-        if(state.productReviewsLimit > 1) lessBtn.classList.remove('hidden'); else lessBtn.classList.add('hidden');
-    }
-
-    window.loadProfileReviews = async (append = false, reduce = false) => {
-        if(!state.viewingProfileId) return;
-        const list = document.getElementById('prof-reviews-list');
-        const moreBtn = document.getElementById('prof-reviews-more');
-        const lessBtn = document.getElementById('prof-reviews-less');
-
-        if(reduce) { state.profileReviewsLimit = 3; append = false; }
-        else if(append) { state.profileReviewsLimit += 3; }
-        else { state.profileReviewsLimit = 3; }
-
-        const q = query(collection(db, "user_reviews"), where("targetUserId", "==", state.viewingProfileId), orderBy("timestamp", "desc"), limit(state.profileReviewsLimit + 1));
-        const snap = await getDocs(q);
-
-        if(!append) list.innerHTML = '';
-
-        if(snap.empty) {
-            if(!append) list.innerHTML = '<div class="text-center text-slate-400 text-[10px]">لا توجد آراء بعد</div>';
-            moreBtn.classList.add('hidden');
-            lessBtn.classList.add('hidden');
-            return;
-        }
-
-        let count = 0;
-        snap.forEach(d => {
-            if(count < state.profileReviewsLimit) {
-                const r = d.data();
-                const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
-                list.innerHTML += `
-                    <div class="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
-                        <div class="flex justify-between items-start">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-slate-200 overflow-hidden">${r.reviewerImage ? `<img src="${r.reviewerImage}" class="w-full h-full object-cover">` : '<i data-lucide="user" class="w-3 h-3 m-auto mt-1.5 text-slate-400"></i>'}</div>
-                                <span class="text-[10px] font-bold text-navy dark:text-white">${r.reviewerName}</span>
-                            </div>
-                            <span class="text-yellow-400 text-[10px] tracking-widest">${stars}</span>
-                        </div>
-                        <p class="text-[10px] text-slate-600 dark:text-slate-300 mt-1 pr-8">${r.text}</p>
-                    </div>
-                `;
-            }
-            count++;
-        });
-        lucide.createIcons();
-
-        if(snap.size > state.profileReviewsLimit) moreBtn.classList.remove('hidden'); else moreBtn.classList.add('hidden');
-        if(state.profileReviewsLimit > 3) lessBtn.classList.remove('hidden'); else lessBtn.classList.add('hidden');
-    }
-
-    // --- MISSING PROFILE FUNCTIONS ---
-    window.toggleEditMode = () => {
-        const view = document.getElementById('prof-view-mode');
-        const edit = document.getElementById('prof-edit-mode');
-        if(view.classList.contains('hidden')) {
-            view.classList.remove('hidden'); edit.classList.add('hidden');
-        } else {
-            view.classList.add('hidden'); edit.classList.remove('hidden');
-            // Populate fields
-            document.getElementById('edit-name').value = state.userData.name || '';
-            document.getElementById('edit-phone').value = state.userData.phone || '';
-            document.getElementById('edit-address').value = state.userData.address || '';
-            document.getElementById('edit-gov').value = state.userData.governorate || '';
-            updateEditCities();
-            document.getElementById('edit-city').value = state.userData.city || '';
-        }
-    }
-
-    window.saveProfile = async () => {
-        const name = document.getElementById('edit-name').value;
-        const gov = document.getElementById('edit-gov').value;
-        const city = document.getElementById('edit-city').value;
-        const address = document.getElementById('edit-address').value;
-        const img = state.tempEditImage || state.userData.image;
-
+        // حفظ في Firebase
         try {
-            await updateDoc(doc(db, "users", state.user.uid), {
-                name, governorate: gov, city, address, image: img
+            await addDoc(collection(db, "pro_resumes"), {
+                name: document.getElementById('inName').value,
+                createdAt: new Date(),
+                video: window.videoUrl || ""
             });
-            // Update local state
-            state.userData.name = name; state.userData.governorate = gov; state.userData.city = city; state.userData.address = address; state.userData.image = img;
-            showToast("تم تحديث الملف الشخصي");
-            toggleEditMode();
-            toggleProfile(state.user.uid); // Refresh view
-        } catch(e) {
-            console.error(e);
-            showToast("فشل التحديث", "e");
+        } catch(e) { console.log("Offline save"); }
+
+        const opt = {
+            margin: 0,
+            filename: 'Professional_CV.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        const btn = document.querySelector('.fab-save');
+        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i>";
+        
+        await html2pdf().set(opt).from(element).save();
+        
+        btn.innerHTML = "<i class='fas fa-file-download'></i> <span>تحميل PDF</span>";
+    };
+
+    // --- التبديل للموبايل ---
+    window.setTab = (mode) => {
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+        const btns = document.querySelectorAll('.nav-btn');
+        
+        if(mode === 'edit') {
+            editor.style.display = 'block';
+            preview.classList.remove('active');
+            btns[0].classList.add('active'); btns[1].classList.remove('active');
+        } else {
+            editor.style.display = 'none';
+            preview.classList.add('active');
+            btns[0].classList.remove('active'); btns[1].classList.add('active');
         }
-    }
+    };
 
-    window.changePassword = async () => {
-        const newPass = document.getElementById('new-password').value;
-        if(newPass.length < 6) return showToast("كلمة المرور قصيرة جداً", "e");
-        try {
-            await updatePassword(state.user, newPass);
-            showToast("تم تغيير كلمة المرور");
-            document.getElementById('new-password').value = '';
-        } catch(e) {
-            console.error(e);
-            showToast("يجب إعادة تسجيل الدخول لتغيير كلمة المرور", "e");
-        }
-    }
-
-    // --- REST OF THE APP LOGIC (Existing functions from previous code) ---
-    // (Include all other functions like loadListings, renderProducts, etc. here)
-    // Ensure to include: handleAuthImage, handleEditImage, handleUpload, installPWA, etc.
-    // For brevity in this response, I'm assuming the previous logic blocks are pasted here.
-    // I will re-paste the critical ones to ensure it works.
-
-    // ... [Paste all other functions: loadListings, renderProducts, createCard, openDetails, etc.] ...
-    // ... [Paste Auth Logic: processAuth, logout] ...
-    
-    // Re-attaching global scope functions just in case
-    window.handleAuthImage = handleAuthImage;
-    window.handleEditImage = handleEditImage;
-    window.handleUpload = handleUpload;
-    window.installPWA = installPWA;
-    window.closeInstall = closeInstall;
-    window.updateCities = updateCities;
-    window.updateEditCities = updateEditCities;
-    window.updateOrderCities = updateOrderCities;
-    window.setAuthRole = setAuthRole;
-    window.setAuthType = setAuthType;
-    window.processAuth = processAuth;
-    window.logout = logout;
-    window.applyFilters = applyFilters;
-    window.toggleFilterPanel = toggleFilterPanel;
-    window.resetFilters = resetFilters;
-    window.switchToCategoryView = switchToCategoryView;
-    window.switchToHomeView = switchToHomeView;
-    window.handleSearch = handleSearch;
-    window.filter = filter;
-    window.loadMoreItems = loadMoreItems;
-    window.toggleFav = toggleFav;
-    window.toggleFavView = toggleFavView;
-    window.updateFormFields = updateFormFields;
-    window.toggleShipGov = toggleShipGov;
-    window.submitListing = submitListing;
-    window.del = del;
-    window.toggleStatus = toggleStatus;
-    window.toggleDarkMode = toggleDarkMode;
-    window.shareListing = shareListing;
-    window.scrollCard = scrollCard;
-    window.openLightbox = openLightbox;
-    window.navigateLightbox = navigateLightbox;
-    window.closeLightbox = closeLightbox;
-    window.toggleAddModal = toggleAddModal;
-    window.toggleSupportChat = toggleSupportChat;
-    window.toggleChat = toggleChat;
-    window.closeChatModal = closeChatModal;
-    window.sendMsg = sendMsg;
-    window.sendImageMsg = sendImageMsg;
-    window.toggleAdminView = toggleAdminView;
-    window.toggleMasterView = toggleMasterView;
-    window.searchMasterUser = searchMasterUser;
-    window.saveMasterChanges = saveMasterChanges;
-    window.refreshAdmin = refreshAdmin;
-    window.loadAdmin = loadAdmin;
-    window.sendAdminMsg = sendAdminMsg;
-    window.kickUser = kickUser;
-    window.toggleChatList = toggleChatList;
-    window.openChatFromList = openChatFromList;
-    window.deleteCurrentChat = deleteCurrentChat;
-    window.renderChatList = renderChatList;
-    window.startPrivateChat = startPrivateChat;
-    window.toggleNotifications = toggleNotifications;
-    window.loadNotifications = loadNotifications;
-    window.clearNotifications = clearNotifications;
-    window.toggleProfile = toggleProfile;
-    window.submitUserReview = submitUserReview;
-    window.submitProductReview = submitProductReview;
-    window.toggleEditMode = toggleEditMode;
-    window.saveProfile = saveProfile;
-    window.changePassword = changePassword;
-    window.closeDetails = closeDetails;
-    window.downloadImg = downloadImg;
-    window.copyDetails = copyDetails;
-    window.scrollDetails = scrollDetails;
-    window.addOrderItem = () => {}; // Placeholder if needed
-    window.confirmOrder = () => {}; // Placeholder if needed
-    window.openDetails = openDetails;
-
-    // Initial Calls
-    initGovs();
-    initCats();
-    lucide.createIcons();
+    // تشغيل مبدئي لإضافة حقل واحد
+    window.addExperienceField();
+    window.addEduField();
 </script>
+
 </body>
 </html>
