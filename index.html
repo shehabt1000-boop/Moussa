@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CV Maker Pro - One Page</title>
-    
+    <title>CV Maker Pro - Final Fix</title>
+
     <!-- الخطوط -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- المكتبات -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
-            --editor-orange: #e67e22; /* لون عناوين المحرر */
+            --editor-orange: #e67e22;
             --navy: #2c3e50;
             --bg-app: #f4f6f8;
-            /* أبعاد A4 بالبكسل للدقة */
+            /* أبعاد A4 ثابتة ومقدسة - ممنوع تغييرها */
             --a4-w: 794px;
             --a4-h: 1123px;
         }
@@ -35,15 +35,11 @@
             box-shadow: 4px 0 15px rgba(0,0,0,0.05);
         }
 
-        /* الهيدر (تمت إعادته) */
         .brand-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .brand-header h2 { margin: 0; color: var(--navy); font-weight: 900; font-size: 26px; }
         .brand-header span { color: var(--editor-orange); }
 
-        /* شبكة القوالب (أسماء) */
-        .tpl-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px;
-        }
+        .tpl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
         .tpl-btn {
             padding: 10px; background: white; border: 1px solid #ccc; border-radius: 6px;
             cursor: pointer; font-weight: bold; font-size: 12px; color: #555; text-align: center;
@@ -52,16 +48,13 @@
         .tpl-btn:hover { border-color: var(--editor-orange); color: var(--editor-orange); }
         .tpl-btn.active { background: var(--editor-orange); color: white; border-color: var(--editor-orange); }
 
-        /* تنسيق الأقسام في المحرر (خلفية برتقالية) */
-        .editor-card { 
-            background: white; border: 1px solid #eee; padding: 15px; margin-bottom: 15px; border-radius: 8px; 
-        }
+        .editor-card { background: white; border: 1px solid #eee; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
         .editor-head { 
-            background: var(--editor-orange); color: white; /* هنا البرتقالي المطلوب */
+            background: var(--editor-orange); color: white;
             padding: 8px 12px; border-radius: 5px; margin-bottom: 15px;
             font-weight: 700; display: flex; justify-content: space-between; align-items: center;
         }
-        
+
         .input-group { margin-bottom: 10px; }
         .input-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #666; }
         .input-group input, .input-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; background: #fafafa; }
@@ -74,40 +67,44 @@
         .up-row { display: flex; gap: 10px; }
         .up-btn { flex: 1; border: 2px dashed #ccc; padding: 15px; text-align: center; border-radius: 8px; cursor: pointer; position: relative; }
         .up-btn input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
-        
-        /* ================= 2. المعاينة (Preview) ================= */
+
+        /* ================= 2. المعاينة (Preview) - الهيكلة الجديدة ================= */
         .preview-panel {
-            flex: 1; background: #333; display: flex; justify-content: center;
-            overflow: hidden; /* سنستخدم السكرول الداخلي للحاوية */
+            flex: 1; 
+            background: #333; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; /* توسيط أفقي */
+            overflow-y: auto; /* السماح بالسكرول */
+            overflow-x: hidden;
             position: relative;
+            padding: 0;
         }
 
-        /* حاوية للتحجيم (Scaling Container) */
-        .scaler-wrapper {
-            width: var(--a4-w); height: var(--a4-h);
+        /* هذا العنصر هو السر: يحجز مساحة الصفحة بعد التصغير */
+        #preview-content {
             transform-origin: top center;
-            transition: transform 0.3s;
-            margin-top: 20px;
-        }
-
-        /* ورقة الـ CV - صفحة واحدة صارمة */
-        .cv-paper {
-            width: 100%; height: 100%;
+            transition: transform 0.2s;
+            margin-bottom: 50px; /* مساحة إضافية في الأسفل */
             background: white;
-            display: flex; flex-direction: column;
-            overflow: hidden; /* يمنع ظهور صفحة ثانية */
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        /* ============================================================
-           3. القوالب (Templates) - تصميمات رسمية
-           ============================================================ */
-        
-        /* الهيكل العام المشترك */
+        /* ورقة الـ CV - أبعاد ثابتة لا تتغير أبداً */
+        .cv-paper {
+            width: var(--a4-w);  /* 794px */
+            height: var(--a4-h); /* 1123px */
+            min-width: var(--a4-w);
+            min-height: var(--a4-h);
+            background: white;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ================= 3. القوالب ================= */
         .cv-header { padding: 30px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .cv-photo { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; background: #eee; }
-        
-        /* الجسم يستخدم Flex لتوزيع المساحات */
+
         .cv-body { display: flex; flex: 1; overflow: hidden; }
         .cv-side { width: 32%; padding: 25px; display: flex; flex-direction: column; gap: 20px; }
         .cv-main { width: 68%; padding: 30px; display: flex; flex-direction: column; gap: 20px; }
@@ -116,28 +113,23 @@
             font-weight: 800; font-size: 18px; text-transform: uppercase;
             border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-bottom: 10px;
         }
-        
-        /* عناصر تتمدد لملء الفراغ */
-        .spacer { flex-grow: 1; } 
 
+        .spacer { flex-grow: 1; } 
         .contact-row { display: flex; align-items: center; font-size: 14px; margin-bottom: 8px; }
         .contact-row i { width: 25px; text-align: center; }
         .skill-tag { display: inline-block; background: #eee; padding: 4px 8px; border-radius: 4px; margin: 2px; font-size: 12px; }
-        
+
         .exp-item { margin-bottom: 15px; }
         .exp-item h4 { margin: 0; font-size: 18px; }
         .exp-item span { font-size: 13px; opacity: 0.7; display: block; margin-bottom: 4px; }
         .exp-item p { margin: 0; font-size: 14px; line-height: 1.4; }
 
-        /* --- القوالب --- */
-
-        /* 1. كلاسيك (أزرق) */
+        /* --- أنماط القوالب --- */
         .t1 .cv-header { background: #2c3e50; color: white; }
         .t1 .cv-side { background: #f4f6f7; }
         .t1 .cv-sec-title { color: #2c3e50; border-color: #3498db; }
         .t1 .contact-row i { color: #2c3e50; }
 
-        /* 2. مودرن (رمادي) */
         .t2 .cv-header { background: white; color: #333; border-bottom: 4px solid #333; }
         .t2 .cv-photo { border-radius: 0; }
         .t2 .cv-side { background: #333; color: white; }
@@ -145,38 +137,31 @@
         .t2 .cv-side .cv-sec-title { color: white; border-color: white; }
         .t2 .skill-tag { background: #555; color: white; }
 
-        /* 3. احترافي (أخضر غامق) */
         .t3 .cv-header { background: #145A32; color: white; }
         .t3 .cv-side { background: #E9F7EF; }
         .t3 .cv-sec-title { color: #145A32; border-bottom: none; background: #D5F5E3; padding: 5px; }
 
-        /* 4. بسيط (Minimal) */
         .t4 .cv-header { border-bottom: 1px solid #ddd; }
         .t4 .cv-side { border-right: 1px solid #ddd; }
         .t4 .cv-sec-title { border-bottom: 1px solid #000; color: #000; }
 
-        /* 5. أنيق (بنفسجي) */
         .t5 .cv-header { background: #6C3483; color: white; text-align: center; flex-direction: column; }
         .t5 .cv-photo { border: 3px solid white; margin-bottom: 10px; }
         .t5 .cv-sec-title { color: #6C3483; }
 
-        /* 6. شركات (أحمر غامق) */
         .t6 .cv-header { background: #922B21; color: white; }
         .t6 .cv-side { background: #FDEDEC; }
         .t6 .cv-sec-title { color: #922B21; }
 
-        /* 7. سماوي (نظيف) */
         .t7 .cv-header { background: #D6EAF8; color: #21618C; }
         .t7 .cv-side { background: #21618C; color: white; }
         .t7 .cv-side .cv-sec-title { color: white; border-color: #85C1E9; }
 
-        /* 8. تيك (أسود) */
         .t8 { background: white; color: black; }
         .t8 .cv-header { background: #000; color: white; }
         .t8 .cv-side { background: #f0f0f0; }
         .t8 .cv-sec-title { background: black; color: white; padding: 2px 8px; display: inline-block; }
 
-        /* 9. إبداعي (جانبي) */
         .t9 .cv-header { display: none; }
         .t9 .cv-body { height: 100%; }
         .t9 .cv-side { width: 40%; background: #2c3e50; color: white; text-align: center; padding-top: 50px; }
@@ -185,14 +170,13 @@
         .t9 .side-info { display: block !important; }
         .t9 .cv-side .cv-sec-title { color: white; border-color: rgba(255,255,255,0.3); }
 
-        /* 10. ذهبي */
         .t10 .cv-header { background: #111; color: #D4AF37; }
         .t10 .cv-side { border-right: 2px solid #D4AF37; }
         .t10 .cv-sec-title { color: #111; border-bottom: 2px solid #D4AF37; }
 
-        .side-info { display: none; } /* Helper */
+        .side-info { display: none; }
 
-        /* ================= 4. الموبايل (Full Screen Logic) ================= */
+        /* ================= 4. الموبايل ================= */
         .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; height: 60px; z-index: 100; }
         .nav-btn { flex: 1; border: none; background: none; font-weight: bold; color: #777; }
         .nav-btn.active { color: var(--navy); }
@@ -207,33 +191,29 @@
         @media (max-width: 900px) {
             .app-container { display: block; }
             .editor-panel { width: 100%; height: 100vh; padding-bottom: 80px; }
-            
-            /* المعاينة تملأ الشاشة تماماً */
+
             .preview-panel {
-                display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-                z-index: 50; padding: 0; background: #eee; 
-                align-items: flex-start; justify-content: center;
-                overflow: hidden;
+                display: none; 
+                position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+                z-index: 50; padding: 0; background: #333; 
+                padding-bottom: 100px; 
             }
             .preview-panel.active { display: flex; }
-            
+
             .mobile-nav { display: flex; }
-            
-            /* تعديل موضع الورقة للموبايل */
-            .scaler-wrapper { margin-top: 0; transform-origin: top left; }
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    
+
     <!-- المحرر -->
     <div id="editor" class="editor-panel">
         <div class="brand-header">
             <h2>CV Maker <span>Pro</span></h2>
         </div>
-        
+
         <div class="tpl-grid">
             <div class="tpl-btn active" onclick="setTpl(1)">كلاسيك</div>
             <div class="tpl-btn" onclick="setTpl(2)">مودرن</div>
@@ -251,7 +231,7 @@
             <div class="editor-head">البيانات الشخصية</div>
             <div class="input-group"><label>الاسم</label><input id="inName" oninput="render()" placeholder="الاسم الثلاثي"></div>
             <div class="input-group"><label>الوظيفة</label><input id="inTitle" oninput="render()" placeholder="المسمى الوظيفي"></div>
-            
+
             <div class="up-row">
                 <div class="up-btn">
                     <i class="fas fa-camera"></i> <span>صورة</span>
@@ -296,9 +276,10 @@
 
     <!-- المعاينة -->
     <div id="preview" class="preview-panel">
-        <div id="scaler" class="scaler-wrapper">
+        <!-- هذا العنصر هو الذي سيتم تكبيره وتصغيره -->
+        <div id="preview-content">
             <div id="cvPaper" class="cv-paper t1">
-                
+
                 <!-- الهيدر -->
                 <div class="cv-header">
                     <div class="header-info">
@@ -324,7 +305,7 @@
                         <div class="cv-sec-title">المهارات</div>
                         <div id="outSkills"></div>
 
-                        <div class="spacer"></div> <!-- يدفع الباركود للأسفل -->
+                        <div class="spacer"></div>
 
                         <div id="qrBox" style="display:none; text-align:center; background:white; padding:10px; border-radius:8px; color:black;">
                             <div id="qrcode"></div>
@@ -342,8 +323,8 @@
 
                         <div class="cv-sec-title">التعليم</div>
                         <div id="outEdu"></div>
-                        
-                        <div class="spacer"></div> <!-- يملأ الفراغ -->
+
+                        <div class="spacer"></div>
                     </div>
                 </div>
             </div>
@@ -378,7 +359,6 @@
     const CLOUD_NAME = "db9h7zm1h";
     const UPLOAD_PRESET = "souq_upload";
 
-    // --- تبديل القوالب ---
     window.setTpl = (n) => {
         document.getElementById('cvPaper').className = `cv-paper t${n}`;
         document.querySelectorAll('.tpl-btn').forEach((b, i) => {
@@ -386,7 +366,6 @@
         });
     };
 
-    // --- البيانات ---
     window.exps = []; window.edus = [];
 
     window.addExp = () => { window.exps.push({id:Date.now(), r:'', c:'', d:''}); renderInp(); };
@@ -435,7 +414,6 @@
             <div class="exp-item"><h4>${x.deg}</h4><span>${x.s} | ${x.d}</span></div>`).join('');
     };
 
-    // --- الرفع ---
     async function upl(f, t, id) {
         document.getElementById(id).innerText = "جاري...";
         const fd = new FormData(); fd.append("file", f); fd.append("upload_preset", UPLOAD_PRESET);
@@ -465,34 +443,47 @@
         }
     });
 
-    // --- PDF ---
     window.downloadPDF = async () => {
         const el = document.getElementById('cvPaper');
         const btn = document.getElementById('btnTxt');
         btn.innerText = "جاري التجهيز...";
-        
+
         try{ await addDoc(collection(db,"resumes"),{name:document.getElementById('inName').value, date:new Date(), vid:window.vidUrl||""}); }catch(e){}
 
-        // إجبار العرض ليكون A4 للطباعة فقط
         const opt = { margin:0, filename:'CV.pdf', image:{type:'jpeg',quality:1}, html2canvas:{scale:2,useCORS:true,width:794,height:1123}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'} };
         await html2pdf().set(opt).from(el).save();
-        
+
         btn.innerText = "تحميل PDF";
     };
 
-    // --- منطق المعاينة (Fit to Mobile Screen) ---
+    // --- منطق المعاينة الجديد (The Final Fix) ---
     window.fitScreen = () => {
-        const wrapper = document.getElementById('scaler');
+        const content = document.getElementById('preview-content');
+        const a4W = 794; 
+        const a4H = 1123;
         const screenW = window.innerWidth;
-        const a4W = 794;
-        
-        if(screenW < 900) { // لو موبايل
+
+        if(screenW < 900) { // موبايل
+            // حساب نسبة التكبير لتملأ الشاشة
             const scale = screenW / a4W;
-            wrapper.style.transform = `scale(${scale})`;
-            wrapper.style.height = `${1123 * scale}px`; // ضبط ارتفاع الحاوية
+            
+            // تطبيق التكبير
+            content.style.transform = `scale(${scale})`;
+            
+            // ضبط أبعاد الحاوية لتطابق الحجم الجديد
+            // هذا يضمن أن السكرول يعمل بشكل صحيح
+            content.style.width = `${a4W * scale}px`;
+            content.style.height = `${a4H * scale}px`;
+            
+            // إزالة الهوامش
+            content.style.margin = "0";
+            
         } else {
-            wrapper.style.transform = `scale(1)`;
-            wrapper.style.height = `auto`;
+            // ديسك توب
+            content.style.transform = `scale(1)`;
+            content.style.width = `${a4W}px`;
+            content.style.height = `${a4H}px`;
+            content.style.margin = "20px auto";
         }
     };
 
@@ -506,10 +497,10 @@
         } else { 
             e.style.display='none'; p.classList.add('active'); 
             b[0].classList.remove('active'); b[1].classList.add('active'); 
-            fitScreen(); // تشغيل التحجيم عند فتح المعاينة
+            setTimeout(fitScreen, 10); 
         }
     };
-    
+
     window.addEventListener('resize', fitScreen);
 
     window.addExp(); window.addEdu();
