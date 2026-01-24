@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CV Maker Pro - Official Business</title>
+    <title>CV Maker Pro - Official One Page</title>
 
     <!-- الخطوط -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@400;500;700;800&family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- المكتبات -->
@@ -60,8 +60,13 @@
         .input-group input:focus { border-color: var(--editor-orange); background: white; }
 
         .btn-add { background: white; color: var(--editor-orange); border: none; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
-        .d-item { background: #f9f9f9; border: 1px dashed #ccc; padding: 10px; margin-bottom: 8px; position: relative; border-radius: 6px; }
-        .btn-del { position: absolute; top: 5px; left: 5px; color: red; background: none; border: none; cursor: pointer; }
+        
+        /* تصميم عناصر الإدخال الديناميكية */
+        .d-item { background: #f9f9f9; border: 1px dashed #ccc; padding: 25px 10px 10px; margin-bottom: 8px; position: relative; border-radius: 6px; }
+        .d-item-skill { padding: 10px; display: flex; gap: 5px; align-items: center; } /* سطر المهارة أصغر */
+        
+        .btn-del { position: absolute; top: 5px; left: 5px; color: red; background: none; border: none; cursor: pointer; font-size: 14px; }
+        .d-item-skill .btn-del { position: static; }
 
         .up-row { display: flex; gap: 10px; }
         .up-btn { flex: 1; border: 2px dashed #ccc; padding: 15px; text-align: center; border-radius: 8px; cursor: pointer; position: relative; }
@@ -83,155 +88,183 @@
             height: var(--a4-h); 
             background: white;
             display: flex; flex-direction: column;
-            overflow: hidden;
+            overflow: hidden; 
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             margin: 0 auto;
+            font-size: 13px;
         }
 
-        /* ================= 3. القوالب الأساسية ================= */
-        .cv-header { padding: 30px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; transition: 0.3s; }
-        .cv-photo { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; background: #eee; transition: 0.3s; }
+        /* ================= 3. القواعد العامة للتصميم ================= */
+        /* قاعدة منع انكسار الاسم */
+        h1, h2, h3, .name-container { white-space: nowrap !important; }
+        
+        .cv-header { padding: 25px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; transition: 0.3s; position: relative; }
+        .cv-photo { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; background: #eee; transition: 0.3s; z-index: 10; }
 
-        .cv-body { display: flex; flex: 1; overflow: hidden; }
-        .cv-side { width: 32%; padding: 25px; display: flex; flex-direction: column; gap: 20px; transition: 0.3s; }
-        .cv-main { width: 68%; padding: 30px; display: flex; flex-direction: column; gap: 20px; transition: 0.3s; }
+        .cv-body { display: flex; flex: 1; overflow: hidden; position: relative; }
+        .cv-side { width: 32%; padding: 20px; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
+        .cv-main { width: 68%; padding: 25px; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
 
         .cv-sec-title {
-            font-weight: 800; font-size: 18px; text-transform: uppercase;
-            border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-bottom: 10px;
+            font-weight: 800; font-size: 16px; text-transform: uppercase;
+            border-bottom: 2px solid #ccc; padding-bottom: 3px; margin-bottom: 8px;
         }
 
         .spacer { flex-grow: 1; } 
-        .contact-row { display: flex; align-items: center; font-size: 14px; margin-bottom: 8px; }
-        .contact-row i { width: 25px; text-align: center; }
-        .skill-tag { display: inline-block; background: #eee; padding: 4px 8px; border-radius: 4px; margin: 2px; font-size: 12px; }
+        .contact-row { display: flex; align-items: center; font-size: 12px; margin-bottom: 6px; }
+        .contact-row i { width: 25px; text-align: center; font-size: 14px; }
+        
+        /* تنسيق المهارات الجديد (قائمة عمودية بدون خلفية) */
+        .skill-list { display: flex; flex-direction: column; gap: 5px; }
+        .skill-item { 
+            font-size: 13px; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center;
+            color: inherit; /* يأخذ لون النص في القسم */
+        }
+        .skill-item::before {
+            content: "•";
+            margin-left: 8px;
+            font-size: 18px;
+            line-height: 0;
+            opacity: 0.7;
+        }
 
-        .exp-item { margin-bottom: 15px; }
-        .exp-item h4 { margin: 0; font-size: 18px; }
-        .exp-item span { font-size: 13px; opacity: 0.7; display: block; margin-bottom: 4px; }
-        .exp-item p { margin: 0; font-size: 14px; line-height: 1.4; }
+        .exp-item { margin-bottom: 10px; }
+        .exp-item h4 { margin: 0; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .exp-item span { font-size: 12px; opacity: 0.8; display: block; margin-bottom: 2px; }
+        .exp-item p { margin: 0; font-size: 12.5px; line-height: 1.35; color: #444; }
 
-        .side-info { display: none; text-align: center; margin-bottom: 20px; }
-        .side-info h2 { margin: 10px 0 5px; font-size: 22px; color: white; }
-        .side-info h3 { margin: 0; font-size: 14px; color: rgba(255,255,255,0.8); font-weight: normal; }
+        .side-info { display: none; text-align: center; margin-bottom: 15px; }
+        .side-info h2 { margin: 10px 0 5px; font-size: 20px; color: white; white-space: nowrap; }
+        .side-info h3 { margin: 0; font-size: 13px; color: rgba(255,255,255,0.8); font-weight: normal; }
 
-        /* --- القوالب القديمة (1-10) --- */
-        .t1 .cv-header { background: #2c3e50; color: white; }
-        .t1 .cv-side { background: #f4f6f7; }
-        .t1 .cv-sec-title { color: #2c3e50; border-color: #3498db; }
-        .t1 .contact-row i { color: #2c3e50; }
-
-        .t2 .cv-header { background: white; color: #333; border-bottom: 4px solid #333; }
-        .t2 .cv-photo { border-radius: 0; }
-        .t2 .cv-side { background: #333; color: white; }
-        .t2 .cv-sec-title { color: #333; border-color: #333; }
-        .t2 .cv-side .cv-sec-title { color: white; border-color: white; }
-        .t2 .skill-tag { background: #555; color: white; }
-
-        .t3 .cv-header { background: #145A32; color: white; }
-        .t3 .cv-side { background: #E9F7EF; }
-        .t3 .cv-sec-title { color: #145A32; border-bottom: none; background: #D5F5E3; padding: 5px; }
-
-        .t4 .cv-header { border-bottom: 1px solid #ddd; }
-        .t4 .cv-side { border-right: 1px solid #ddd; }
-        .t4 .cv-sec-title { border-bottom: 1px solid #000; color: #000; }
-
-        .t5 .cv-header { background: #6C3483; color: white; text-align: center; flex-direction: column; }
-        .t5 .cv-photo { border: 3px solid white; margin-bottom: 10px; }
-        .t5 .cv-sec-title { color: #6C3483; }
-
-        .t6 .cv-header { background: #922B21; color: white; }
-        .t6 .cv-side { background: #FDEDEC; }
-        .t6 .cv-sec-title { color: #922B21; }
-
-        .t7 .cv-header { background: #D6EAF8; color: #21618C; }
-        .t7 .cv-side { background: #21618C; color: white; }
-        .t7 .cv-side .cv-sec-title { color: white; border-color: #85C1E9; }
-
-        .t8 { background: white; color: black; }
-        .t8 .cv-header { background: #000; color: white; }
-        .t8 .cv-side { background: #f0f0f0; }
-        .t8 .cv-sec-title { background: black; color: white; padding: 2px 8px; display: inline-block; }
-
-        .t9 .cv-header { display: none; }
-        .t9 .cv-body { height: 100%; }
-        .t9 .cv-side { width: 40%; background: #2c3e50; color: white; text-align: center; padding-top: 50px; }
-        .t9 .cv-main { width: 60%; }
-        .t9 .cv-photo { margin: 0 auto 20px; border: 4px solid white; }
-        .t9 .side-info { display: block !important; }
-        .t9 .cv-side .cv-sec-title { color: white; border-color: rgba(255,255,255,0.3); }
-
-        .t10 .cv-header { background: #111; color: #D4AF37; }
-        .t10 .cv-side { border-right: 2px solid #D4AF37; }
-        .t10 .cv-sec-title { color: #111; border-bottom: 2px solid #D4AF37; }
+        /* --- القوالب القديمة --- */
+        .t1 .cv-header { background: #2c3e50; color: white; } .t1 .cv-side { background: #f4f6f7; } .t1 .cv-sec-title { color: #2c3e50; border-color: #3498db; }
+        .t2 .cv-header { background: white; color: #333; border-bottom: 4px solid #333; } .t2 .cv-side { background: #333; color: white; } .t2 .cv-sec-title { color: #333; } .t2 .cv-side .cv-sec-title { color: white; }
+        .t3 .cv-header { background: #145A32; color: white; } .t3 .cv-side { background: #E9F7EF; } .t3 .cv-sec-title { color: #145A32; }
+        .t4 .cv-header { border-bottom: 1px solid #ddd; } .t4 .cv-side { border-right: 1px solid #ddd; } .t4 .cv-sec-title { color: #000; }
+        .t5 .cv-header { background: #6C3483; color: white; text-align: center; flex-direction: column; } .t5 .cv-sec-title { color: #6C3483; }
+        .t6 .cv-header { background: #922B21; color: white; } .t6 .cv-side { background: #FDEDEC; } .t6 .cv-sec-title { color: #922B21; }
+        .t7 .cv-header { background: #D6EAF8; color: #21618C; } .t7 .cv-side { background: #21618C; color: white; } .t7 .cv-side .cv-sec-title { color: white; }
+        .t8 { background: white; color: black; } .t8 .cv-header { background: #000; color: white; } .t8 .cv-side { background: #f0f0f0; } .t8 .cv-sec-title { background: black; color: white; padding: 2px 8px; display: inline-block; }
+        .t9 .cv-header { display: none; } .t9 .cv-side { width: 40%; background: #2c3e50; color: white; text-align: center; padding-top: 50px; } .t9 .cv-main { width: 60%; } .t9 .side-info { display: block !important; }
+        .t10 .cv-header { background: #111; color: #D4AF37; } .t10 .cv-side { border-right: 2px solid #D4AF37; } .t10 .cv-sec-title { color: #111; border-bottom: 2px solid #D4AF37; }
 
         /* ============================================================
-           القوالب الجديدة (المعدلة)
+           القوالب المحدثة (مع تثبيت الاسم وتنسيق المهارات)
            ============================================================ */
 
-        /* T11: جانبي حديث (Modern Sidebar) */
+        /* T11: جانبي حديث */
         .t11 .cv-header { display: none; }
         .t11 .cv-body { height: 100%; }
-        .t11 .cv-side { width: 35%; background: #1e272e; color: white; padding-top: 60px; text-align: center; }
-        .t11 .cv-main { width: 65%; padding: 50px; }
-        .t11 .side-info { display: block !important; }
-        .t11 .cv-photo { width: 160px; height: 160px; border: 5px solid rgba(255,255,255,0.1); margin-bottom: 15px; }
-        .t11 .cv-sec-title { color: #1e272e; border-bottom: 3px solid #ffdd59; display: inline-block; padding-right: 0; padding-left: 20px; }
+        .t11 .cv-side { width: 33%; background: #1e272e; color: white; padding-top: 40px; text-align: center; }
+        .t11 .cv-main { width: 67%; padding: 30px; }
+        .t11 .side-info { display: block !important; margin-bottom: 20px; }
+        .t11 .cv-photo { width: 140px; height: 140px; border: 4px solid rgba(255,255,255,0.1); margin-bottom: 10px; }
+        .t11 .cv-sec-title { color: #1e272e; border-bottom: 3px solid #ffdd59; display: inline-block; padding-left: 15px; }
         .t11 .cv-side .cv-sec-title { color: #ffdd59; border-color: rgba(255,255,255,0.2); display: block; text-align: right; }
-        .t11 .contact-row i { color: #ffdd59; }
+        .t11 .contact-row i, .t11 .skill-item::before { color: #ffdd59; }
 
-        /* T12: متداخل رسمي (Corporate Overlay) - تم تعديل الألوان */
+        /* T12: متداخل رسمي */
         .t12 .cv-header { 
-            /* تدرج كحلي غامق رسمي جداً */
             background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-            height: 180px; align-items: flex-start; padding-top: 40px; 
-            position: relative; margin-bottom: 60px; 
+            height: auto; min-height: 160px; padding: 30px; padding-bottom: 60px; 
+            position: relative; margin-bottom: 0; align-items: flex-start;
         }
-        .t12 .header-info { color: white; }
-        .t12 .header-info h1 { font-size: 40px; }
+        .t12 .header-info { color: white; z-index: 2; width: 100%; padding-left: 160px; }
+        .t12 .header-info h1 { font-size: 34px; margin-bottom: 5px; white-space: nowrap; }
         .t12 .cv-photo { 
-            position: absolute; bottom: -60px; left: 40px; 
-            width: 180px; height: 180px; border: 8px solid white; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            position: absolute; bottom: -40px; left: 30px; 
+            width: 150px; height: 150px; border: 6px solid white; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15); z-index: 10;
         }
-        .t12 .cv-side { background: #fff; border-left: 1px solid #eee; padding-top: 0; }
+        .t12 .cv-side { background: #fff; border-left: 1px solid #eee; padding-top: 60px; }
         .t12 .cv-sec-title { color: #2c5364; border-bottom: none; position: relative; padding-left: 15px; }
         .t12 .cv-sec-title::before { content:''; position: absolute; right: -10px; top: 0; height: 100%; width: 5px; background: #2c5364; }
+        .t12 .skill-item::before { color: #2c5364; }
 
-        /* T13: مينيمال (Clean Minimal) */
-        .t13 .cv-header { background: white; border-bottom: 1px solid #eee; padding: 40px; }
-        .t13 .header-info h1 { color: #000; font-weight: 300; font-size: 45px; letter-spacing: -1px; }
-        .t13 .header-info h2 { color: #777; font-weight: 400; letter-spacing: 2px; font-size: 16px; text-transform: uppercase; }
-        .t13 .cv-photo { border-radius: 10px; filter: grayscale(100%); }
-        .t13 .cv-side { background: white; border-left: 1px solid #eee; }
-        .t13 .cv-sec-title { color: #000; border-bottom: 1px solid #000; padding-bottom: 10px; letter-spacing: 1px; }
-        .t13 .skill-tag { background: white; border: 1px solid #000; color: #000; border-radius: 0; }
+        /* T13: رسمي متطور (تعديل لعرض المهارات أفقياً هنا فقط) */
+        .t13 .cv-header { 
+            background: #222; color: #d4af37; height: auto; padding: 30px;
+            align-items: center; justify-content: center; flex-direction: column; text-align: center;
+            border-bottom: 4px solid #d4af37;
+        }
+        .t13 .header-info h1 { color: #fff; font-size: 32px; white-space: nowrap; }
+        .t13 .header-info h2 { color: #d4af37; font-size: 16px; margin-top: 5px; }
+        .t13 .cv-photo { display: none; } 
+        .t13 .cv-body { display: block; padding: 0 30px; margin-top: -20px; }
+        .t13 .cv-side { 
+            width: 100%; background: white; padding: 15px; border: 1px solid #ddd; 
+            display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 15px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05); margin-bottom: 20px;
+        }
+        .t13 .cv-side .cv-sec-title { display: none; }
+        .t13 .contact-row { margin: 0 10px; font-weight: bold; color: #555; }
+        .t13 .contact-row i { color: #d4af37; }
+        /* استثناء لـ T13: المهارات بجانب بعض */
+        .t13 .skill-list { flex-direction: row; flex-wrap: wrap; justify-content: center; width: 100%; border-top: 1px dashed #eee; padding-top: 10px; margin-top: 5px; }
+        .t13 .skill-item { margin: 0 10px; }
+        .t13 .skill-item::before { color: #d4af37; }
+        .t13 .cv-main { width: 100%; padding: 0; }
+        .t13 .cv-sec-title { color: #222; border-bottom: 2px solid #d4af37; font-size: 18px; }
 
-        /* T14: تنفيذي (Executive Sidebar) - القالب الجديد */
+        /* T14: تنفيذي */
         .t14 .cv-header { display: none; }
-        .t14 .cv-body { height: 100%; }
+        .t14 .cv-body { height: 100%; flex-direction: row; }
         .t14 .cv-side { 
-            width: 30%; background: #192a56; /* كحلي ملكي */
-            color: white; text-align: center; padding-top: 50px; 
+            width: 32%; background: #101929; color: #ecf0f1; text-align: right; 
+            padding: 20px; display: flex; flex-direction: column; align-items: center;
         }
-        .t14 .cv-main { width: 70%; padding: 40px; background: #fff; }
-        .t14 .side-info { display: block !important; margin-bottom: 30px; }
+        .t14 .side-info { display: block !important; width: 100%; margin-bottom: 20px; }
         .t14 .cv-photo { 
-            width: 140px; height: 140px; 
-            border-radius: 15px; /* مربع بحواف ناعمة */
-            border: 3px solid rgba(255,255,255,0.2); 
-            margin-bottom: 15px;
+            width: 130px; height: 130px; border: 4px solid #dcdde1; border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); margin: 0 auto 15px; display: block;
         }
-        .t14 .cv-sec-title { 
-            color: #192a56; border-bottom: 2px solid #192a56; 
-            display: inline-block; padding-bottom: 5px; 
-        }
+        .t14 .cv-main { width: 68%; padding: 30px; background: #fbfbfb; }
+        .t14 .header-info { display: none; }
+        .t14 .cv-sec-title { color: #101929; border-left: 5px solid #101929; border-bottom: none; padding-right: 15px; background: #eee; padding: 5px 15px; }
         .t14 .cv-side .cv-sec-title { 
-            color: white; border-color: rgba(255,255,255,0.3); 
-            display: block; text-align: right; 
+            color: #fff; border-left: none; border-right: 3px solid #3498db; 
+            background: rgba(255,255,255,0.05); width: 100%; padding-right: 10px;
         }
-        .t14 .skill-tag { background: rgba(255,255,255,0.1); color: white; border: none; }
-        .t14 .contact-row i { color: #dcdde1; }
+        .t14 .contact-row, .t14 .skill-list, .t14 #qrBox { width: 100%; }
+        .t14 .skill-item { color: rgba(255,255,255,0.9); }
+        .t14 .skill-item::before { color: #3498db; }
+
+        /* T15: المدير الإقليمي */
+        .t15 .cv-header { 
+            background: white; padding: 30px; border-top: 8px solid #006266;
+            flex-direction: row-reverse; align-items: center; justify-content: flex-end; gap: 20px;
+        }
+        .t15 .header-info { text-align: left; padding-left: 0; flex: 1; }
+        .t15 .header-info h1 { font-size: 36px; color: #006266; font-weight: 900; white-space: nowrap; }
+        .t15 .header-info h2 { font-size: 18px; color: #666; font-weight: 500; margin: 5px 0 0; }
+        .t15 .cv-photo { width: 120px; height: 120px; border-radius: 6px; margin: 0; }
+        .t15 .cv-side { background: #006266; color: white; width: 30%; padding-top: 30px; }
+        .t15 .cv-main { width: 70%; background: #fff; padding-top: 30px; }
+        .t15 .cv-sec-title { color: #006266; letter-spacing: 1px; border-bottom: 2px dashed #006266; }
+        .t15 .cv-side .cv-sec-title { color: #a3cbcd; border-color: rgba(255,255,255,0.2); }
+        .t15 .contact-row i, .t15 .skill-item::before { color: #fab1a0; }
+
+        /* T16: مجلس الإدارة */
+        .t16 { background: #e0e0e0; }
+        .t16 .cv-paper { background: #fdfdfd; padding: 30px; height: var(--a4-h); border-right: none; }
+        .t16 .cv-header { 
+            background: white; border-bottom: 2px solid #2d3436; padding: 0 0 20px 0; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .t16 .cv-photo { width: 100px; height: 100px; border-radius: 8px; filter: grayscale(100%); }
+        .t16 .header-info h1 { color: #2d3436; font-size: 32px; white-space: nowrap; }
+        .t16 .header-info h2 { color: #d63031; font-weight: 600; font-size: 16px; margin: 5px 0 0; }
+        .t16 .cv-body { display: block; column-count: 2; column-gap: 30px; column-rule: 1px solid #eee; height: auto; }
+        .t16 .cv-side, .t16 .cv-main { width: 100%; padding: 0; margin: 0; break-inside: avoid; display: block; margin-bottom: 20px; }
+        .t16 .cv-sec-title { 
+            background: #2d3436; color: white; padding: 4px 12px; border-radius: 4px; 
+            display: inline-block; margin-bottom: 10px; font-size: 14px; border: none; width: auto;
+        }
+        .t16 .contact-row i, .t16 .skill-item::before { color: #d63031; }
 
         /* ================= 4. الموبايل ================= */
         .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; height: 60px; z-index: 100; }
@@ -248,21 +281,10 @@
         @media (max-width: 900px) {
             .app-container { display: block; }
             .editor-panel { width: 100%; height: 100vh; padding-bottom: 80px; }
-
-            .preview-panel {
-                display: none; 
-                position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-                z-index: 50; padding: 0; background: #333; 
-                overflow-y: auto; padding-bottom: 100px; 
-            }
+            .preview-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 50; padding: 0; background: #333; overflow-y: auto; padding-bottom: 100px; }
             .preview-panel.active { display: flex; }
-
             .mobile-nav { display: flex; }
-
-            .cv-paper {
-                width: 100% !important; height: auto !important; min-height: 100vh;
-                margin: 0 !important; border-radius: 0;
-            }
+            .cv-paper { width: 100% !important; height: auto !important; min-height: 100vh; margin: 0 !important; border-radius: 0; }
         }
     </style>
 </head>
@@ -288,11 +310,12 @@
             <div class="tpl-btn" onclick="setTpl(9)">إبداعي</div>
             <div class="tpl-btn" onclick="setTpl(10)">ذهبي</div>
             
-            <!-- القوالب الجديدة -->
             <div class="tpl-btn" onclick="setTpl(11)" style="color: #e67e22; border-color: #e67e22;">جانبي حديث</div>
             <div class="tpl-btn" onclick="setTpl(12)" style="color: #2c5364; border-color: #2c5364;">متداخل رسمي</div>
-            <div class="tpl-btn" onclick="setTpl(13)" style="color: #000; border-color: #000;">مينيمال</div>
-            <div class="tpl-btn" onclick="setTpl(14)" style="color: #192a56; border-color: #192a56;">تنفيذي</div>
+            <div class="tpl-btn" onclick="setTpl(13)" style="color: #d4af37; border-color: #222; background:#222;">رسمي متطور</div>
+            <div class="tpl-btn" onclick="setTpl(14)" style="color: #101929; border-color: #101929;">تنفيذي (ثابت)</div>
+            <div class="tpl-btn" onclick="setTpl(15)" style="color: #006266; border-color: #006266;">المدير الإقليمي</div>
+            <div class="tpl-btn" onclick="setTpl(16)" style="color: #d63031; border-color: #2d3436;">مجلس إدارة</div>
         </div>
 
         <div class="editor-card">
@@ -337,8 +360,8 @@
         </div>
 
         <div class="editor-card">
-            <div class="editor-head">المهارات</div>
-            <div class="input-group"><textarea id="inSkills" rows="3" oninput="render()" placeholder="مهارة 1, مهارة 2..."></textarea></div>
+            <div class="editor-head">المهارات <button class="btn-add" onclick="addSkill()">+ إضافة</button></div>
+            <div id="skillList"></div>
         </div>
     </div>
 
@@ -371,7 +394,7 @@
                     <div class="contact-row"><i class="fas fa-map-marker-alt"></i> <span id="outLoc">---</span></div>
 
                     <div class="cv-sec-title">المهارات</div>
-                    <div id="outSkills"></div>
+                    <div id="outSkills" class="skill-list"></div>
 
                     <div class="spacer"></div>
 
@@ -384,7 +407,7 @@
                 <!-- الرئيسي -->
                 <div class="cv-main">
                     <div class="cv-sec-title">نبذة عني</div>
-                    <p id="outSum" style="line-height:1.6; text-align:justify;">...</p>
+                    <p id="outSum" style="line-height:1.5; text-align:justify;">...</p>
 
                     <div class="cv-sec-title">الخبرات</div>
                     <div id="outExp"></div>
@@ -406,7 +429,6 @@
         <button class="nav-btn active" onclick="tab('edit')">تعديل</button>
         <button class="nav-btn" onclick="tab('view')">معاينة</button>
     </div>
-
 </div>
 
 <script type="module">
@@ -433,18 +455,25 @@
         });
     };
 
-    window.exps = []; window.edus = [];
+    window.exps = []; window.edus = []; window.skills = [];
 
     window.addExp = () => { window.exps.push({id:Date.now(), r:'', c:'', d:''}); renderInp(); };
     window.addEdu = () => { window.edus.push({id:Date.now(), deg:'', s:'', d:''}); renderInp(); };
+    window.addSkill = () => { window.skills.push({id:Date.now(), val:''}); renderInp(); };
 
     window.upd = (t, id, k, v) => {
-        const arr = t==='e'?window.exps:window.edus;
-        const i = arr.find(x=>x.id===id); if(i){i[k]=v; render();}
+        if(t==='s') {
+            const i = window.skills.find(x=>x.id===id); if(i){i.val=v; render();}
+        } else {
+            const arr = t==='e'?window.exps:window.edus;
+            const i = arr.find(x=>x.id===id); if(i){i[k]=v; render();}
+        }
     };
+    
     window.del = (t, id) => {
         if(t==='e') window.exps=window.exps.filter(x=>x.id!==id);
-        else window.edus=window.edus.filter(x=>x.id!==id);
+        else if(t==='d') window.edus=window.edus.filter(x=>x.id!==id);
+        else if(t==='s') window.skills=window.skills.filter(x=>x.id!==id);
         renderInp(); render();
     };
 
@@ -456,12 +485,19 @@
                 <div class="input-group"><input placeholder="الشركة" value="${x.c}" oninput="upd('e',${x.id},'c',this.value)"></div>
                 <div class="input-group"><input placeholder="التاريخ" value="${x.d}" oninput="upd('e',${x.id},'d',this.value)"></div>
             </div>`).join('');
+            
         document.getElementById('eduList').innerHTML = window.edus.map(x=>`
             <div class="d-item">
                 <button class="btn-del" onclick="del('d',${x.id})"><i class="fas fa-times"></i></button>
                 <div class="input-group"><input placeholder="الدرجة" value="${x.deg}" oninput="upd('d',${x.id},'deg',this.value)"></div>
                 <div class="input-group"><input placeholder="الجامعة" value="${x.s}" oninput="upd('d',${x.id},'s',this.value)"></div>
                 <div class="input-group"><input placeholder="التاريخ" value="${x.d}" oninput="upd('d',${x.id},'d',this.value)"></div>
+            </div>`).join('');
+
+        document.getElementById('skillList').innerHTML = window.skills.map(x=>`
+            <div class="d-item d-item-skill">
+                <button class="btn-del" onclick="del('s',${x.id})"><i class="fas fa-times"></i></button>
+                <input style="flex:1" placeholder="اكتب المهارة" value="${x.val}" oninput="upd('s',${x.id},null,this.value)">
             </div>`).join('');
     }
 
@@ -474,8 +510,10 @@
             if(k==='Title') document.getElementById('outTitleSide').innerText = val;
         });
 
-        const s = document.getElementById('inSkills').value;
-        document.getElementById('outSkills').innerHTML = s?s.split(/,|،|\n/).map(i=>`<span class="skill-tag">${i.trim()}</span>`).join(''):'';
+        // عرض المهارات
+        document.getElementById('outSkills').innerHTML = window.skills.map(s => 
+            s.val ? `<div class="skill-item">${s.val}</div>` : ''
+        ).join('');
 
         document.getElementById('outExp').innerHTML = window.exps.map(x=>`
             <div class="exp-item"><h4>${x.r}</h4><span>${x.c} | ${x.d}</span></div>`).join('');
@@ -544,7 +582,9 @@
         }
     };
 
-    window.addExp(); window.addEdu();
+    window.addExp(); window.addEdu(); window.addSkill();
 </script>
+
 </body>
 </html>
+
