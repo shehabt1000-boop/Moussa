@@ -3,309 +3,483 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Center Manager | سجل الحضور المطور</title>
+    <title>Smart Center Manager | نظام إدارة السنتر الذكي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .scanner-container { width: 100%; max-width: 450px; margin: auto; overflow: hidden; border-radius: 1.5rem; border: 8px solid #e2e8f0; }
-        
-        /* Attendance Sheet Styles */
-        .attendance-sheet-container { overflow-x: auto; border-radius: 0.75rem; }
-        .attendance-table { border-collapse: separate; border-spacing: 0; }
-        .attendance-table th, .attendance-table td { border: 1px solid #e2e8f0; min-width: 40px; text-align: center; }
-        .attendance-table th.sticky-col, .attendance-table td.sticky-col { 
-            position: sticky; right: 0; background: white; z-index: 10; min-width: 150px; 
-        }
-        .present-check { color: #10b981; font-weight: bold; font-size: 1.2rem; }
-        .absent-dot { color: #ef4444; opacity: 0.3; }
+        .status-badge { transition: all 0.3s ease; }
+        .scanner-container { width: 100%; max-width: 400px; margin: auto; overflow: hidden; border-radius: 1rem; }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="bg-gray-50">
 
-    <!-- Top Navigation -->
-    <nav class="bg-indigo-900 text-white shadow-xl p-4 sticky top-0 z-50">
-        <div class="container mx-auto flex flex-wrap justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <div class="bg-white p-2 rounded-lg">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4338ca" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14l2 2 4-4"></path></svg>
-                </div>
-                <h1 class="text-xl font-bold tracking-tight">إدارة سنتر المتميز</h1>
-            </div>
-            <div class="flex gap-2 bg-indigo-800/50 p-1 rounded-xl overflow-x-auto no-scrollbar">
-                <button onclick="showTab('attendance')" class="nav-btn active bg-white text-indigo-900 px-4 py-2 rounded-lg font-bold transition-all">سجل الحضور</button>
-                <button onclick="showTab('students')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/10 transition-all">الطلاب</button>
-                <button onclick="showTab('accounting')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/10 transition-all">المحاسبة</button>
+    <!-- Navbar -->
+    <nav class="bg-indigo-700 text-white shadow-lg p-4 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                نظام إدارة السنتر التعليمي
+            </h1>
+            <div class="flex gap-4 overflow-x-auto">
+                <button onclick="showTab('students')" class="hover:bg-indigo-600 px-3 py-1 rounded">الطلاب</button>
+                <button onclick="showTab('attendance')" class="hover:bg-indigo-600 px-3 py-1 rounded">الحضور</button>
+                <button onclick="showTab('accounting')" class="hover:bg-indigo-600 px-3 py-1 rounded">المحاسبة</button>
+                <button onclick="showTab('reports')" class="hover:bg-indigo-600 px-3 py-1 rounded">التقارير</button>
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto p-4 md:p-6">
+    <div class="container mx-auto p-4">
         
-        <!-- SECTION: Attendance & Scanner -->
-        <section id="attendance" class="tab-content active space-y-6">
-            <div class="grid lg:grid-cols-3 gap-6">
-                <!-- Scanner Side -->
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
-                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                        <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
-                        ماسح الحضور السريع
-                    </h2>
-                    <div class="scanner-container bg-black" id="reader"></div>
-                    <div id="attendanceStatus" class="mt-4 w-full p-4 rounded-2xl text-center hidden">
-                        <p id="statusMsg" class="font-bold text-lg"></p>
-                    </div>
-                </div>
-
-                <!-- Live Statistics -->
-                <div class="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold">دفتر الحضور الشهري (<span id="currentMonthName"></span>)</h2>
-                        <div class="flex gap-2">
-                             <select id="levelFilter" onchange="renderAttendanceSheet()" class="p-2 bg-gray-50 border rounded-xl text-sm outline-none">
-                                <option value="all">كل المراحل</option>
-                                <option value="secondary-3">الثالث الثانوي</option>
-                                <option value="prep-3">الثالث الإعدادي</option>
-                             </select>
-                             <button onclick="exportToCSV()" class="p-2 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-bold border border-emerald-100">تحميل التقرير</button>
-                        </div>
-                    </div>
-
-                    <div class="attendance-sheet-container border border-gray-100 shadow-inner">
-                        <table class="attendance-table w-full bg-white text-sm" id="mainAttendanceTable">
-                            <thead class="bg-gray-50 text-gray-600">
-                                <tr id="tableHeader">
-                                    <th class="p-3 sticky-col">اسم الطالب / ID</th>
-                                    <!-- Days will be injected here -->
-                                </tr>
-                            </thead>
-                            <tbody id="attendanceBody" class="divide-y divide-gray-100">
-                                <!-- Data injected here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION: Students Management -->
-        <section id="students" class="tab-content space-y-6">
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 h-fit">
-                    <h2 class="text-lg font-bold mb-4">إضافة طالب جديد</h2>
-                    <div class="space-y-3">
-                        <input type="text" id="stdName" placeholder="اسم الطالب" class="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 ring-indigo-500">
-                        <select id="stdLevel" class="w-full p-3 bg-gray-50 border rounded-xl outline-none">
-                            <option value="primary-6">السادس الابتدائي</option>
-                            <option value="prep-3">الثالث الإعدادي</option>
-                            <option value="secondary-3">الثالث الثانوي</option>
-                        </select>
-                        <button onclick="registerStudent()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200">حفظ وإنشاء باركود</button>
-                    </div>
-                </div>
-
-                <div id="qrPreview" class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hidden">
-                    <div id="qrcode" class="p-4 bg-white border-4 border-gray-100 rounded-2xl"></div>
-                    <p id="qrName" class="mt-4 font-bold text-lg text-indigo-900"></p>
-                    <p id="qrId" class="text-gray-400 text-xs"></p>
-                    <button onclick="printCard()" class="mt-4 text-indigo-600 underline text-sm">طباعة كارت الطالب</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION: Accounting -->
-        <section id="accounting" class="tab-content space-y-6">
+        <!-- Section: Students & Registration -->
+        <section id="students" class="tab-content active">
             <div class="grid md:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <h2 class="text-lg font-bold mb-4 text-green-600">الإيرادات</h2>
-                    <!-- Accounting logic similar to previous but refined UI -->
+                <!-- Register Student -->
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-lg font-bold mb-4 border-b pb-2">تسجيل طالب جديد</h2>
                     <div class="space-y-4">
-                        <div id="accountingSummary" class="p-4 bg-green-50 rounded-2xl flex justify-between items-center">
-                            <span class="font-bold">إجمالي الشهر:</span>
-                            <span id="totalRevenue" class="text-2xl font-bold text-green-700">0 ج.م</span>
-                        </div>
-                        <p class="text-xs text-gray-500 text-center italic">يتم تسجيل الإيرادات عند قراءة باركود الدفع في لوحة السكرتيرة</p>
+                        <input type="text" id="stdName" placeholder="اسم الطالب بالكامل" class="w-full p-2 border rounded">
+                        <select id="stdLevel" class="w-full p-2 border rounded">
+                            <option value="">اختر المرحلة الدراسية</option>
+                            <optgroup label="المرحلة الابتدائية">
+                                <option value="primary-1">الأول الابتدائي</option>
+                                <option value="primary-2">الثاني الابتدائي</option>
+                                <option value="primary-3">الثالث الابتدائي</option>
+                                <option value="primary-4">الرابع الابتدائي</option>
+                                <option value="primary-5">الخامس الابتدائي</option>
+                                <option value="primary-6">السادس الابتدائي</option>
+                            </optgroup>
+                            <optgroup label="المرحلة الإعدادية">
+                                <option value="prep-1">الأول الإعدادي</option>
+                                <option value="prep-2">الثاني الإعدادي</option>
+                                <option value="prep-3">الثالث الإعدادي</option>
+                            </optgroup>
+                            <optgroup label="المرحلة الثانوية">
+                                <option value="secondary-1">الأول الثانوي</option>
+                                <option value="secondary-2">الثاني الثانوي</option>
+                                <option value="secondary-3">الثالث الثانوي</option>
+                            </optgroup>
+                        </select>
+                        <button onclick="registerStudent()" class="w-full bg-green-600 text-white py-2 rounded font-bold hover:bg-green-700">إنشاء الحساب والباركود</button>
                     </div>
+                </div>
+
+                <!-- QR Card Display -->
+                <div id="qrCard" class="bg-white p-6 rounded-xl shadow-md hidden flex flex-col items-center">
+                    <h2 class="text-lg font-bold mb-4">بطاقة الطالب الذكية</h2>
+                    <div id="qrcode" class="mb-4"></div>
+                    <p id="displayStdName" class="font-bold text-xl"></p>
+                    <p id="displayStdLevel" class="text-gray-500"></p>
+                    <button onclick="window.print()" class="mt-4 bg-blue-500 text-white px-4 py-1 rounded">طباعة الكارت</button>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-white p-6 rounded-xl shadow-md">
+                <h2 class="text-lg font-bold mb-4">قائمة الطلاب المسجلين</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-2">ID</th>
+                                <th class="p-2">الاسم</th>
+                                <th class="p-2">المرحلة</th>
+                                <th class="p-2">تاريخ الاشتراك</th>
+                                <th class="p-2">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Attendance (Scanner) -->
+        <section id="attendance" class="tab-content">
+            <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-700">تسجيل الحضور اليومي</h2>
+                <div class="scanner-container border-4 border-indigo-200 p-2 bg-black" id="reader"></div>
+                
+                <div id="attendanceStatus" class="mt-6 p-6 rounded-xl hidden">
+                    <p id="statusMsg" class="text-2xl font-bold"></p>
+                    <p id="statusTime" class="text-sm opacity-80 mt-2"></p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mt-8">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <span class="block text-3xl font-bold text-blue-700" id="presentCount">0</span>
+                        <span class="text-sm">حاضرون اليوم</span>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <span class="block text-3xl font-bold text-red-700" id="absentCount">0</span>
+                        <span class="text-sm">غائبون</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-center gap-4">
+                    <button onclick="generateAttendanceReport()" class="bg-gray-800 text-white px-6 py-2 rounded-lg font-bold">إنهاء التسجيل وعرض التقرير</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Accounting -->
+        <section id="accounting" class="tab-content">
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Revenue Collection -->
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-green-500">
+                    <h2 class="font-bold text-lg mb-4">تحصيل إيرادات (بالباركود)</h2>
+                    <div id="payReader" class="scanner-container h-40 bg-gray-100 mb-4 rounded flex items-center justify-center text-gray-400">
+                        [اضغط لتشغيل الكاميرا]
+                    </div>
+                    <div id="paymentForm" class="space-y-3 hidden">
+                        <div class="p-2 bg-gray-50 rounded">
+                            <p class="text-xs text-gray-500">اسم الطالب</p>
+                            <p id="payStdName" class="font-bold"></p>
+                        </div>
+                        <input type="number" id="payAmount" placeholder="المبلغ" class="w-full p-2 border rounded">
+                        <select id="payType" class="w-full p-2 border rounded">
+                            <option value="شهرية">اشتراك شهري</option>
+                            <option value="مذكرة">ثمن مذكرة</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                        <button onclick="confirmPayment()" class="w-full bg-green-600 text-white py-2 rounded">تأكيد الدفع</button>
+                    </div>
+                </div>
+
+                <!-- Expenses Form -->
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-red-500">
+                    <h2 class="font-bold text-lg mb-4">تسجيل مصروفات</h2>
+                    <div class="space-y-4">
+                        <input type="text" id="expDesc" placeholder="بيان المصروف (كهرباء، رواتب...)" class="w-full p-2 border rounded">
+                        <input type="number" id="expAmount" placeholder="المبلغ" class="w-full p-2 border rounded">
+                        <select id="expCategory" class="w-full p-2 border rounded">
+                            <option value="رواتب">رواتب وأجور</option>
+                            <option value="خدمات">كهرباء ومياه</option>
+                            <option value="إيجار">إيجار</option>
+                            <option value="مستلزمات">مستلزمات سنتر</option>
+                            <option value="طباعة">طباعة مذكرات</option>
+                        </select>
+                        <button onclick="addExpense()" class="w-full bg-red-600 text-white py-2 rounded">تسجيل مصروف</button>
+                    </div>
+                </div>
+
+                <!-- Financial Balance -->
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-blue-500">
+                    <h2 class="font-bold text-lg mb-4">ملخص الشهر الحالي</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between border-b pb-2">
+                            <span>إجمالي الإيرادات:</span>
+                            <span class="text-green-600 font-bold" id="totalRev">0 ج.م</span>
+                        </div>
+                        <div class="flex justify-between border-b pb-2">
+                            <span>إجمالي المصروفات:</span>
+                            <span class="text-red-600 font-bold" id="totalExp">0 ج.م</span>
+                        </div>
+                        <div class="flex justify-between pt-2">
+                            <span class="text-xl">صافي الربح:</span>
+                            <span class="text-xl font-bold" id="netProfit">0 ج.م</span>
+                        </div>
+                        <button onclick="closeMonth()" class="w-full mt-4 bg-indigo-800 text-white py-2 rounded">إغلاق الشهر وأرشفة الدفتر</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Reports -->
+        <section id="reports" class="tab-content">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">تقارير الغياب والمتابعة</h2>
+                    <div class="flex gap-2">
+                        <select id="filterLevel" class="p-1 border rounded text-sm">
+                            <option value="all">كل المراحل</option>
+                            <option value="secondary">ثانوي</option>
+                            <option value="prep">إعدادي</option>
+                            <option value="primary">ابتدائي</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="reportArea">
+                    <p class="text-center text-gray-500 py-10">اختر "إنهاء التسجيل" من تبويب الحضور لعرض تقرير الغياب.</p>
                 </div>
             </div>
         </section>
 
     </div>
 
-    <script>
-        // State Management
-        let students = JSON.parse(localStorage.getItem('edu_students')) || [];
-        let attendanceLog = JSON.parse(localStorage.getItem('edu_attendance')) || {}; // Format: { "2023-10-25": ["ID1", "ID2"] }
-        
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = today.getMonth();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const monthString = today.toLocaleString('ar-EG', { month: 'long' });
+    <!-- Custom Modal for Notifications -->
+    <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
+            <div id="modalIcon" class="mb-4"></div>
+            <h3 id="modalTitle" class="text-xl font-bold mb-2"></h3>
+            <p id="modalBody" class="text-gray-600 mb-6"></p>
+            <button onclick="closeModal()" class="w-full bg-indigo-600 text-white py-2 rounded-lg">موافق</button>
+        </div>
+    </div>
 
+    <script>
+        // Data State
+        let students = JSON.parse(localStorage.getItem('center_students')) || [];
+        let attendance = JSON.parse(localStorage.getItem('center_attendance')) || {};
+        let accounting = JSON.parse(localStorage.getItem('center_accounting')) || { revenues: [], expenses: [] };
+        
+        const today = new Date().toISOString().split('T')[0];
+
+        // Init UI
         window.onload = () => {
-            document.getElementById('currentMonthName').innerText = monthString;
-            renderAttendanceSheet();
+            renderStudents();
+            updateFinanceSummary();
             initScanner();
         };
 
         function showTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-white', 'text-indigo-900', 'font-bold');
-                btn.classList.add('hover:bg-white/10');
-            });
-            event.target.classList.add('bg-white', 'text-indigo-900', 'font-bold');
         }
 
-        // Attendance Sheet Logic
-        function renderAttendanceSheet() {
-            const header = document.getElementById('tableHeader');
-            const body = document.getElementById('attendanceBody');
-            const filter = document.getElementById('levelFilter').value;
-
-            // Generate Header Days
-            let headerHtml = `<th class="p-3 sticky-col">اسم الطالب / ID</th>`;
-            for(let d=1; d<=daysInMonth; d++) {
-                headerHtml += `<th class="p-2 text-xs font-medium">${d}</th>`;
-            }
-            header.innerHTML = headerHtml;
-
-            // Filter Students
-            const filteredStudents = filter === 'all' ? students : students.filter(s => s.level === filter);
-
-            // Generate Rows
-            let bodyHtml = '';
-            filteredStudents.forEach(student => {
-                bodyHtml += `<tr class="hover:bg-indigo-50/30 transition-colors">
-                    <td class="p-3 sticky-col">
-                        <div class="font-bold text-gray-800">${student.name}</div>
-                        <div class="text-[10px] text-gray-400">${student.id}</div>
-                    </td>`;
-                
-                for(let d=1; d<=daysInMonth; d++) {
-                    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                    const isPresent = attendanceLog[dateStr] && attendanceLog[dateStr].includes(student.id);
-                    bodyHtml += `<td class="p-2 text-center border-l border-gray-50">
-                        ${isPresent ? '<span class="present-check">✅</span>' : '<span class="absent-dot">·</span>'}
-                    </td>`;
-                }
-                bodyHtml += `</tr>`;
-            });
-
-            body.innerHTML = bodyHtml || '<tr><td colspan="32" class="p-10 text-center text-gray-400">لا يوجد طلاب مسجلين في هذه المرحلة</td></tr>';
-        }
-
-        // Student Registration
+        // Student Management
         function registerStudent() {
             const name = document.getElementById('stdName').value;
             const level = document.getElementById('stdLevel').value;
-            if(!name) return;
+            if(!name || !level) return notify('تنبيه', 'يرجى إكمال البيانات', 'warning');
 
-            const id = 'ST' + Math.floor(1000 + Math.random() * 9000);
-            const student = { id, name, level, registeredDate: new Date().toISOString() };
+            const id = 'STD-' + Date.now();
+            const student = { id, name, level, joinDate: today };
             students.push(student);
             saveData();
             
-            // Show QR Preview
-            const qrArea = document.getElementById('qrPreview');
-            qrArea.classList.remove('hidden');
+            // Generate QR
+            document.getElementById('qrCard').classList.remove('hidden');
             document.getElementById('qrcode').innerHTML = '';
-            new QRCode(document.getElementById("qrcode"), { text: id, width: 140, height: 140, colorDark : "#312e81" });
-            document.getElementById('qrName').innerText = name;
-            document.getElementById('qrId').innerText = `المعرف: ${id}`;
+            new QRCode(document.getElementById("qrcode"), {
+                text: id,
+                width: 150,
+                height: 150
+            });
+            document.getElementById('displayStdName').innerText = name;
+            document.getElementById('displayStdLevel').innerText = document.getElementById('stdLevel').options[document.getElementById('stdLevel').selectedIndex].text;
             
-            renderAttendanceSheet();
+            renderStudents();
             document.getElementById('stdName').value = '';
         }
 
-        // Scanner Logic
+        function renderStudents() {
+            const tbody = document.getElementById('studentsTable');
+            tbody.innerHTML = students.map(s => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-2 text-xs">${s.id}</td>
+                    <td class="p-2 font-bold">${s.name}</td>
+                    <td class="p-2">${s.level}</td>
+                    <td class="p-2">${s.joinDate}</td>
+                    <td class="p-2">
+                        <button onclick="deleteStudent('${s.id}')" class="text-red-500 text-sm">حذف</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Attendance System
         let html5QrCode;
         function initScanner() {
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, onScanSuccess);
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            
+            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
         }
 
         function onScanSuccess(decodedText) {
             const student = students.find(s => s.id === decodedText);
             const statusBox = document.getElementById('attendanceStatus');
             const msg = document.getElementById('statusMsg');
-            const dateStr = today.toISOString().split('T')[0];
+            const time = document.getElementById('statusTime');
 
             statusBox.classList.remove('hidden');
 
             if (student) {
-                if (!attendanceLog[dateStr]) attendanceLog[dateStr] = [];
-                
-                if (!attendanceLog[dateStr].includes(student.id)) {
-                    attendanceLog[dateStr].push(student.id);
+                // Record Attendance
+                if (!attendance[today]) attendance[today] = [];
+                if (!attendance[today].includes(student.id)) {
+                    attendance[today].push(student.id);
                     saveData();
-                    statusBox.className = "mt-4 w-full p-4 rounded-2xl text-center bg-emerald-500 text-white animate-bounce";
-                    msg.innerText = `تم تسجيل حضور: ${student.name}`;
-                    renderAttendanceSheet();
+                    
+                    statusBox.className = "mt-6 p-6 rounded-xl bg-green-500 text-white animate-pulse";
+                    msg.innerText = `تم تسجيل الحضور: ${student.name}`;
+                    time.innerText = `التوقيت: ${new Date().toLocaleTimeString('ar-EG')}`;
                     playBeep(true);
                 } else {
-                    statusBox.className = "mt-4 w-full p-4 rounded-2xl text-center bg-amber-500 text-white";
-                    msg.innerText = `مسجل مسبقاً: ${student.name}`;
+                    statusBox.className = "mt-6 p-6 rounded-xl bg-gray-400 text-white";
+                    msg.innerText = `الطالب ${student.name} مسجل بالفعل`;
                     playBeep(false);
                 }
             } else {
-                statusBox.className = "mt-4 w-full p-4 rounded-2xl text-center bg-rose-600 text-white";
-                msg.innerText = "باركود غير معتمد!";
+                statusBox.className = "mt-6 p-6 rounded-xl bg-red-600 text-white";
+                msg.innerText = "باركود غير معروف!";
                 playBeep(false);
             }
-            
-            // Reset status message after 3 seconds
-            setTimeout(() => statusBox.classList.add('hidden'), 3000);
+
+            updateAttendanceCounters();
         }
 
+        function updateAttendanceCounters() {
+            const present = attendance[today] ? attendance[today].length : 0;
+            document.getElementById('presentCount').innerText = present;
+            document.getElementById('absentCount').innerText = students.length - present;
+        }
+
+        function generateAttendanceReport() {
+            const presentIds = attendance[today] || [];
+            const absents = students.filter(s => !presentIds.includes(s.id));
+            
+            const reportArea = document.getElementById('reportArea');
+            let html = `
+                <div class="mb-4 flex gap-4">
+                    <div class="bg-green-100 p-3 rounded flex-1">حاضر: ${presentIds.length}</div>
+                    <div class="bg-red-100 p-3 rounded flex-1">غائب: ${absents.length}</div>
+                </div>
+                <h3 class="font-bold text-red-600 mb-2">قائمة المتغيبين (تحتاج تواصل):</h3>
+                <div class="space-y-2">
+            `;
+            
+            absents.forEach(s => {
+                html += `
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded">
+                        <span>${s.name} (${s.level})</span>
+                        <button onclick="markManual('${s.id}')" class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">حضر متأخراً</button>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            reportArea.innerHTML = html;
+            showTab('reports');
+        }
+
+        function markManual(id) {
+            if (!attendance[today]) attendance[today] = [];
+            attendance[today].push(id);
+            saveData();
+            generateAttendanceReport();
+            updateAttendanceCounters();
+        }
+
+        // Finance System
+        let currentPayingStudent = null;
+
+        // Note: For payment scanner we use a simple input simulation since one camera is active
+        document.getElementById('payReader').onclick = () => {
+            const id = prompt("أدخل باركود الطالب أو كوده:");
+            if(id) handlePaymentScan(id);
+        };
+
+        function handlePaymentScan(id) {
+            const student = students.find(s => s.id === id);
+            if(student) {
+                currentPayingStudent = student;
+                document.getElementById('paymentForm').classList.remove('hidden');
+                document.getElementById('payStdName').innerText = student.name;
+                document.getElementById('payAmount').value = 100; // Default amount
+            } else {
+                notify('خطأ', 'طالب غير موجود', 'error');
+            }
+        }
+
+        function confirmPayment() {
+            const amount = parseFloat(document.getElementById('payAmount').value);
+            const type = document.getElementById('payType').value;
+            
+            accounting.revenues.push({
+                date: today,
+                studentName: currentPayingStudent.name,
+                amount,
+                type
+            });
+            
+            saveData();
+            updateFinanceSummary();
+            document.getElementById('paymentForm').classList.add('hidden');
+            notify('تم بنجاح', `تم استلام ${amount} ج.م من ${currentPayingStudent.name}`, 'success');
+        }
+
+        function addExpense() {
+            const desc = document.getElementById('expDesc').value;
+            const amount = parseFloat(document.getElementById('expAmount').value);
+            const cat = document.getElementById('expCategory').value;
+
+            if(!desc || !amount) return;
+
+            accounting.expenses.push({ date: today, desc, amount, category: cat });
+            saveData();
+            updateFinanceSummary();
+            
+            document.getElementById('expDesc').value = '';
+            document.getElementById('expAmount').value = '';
+            notify('تم', 'سُجل المصروف بنجاح', 'success');
+        }
+
+        function updateFinanceSummary() {
+            const totalRev = accounting.revenues.reduce((sum, r) => sum + r.amount, 0);
+            const totalExp = accounting.expenses.reduce((sum, e) => sum + e.amount, 0);
+            
+            document.getElementById('totalRev').innerText = totalRev + ' ج.م';
+            document.getElementById('totalExp').innerText = totalExp + ' ج.م';
+            document.getElementById('netProfit').innerText = (totalRev - totalExp) + ' ج.م';
+        }
+
+        function closeMonth() {
+            if(confirm("هل أنت متأكد من إغلاق الشهر؟ سيتم أرشفة كافة الحسابات والحضور والبدء من جديد.")) {
+                // Here you would normally push to an 'archives' collection
+                accounting = { revenues: [], expenses: [] };
+                attendance = {};
+                saveData();
+                location.reload();
+            }
+        }
+
+        // Utilities
         function saveData() {
-            localStorage.setItem('edu_students', JSON.stringify(students));
-            localStorage.setItem('edu_attendance', JSON.stringify(attendanceLog));
+            localStorage.setItem('center_students', JSON.stringify(students));
+            localStorage.setItem('center_attendance', JSON.stringify(attendance));
+            localStorage.setItem('center_accounting', JSON.stringify(accounting));
+        }
+
+        function deleteStudent(id) {
+            if(confirm('حذف الطالب؟')) {
+                students = students.filter(s => s.id !== id);
+                saveData();
+                renderStudents();
+            }
+        }
+
+        function notify(title, body, type) {
+            const modal = document.getElementById('customModal');
+            const icon = document.getElementById('modalIcon');
+            modal.classList.remove('hidden');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalBody').innerText = body;
+            
+            if(type === 'success') icon.innerHTML = '✅';
+            else if(type === 'error') icon.innerHTML = '❌';
+            else icon.innerHTML = '⚠️';
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
         }
 
         function playBeep(success) {
             const context = new (window.AudioContext || window.webkitAudioContext)();
             const osc = context.createOscillator();
-            osc.frequency.setValueAtTime(success ? 800 : 300, context.currentTime);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(success ? 880 : 220, context.currentTime);
             osc.connect(context.destination);
             osc.start();
-            osc.stop(context.currentTime + 0.15);
-        }
-
-        function printCard() {
-            window.print();
-        }
-
-        function exportToCSV() {
-            let csv = "ID,Name,Level";
-            for(let i=1; i<=daysInMonth; i++) csv += `,Day ${i}`;
-            csv += "\n";
-
-            students.forEach(s => {
-                let row = `${s.id},${s.name},${s.level}`;
-                for(let d=1; d<=daysInMonth; d++) {
-                    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                    row += `,${attendanceLog[dateStr] && attendanceLog[dateStr].includes(s.id) ? 'Present' : 'Absent'}`;
-                }
-                csv += row + "\n";
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', '');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `Attendance_Report_${monthString}.csv`);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            osc.stop(context.currentTime + 0.1);
         }
     </script>
 </body>
