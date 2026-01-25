@@ -6,13 +6,15 @@
     <meta name="mobile-web-app-capable" content="yes">
     <title>Smart Center Pro | النظام التعليمي</title>
     
+    <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; padding-bottom: 80px; font-size: 14px; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; padding-bottom: 80px; font-size: 13px; -webkit-tap-highlight-color: transparent; }
         
         /* Navigation */
         .nav-item { transition: all 0.2s; opacity: 0.7; border-bottom: 3px solid transparent; }
@@ -31,7 +33,7 @@
         .glass-card { background: white; border-radius: 0.75rem; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 0.75rem; }
 
         /* Tables */
-        .custom-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
         .custom-table thead { background-color: #f1f5f9; color: #1e293b; font-weight: 700; }
         .custom-table th, .custom-table td { padding: 0.5rem; border-bottom: 1px solid #e2e8f0; text-align: right; }
         .custom-table tr:last-child td { border-bottom: none; }
@@ -40,6 +42,7 @@
         /* Print */
         @media print {
             .no-print { display: none !important; }
+            .print-area { position: absolute; top: 0; left: 0; width: 100%; background: white; z-index: 9999; }
         }
 
         /* Toggle Buttons */
@@ -75,6 +78,13 @@
                 <h2 class="font-bold text-blue-900 mb-2 text-sm">تسجيل طالب جديد</h2>
                 <div class="space-y-2">
                     <input type="text" id="stdName" class="w-full p-2 border rounded text-sm focus:ring-1 focus:ring-blue-500 outline-none" placeholder="اسم الطالب رباعي">
+                    
+                    <!-- Parent Phone -->
+                    <div class="flex items-center border rounded bg-white overflow-hidden">
+                        <span class="bg-gray-100 px-3 py-2 text-gray-600 text-xs font-bold border-l">+20</span>
+                        <input type="tel" id="stdPhone" class="w-full p-2 text-sm outline-none" placeholder="رقم ولي الأمر (بدون 0 في البداية)">
+                    </div>
+
                     <select id="stdLevel" class="w-full p-2 border rounded bg-white text-sm">
                         <option value="">اختر المرحلة...</option>
                         <optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
@@ -90,14 +100,15 @@
                     <h2 class="font-bold text-sm">الطلاب (<span id="stdCount">0</span>)</h2>
                     <div class="flex gap-2">
                         <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث..." class="text-xs p-1 border rounded w-24">
-                        <button onclick="printStudentsList()" class="bg-gray-800 text-white px-3 py-1 rounded text-xs">طباعة</button>
+                        <button onclick="printElement('studentsListArea')" class="bg-gray-800 text-white px-3 py-1 rounded text-xs">طباعة</button>
                     </div>
                 </div>
                 
-                <div class="overflow-x-auto">
+                <div id="studentsListArea" class="overflow-x-auto">
+                    <h2 class="text-center font-bold text-xl mb-4 hidden print-header">قائمة طلاب السنتر</h2>
                     <table class="custom-table">
                         <thead>
-                            <tr><th>الكود</th><th>الاسم</th><th>المرحلة</th><th>تاريخ الانضمام</th><th class="no-print">إجراء</th></tr>
+                            <tr><th>م</th><th>الكود</th><th>الاسم</th><th>المرحلة</th><th>ولي الأمر</th><th class="no-print">إجراء</th></tr>
                         </thead>
                         <tbody id="studentsTable"></tbody>
                     </table>
@@ -200,8 +211,9 @@
                 </div>
             </div>
             
+            <!-- Summary & Daily Tables -->
             <div class="bg-slate-800 text-white p-3 rounded-xl shadow-lg mt-3">
-                <div class="flex justify-between items-end">
+                <div class="flex justify-between items-end mb-4">
                     <div>
                         <p class="text-[10px] opacity-70">الصافي اليوم</p>
                         <p class="text-2xl font-bold" id="netProfit">0</p>
@@ -209,6 +221,18 @@
                     <div class="text-left text-xs">
                         <div class="text-green-400">وارد: <span id="totalRev">0</span></div>
                         <div class="text-red-400">صادر: <span id="totalExp">0</span></div>
+                    </div>
+                </div>
+                
+                <!-- Today's Tables -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-white/10 p-2 rounded">
+                        <h4 class="text-[10px] font-bold text-green-300 mb-1 border-b border-white/20 pb-1">إيرادات اليوم</h4>
+                        <div id="todayRevList" class="h-24 overflow-y-auto text-[10px] space-y-1"></div>
+                    </div>
+                    <div class="bg-white/10 p-2 rounded">
+                        <h4 class="text-[10px] font-bold text-red-300 mb-1 border-b border-white/20 pb-1">مصروفات اليوم</h4>
+                        <div id="todayExpList" class="h-24 overflow-y-auto text-[10px] space-y-1"></div>
                     </div>
                 </div>
             </div>
@@ -282,7 +306,6 @@
         <div class="bg-white rounded-xl w-full max-w-xs p-5 text-center relative shadow-2xl">
             <button onclick="closeModal('studentModal')" class="absolute top-2 right-3 text-gray-500 text-xl font-bold">&times;</button>
             
-            <!-- منطقة الطباعة الخاصة بالكارت -->
             <div id="studentCardPrintArea" class="border-4 border-double border-blue-200 p-4 rounded-xl bg-white mb-4">
                 <h3 class="font-bold text-base mb-2 text-blue-900">بطاقة طالب</h3>
                 <div id="modalQr" class="flex justify-center mb-2"></div>
@@ -292,10 +315,9 @@
                 <p class="text-[10px] text-gray-400 mt-2">Smart Center System</p>
             </div>
 
-            <div class="grid grid-cols-3 gap-2">
-                <button onclick="printStudentCard()" class="bg-gray-800 text-white py-1.5 rounded text-xs font-bold">🖨️ طباعة</button>
-                <button onclick="shareStudentCard()" class="bg-green-600 text-white py-1.5 rounded text-xs font-bold">📱 مشاركة</button>
-                <button onclick="openStudentWindow()" class="bg-blue-600 text-white py-1.5 rounded text-xs font-bold">🔗 صفحة</button>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="printElement('studentCardPrintArea')" class="bg-gray-800 text-white py-1.5 rounded text-xs font-bold">🖨️ طباعة</button>
+                <button onclick="shareStudentPdf()" class="bg-red-600 text-white py-1.5 rounded text-xs font-bold">📄 مشاركة PDF</button>
             </div>
         </div>
     </div>
@@ -348,6 +370,7 @@
         let currentReportData = { present: [], absent: [], revenues: [], expenses: [] };
         let currentStudentReport = null; 
         let currentModalStudentId = null;
+        let currentParentPhone = null;
 
         // --- Init ---
         window.onload = () => {
@@ -371,17 +394,23 @@
         function registerStudent() {
             const name = document.getElementById('stdName').value;
             const level = document.getElementById('stdLevel').value;
+            let phone = document.getElementById('stdPhone').value;
+
             if(!name || !level) return showToast('أكمل البيانات', 'error');
+            
+            // Clean phone number (remove leading 0)
+            if(phone.startsWith('0')) phone = phone.substring(1);
 
             let id;
             do { id = Math.floor(1000 + Math.random() * 9000).toString(); } 
             while (students.some(s => s.id === id));
 
-            students.push({ id, name, level, date: today });
+            students.push({ id, name, level, phone, date: today });
             saveData();
             renderStudents();
             openStudentModal(id);
             document.getElementById('stdName').value = '';
+            document.getElementById('stdPhone').value = '';
             showToast('تم التسجيل', 'success');
         }
 
@@ -392,12 +421,13 @@
             
             document.getElementById('stdCount').innerText = filtered.length;
             
-            tbody.innerHTML = filtered.map(s => `
+            tbody.innerHTML = filtered.map((s, index) => `
                 <tr class="cursor-pointer" onclick="openStudentModal('${s.id}')">
+                    <td class="text-gray-500">${index + 1}</td>
                     <td class="font-mono font-bold text-blue-600">${s.id}</td>
                     <td class="font-bold">${s.name}</td>
                     <td>${stageMap[s.level] || s.level}</td>
-                    <td class="text-gray-500 text-xs">${s.date || '-'}</td>
+                    <td class="text-xs text-gray-500" dir="ltr">+20 ${s.phone || '-'}</td>
                     <td class="no-print" onclick="event.stopPropagation()">
                         <button onclick="delStudent('${s.id}')" class="text-red-500 text-xs font-bold">حذف</button>
                     </td>
@@ -418,67 +448,24 @@
             document.getElementById('studentModal').classList.remove('hidden');
         }
 
-        function printStudentCard() {
+        function printElement(elemId) {
+            const content = document.getElementById(elemId);
+            content.classList.add('print-area');
+            window.print();
+            content.classList.remove('print-area');
+        }
+
+        function shareStudentPdf() {
             const s = students.find(st => st.id === currentModalStudentId);
-            // Get QR Code Data URL
-            const canvas = document.querySelector('#modalQr canvas');
-            const imgUrl = canvas ? canvas.toDataURL("image/png") : '';
-
-            const win = window.open("", "Print Card", "width=400,height=500");
-            win.document.write(`
-                <html><head><title>${s.name}</title>
-                <style>
-                    body { font-family: sans-serif; text-align: center; padding: 20px; border: 2px solid #ccc; margin: 20px; border-radius: 10px; }
-                    h1 { margin: 10px 0; font-size: 22px; }
-                    h2 { margin: 5px 0; font-size: 30px; letter-spacing: 5px; }
-                    h3 { color: #666; font-size: 16px; }
-                    img { margin: 10px auto; display: block; }
-                </style>
-                </head><body>
-                <img src="${imgUrl}" width="120" height="120" />
-                <h2>${s.id}</h2>
-                <h1>${s.name}</h1>
-                <h3>${stageMap[s.level]}</h3>
-                <script>window.print();<\/script>
-                </body></html>
-            `);
-        }
-
-        function printStudentsList() {
-            const win = window.open("", "Print List", "width=800,height=600");
-            const tableHtml = document.getElementById('studentsTable').innerHTML;
-            win.document.write(`
-                <html dir="rtl"><head><title>قائمة الطلاب</title>
-                <style>
-                    body { font-family: sans-serif; padding: 20px; }
-                    table { width: 100%; border-collapse: collapse; }
-                    th, td { border: 1px solid #000; padding: 8px; text-align: right; }
-                    th { background: #eee; }
-                    .no-print { display: none; }
-                </style>
-                </head><body>
-                <h2 style="text-align:center">قائمة طلاب السنتر</h2>
-                <table>
-                    <thead><tr><th>الكود</th><th>الاسم</th><th>المرحلة</th><th>تاريخ الانضمام</th></tr></thead>
-                    <tbody>${tableHtml}</tbody>
-                </table>
-                <script>window.print();<\/script>
-                </body></html>
-            `);
-        }
-
-        function shareStudentCard() {
-            const s = students.find(st => st.id === currentModalStudentId);
-            if (navigator.share) {
-                navigator.share({
-                    title: 'بيانات الطالب',
-                    text: `الطالب: ${s.name}\nالكود: ${s.id}\nالمرحلة: ${stageMap[s.level]}`
-                }).catch(console.error);
-            } else { alert('المشاركة غير مدعومة'); }
-        }
-
-        function openStudentWindow() {
-            printStudentCard(); // Reusing the print window logic as it serves the same purpose
+            const element = document.getElementById('studentCardPrintArea');
+            const opt = {
+                margin: 10,
+                filename: `بطاقة_${s.name}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
         }
 
         function delStudent(id) {
@@ -565,7 +552,7 @@
             document.getElementById('modalFilterContainer').classList.remove('hidden'); // Show filter
             
             const thead = document.getElementById('detailsTableHead');
-            thead.innerHTML = `<tr><th>الاسم</th><th>الكود</th><th>المرحلة</th><th>${type === 'present' ? 'وقت الحضور' : 'تاريخ الغياب'}</th></tr>`;
+            thead.innerHTML = `<tr><th>م</th><th>الاسم</th><th>الكود</th><th>المرحلة</th><th>${type === 'present' ? 'وقت الحضور' : 'تاريخ الغياب'}</th></tr>`;
             
             document.getElementById('detailsModal').classList.remove('hidden');
             filterAttendanceList();
@@ -594,10 +581,11 @@
             }
 
             if(list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 py-4">لا توجد بيانات</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 py-4">لا توجد بيانات</td></tr>`;
             } else {
-                tbody.innerHTML = list.map(s => `
+                tbody.innerHTML = list.map((s, index) => `
                     <tr class="cursor-pointer hover:bg-blue-50" onclick="openStudentModal('${s.id}')">
+                        <td class="text-gray-500">${index + 1}</td>
                         <td class="font-bold">${s.name}</td>
                         <td class="font-mono text-blue-600">${s.id}</td>
                         <td>${stageMap[s.level] || s.level}</td>
@@ -675,6 +663,18 @@
             document.getElementById('totalRev').innerText = rev;
             document.getElementById('totalExp').innerText = exp;
             document.getElementById('netProfit').innerText = (rev - exp);
+
+            // Update Today's Tables
+            const todayRevs = accounting.revenues.filter(r => r.date === today);
+            const todayExps = accounting.expenses.filter(e => e.date === today);
+
+            document.getElementById('todayRevList').innerHTML = todayRevs.map(r => 
+                `<div class="flex justify-between border-b border-white/10 pb-1"><span>${r.name}</span><span>${r.amount}</span></div>`
+            ).join('') || '<div class="text-center opacity-50">لا يوجد</div>';
+
+            document.getElementById('todayExpList').innerHTML = todayExps.map(e => 
+                `<div class="flex justify-between border-b border-white/10 pb-1"><span>${e.desc}</span><span>${e.amount}</span></div>`
+            ).join('') || '<div class="text-center opacity-50">لا يوجد</div>';
         }
 
         // --- Reports ---
@@ -689,7 +689,7 @@
             }
         }
 
-        // --- NEW: Student Profile Report (Detailed) ---
+        // --- NEW: Student Profile Report ---
         function generateStudentReport() {
             const query = document.getElementById('reportStudentSearch').value.toLowerCase();
             const student = students.find(s => s.name.toLowerCase().includes(query) || s.id === query);
@@ -700,6 +700,8 @@
                 resDiv.classList.remove('hidden');
                 return;
             }
+
+            currentParentPhone = student.phone;
 
             // Calculate Stats
             let presentDays = 0;
@@ -732,7 +734,7 @@
             payments = accounting.revenues.filter(r => r.stdId === student.id);
             totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
 
-            // Prepare Share Text (Detailed)
+            // Prepare Share Text
             currentStudentReport = `*تقرير الطالب: ${student.name}*\n` +
                                    `الكود: ${student.id}\n` +
                                    `تاريخ الانضمام: ${student.date}\n` +
@@ -777,18 +779,19 @@
                     </div>
                 </div>
 
-                <button onclick="shareStudentReport()" class="w-full bg-green-600 text-white py-1.5 rounded text-xs font-bold">مشاركة التقرير واتساب</button>
+                <button onclick="shareStudentReport()" class="w-full bg-green-600 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2">
+                    <span>📱</span> مشاركة التقرير واتساب
+                </button>
             `;
             resDiv.classList.remove('hidden');
         }
 
         function shareStudentReport() {
-            if(navigator.share && currentStudentReport) {
-                navigator.share({ title: 'تقرير طالب', text: currentStudentReport }).catch(console.error);
-            } else { 
-                // Fallback for desktop or unsupported browsers
-                const url = `https://wa.me/?text=${encodeURIComponent(currentStudentReport)}`;
+            if(currentParentPhone) {
+                const url = `https://wa.me/20${currentParentPhone}?text=${encodeURIComponent(currentStudentReport)}`;
                 window.open(url, '_blank');
+            } else {
+                alert('لا يوجد رقم ولي أمر مسجل لهذا الطالب');
             }
         }
 
@@ -820,9 +823,48 @@
                 currentReportData.revenues = accounting.revenues.filter(r => r.date === dateInput);
                 currentReportData.expenses = accounting.expenses.filter(e => e.date === dateInput);
             } else {
+                // Monthly Logic
                 if(!monthInput) return showToast('اختر الشهر', 'error');
+                
+                // Finance
                 currentReportData.revenues = accounting.revenues.filter(r => r.date.startsWith(monthInput));
                 currentReportData.expenses = accounting.expenses.filter(e => e.date.startsWith(monthInput));
+
+                // Attendance (Aggregated)
+                // We need to iterate all days in the month
+                let monthlyStats = {}; // { stdId: { present: 0, absentDates: [] } }
+                
+                // Initialize stats for target students
+                targetStudents.forEach(s => {
+                    monthlyStats[s.id] = { name: s.name, level: s.level, present: 0, absentDates: [] };
+                });
+
+                // Iterate attendance records
+                Object.keys(attendance).forEach(date => {
+                    if(date.startsWith(monthInput)) {
+                        const dayRecords = attendance[date];
+                        const presentIds = dayRecords.map(r => typeof r === 'string' ? r : r.id);
+                        
+                        targetStudents.forEach(s => {
+                            if(date >= s.date) { // Only count if student joined
+                                if(presentIds.includes(s.id)) {
+                                    monthlyStats[s.id].present++;
+                                } else {
+                                    monthlyStats[s.id].absentDates.push(date);
+                                }
+                            }
+                        });
+                    }
+                });
+
+                // Convert to array for display
+                currentReportData.present = Object.values(monthlyStats).map(s => ({
+                    ...s, time: `${s.present} يوم` // Reuse 'time' field for count
+                }));
+                
+                currentReportData.absent = Object.values(monthlyStats).filter(s => s.absentDates.length > 0).map(s => ({
+                    ...s, time: s.absentDates.join(', ') // Reuse 'time' field for dates
+                }));
             }
 
             totalRev = currentReportData.revenues.reduce((a,b)=>a+b.amount,0);
@@ -830,17 +872,18 @@
 
             let html = `
                 <h4 class="font-bold text-center border-b pb-2 mb-2">تقرير ${type === 'daily' ? dateInput : monthInput}</h4>
-                ${type === 'daily' ? `
+                
                 <div class="grid grid-cols-2 gap-2 mb-4 text-center">
                     <div onclick='openReportDetails("present")' class="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200">
                         <div class="text-xs">حضور</div>
-                        <div class="font-bold text-green-700">${currentReportData.present.length}</div>
+                        <div class="font-bold text-green-700">${type === 'daily' ? currentReportData.present.length : 'عرض التفاصيل'}</div>
                     </div>
                     <div onclick='openReportDetails("absent")' class="bg-red-100 p-2 rounded cursor-pointer hover:bg-red-200">
                         <div class="text-xs">غياب</div>
-                        <div class="font-bold text-red-700">${currentReportData.absent.length}</div>
+                        <div class="font-bold text-red-700">${type === 'daily' ? currentReportData.absent.length : 'عرض التفاصيل'}</div>
                     </div>
-                </div>` : ''}
+                </div>
+
                 <div class="space-y-2">
                     <div onclick='openReportDetails("revenues")' class="bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 flex justify-between">
                         <span class="text-xs text-gray-500">إيرادات</span>
@@ -863,8 +906,8 @@
         function openReportDetails(key) {
             const list = currentReportData[key];
             let title = '';
-            if(key === 'present') title = 'قائمة الحضور';
-            else if(key === 'absent') title = 'قائمة الغياب';
+            if(key === 'present') title = 'تفاصيل الحضور';
+            else if(key === 'absent') title = 'تفاصيل الغياب';
             else if(key === 'revenues') title = 'تفاصيل الإيرادات';
             else title = 'تفاصيل المصروفات';
 
@@ -875,24 +918,30 @@
             const tbody = document.getElementById('detailsTableBody');
 
             if(key === 'present' || key === 'absent') {
-                thead.innerHTML = `<tr><th>الاسم</th><th>الكود</th><th>المرحلة</th><th>الوقت</th></tr>`;
+                // Dynamic header based on report type (Daily vs Monthly)
+                const isMonthly = document.getElementById('reportType').value === 'monthly';
+                const lastCol = isMonthly ? (key === 'present' ? 'عدد الأيام' : 'تواريخ الغياب') : 'الوقت';
+                
+                thead.innerHTML = `<tr><th>م</th><th>الاسم</th><th>المرحلة</th><th>${lastCol}</th></tr>`;
+                
                 if(list.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">لا توجد بيانات</td></tr>`;
                 else {
-                    tbody.innerHTML = list.map(s => `
-                        <tr class="cursor-pointer hover:bg-gray-50" onclick="openStudentModal('${s.id}')">
+                    tbody.innerHTML = list.map((s, i) => `
+                        <tr class="hover:bg-gray-50">
+                            <td class="text-gray-500">${i + 1}</td>
                             <td class="font-bold">${s.name}</td>
-                            <td class="font-mono text-blue-600">${s.id}</td>
                             <td>${stageMap[s.level] || s.level}</td>
-                            <td>${s.time}</td>
+                            <td class="text-xs ${key === 'absent' ? 'text-red-600' : ''}">${s.time}</td>
                         </tr>
                     `).join('');
                 }
             } else {
-                thead.innerHTML = `<tr><th>البند/الطالب</th><th>الوقت</th><th>المبلغ</th></tr>`;
-                if(list.length === 0) tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4">لا توجد بيانات</td></tr>`;
+                thead.innerHTML = `<tr><th>م</th><th>البند/الطالب</th><th>الوقت</th><th>المبلغ</th></tr>`;
+                if(list.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">لا توجد بيانات</td></tr>`;
                 else {
-                    tbody.innerHTML = list.map(item => `
+                    tbody.innerHTML = list.map((item, i) => `
                         <tr class="hover:bg-gray-50">
+                            <td class="text-gray-500">${i + 1}</td>
                             <td class="font-bold">${item.name || item.desc}</td>
                             <td class="text-gray-500 text-xs">${item.date} | ${item.time || '-'}</td>
                             <td class="font-bold ${key === 'revenues' ? 'text-green-600' : 'text-red-600'}">${item.amount}</td>
