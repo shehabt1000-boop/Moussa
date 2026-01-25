@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Smart Center Pro | النظام التعليمي</title>
+    <title>Smart Center Pro | Firebase</title>
     
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; padding-bottom: 80px; font-size: 13px; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; padding-bottom: 80px; font-size: 12px; -webkit-tap-highlight-color: transparent; }
         
         /* Navigation */
         .nav-item { transition: all 0.2s; opacity: 0.7; border-bottom: 3px solid transparent; }
@@ -30,14 +30,26 @@
         #html5-qrcode-button-camera-stop { display: none !important; }
 
         /* Cards */
-        .glass-card { background: white; border-radius: 0.75rem; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 0.75rem; }
+        .glass-card { background: white; border-radius: 0.5rem; padding: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 0.5rem; }
 
-        /* Tables */
-        .custom-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        /* Tables - Compact & Single Line */
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; }
         .custom-table thead { background-color: #f1f5f9; color: #1e293b; font-weight: 700; }
-        .custom-table th, .custom-table td { padding: 0.5rem; border-bottom: 1px solid #e2e8f0; text-align: right; }
+        .custom-table th, .custom-table td { 
+            padding: 4px 2px; 
+            border-bottom: 1px solid #e2e8f0; 
+            text-align: right; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
         .custom-table tr:last-child td { border-bottom: none; }
         .custom-table tbody tr:hover { background-color: #f8fafc; }
+        
+        /* Column Widths */
+        .col-index { width: 20px; text-align: center; color: #64748b; }
+        .col-action { width: 35px; text-align: center; }
+        .col-date { width: 60px; }
 
         /* Print */
         @media print {
@@ -48,15 +60,23 @@
         /* Toggle Buttons */
         .toggle-btn-active { background-color: #ffffff; color: #1d4ed8; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-weight: 700; }
         .toggle-btn-inactive { background-color: transparent; color: #6b7280; }
+        
+        /* Loading Overlay */
+        #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; color: #1e3a8a; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
 
+    <div id="loadingOverlay">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-900 mb-2"></div>
+        جاري الاتصال بقاعدة البيانات...
+    </div>
+
     <!-- Header -->
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
         <div class="container mx-auto px-4 py-2 flex justify-between items-center">
-            <h1 class="text-base font-bold flex items-center gap-2">🎓 Smart Center</h1>
-            <div class="text-[10px] bg-blue-800 px-2 py-1 rounded-full font-mono" id="headerDate"></div>
+            <h1 class="text-sm font-bold flex items-center gap-2">🎓 Smart Center <span class="text-[9px] bg-green-500 px-1 rounded">Cloud</span></h1>
+            <div class="text-[10px] bg-blue-800 px-2 py-1 rounded-full font-mono" id="headerDate">--/--/----</div>
         </div>
         <div class="bg-blue-800 border-t border-blue-700">
             <div class="container mx-auto px-2">
@@ -70,45 +90,44 @@
         </div>
     </header>
 
-    <main class="container mx-auto p-3 max-w-4xl">
+    <main class="container mx-auto p-2 max-w-4xl">
         
         <!-- ================= STUDENTS ================= -->
         <section id="students" class="tab-content active">
             <div class="glass-card border-r-4 border-blue-500 no-print">
-                <h2 class="font-bold text-blue-900 mb-2 text-sm">تسجيل طالب جديد</h2>
+                <h2 class="font-bold text-blue-900 mb-2 text-xs">تسجيل طالب جديد</h2>
                 <div class="space-y-2">
-                    <input type="text" id="stdName" class="w-full p-2 border rounded text-sm focus:ring-1 focus:ring-blue-500 outline-none" placeholder="اسم الطالب رباعي">
+                    <input type="text" id="stdName" class="w-full p-1.5 border rounded text-xs focus:ring-1 focus:ring-blue-500 outline-none" placeholder="اسم الطالب رباعي">
                     
-                    <!-- Parent Phone -->
                     <div class="flex items-center border rounded bg-white overflow-hidden">
-                        <span class="bg-gray-100 px-3 py-2 text-gray-600 text-xs font-bold border-l">+20</span>
-                        <input type="tel" id="stdPhone" class="w-full p-2 text-sm outline-none" placeholder="رقم ولي الأمر (بدون 0 في البداية)">
+                        <span class="bg-gray-100 px-2 py-1.5 text-gray-600 text-[10px] font-bold border-l">+20</span>
+                        <input type="tel" id="stdPhone" class="w-full p-1.5 text-xs outline-none" placeholder="رقم ولي الأمر">
                     </div>
 
-                    <select id="stdLevel" class="w-full p-2 border rounded bg-white text-sm">
+                    <select id="stdLevel" class="w-full p-1.5 border rounded bg-white text-xs">
                         <option value="">اختر المرحلة...</option>
                         <optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
                         <optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup>
                         <optgroup label="الثانوية"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup>
                     </select>
-                    <button onclick="registerStudent()" class="w-full bg-blue-600 text-white py-2 rounded font-bold shadow hover:bg-blue-700 text-sm">حفظ وإنشاء كود</button>
+                    <button onclick="registerStudent()" class="w-full bg-blue-600 text-white py-1.5 rounded font-bold shadow hover:bg-blue-700 text-xs">حفظ</button>
                 </div>
             </div>
 
             <div class="glass-card">
                 <div class="flex justify-between items-center mb-2 no-print">
-                    <h2 class="font-bold text-sm">الطلاب (<span id="stdCount">0</span>)</h2>
+                    <h2 class="font-bold text-xs">الطلاب (<span id="stdCount">0</span>)</h2>
                     <div class="flex gap-2">
-                        <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث..." class="text-xs p-1 border rounded w-24">
-                        <button onclick="printElement('studentsListArea')" class="bg-gray-800 text-white px-3 py-1 rounded text-xs">طباعة</button>
+                        <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث..." class="text-[10px] p-1 border rounded w-20">
+                        <button onclick="printElement('studentsListArea')" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">طباعة</button>
                     </div>
                 </div>
                 
                 <div id="studentsListArea" class="overflow-x-auto">
-                    <h2 class="text-center font-bold text-xl mb-4 hidden print-header">قائمة طلاب السنتر</h2>
+                    <h2 class="text-center font-bold text-lg mb-2 hidden print-header">قائمة الطلاب</h2>
                     <table class="custom-table">
                         <thead>
-                            <tr><th>م</th><th>الكود</th><th>الاسم</th><th>المرحلة</th><th>ولي الأمر</th><th class="no-print">إجراء</th></tr>
+                            <tr><th class="col-index">م</th><th>الكود</th><th>الاسم</th><th>المرحلة</th><th class="col-date">تاريخ</th><th class="no-print col-action">حذف</th></tr>
                         </thead>
                         <tbody id="studentsTable"></tbody>
                     </table>
@@ -119,37 +138,42 @@
         <!-- ================= ATTENDANCE ================= -->
         <section id="attendance" class="tab-content">
             <div class="glass-card text-center">
-                <h2 class="text-lg font-bold text-blue-900 mb-3">تسجيل الحضور</h2>
+                <h2 class="text-sm font-bold text-blue-900 mb-2">سجل الحضور</h2>
                 
-                <div class="flex bg-gray-100 p-1 rounded mb-3 no-print">
-                    <button onclick="setAttMode('scan')" id="btnAttScan" class="flex-1 py-1.5 rounded text-xs toggle-btn-active transition-all">📷 الكاميرا</button>
-                    <button onclick="setAttMode('manual')" id="btnAttManual" class="flex-1 py-1.5 rounded text-xs toggle-btn-inactive transition-all">⌨️ يدوي</button>
+                <div class="mb-2 bg-blue-50 p-1.5 rounded border border-blue-200">
+                    <label class="text-[10px] text-blue-800 font-bold block mb-1">تاريخ القائمة</label>
+                    <input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full p-1 border rounded text-center font-bold text-blue-900 text-xs">
+                </div>
+
+                <div class="flex bg-gray-100 p-1 rounded mb-2 no-print">
+                    <button onclick="setAttMode('scan')" id="btnAttScan" class="flex-1 py-1 rounded text-[10px] toggle-btn-active transition-all">📷 كاميرا</button>
+                    <button onclick="setAttMode('manual')" id="btnAttManual" class="flex-1 py-1 rounded text-[10px] toggle-btn-inactive transition-all">⌨️ يدوي</button>
                 </div>
 
                 <div id="attScanArea" class="relative">
-                    <div id="reader" class="scanner-wrapper h-56 w-full mb-2"></div>
+                    <div id="reader" class="scanner-wrapper h-48 w-full mb-2"></div>
                     <div id="scanFeedback" class="absolute inset-0 flex items-center justify-center bg-green-500/90 hidden z-10 rounded-lg">
-                        <div class="text-white font-bold text-xl animate-bounce">✅ تم التسجيل</div>
+                        <div class="text-white font-bold text-lg animate-bounce">✅ تم التسجيل</div>
                     </div>
                     <div class="flex justify-center gap-2 no-print">
-                        <button onclick="startScanner('reader', 'attendance')" class="bg-blue-600 text-white px-4 py-1 rounded shadow text-xs">تشغيل</button>
-                        <button onclick="stopScanner()" class="bg-red-100 text-red-600 px-4 py-1 rounded text-xs">إيقاف</button>
+                        <button onclick="startScanner('reader', 'attendance')" class="bg-blue-600 text-white px-3 py-1 rounded shadow text-[10px]">تشغيل</button>
+                        <button onclick="stopScanner()" class="bg-red-100 text-red-600 px-3 py-1 rounded text-[10px]">إيقاف</button>
                     </div>
                 </div>
 
                 <div id="attManualArea" class="hidden">
-                    <input type="number" id="manualAttID" placeholder="أدخل الكود" class="w-full text-center text-2xl font-bold p-2 border-2 border-blue-200 rounded mb-2 font-mono">
-                    <button onclick="manualAttendance()" class="w-full bg-blue-600 text-white py-2 rounded font-bold text-sm">تسجيل</button>
+                    <input type="number" id="manualAttID" placeholder="الكود" class="w-full text-center text-xl font-bold p-2 border-2 border-blue-200 rounded mb-2 font-mono">
+                    <button onclick="manualAttendance()" class="w-full bg-blue-600 text-white py-1.5 rounded font-bold text-xs">تسجيل</button>
                 </div>
 
-                <div class="grid grid-cols-2 gap-2 mt-4 no-print">
+                <div class="grid grid-cols-2 gap-2 mt-3 no-print">
                     <div onclick="openAttendanceModal('present')" class="bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 transition">
-                        <span class="block text-xl font-bold text-green-600" id="presentCount">0</span>
-                        <span class="text-[10px] text-green-800 font-bold">حضور (عرض)</span>
+                        <span class="block text-lg font-bold text-green-600" id="presentCount">0</span>
+                        <span class="text-[10px] text-green-800 font-bold">حضور</span>
                     </div>
                     <div onclick="openAttendanceModal('absent')" class="bg-red-50 p-2 rounded border border-red-200 cursor-pointer hover:bg-red-100 transition">
-                        <span class="block text-xl font-bold text-red-600" id="absentCount">0</span>
-                        <span class="text-[10px] text-red-800 font-bold">غياب (عرض)</span>
+                        <span class="block text-lg font-bold text-red-600" id="absentCount">0</span>
+                        <span class="text-[10px] text-red-800 font-bold">غياب</span>
                     </div>
                 </div>
             </div>
@@ -157,45 +181,45 @@
 
         <!-- ================= ACCOUNTING ================= -->
         <section id="accounting" class="tab-content">
-            <div class="grid md:grid-cols-2 gap-3">
+            <div class="grid md:grid-cols-2 gap-2">
                 <div class="glass-card border-t-4 border-green-500">
-                    <h3 class="font-bold text-green-700 mb-2 text-sm">💵 استلام نقدية</h3>
+                    <h3 class="font-bold text-green-700 mb-2 text-xs">💵 استلام نقدية</h3>
                     <div class="flex gap-2 mb-2 no-print">
-                        <button onclick="togglePayMethod('scan')" id="btnPayScan" class="flex-1 py-1 rounded text-xs font-bold toggle-btn-active">مسح باركود</button>
-                        <button onclick="togglePayMethod('manual')" id="btnPayManual" class="flex-1 py-1 rounded text-xs font-bold toggle-btn-inactive">بحث بالكود</button>
+                        <button onclick="togglePayMethod('scan')" id="btnPayScan" class="flex-1 py-1 rounded text-[10px] font-bold toggle-btn-active">باركود</button>
+                        <button onclick="togglePayMethod('manual')" id="btnPayManual" class="flex-1 py-1 rounded text-[10px] font-bold toggle-btn-inactive">كود</button>
                     </div>
                     <div id="payScanDiv" class="mb-2">
-                        <div id="payReader" class="scanner-wrapper h-32 mb-2"></div>
-                        <button onclick="startScanner('payReader', 'payment')" class="w-full bg-green-600 text-white py-1 rounded text-xs no-print">تشغيل الكاميرا</button>
+                        <div id="payReader" class="scanner-wrapper h-24 mb-2"></div>
+                        <button onclick="startScanner('payReader', 'payment')" class="w-full bg-green-600 text-white py-1 rounded text-[10px] no-print">تشغيل</button>
                     </div>
                     <div id="payManualDiv" class="hidden flex gap-2 mb-2">
-                        <input type="number" id="paySearchID" placeholder="كود الطالب" class="flex-1 p-1.5 border rounded text-center font-bold text-sm">
-                        <button onclick="searchStudentForPay()" class="bg-green-600 text-white px-3 rounded text-xs">🔍</button>
+                        <input type="number" id="paySearchID" placeholder="كود الطالب" class="flex-1 p-1 border rounded text-center font-bold text-xs">
+                        <button onclick="searchStudentForPay()" class="bg-green-600 text-white px-2 rounded text-xs">🔍</button>
                     </div>
                     <div id="paymentForm" class="hidden bg-yellow-50 p-2 rounded border border-yellow-200">
-                        <div class="flex justify-between text-xs mb-2 font-bold">
+                        <div class="flex justify-between text-[10px] mb-1 font-bold">
                             <span id="payStdName"></span>
                             <span id="payStdID" class="font-mono bg-white px-1 rounded"></span>
                         </div>
-                        <div class="flex gap-2 mb-2">
-                            <input type="number" id="payAmount" value="100" class="w-1/3 p-1 border rounded text-center font-bold text-sm">
-                            <select id="payType" class="w-2/3 p-1 border rounded text-xs">
-                                <option value="شهرية">اشتراك شهر</option>
+                        <div class="flex gap-1 mb-1">
+                            <input type="number" id="payAmount" value="100" class="w-1/3 p-1 border rounded text-center font-bold text-xs">
+                            <select id="payType" class="w-2/3 p-1 border rounded text-[10px]">
+                                <option value="شهرية">اشتراك</option>
                                 <option value="مذكرة">مذكرة</option>
                                 <option value="أخرى">أخرى</option>
                             </select>
                         </div>
-                        <button onclick="confirmPayment()" class="w-full bg-green-600 text-white py-1.5 rounded font-bold shadow text-xs">تأكيد</button>
+                        <button onclick="confirmPayment()" class="w-full bg-green-600 text-white py-1 rounded font-bold shadow text-[10px]">تأكيد</button>
                     </div>
                 </div>
 
                 <div class="glass-card border-t-4 border-red-500">
-                    <h3 class="font-bold text-red-700 mb-2 text-sm">📉 تسجيل مصروفات</h3>
+                    <h3 class="font-bold text-red-700 mb-2 text-xs">📉 مصروفات</h3>
                     <div class="space-y-2">
-                        <select id="expType" class="w-full p-1.5 border rounded text-xs bg-white">
-                            <option value="">اختر البند...</option>
+                        <select id="expType" class="w-full p-1 border rounded text-[10px] bg-white">
+                            <option value="">البند...</option>
                             <option value="رواتب">رواتب</option>
-                            <option value="كهرباء">كهرباء/مياه</option>
+                            <option value="كهرباء">كهرباء</option>
                             <option value="إيجار">إيجار</option>
                             <option value="صيانة">صيانة</option>
                             <option value="طباعة">طباعة</option>
@@ -203,36 +227,34 @@
                             <option value="نثريات">نثريات</option>
                         </select>
                         <div class="flex gap-2">
-                            <input type="number" id="expAmount" placeholder="المبلغ" class="flex-1 p-1.5 border rounded text-xs">
-                            <input type="text" id="expNote" placeholder="ملاحظة" class="flex-[1.5] p-1.5 border rounded text-xs">
+                            <input type="number" id="expAmount" placeholder="المبلغ" class="flex-1 p-1 border rounded text-[10px]">
+                            <input type="text" id="expNote" placeholder="ملاحظة" class="flex-[1.5] p-1 border rounded text-[10px]">
                         </div>
-                        <button onclick="addExpense()" class="w-full bg-red-50 text-red-600 border border-red-200 py-1.5 rounded font-bold hover:bg-red-100 text-xs">تسجيل</button>
+                        <button onclick="addExpense()" class="w-full bg-red-50 text-red-600 border border-red-200 py-1 rounded font-bold hover:bg-red-100 text-[10px]">تسجيل</button>
                     </div>
                 </div>
             </div>
             
-            <!-- Summary & Daily Tables -->
-            <div class="bg-slate-800 text-white p-3 rounded-xl shadow-lg mt-3">
-                <div class="flex justify-between items-end mb-4">
+            <div class="bg-slate-800 text-white p-3 rounded-xl shadow-lg mt-2">
+                <div class="flex justify-between items-end mb-2">
                     <div>
-                        <p class="text-[10px] opacity-70">الصافي اليوم</p>
-                        <p class="text-2xl font-bold" id="netProfit">0</p>
+                        <p class="text-[10px] opacity-70">الصافي</p>
+                        <p class="text-xl font-bold" id="netProfit">0</p>
                     </div>
-                    <div class="text-left text-xs">
+                    <div class="text-left text-[10px]">
                         <div class="text-green-400">وارد: <span id="totalRev">0</span></div>
                         <div class="text-red-400">صادر: <span id="totalExp">0</span></div>
                     </div>
                 </div>
                 
-                <!-- Today's Tables -->
                 <div class="grid grid-cols-2 gap-2">
-                    <div class="bg-white/10 p-2 rounded">
-                        <h4 class="text-[10px] font-bold text-green-300 mb-1 border-b border-white/20 pb-1">إيرادات اليوم</h4>
-                        <div id="todayRevList" class="h-24 overflow-y-auto text-[10px] space-y-1"></div>
+                    <div class="bg-white/10 p-1.5 rounded">
+                        <h4 class="text-[10px] font-bold text-green-300 mb-1 border-b border-white/20">إيرادات اليوم</h4>
+                        <div id="todayRevList" class="h-20 overflow-y-auto text-[9px] space-y-1"></div>
                     </div>
-                    <div class="bg-white/10 p-2 rounded">
-                        <h4 class="text-[10px] font-bold text-red-300 mb-1 border-b border-white/20 pb-1">مصروفات اليوم</h4>
-                        <div id="todayExpList" class="h-24 overflow-y-auto text-[10px] space-y-1"></div>
+                    <div class="bg-white/10 p-1.5 rounded">
+                        <h4 class="text-[10px] font-bold text-red-300 mb-1 border-b border-white/20">مصروفات اليوم</h4>
+                        <div id="todayExpList" class="h-20 overflow-y-auto text-[9px] space-y-1"></div>
                     </div>
                 </div>
             </div>
@@ -241,32 +263,30 @@
         <!-- ================= REPORTS ================= -->
         <section id="reports" class="tab-content">
             
-            <!-- Student Profile Search -->
-            <div class="glass-card border-t-4 border-blue-600 mb-3">
-                <h3 class="font-bold mb-2 text-blue-900 flex items-center gap-2 text-sm">
-                    <span>👤</span> بحث عن طالب (ملف شامل)
+            <div class="glass-card border-t-4 border-blue-600 mb-2">
+                <h3 class="font-bold mb-2 text-blue-900 flex items-center gap-2 text-xs">
+                    <span>👤</span> بحث طالب
                 </h3>
                 <div class="flex gap-2 mb-2">
-                    <input type="text" id="reportStudentSearch" placeholder="اسم الطالب أو الكود" class="flex-1 p-1.5 border rounded text-sm">
-                    <button onclick="generateStudentReport()" class="bg-blue-600 text-white px-3 rounded font-bold text-xs">بحث</button>
+                    <input type="text" id="reportStudentSearch" placeholder="اسم/كود" class="flex-1 p-1 border rounded text-xs">
+                    <button onclick="generateStudentReport()" class="bg-blue-600 text-white px-3 rounded font-bold text-[10px]">بحث</button>
                 </div>
-                <div id="studentReportResult" class="hidden bg-gray-50 p-3 rounded border border-gray-200 text-xs"></div>
+                <div id="studentReportResult" class="hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px]"></div>
             </div>
 
-            <!-- General Reports -->
-            <div class="glass-card border-t-4 border-indigo-500 mb-3">
-                <h3 class="font-bold mb-2 text-indigo-900 text-sm">📊 التقارير العامة</h3>
+            <div class="glass-card border-t-4 border-indigo-500 mb-2">
+                <h3 class="font-bold mb-2 text-indigo-900 text-xs">📊 تقارير عامة</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                     <div>
-                        <label class="text-[10px] text-gray-500 block mb-1">النوع</label>
-                        <select id="reportType" onchange="toggleReportInputs()" class="w-full p-1.5 border rounded bg-white text-xs">
+                        <label class="text-[9px] text-gray-500 block mb-1">النوع</label>
+                        <select id="reportType" onchange="toggleReportInputs()" class="w-full p-1 border rounded bg-white text-[10px]">
                             <option value="daily">يومي</option>
                             <option value="monthly">شهري</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-[10px] text-gray-500 block mb-1">المرحلة</label>
-                        <select id="reportStage" class="w-full p-1.5 border rounded bg-white text-xs">
+                        <label class="text-[9px] text-gray-500 block mb-1">المرحلة</label>
+                        <select id="reportStage" class="w-full p-1 border rounded bg-white text-[10px]">
                             <option value="all">الكل</option>
                             <optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
                             <optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup>
@@ -274,55 +294,55 @@
                         </select>
                     </div>
                     <div id="divDateInput">
-                        <label class="text-[10px] text-gray-500 block mb-1">اليوم</label>
-                        <input type="date" id="reportDate" class="w-full p-1.5 border rounded text-xs">
+                        <label class="text-[9px] text-gray-500 block mb-1">اليوم</label>
+                        <input type="date" id="reportDate" class="w-full p-1 border rounded text-[10px]">
                     </div>
                     <div id="divMonthInput" class="hidden">
-                        <label class="text-[10px] text-gray-500 block mb-1">الشهر</label>
-                        <input type="month" id="reportMonth" class="w-full p-1.5 border rounded text-xs">
+                        <label class="text-[9px] text-gray-500 block mb-1">الشهر</label>
+                        <input type="month" id="reportMonth" class="w-full p-1 border rounded text-[10px]">
                     </div>
                 </div>
-                <button onclick="generateAdvancedReport()" class="w-full bg-indigo-600 text-white py-1.5 rounded font-bold shadow hover:bg-indigo-700 text-xs">عرض التقرير</button>
+                <button onclick="generateAdvancedReport()" class="w-full bg-indigo-600 text-white py-1 rounded font-bold shadow hover:bg-indigo-700 text-[10px]">عرض</button>
                 
-                <div id="reportResult" class="mt-3 hidden bg-gray-50 p-3 rounded border border-gray-200 text-xs"></div>
+                <div id="reportResult" class="mt-2 hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px]"></div>
             </div>
 
+            <!-- Backup & Restore (Restored) -->
             <div class="glass-card border-t-4 border-yellow-500">
-                <h3 class="font-bold mb-2 flex items-center gap-2 text-yellow-800 text-sm"><span>💾</span> النسخ الاحتياطي</h3>
+                <h3 class="font-bold mb-2 flex items-center gap-2 text-yellow-800 text-xs"><span>💾</span> النسخ الاحتياطي</h3>
                 <div class="flex gap-2">
-                    <button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-1.5 rounded font-bold text-xs border border-yellow-300">تحميل</button>
+                    <button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-1 rounded font-bold text-[10px] border border-yellow-300">تحميل JSON</button>
                     <div class="relative flex-1">
                         <input type="file" id="importFile" onchange="importData(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <button class="w-full bg-gray-100 text-gray-700 py-1.5 rounded font-bold text-xs border border-gray-300">استعادة</button>
+                        <button class="w-full bg-gray-100 text-gray-700 py-1 rounded font-bold text-[10px] border border-gray-300">استعادة JSON</button>
                     </div>
                 </div>
-                <button onclick="clearAllData()" class="w-full mt-2 text-red-500 text-[10px] hover:underline">حذف جميع البيانات</button>
             </div>
         </section>
     </main>
 
     <!-- MODAL: Student Card -->
     <div id="studentModal" class="fixed inset-0 bg-black/80 hidden z-[150] flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-xl w-full max-w-xs p-5 text-center relative shadow-2xl">
+        <div class="bg-white rounded-xl w-full max-w-xs p-4 text-center relative shadow-2xl">
             <button onclick="closeModal('studentModal')" class="absolute top-2 right-3 text-gray-500 text-xl font-bold">&times;</button>
             
-            <div id="studentCardPrintArea" class="border-4 border-double border-blue-200 p-4 rounded-xl bg-white mb-4">
-                <h3 class="font-bold text-base mb-2 text-blue-900">بطاقة طالب</h3>
-                <div id="modalQr" class="flex justify-center mb-2"></div>
-                <p id="modalCode" class="text-2xl font-black font-mono text-blue-600 mb-1"></p>
-                <h2 id="modalName" class="text-lg font-bold mb-1"></h2>
-                <p id="modalLevel" class="text-gray-500 text-sm"></p>
-                <p class="text-[10px] text-gray-400 mt-2">Smart Center System</p>
+            <div id="studentCardPrintArea" class="border-4 border-double border-blue-200 p-3 rounded-xl bg-white mb-3">
+                <h3 class="font-bold text-sm mb-1 text-blue-900">بطاقة طالب</h3>
+                <div id="modalQr" class="flex justify-center mb-1"></div>
+                <p id="modalCode" class="text-xl font-black font-mono text-blue-600 mb-0"></p>
+                <h2 id="modalName" class="text-base font-bold mb-0"></h2>
+                <p id="modalLevel" class="text-gray-500 text-xs"></p>
+                <p class="text-[9px] text-gray-400 mt-1">Smart Center</p>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="printElement('studentCardPrintArea')" class="bg-gray-800 text-white py-1.5 rounded text-xs font-bold">🖨️ طباعة</button>
-                <button onclick="shareStudentPdf()" class="bg-red-600 text-white py-1.5 rounded text-xs font-bold">📄 مشاركة PDF</button>
+                <button onclick="printElement('studentCardPrintArea')" class="bg-gray-800 text-white py-1 rounded text-[10px] font-bold">🖨️ طباعة</button>
+                <button onclick="shareStudentPdf()" class="bg-red-600 text-white py-1 rounded text-[10px] font-bold">📄 PDF</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: Lists (Attendance/Finance) -->
+    <!-- MODAL: Lists -->
     <div id="detailsModal" class="fixed inset-0 bg-black/80 hidden z-[100] flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-xl w-full max-w-xl p-0 h-[80vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="flex justify-between items-center p-3 border-b bg-gray-50">
@@ -331,7 +351,7 @@
             </div>
             
             <div id="modalFilterContainer" class="p-2 bg-gray-100 border-b hidden">
-                <select id="attFilterLevel" onchange="filterAttendanceList()" class="w-full p-1.5 border rounded bg-white text-xs">
+                <select id="attFilterLevel" onchange="filterAttendanceList()" class="w-full p-1 border rounded bg-white text-[10px]">
                     <option value="all">كل المراحل</option>
                     <optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
                     <optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup>
@@ -349,8 +369,66 @@
     </div>
 
     <!-- Toast -->
-    <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-[200] hidden font-bold text-sm"></div>
+    <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-[200] hidden font-bold text-xs"></div>
 
+    <!-- FIREBASE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAttesgksSJWs--veymN8PTRNHBX9r27V0",
+            authDomain: "system-a8c1e.firebaseapp.com",
+            projectId: "system-a8c1e",
+            storageBucket: "system-a8c1e.firebasestorage.app",
+            messagingSenderId: "674440908222",
+            appId: "1:674440908222:web:31221baab0048ee8c63def"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Expose functions
+        window.db = db;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.deleteDoc = deleteDoc;
+        window.onSnapshot = onSnapshot;
+
+        const loading = document.getElementById('loadingOverlay');
+        
+        // 1. Students
+        onSnapshot(collection(db, "students"), (snapshot) => {
+            window.students = []; // Clear array to prevent duplicates
+            snapshot.forEach(doc => {
+                window.students.push({ ...doc.data(), docId: doc.id });
+            });
+            window.renderStudents();
+            loading.style.display = 'none';
+        });
+
+        // 2. Attendance
+        onSnapshot(collection(db, "attendance"), (snapshot) => {
+            window.attendance = []; // Clear array
+            snapshot.forEach(doc => {
+                window.attendance.push({ ...doc.data(), docId: doc.id });
+            });
+            window.updateCounters();
+        });
+
+        // 3. Accounting
+        onSnapshot(collection(db, "accounting"), (snapshot) => {
+            window.accounting = []; // Clear array
+            snapshot.forEach(doc => {
+                window.accounting.push({ ...doc.data(), docId: doc.id });
+            });
+            window.updateFinance();
+        });
+    </script>
+
+    <!-- APP LOGIC -->
     <script>
         // --- Config ---
         const stageMap = {
@@ -360,13 +438,13 @@
             "1ث": "الأول الثانوي", "2ث": "الثاني الثانوي", "3ث": "الثالث الثانوي"
         };
 
-        // --- Data ---
-        let students = JSON.parse(localStorage.getItem('sc_students')) || [];
-        let attendance = JSON.parse(localStorage.getItem('sc_attendance')) || {};
-        let accounting = JSON.parse(localStorage.getItem('sc_accounting')) || { revenues: [], expenses: [] };
+        // --- Global State ---
+        window.students = [];
+        window.attendance = [];
+        window.accounting = [];
+        
         const today = new Date().toISOString().split('T')[0];
-
-        // --- Global Variables ---
+        let selectedAttendanceDate = today;
         let currentReportData = { present: [], absent: [], revenues: [], expenses: [] };
         let currentStudentReport = null; 
         let currentModalStudentId = null;
@@ -375,10 +453,8 @@
         // --- Init ---
         window.onload = () => {
             document.getElementById('headerDate').innerText = today;
+            document.getElementById('attendanceDate').value = today;
             document.getElementById('reportDate').value = today;
-            renderStudents();
-            updateFinance();
-            updateCounters();
         };
 
         // --- Navigation ---
@@ -391,53 +467,59 @@
         }
 
         // --- Students ---
-        function registerStudent() {
+        async function registerStudent() {
             const name = document.getElementById('stdName').value;
             const level = document.getElementById('stdLevel').value;
             let phone = document.getElementById('stdPhone').value;
 
             if(!name || !level) return showToast('أكمل البيانات', 'error');
-            
-            // Clean phone number (remove leading 0)
             if(phone.startsWith('0')) phone = phone.substring(1);
 
             let id;
             do { id = Math.floor(1000 + Math.random() * 9000).toString(); } 
-            while (students.some(s => s.id === id));
+            while (window.students.some(s => s.id === id));
 
-            students.push({ id, name, level, phone, date: today });
-            saveData();
-            renderStudents();
-            openStudentModal(id);
-            document.getElementById('stdName').value = '';
-            document.getElementById('stdPhone').value = '';
-            showToast('تم التسجيل', 'success');
+            try {
+                await window.addDoc(window.collection(window.db, "students"), {
+                    id, name, level, phone, date: today
+                });
+                
+                // Optimistic update for immediate modal
+                const tempStudent = { id, name, level, phone, date: today };
+                window.students.push(tempStudent); 
+                openStudentModal(id);
+                
+                document.getElementById('stdName').value = '';
+                document.getElementById('stdPhone').value = '';
+                showToast('تم الحفظ سحابياً', 'success');
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+            }
         }
 
-        function renderStudents() {
+        window.renderStudents = function() {
             const query = document.getElementById('searchStd').value.toLowerCase();
             const tbody = document.getElementById('studentsTable');
-            const filtered = students.filter(s => s.name.toLowerCase().includes(query) || s.id.includes(query));
+            const filtered = window.students.filter(s => s.name.toLowerCase().includes(query) || s.id.includes(query));
             
             document.getElementById('stdCount').innerText = filtered.length;
             
             tbody.innerHTML = filtered.map((s, index) => `
                 <tr class="cursor-pointer" onclick="openStudentModal('${s.id}')">
-                    <td class="text-gray-500">${index + 1}</td>
+                    <td class="col-index">${index + 1}</td>
                     <td class="font-mono font-bold text-blue-600">${s.id}</td>
                     <td class="font-bold">${s.name}</td>
                     <td>${stageMap[s.level] || s.level}</td>
-                    <td class="text-xs text-gray-500" dir="ltr">+20 ${s.phone || '-'}</td>
-                    <td class="no-print" onclick="event.stopPropagation()">
-                        <button onclick="delStudent('${s.id}')" class="text-red-500 text-xs font-bold">حذف</button>
+                    <td class="text-[10px] text-gray-500">${s.date || '-'}</td>
+                    <td class="no-print col-action" onclick="event.stopPropagation()">
+                        <button onclick="delStudent('${s.docId}')" class="text-red-500 text-[10px] font-bold">حذف</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        // --- Student Modal & Printing ---
         function openStudentModal(id) {
-            const s = students.find(st => st.id === id);
+            const s = window.students.find(st => st.id === id);
             if(!s) return;
             currentModalStudentId = id;
             document.getElementById('modalName').innerText = s.name;
@@ -456,23 +538,15 @@
         }
 
         function shareStudentPdf() {
-            const s = students.find(st => st.id === currentModalStudentId);
+            const s = window.students.find(st => st.id === currentModalStudentId);
             const element = document.getElementById('studentCardPrintArea');
-            const opt = {
-                margin: 10,
-                filename: `بطاقة_${s.name}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
-            };
+            const opt = { margin: 10, filename: `بطاقة_${s.name}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' } };
             html2pdf().set(opt).from(element).save();
         }
 
-        function delStudent(id) {
-            if(confirm('حذف الطالب؟')) {
-                students = students.filter(s => s.id !== id);
-                saveData();
-                renderStudents();
+        async function delStudent(docId) {
+            if(confirm('حذف الطالب نهائياً؟')) {
+                await window.deleteDoc(window.doc(window.db, "students", docId));
             }
         }
 
@@ -480,6 +554,11 @@
         let html5QrCode = null;
         let isScannerRunning = false;
         let isPaused = false;
+
+        window.changeAttendanceDate = function() {
+            selectedAttendanceDate = document.getElementById('attendanceDate').value;
+            window.updateCounters();
+        }
 
         async function startScanner(elemId, mode) {
             if(isScannerRunning) return;
@@ -496,16 +575,17 @@
             if(html5QrCode) { await html5QrCode.stop(); html5QrCode.clear(); html5QrCode = null; isScannerRunning = false; }
         }
 
-        function handleAttendanceScan(id) {
+        async function handleAttendanceScan(id) {
             isPaused = true;
-            const student = students.find(s => s.id === id);
+            const student = window.students.find(s => s.id === id);
             if(student) {
-                if(!attendance[today]) attendance[today] = [];
-                const isPresent = attendance[today].some(entry => (typeof entry === 'string' ? entry : entry.id) === id);
+                const isPresent = window.attendance.some(r => r.date === selectedAttendanceDate && r.studentId === id);
                 if(!isPresent) {
-                    attendance[today].push({ id: id, time: new Date().toLocaleTimeString('ar-EG') });
-                    saveData();
-                    updateCounters();
+                    await window.addDoc(window.collection(window.db, "attendance"), {
+                        date: selectedAttendanceDate,
+                        studentId: id,
+                        time: new Date().toLocaleTimeString('ar-EG')
+                    });
                     showScanFeedback(true);
                     playSound('success');
                 } else { showToast('مسجل مسبقاً', 'warning'); playSound('error'); }
@@ -542,17 +622,17 @@
             document.getElementById('manualAttID').value = '';
         }
 
-        // --- Attendance List Modal Logic ---
+        // --- Attendance List Modal ---
         let currentAttType = 'present';
         
         function openAttendanceModal(type) {
             currentAttType = type;
-            const title = type === 'present' ? 'قائمة الحضور اليوم' : 'قائمة الغياب اليوم';
+            const title = type === 'present' ? `حضور (${selectedAttendanceDate})` : `غياب (${selectedAttendanceDate})`;
             document.getElementById('detailsTitle').innerText = title;
-            document.getElementById('modalFilterContainer').classList.remove('hidden'); // Show filter
+            document.getElementById('modalFilterContainer').classList.remove('hidden');
             
             const thead = document.getElementById('detailsTableHead');
-            thead.innerHTML = `<tr><th>م</th><th>الاسم</th><th>الكود</th><th>المرحلة</th><th>${type === 'present' ? 'وقت الحضور' : 'تاريخ الغياب'}</th></tr>`;
+            thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>الكود</th><th>المرحلة</th><th>${type === 'present' ? 'وقت' : 'تاريخ'}</th></tr>`;
             
             document.getElementById('detailsModal').classList.remove('hidden');
             filterAttendanceList();
@@ -560,24 +640,24 @@
 
         function filterAttendanceList() {
             const levelFilter = document.getElementById('attFilterLevel').value;
-            const todayRecords = attendance[today] || [];
-            const presentIds = todayRecords.map(r => typeof r === 'string' ? r : r.id);
+            const dayRecords = window.attendance.filter(r => r.date === selectedAttendanceDate);
+            const presentIds = dayRecords.map(r => r.studentId);
             const tbody = document.getElementById('detailsTableBody');
             
             let list = [];
-            let filteredStudents = students;
+            let filteredStudents = window.students;
             
             if(levelFilter !== 'all') {
-                filteredStudents = students.filter(s => s.level === levelFilter);
+                filteredStudents = window.students.filter(s => s.level === levelFilter);
             }
 
             if(currentAttType === 'present') {
                 list = filteredStudents.filter(s => presentIds.includes(s.id)).map(s => {
-                    const rec = todayRecords.find(r => (typeof r === 'string' ? r : r.id) === s.id);
+                    const rec = dayRecords.find(r => r.studentId === s.id);
                     return { ...s, time: rec.time || '-' };
                 });
             } else {
-                list = filteredStudents.filter(s => !presentIds.includes(s.id)).map(s => ({ ...s, time: today }));
+                list = filteredStudents.filter(s => !presentIds.includes(s.id)).map(s => ({ ...s, time: selectedAttendanceDate }));
             }
 
             if(list.length === 0) {
@@ -585,7 +665,7 @@
             } else {
                 tbody.innerHTML = list.map((s, index) => `
                     <tr class="cursor-pointer hover:bg-blue-50" onclick="openStudentModal('${s.id}')">
-                        <td class="text-gray-500">${index + 1}</td>
+                        <td class="col-index">${index + 1}</td>
                         <td class="font-bold">${s.name}</td>
                         <td class="font-mono text-blue-600">${s.id}</td>
                         <td>${stageMap[s.level] || s.level}</td>
@@ -595,10 +675,10 @@
             }
         }
 
-        function updateCounters() {
-            const present = attendance[today] ? attendance[today].length : 0;
-            document.getElementById('presentCount').innerText = present;
-            document.getElementById('absentCount').innerText = students.length - present;
+        window.updateCounters = function() {
+            const dayRecords = window.attendance.filter(r => r.date === selectedAttendanceDate);
+            document.getElementById('presentCount').innerText = dayRecords.length;
+            document.getElementById('absentCount').innerText = window.students.length - dayRecords.length;
         }
 
         // --- Accounting ---
@@ -622,7 +702,7 @@
 
         function handlePaymentScan(id) {
             if(!document.getElementById('paymentForm').classList.contains('hidden')) return;
-            const student = students.find(s => s.id === id);
+            const student = window.students.find(s => s.id === id);
             if(student) {
                 currentPayStudent = student;
                 document.getElementById('paymentForm').classList.remove('hidden');
@@ -634,39 +714,49 @@
 
         function searchStudentForPay() { handlePaymentScan(document.getElementById('paySearchID').value); }
 
-        function confirmPayment() {
+        async function confirmPayment() {
             const amount = parseFloat(document.getElementById('payAmount').value);
             const type = document.getElementById('payType').value;
             const time = new Date().toLocaleTimeString('ar-EG');
-            accounting.revenues.push({ date: today, time: time, stdId: currentPayStudent.id, name: currentPayStudent.name, amount, type });
-            saveData(); updateFinance();
+            
+            await window.addDoc(window.collection(window.db, "accounting"), {
+                date: today, time, stdId: currentPayStudent.id, name: currentPayStudent.name, amount, type, category: 'revenue'
+            });
+            
             document.getElementById('paymentForm').classList.add('hidden');
             document.getElementById('paySearchID').value = '';
             showToast('تم الدفع', 'success');
         }
 
-        function addExpense() {
+        async function addExpense() {
             const type = document.getElementById('expType').value;
             const note = document.getElementById('expNote').value;
             const amount = parseFloat(document.getElementById('expAmount').value);
             const time = new Date().toLocaleTimeString('ar-EG');
             if(!type || !amount) return showToast('أكمل البيانات', 'error');
-            accounting.expenses.push({ date: today, time: time, desc: `${type} ${note ? '- '+note : ''}`, amount });
-            saveData(); updateFinance();
+            
+            await window.addDoc(window.collection(window.db, "accounting"), {
+                date: today, time, desc: `${type} ${note ? '- '+note : ''}`, amount, category: 'expense'
+            });
+            
             document.getElementById('expType').value = ''; document.getElementById('expNote').value = ''; document.getElementById('expAmount').value = '';
             showToast('تم التسجيل', 'success');
         }
 
-        function updateFinance() {
-            const rev = accounting.revenues.reduce((sum, r) => sum + r.amount, 0);
-            const exp = accounting.expenses.reduce((sum, e) => sum + e.amount, 0);
-            document.getElementById('totalRev').innerText = rev;
-            document.getElementById('totalExp').innerText = exp;
-            document.getElementById('netProfit').innerText = (rev - exp);
+        window.updateFinance = function() {
+            const revs = window.accounting.filter(a => a.category === 'revenue');
+            const exps = window.accounting.filter(a => a.category === 'expense');
+            
+            const totalRev = revs.reduce((sum, r) => sum + r.amount, 0);
+            const totalExp = exps.reduce((sum, e) => sum + e.amount, 0);
+            
+            document.getElementById('totalRev').innerText = totalRev;
+            document.getElementById('totalExp').innerText = totalExp;
+            document.getElementById('netProfit').innerText = (totalRev - totalExp);
 
-            // Update Today's Tables
-            const todayRevs = accounting.revenues.filter(r => r.date === today);
-            const todayExps = accounting.expenses.filter(e => e.date === today);
+            // Today's Lists
+            const todayRevs = revs.filter(r => r.date === today);
+            const todayExps = exps.filter(e => e.date === today);
 
             document.getElementById('todayRevList').innerHTML = todayRevs.map(r => 
                 `<div class="flex justify-between border-b border-white/10 pb-1"><span>${r.name}</span><span>${r.amount}</span></div>`
@@ -689,10 +779,9 @@
             }
         }
 
-        // --- NEW: Student Profile Report ---
         function generateStudentReport() {
             const query = document.getElementById('reportStudentSearch').value.toLowerCase();
-            const student = students.find(s => s.name.toLowerCase().includes(query) || s.id === query);
+            const student = window.students.find(s => s.name.toLowerCase().includes(query) || s.id === query);
             const resDiv = document.getElementById('studentReportResult');
 
             if(!student) {
@@ -703,38 +792,33 @@
 
             currentParentPhone = student.phone;
 
-            // Calculate Stats
             let presentDays = 0;
             let absentDays = 0;
             let absentDates = [];
             let totalPaid = 0;
             let payments = [];
 
-            // Duration
             const joinDate = new Date(student.date);
             const now = new Date();
             const diffTime = Math.abs(now - joinDate);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-            // Attendance Logic
-            Object.keys(attendance).forEach(date => {
-                if(date >= student.date) { 
-                    const dayRecords = attendance[date];
-                    const isPresent = dayRecords.some(r => (typeof r === 'string' ? r : r.id) === student.id);
-                    if(isPresent) {
-                        presentDays++;
-                    } else {
+            const uniqueDates = [...new Set(window.attendance.map(r => r.date))];
+            
+            uniqueDates.forEach(date => {
+                if(date >= student.date) {
+                    const isPresent = window.attendance.some(r => r.date === date && r.studentId === student.id);
+                    if(isPresent) presentDays++;
+                    else {
                         absentDays++;
                         absentDates.push(date);
                     }
                 }
             });
 
-            // Finance Logic
-            payments = accounting.revenues.filter(r => r.stdId === student.id);
+            payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === student.id);
             totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
 
-            // Prepare Share Text
             currentStudentReport = `*تقرير الطالب: ${student.name}*\n` +
                                    `الكود: ${student.id}\n` +
                                    `تاريخ الانضمام: ${student.date}\n` +
@@ -746,42 +830,19 @@
                                    `*المدفوعات (${totalPaid} ج.م):*\n` +
                                    (payments.length ? payments.map(p => `${p.type}: ${p.amount} (${p.date})`).join('\n') : 'لا يوجد مدفوعات');
 
-            // Render HTML
             resDiv.innerHTML = `
                 <div class="border-b pb-2 mb-2">
                     <h4 class="font-bold text-lg text-blue-900">${student.name}</h4>
                     <p class="text-gray-500 text-xs">كود: ${student.id} | ${stageMap[student.level]}</p>
                     <p class="text-gray-400 text-[10px]">انضم: ${student.date} (منذ ${diffDays} يوم)</p>
                 </div>
-                
                 <div class="grid grid-cols-2 gap-2 mb-4 text-center">
-                    <div class="bg-green-100 p-2 rounded">
-                        <div class="text-xs">أيام الحضور</div>
-                        <div class="font-bold text-green-700">${presentDays}</div>
-                    </div>
-                    <div class="bg-red-100 p-2 rounded">
-                        <div class="text-xs">أيام الغياب</div>
-                        <div class="font-bold text-red-700">${absentDays}</div>
-                    </div>
+                    <div class="bg-green-100 p-2 rounded"><div class="text-xs">حضور</div><div class="font-bold text-green-700">${presentDays}</div></div>
+                    <div class="bg-red-100 p-2 rounded"><div class="text-xs">غياب</div><div class="font-bold text-red-700">${absentDays}</div></div>
                 </div>
-
-                <div class="mb-4">
-                    <h5 class="font-bold text-xs mb-1">سجل المدفوعات (${totalPaid} ج.م)</h5>
-                    <div class="max-h-32 overflow-y-auto text-xs border rounded p-1">
-                        ${payments.length ? payments.map(p => `<div class="flex justify-between border-b p-1"><span>${p.type}</span><span>${p.amount} (${p.date})</span></div>`).join('') : '<p class="text-center">لا يوجد</p>'}
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h5 class="font-bold text-xs mb-1">سجل الغياب</h5>
-                    <div class="max-h-32 overflow-y-auto text-xs border rounded p-1 text-red-600">
-                        ${absentDates.length ? absentDates.join('<br>') : 'لا يوجد غياب'}
-                    </div>
-                </div>
-
-                <button onclick="shareStudentReport()" class="w-full bg-green-600 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2">
-                    <span>📱</span> مشاركة التقرير واتساب
-                </button>
+                <div class="mb-4"><h5 class="font-bold text-xs mb-1">المدفوعات (${totalPaid} ج.م)</h5><div class="max-h-32 overflow-y-auto text-xs border rounded p-1">${payments.length ? payments.map(p => `<div class="flex justify-between border-b p-1"><span>${p.type}</span><span>${p.amount} (${p.date})</span></div>`).join('') : '<p class="text-center">لا يوجد</p>'}</div></div>
+                <div class="mb-4"><h5 class="font-bold text-xs mb-1">سجل الغياب</h5><div class="max-h-32 overflow-y-auto text-xs border rounded p-1 text-red-600">${absentDates.length ? absentDates.join('<br>') : 'لا يوجد غياب'}</div></div>
+                <button onclick="shareStudentReport()" class="w-full bg-green-600 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>📱</span> مشاركة واتساب</button>
             `;
             resDiv.classList.remove('hidden');
         }
@@ -790,9 +851,7 @@
             if(currentParentPhone) {
                 const url = `https://wa.me/20${currentParentPhone}?text=${encodeURIComponent(currentStudentReport)}`;
                 window.open(url, '_blank');
-            } else {
-                alert('لا يوجد رقم ولي أمر مسجل لهذا الطالب');
-            }
+            } else { alert('لا يوجد رقم ولي أمر'); }
         }
 
         function generateAdvancedReport() {
@@ -803,68 +862,48 @@
             const resDiv = document.getElementById('reportResult');
 
             let totalRev = 0, totalExp = 0;
-            
-            // Reset Global Data
             currentReportData = { present: [], absent: [], revenues: [], expenses: [] };
 
-            let targetStudents = students;
-            if(stage !== 'all') targetStudents = students.filter(s => s.level === stage);
+            let targetStudents = window.students;
+            if(stage !== 'all') targetStudents = window.students.filter(s => s.level === stage);
 
             if(type === 'daily') {
                 if(!dateInput) return showToast('اختر التاريخ', 'error');
-                const dayRecords = attendance[dateInput] || [];
-                const presentIds = dayRecords.map(r => typeof r === 'string' ? r : r.id);
+                const dayRecords = window.attendance.filter(r => r.date === dateInput);
+                const presentIds = dayRecords.map(r => r.studentId);
                 
                 currentReportData.present = targetStudents.filter(s => presentIds.includes(s.id)).map(s => {
-                    const rec = dayRecords.find(r => (typeof r === 'string' ? r : r.id) === s.id);
+                    const rec = dayRecords.find(r => r.studentId === s.id);
                     return { ...s, time: rec.time || '-' };
                 });
                 currentReportData.absent = targetStudents.filter(s => !presentIds.includes(s.id)).map(s => ({ ...s, time: 'غياب' }));
-                currentReportData.revenues = accounting.revenues.filter(r => r.date === dateInput);
-                currentReportData.expenses = accounting.expenses.filter(e => e.date === dateInput);
+                currentReportData.revenues = window.accounting.filter(r => r.category === 'revenue' && r.date === dateInput);
+                currentReportData.expenses = window.accounting.filter(e => e.category === 'expense' && e.date === dateInput);
             } else {
-                // Monthly Logic
                 if(!monthInput) return showToast('اختر الشهر', 'error');
                 
-                // Finance
-                currentReportData.revenues = accounting.revenues.filter(r => r.date.startsWith(monthInput));
-                currentReportData.expenses = accounting.expenses.filter(e => e.date.startsWith(monthInput));
+                currentReportData.revenues = window.accounting.filter(r => r.category === 'revenue' && r.date.startsWith(monthInput));
+                currentReportData.expenses = window.accounting.filter(e => e.category === 'expense' && e.date.startsWith(monthInput));
 
-                // Attendance (Aggregated)
-                // We need to iterate all days in the month
-                let monthlyStats = {}; // { stdId: { present: 0, absentDates: [] } }
-                
-                // Initialize stats for target students
-                targetStudents.forEach(s => {
-                    monthlyStats[s.id] = { name: s.name, level: s.level, present: 0, absentDates: [] };
+                let monthlyStats = {};
+                targetStudents.forEach(s => { monthlyStats[s.id] = { name: s.name, level: s.level, present: 0, absentDates: [] }; });
+
+                const monthDates = [...new Set(window.attendance.filter(r => r.date.startsWith(monthInput)).map(r => r.date))];
+
+                monthDates.forEach(date => {
+                    const dayRecords = window.attendance.filter(r => r.date === date);
+                    const presentIds = dayRecords.map(r => r.studentId);
+                    
+                    targetStudents.forEach(s => {
+                        if(date >= s.date) {
+                            if(presentIds.includes(s.id)) monthlyStats[s.id].present++;
+                            else monthlyStats[s.id].absentDates.push(date);
+                        }
+                    });
                 });
 
-                // Iterate attendance records
-                Object.keys(attendance).forEach(date => {
-                    if(date.startsWith(monthInput)) {
-                        const dayRecords = attendance[date];
-                        const presentIds = dayRecords.map(r => typeof r === 'string' ? r : r.id);
-                        
-                        targetStudents.forEach(s => {
-                            if(date >= s.date) { // Only count if student joined
-                                if(presentIds.includes(s.id)) {
-                                    monthlyStats[s.id].present++;
-                                } else {
-                                    monthlyStats[s.id].absentDates.push(date);
-                                }
-                            }
-                        });
-                    }
-                });
-
-                // Convert to array for display
-                currentReportData.present = Object.values(monthlyStats).map(s => ({
-                    ...s, time: `${s.present} يوم` // Reuse 'time' field for count
-                }));
-                
-                currentReportData.absent = Object.values(monthlyStats).filter(s => s.absentDates.length > 0).map(s => ({
-                    ...s, time: s.absentDates.join(', ') // Reuse 'time' field for dates
-                }));
+                currentReportData.present = Object.values(monthlyStats).map(s => ({ ...s, time: `${s.present} يوم` }));
+                currentReportData.absent = Object.values(monthlyStats).filter(s => s.absentDates.length > 0).map(s => ({ ...s, time: s.absentDates.join(', ') }));
             }
 
             totalRev = currentReportData.revenues.reduce((a,b)=>a+b.amount,0);
@@ -872,31 +911,14 @@
 
             let html = `
                 <h4 class="font-bold text-center border-b pb-2 mb-2">تقرير ${type === 'daily' ? dateInput : monthInput}</h4>
-                
                 <div class="grid grid-cols-2 gap-2 mb-4 text-center">
-                    <div onclick='openReportDetails("present")' class="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200">
-                        <div class="text-xs">حضور</div>
-                        <div class="font-bold text-green-700">${type === 'daily' ? currentReportData.present.length : 'عرض التفاصيل'}</div>
-                    </div>
-                    <div onclick='openReportDetails("absent")' class="bg-red-100 p-2 rounded cursor-pointer hover:bg-red-200">
-                        <div class="text-xs">غياب</div>
-                        <div class="font-bold text-red-700">${type === 'daily' ? currentReportData.absent.length : 'عرض التفاصيل'}</div>
-                    </div>
+                    <div onclick='openReportDetails("present")' class="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200"><div class="text-xs">حضور</div><div class="font-bold text-green-700">${type === 'daily' ? currentReportData.present.length : 'عرض'}</div></div>
+                    <div onclick='openReportDetails("absent")' class="bg-red-100 p-2 rounded cursor-pointer hover:bg-red-200"><div class="text-xs">غياب</div><div class="font-bold text-red-700">${type === 'daily' ? currentReportData.absent.length : 'عرض'}</div></div>
                 </div>
-
                 <div class="space-y-2">
-                    <div onclick='openReportDetails("revenues")' class="bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 flex justify-between">
-                        <span class="text-xs text-gray-500">إيرادات</span>
-                        <span class="font-bold text-green-700">${totalRev} ج.م</span>
-                    </div>
-                    <div onclick='openReportDetails("expenses")' class="bg-red-50 p-2 rounded border border-red-200 cursor-pointer hover:bg-red-100 flex justify-between">
-                        <span class="text-xs text-gray-500">مصروفات</span>
-                        <span class="font-bold text-red-700">${totalExp} ج.م</span>
-                    </div>
-                    <div class="bg-blue-50 p-2 rounded border border-blue-200 text-center">
-                        <span class="text-xs text-gray-500">الصافي</span>
-                        <span class="font-bold text-blue-900 text-lg block">${totalRev - totalExp} ج.م</span>
-                    </div>
+                    <div onclick='openReportDetails("revenues")' class="bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 flex justify-between"><span class="text-xs text-gray-500">إيرادات</span><span class="font-bold text-green-700">${totalRev} ج.م</span></div>
+                    <div onclick='openReportDetails("expenses")' class="bg-red-50 p-2 rounded border border-red-200 cursor-pointer hover:bg-red-100 flex justify-between"><span class="text-xs text-gray-500">مصروفات</span><span class="font-bold text-red-700">${totalExp} ج.م</span></div>
+                    <div class="bg-blue-50 p-2 rounded border border-blue-200 text-center"><span class="text-xs text-gray-500">الصافي</span><span class="font-bold text-blue-900 text-lg block">${totalRev - totalExp} ج.م</span></div>
                 </div>
             `;
             resDiv.innerHTML = html;
@@ -918,12 +940,9 @@
             const tbody = document.getElementById('detailsTableBody');
 
             if(key === 'present' || key === 'absent') {
-                // Dynamic header based on report type (Daily vs Monthly)
                 const isMonthly = document.getElementById('reportType').value === 'monthly';
                 const lastCol = isMonthly ? (key === 'present' ? 'عدد الأيام' : 'تواريخ الغياب') : 'الوقت';
-                
-                thead.innerHTML = `<tr><th>م</th><th>الاسم</th><th>المرحلة</th><th>${lastCol}</th></tr>`;
-                
+                thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>المرحلة</th><th>${lastCol}</th></tr>`;
                 if(list.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">لا توجد بيانات</td></tr>`;
                 else {
                     tbody.innerHTML = list.map((s, i) => `
@@ -936,7 +955,7 @@
                     `).join('');
                 }
             } else {
-                thead.innerHTML = `<tr><th>م</th><th>البند/الطالب</th><th>الوقت</th><th>المبلغ</th></tr>`;
+                thead.innerHTML = `<tr><th class="col-index">م</th><th>البند/الطالب</th><th>الوقت</th><th>المبلغ</th></tr>`;
                 if(list.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">لا توجد بيانات</td></tr>`;
                 else {
                     tbody.innerHTML = list.map((item, i) => `
@@ -954,7 +973,7 @@
 
         // --- Backup ---
         function exportData() {
-            const data = { students, attendance, accounting };
+            const data = { students: window.students, attendance: window.attendance, accounting: window.accounting };
             const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -963,14 +982,15 @@
         function importData(input) {
             const file = input.files[0]; if(!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
                     if(data.students) {
-                        localStorage.setItem('sc_students', JSON.stringify(data.students));
-                        localStorage.setItem('sc_attendance', JSON.stringify(data.attendance));
-                        localStorage.setItem('sc_accounting', JSON.stringify(data.accounting));
-                        location.reload();
+                        // Batch write to Firebase (Simplified loop)
+                        for(const s of data.students) await window.addDoc(window.collection(window.db, "students"), s);
+                        for(const a of data.attendance) await window.addDoc(window.collection(window.db, "attendance"), a);
+                        for(const c of data.accounting) await window.addDoc(window.collection(window.db, "accounting"), c);
+                        alert('تم استعادة البيانات بنجاح!');
                     }
                 } catch(err) { alert('ملف تالف'); }
             }; reader.readAsText(file);
@@ -978,11 +998,6 @@
         function clearAllData() { if(confirm('حذف الكل؟')) { localStorage.clear(); location.reload(); } }
 
         // --- Utils ---
-        function saveData() {
-            localStorage.setItem('sc_students', JSON.stringify(students));
-            localStorage.setItem('sc_attendance', JSON.stringify(attendance));
-            localStorage.setItem('sc_accounting', JSON.stringify(accounting));
-        }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function showToast(msg, type) {
             const t = document.getElementById('toast'); t.innerText = msg;
