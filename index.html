@@ -4,63 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Smart Center Pro | النظام التعليمي المتكامل</title>
+    <title>Smart Center Pro | النظام التعليمي</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; padding-bottom: 90px; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Cairo', sans-serif; background-color: #f1f5f9; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
         
-        /* تحسين التنقل */
-        .nav-item { transition: all 0.2s ease; opacity: 0.7; }
-        .nav-item.active { 
-            opacity: 1; 
-            background-color: #ffffff; 
-            color: #1e3a8a !important; 
-            font-weight: 800; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15); 
-            transform: scale(1.05);
-            border-bottom: 3px solid #fbbf24;
-        }
+        /* Navigation */
+        .nav-item { transition: all 0.2s; opacity: 0.7; border-bottom: 3px solid transparent; }
+        .nav-item.active { opacity: 1; background: white; color: #1e3a8a; font-weight: 800; border-bottom-color: #fbbf24; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         
-        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
+        /* Tabs */
+        .tab-content { display: none; animation: fadeIn 0.2s ease-out; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .scanner-wrapper { position: relative; border-radius: 1rem; overflow: hidden; background: #000; }
+        /* Scanner */
+        .scanner-wrapper { border-radius: 1rem; overflow: hidden; background: black; position: relative; }
         #html5-qrcode-button-camera-stop { display: none !important; }
-        
+
+        /* Cards */
         .glass-card { background: white; border-radius: 1rem; padding: 1.25rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 1rem; }
 
-        /* تنسيقات الطباعة */
+        /* Tables */
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .custom-table thead { background-color: #f1f5f9; color: #1e293b; font-weight: 700; }
+        .custom-table th, .custom-table td { padding: 0.75rem; border-bottom: 1px solid #e2e8f0; text-align: right; }
+        .custom-table tr:last-child td { border-bottom: none; }
+        .custom-table tbody tr:hover { background-color: #f8fafc; }
+
+        /* Print */
         @media print {
             body * { visibility: hidden; }
-            #printSection, #printSection * { visibility: visible; }
-            #printSection { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 20px; }
+            .print-area, .print-area * { visibility: visible; }
+            .print-area { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; z-index: 99999; padding: 20px; }
             .no-print { display: none !important; }
         }
+
+        /* Toggle Buttons Active State */
+        .toggle-btn-active { background-color: #ffffff; color: #1d4ed8; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: 800; }
+        .toggle-btn-inactive { background-color: transparent; color: #6b7280; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
 
     <!-- Header -->
-    <header class="bg-blue-900 text-white shadow-lg sticky top-0 z-50 no-print">
+    <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-lg font-bold">Smart Center <span class="text-yellow-400 text-xs">Ultimate</span></h1>
-            <div class="text-xs bg-blue-800 px-2 py-1 rounded" id="headerDate"></div>
+            <h1 class="text-lg font-bold flex items-center gap-2">🎓 Smart Center</h1>
+            <div class="text-xs bg-blue-800 px-3 py-1 rounded-full font-mono" id="headerDate"></div>
         </div>
-
-        <!-- Navigation -->
         <div class="bg-blue-800 border-t border-blue-700">
             <div class="container mx-auto px-2">
                 <div class="flex gap-2 overflow-x-auto py-2 no-scrollbar">
-                    <button onclick="showTab('students', this)" class="nav-item active px-4 py-2 rounded-lg text-sm text-blue-100 flex-shrink-0">👨‍🎓 الطلاب</button>
-                    <button onclick="showTab('attendance', this)" class="nav-item px-4 py-2 rounded-lg text-sm text-blue-100 flex-shrink-0">📅 الحضور</button>
-                    <button onclick="showTab('accounting', this)" class="nav-item px-4 py-2 rounded-lg text-sm text-blue-100 flex-shrink-0">💰 المحاسبة</button>
-                    <button onclick="showTab('reports', this)" class="nav-item px-4 py-2 rounded-lg text-sm text-blue-100 flex-shrink-0">📊 التقارير</button>
+                    <button onclick="showTab('students', this)" class="nav-item active px-4 py-2 rounded-lg text-sm text-blue-100 flex-shrink-0">الطلاب</button>
+                    <button onclick="showTab('attendance', this)" class="nav-item px-4 py-2 rounded-lg text-sm text-blue-100 flex-shrink-0">الحضور</button>
+                    <button onclick="showTab('accounting', this)" class="nav-item px-4 py-2 rounded-lg text-sm text-blue-100 flex-shrink-0">المحاسبة</button>
+                    <button onclick="showTab('reports', this)" class="nav-item px-4 py-2 rounded-lg text-sm text-blue-100 flex-shrink-0">التقارير</button>
                 </div>
             </div>
         </div>
@@ -75,25 +79,10 @@
                 <div class="space-y-3">
                     <input type="text" id="stdName" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="اسم الطالب رباعي">
                     <select id="stdLevel" class="w-full p-2 border rounded bg-white">
-                        <option value="">اختر المرحلة الدراسية...</option>
-                        <optgroup label="المرحلة الابتدائية">
-                            <option value="1ب">الصف الأول الابتدائي</option>
-                            <option value="2ب">الصف الثاني الابتدائي</option>
-                            <option value="3ب">الصف الثالث الابتدائي</option>
-                            <option value="4ب">الصف الرابع الابتدائي</option>
-                            <option value="5ب">الصف الخامس الابتدائي</option>
-                            <option value="6ب">الصف السادس الابتدائي</option>
-                        </optgroup>
-                        <optgroup label="المرحلة الإعدادية">
-                            <option value="1ع">الصف الأول الإعدادي</option>
-                            <option value="2ع">الصف الثاني الإعدادي</option>
-                            <option value="3ع">الصف الثالث الإعدادي</option>
-                        </optgroup>
-                        <optgroup label="المرحلة الثانوية">
-                            <option value="1ث">الصف الأول الثانوي</option>
-                            <option value="2ث">الصف الثاني الثانوي</option>
-                            <option value="3ث">الصف الثالث الثانوي</option>
-                        </optgroup>
+                        <option value="">اختر المرحلة...</option>
+                        <optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
+                        <optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup>
+                        <optgroup label="الثانوية"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup>
                     </select>
                     <button onclick="registerStudent()" class="w-full bg-blue-600 text-white py-2 rounded font-bold shadow hover:bg-blue-700">حفظ وإنشاء كود</button>
                 </div>
@@ -104,27 +93,18 @@
                     <h2 class="font-bold">قائمة الطلاب (<span id="stdCount">0</span>)</h2>
                     <div class="flex gap-2">
                         <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث..." class="text-sm p-1 border rounded w-24">
-                        <button onclick="printStudentsList()" class="bg-gray-800 text-white px-3 py-1 rounded text-xs">طباعة القائمة</button>
+                        <button onclick="printElement('studentsListArea')" class="bg-gray-800 text-white px-3 py-1 rounded text-xs">طباعة</button>
                     </div>
                 </div>
                 
-                <!-- الجدول للعرض والطباعة -->
-                <div id="printSection">
+                <div id="studentsListArea" class="overflow-x-auto">
                     <h2 class="text-center font-bold text-xl mb-4 hidden print-header">قائمة طلاب السنتر</h2>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-right text-sm border-collapse">
-                            <thead class="bg-gray-100 border-b-2 border-gray-300">
-                                <tr>
-                                    <th class="p-2 border">الكود</th>
-                                    <th class="p-2 border">الاسم</th>
-                                    <th class="p-2 border">المرحلة</th>
-                                    <th class="p-2 border">تاريخ الانضمام</th>
-                                    <th class="p-2 border no-print">إجراء</th>
-                                </tr>
-                            </thead>
-                            <tbody id="studentsTable" class="divide-y"></tbody>
-                        </table>
-                    </div>
+                    <table class="custom-table">
+                        <thead>
+                            <tr><th>الكود</th><th>الاسم</th><th>المرحلة</th><th>تاريخ الانضمام</th><th class="no-print">إجراء</th></tr>
+                        </thead>
+                        <tbody id="studentsTable"></tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -132,18 +112,17 @@
         <!-- ================= ATTENDANCE ================= -->
         <section id="attendance" class="tab-content">
             <div class="glass-card text-center">
-                <h2 class="text-xl font-bold text-blue-900 mb-4">تسجيل الحضور اليومي</h2>
+                <h2 class="text-xl font-bold text-blue-900 mb-4">تسجيل الحضور</h2>
                 
                 <div class="flex bg-gray-100 p-1 rounded mb-4 no-print">
-                    <button onclick="setAttMode('scan')" id="btnAttScan" class="flex-1 py-2 rounded text-sm font-bold bg-white shadow text-blue-700">📷 الكاميرا</button>
-                    <button onclick="setAttMode('manual')" id="btnAttManual" class="flex-1 py-2 rounded text-sm font-bold text-gray-500">⌨️ يدوي</button>
+                    <button onclick="setAttMode('scan')" id="btnAttScan" class="flex-1 py-2 rounded text-sm toggle-btn-active transition-all">📷 الكاميرا</button>
+                    <button onclick="setAttMode('manual')" id="btnAttManual" class="flex-1 py-2 rounded text-sm toggle-btn-inactive transition-all">⌨️ يدوي</button>
                 </div>
 
-                <!-- Scanner -->
                 <div id="attScanArea" class="relative">
-                    <div id="reader" class="scanner-wrapper h-64 w-full bg-black mb-2"></div>
-                    <div id="scanFeedback" class="absolute inset-0 flex items-center justify-center bg-green-500/80 hidden z-10">
-                        <span class="text-white text-4xl font-bold">✅ تم التسجيل</span>
+                    <div id="reader" class="scanner-wrapper h-64 w-full mb-2"></div>
+                    <div id="scanFeedback" class="absolute inset-0 flex items-center justify-center bg-green-500/90 hidden z-10 rounded-xl">
+                        <div class="text-white font-bold text-2xl animate-bounce">✅ تم التسجيل</div>
                     </div>
                     <div class="flex justify-center gap-2 no-print">
                         <button onclick="startScanner('reader', 'attendance')" class="bg-blue-600 text-white px-6 py-2 rounded-full shadow text-sm">تشغيل</button>
@@ -151,21 +130,19 @@
                     </div>
                 </div>
 
-                <!-- Manual -->
                 <div id="attManualArea" class="hidden">
-                    <input type="number" id="manualAttID" placeholder="أدخل الكود" class="w-full text-center text-3xl font-bold p-3 border-2 border-blue-200 rounded mb-3">
+                    <input type="number" id="manualAttID" placeholder="أدخل الكود" class="w-full text-center text-3xl font-bold p-3 border-2 border-blue-200 rounded mb-3 font-mono">
                     <button onclick="manualAttendance()" class="w-full bg-blue-600 text-white py-2 rounded font-bold">تسجيل</button>
                 </div>
 
-                <!-- Counters (Clickable) -->
                 <div class="grid grid-cols-2 gap-3 mt-6 no-print">
-                    <div onclick="openAttendanceModal('present')" class="bg-green-50 p-3 rounded border border-green-200 cursor-pointer hover:bg-green-100">
+                    <div onclick="openAttendanceModal('present')" class="bg-green-50 p-3 rounded border border-green-200 cursor-pointer hover:bg-green-100 transition">
                         <span class="block text-2xl font-bold text-green-600" id="presentCount">0</span>
-                        <span class="text-xs text-green-800">حضور (اضغط للتفاصيل)</span>
+                        <span class="text-xs text-green-800 font-bold">حضور (عرض القائمة)</span>
                     </div>
-                    <div onclick="openAttendanceModal('absent')" class="bg-red-50 p-3 rounded border border-red-200 cursor-pointer hover:bg-red-100">
+                    <div onclick="openAttendanceModal('absent')" class="bg-red-50 p-3 rounded border border-red-200 cursor-pointer hover:bg-red-100 transition">
                         <span class="block text-2xl font-bold text-red-600" id="absentCount">0</span>
-                        <span class="text-xs text-red-800">غياب (اضغط للتفاصيل)</span>
+                        <span class="text-xs text-red-800 font-bold">غياب (عرض القائمة)</span>
                     </div>
                 </div>
             </div>
@@ -174,26 +151,20 @@
         <!-- ================= ACCOUNTING ================= -->
         <section id="accounting" class="tab-content">
             <div class="grid md:grid-cols-2 gap-4">
-                <!-- Revenue -->
                 <div class="glass-card border-t-4 border-green-500">
                     <h3 class="font-bold text-green-700 mb-3">💵 استلام نقدية</h3>
-                    
                     <div class="flex gap-2 mb-3 no-print">
-                        <button onclick="togglePayMethod('scan')" class="flex-1 py-1 bg-green-100 text-green-800 rounded text-sm font-bold">مسح باركود</button>
-                        <button onclick="togglePayMethod('manual')" class="flex-1 py-1 bg-gray-100 text-gray-600 rounded text-sm font-bold">بحث بالكود</button>
+                        <button onclick="togglePayMethod('scan')" id="btnPayScan" class="flex-1 py-1 rounded text-sm font-bold toggle-btn-active">مسح باركود</button>
+                        <button onclick="togglePayMethod('manual')" id="btnPayManual" class="flex-1 py-1 rounded text-sm font-bold toggle-btn-inactive">بحث بالكود</button>
                     </div>
-
                     <div id="payScanDiv" class="mb-2">
-                        <div id="payReader" class="scanner-wrapper h-40 bg-black mb-2"></div>
+                        <div id="payReader" class="scanner-wrapper h-40 mb-2"></div>
                         <button onclick="startScanner('payReader', 'payment')" class="w-full bg-green-600 text-white py-1 rounded text-xs no-print">تشغيل الكاميرا</button>
                     </div>
-
                     <div id="payManualDiv" class="hidden flex gap-2 mb-3">
                         <input type="number" id="paySearchID" placeholder="كود الطالب" class="flex-1 p-2 border rounded text-center font-bold">
                         <button onclick="searchStudentForPay()" class="bg-green-600 text-white px-3 rounded">🔍</button>
                     </div>
-
-                    <!-- Payment Form -->
                     <div id="paymentForm" class="hidden bg-yellow-50 p-3 rounded border border-yellow-200">
                         <div class="flex justify-between text-sm mb-2 font-bold">
                             <span id="payStdName"></span>
@@ -207,35 +178,33 @@
                                 <option value="أخرى">أخرى</option>
                             </select>
                         </div>
-                        <button onclick="confirmPayment()" class="w-full bg-green-600 text-white py-2 rounded font-bold shadow text-sm">تأكيد واستمرار الكاميرا 📸</button>
+                        <button onclick="confirmPayment()" class="w-full bg-green-600 text-white py-2 rounded font-bold shadow text-sm">تأكيد</button>
                     </div>
                 </div>
 
-                <!-- Expenses (Restored) -->
                 <div class="glass-card border-t-4 border-red-500">
                     <h3 class="font-bold text-red-700 mb-3">📉 تسجيل مصروفات</h3>
                     <div class="space-y-3">
                         <select id="expType" class="w-full p-2 border rounded text-sm bg-white">
-                            <option value="">اختر بند المصروف...</option>
-                            <option value="رواتب">رواتب وأجور</option>
-                            <option value="كهرباء">كهرباء ومياه</option>
-                            <option value="إيجار">إيجار المكان</option>
-                            <option value="صيانة">صيانة وإصلاحات</option>
-                            <option value="طباعة">طباعة وتصوير</option>
-                            <option value="بوفيه">مشروبات وضيافة</option>
-                            <option value="نثريات">نثريات أخرى</option>
+                            <option value="">اختر البند...</option>
+                            <option value="رواتب">رواتب</option>
+                            <option value="كهرباء">كهرباء/مياه</option>
+                            <option value="إيجار">إيجار</option>
+                            <option value="صيانة">صيانة</option>
+                            <option value="طباعة">طباعة</option>
+                            <option value="بوفيه">بوفيه</option>
+                            <option value="نثريات">نثريات</option>
                         </select>
                         <div class="flex gap-2">
                             <input type="number" id="expAmount" placeholder="المبلغ" class="flex-1 p-2 border rounded text-sm">
-                            <input type="text" id="expNote" placeholder="ملاحظة (اختياري)" class="flex-[1.5] p-2 border rounded text-sm">
+                            <input type="text" id="expNote" placeholder="ملاحظة" class="flex-[1.5] p-2 border rounded text-sm">
                         </div>
-                        <button onclick="addExpense()" class="w-full bg-red-50 text-red-600 border border-red-200 py-2 rounded font-bold hover:bg-red-100 text-sm">تسجيل المصروف</button>
+                        <button onclick="addExpense()" class="w-full bg-red-50 text-red-600 border border-red-200 py-2 rounded font-bold hover:bg-red-100 text-sm">تسجيل</button>
                     </div>
                 </div>
             </div>
             
-            <!-- Summary -->
-            <div class="glass-card bg-slate-800 text-white mt-4">
+            <div class="bg-slate-800 text-white p-4 rounded-xl shadow-lg mt-4">
                 <div class="flex justify-between items-end">
                     <div>
                         <p class="text-xs opacity-70">الصافي اليوم</p>
@@ -251,119 +220,120 @@
 
         <!-- ================= REPORTS ================= -->
         <section id="reports" class="tab-content">
-            <!-- Advanced Reports -->
-            <div class="glass-card border-t-4 border-indigo-500">
-                <h3 class="font-bold mb-4 text-indigo-900">📊 التقارير المتقدمة</h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <!-- Filters -->
-                    <div>
-                        <label class="text-xs text-gray-500 block mb-1">نوع التقرير</label>
-                        <select id="reportType" onchange="toggleReportInputs()" class="w-full p-2 border rounded bg-white">
-                            <option value="daily">تقرير يومي (محدد)</option>
-                            <option value="monthly">تقرير شهري</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="text-xs text-gray-500 block mb-1">المرحلة الدراسية</label>
-                        <select id="reportStage" class="w-full p-2 border rounded bg-white">
-                            <option value="all">كل المراحل</option>
-                            <optgroup label="ابتدائي"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
-                            <optgroup label="إعدادي"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup>
-                            <optgroup label="ثانوي"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup>
-                        </select>
-                    </div>
+            
+            <!-- Student Profile Search -->
+            <div class="glass-card border-t-4 border-blue-600 mb-4">
+                <h3 class="font-bold mb-3 text-blue-900 flex items-center gap-2">
+                    <span>👤</span> بحث عن طالب (ملف شامل)
+                </h3>
+                <div class="flex gap-2 mb-3">
+                    <input type="text" id="reportStudentSearch" placeholder="اسم الطالب أو الكود" class="flex-1 p-2 border rounded">
+                    <button onclick="generateStudentReport()" class="bg-blue-600 text-white px-4 rounded font-bold">بحث</button>
+                </div>
+                <div id="studentReportResult" class="hidden bg-gray-50 p-4 rounded border border-gray-200 text-sm"></div>
+            </div>
 
+            <!-- General Reports -->
+            <div class="glass-card border-t-4 border-indigo-500 mb-4">
+                <h3 class="font-bold mb-4 text-indigo-900">📊 التقارير العامة</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">النوع</label>
+                        <select id="reportType" onchange="toggleReportInputs()" class="w-full p-2 border rounded bg-white">
+                            <option value="daily">يومي (يوم محدد)</option>
+                            <option value="monthly">شهري</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">المرحلة</label>
+                        <select id="reportStage" class="w-full p-2 border rounded bg-white">
+                            <option value="all">الكل</option>
+                            <optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
+                            <optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup>
+                            <optgroup label="الثانوية"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup>
+                        </select>
+                    </div>
                     <div id="divDateInput">
                         <label class="text-xs text-gray-500 block mb-1">اختر اليوم</label>
                         <input type="date" id="reportDate" class="w-full p-2 border rounded">
                     </div>
-
                     <div id="divMonthInput" class="hidden">
                         <label class="text-xs text-gray-500 block mb-1">اختر الشهر</label>
                         <input type="month" id="reportMonth" class="w-full p-2 border rounded">
                     </div>
                 </div>
-
                 <button onclick="generateAdvancedReport()" class="w-full bg-indigo-600 text-white py-2 rounded font-bold shadow hover:bg-indigo-700">عرض التقرير</button>
                 
                 <div id="reportResult" class="mt-4 hidden bg-gray-50 p-4 rounded border border-gray-200 text-sm"></div>
             </div>
 
-            <!-- Backup & Restore (Restored) -->
             <div class="glass-card border-t-4 border-yellow-500">
-                <h3 class="font-bold mb-3 flex items-center gap-2 text-yellow-800">
-                    <span>💾</span> النسخ الاحتياطي والاستعادة
-                </h3>
-                <p class="text-xs text-gray-500 mb-4">البيانات محفوظة على هذا الجهاز فقط. قم بتحميل نسخة احتياطية بانتظام.</p>
-                
+                <h3 class="font-bold mb-3 flex items-center gap-2 text-yellow-800"><span>💾</span> النسخ الاحتياطي</h3>
                 <div class="flex gap-2">
-                    <button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-2 rounded font-bold text-sm hover:bg-yellow-200 border border-yellow-300">
-                        📥 تحميل نسخة
-                    </button>
-                    
+                    <button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-2 rounded font-bold text-sm border border-yellow-300">تحميل</button>
                     <div class="relative flex-1">
                         <input type="file" id="importFile" onchange="importData(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <button class="w-full bg-gray-100 text-gray-700 py-2 rounded font-bold text-sm border border-gray-300 hover:bg-gray-200">
-                            📤 استعادة نسخة
-                        </button>
+                        <button class="w-full bg-gray-100 text-gray-700 py-2 rounded font-bold text-sm border border-gray-300">استعادة</button>
                     </div>
                 </div>
-                <button onclick="clearAllData()" class="w-full mt-2 text-red-500 text-xs hover:underline">حذف جميع البيانات (تهيئة المصنع)</button>
+                <button onclick="clearAllData()" class="w-full mt-2 text-red-500 text-xs hover:underline">حذف جميع البيانات</button>
             </div>
         </section>
-
     </main>
 
-    <!-- MODAL: Student Details -->
-    <div id="studentModal" class="fixed inset-0 bg-black/80 hidden z-[100] flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-xl w-full max-w-sm p-6 text-center relative">
-            <button onclick="closeModal('studentModal')" class="absolute top-2 right-3 text-gray-500 text-xl">&times;</button>
-            <h3 class="font-bold text-lg mb-4 text-blue-900">بيانات الطالب</h3>
-            <div id="modalQr" class="flex justify-center mb-4"></div>
-            <p id="modalCode" class="text-3xl font-black font-mono text-blue-600 mb-2"></p>
-            <h2 id="modalName" class="text-xl font-bold mb-1"></h2>
-            <p id="modalLevel" class="text-gray-500 mb-4"></p>
-            <button onclick="window.print()" class="bg-gray-800 text-white px-6 py-2 rounded-full text-sm">طباعة الكارت</button>
+    <!-- MODAL: Student Card -->
+    <div id="studentModal" class="fixed inset-0 bg-black/80 hidden z-[150] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-xl w-full max-w-sm p-6 text-center relative shadow-2xl">
+            <button onclick="closeModal('studentModal')" class="absolute top-2 right-3 text-gray-500 text-2xl font-bold">&times;</button>
+            
+            <div id="studentCardPrintArea" class="border-4 border-double border-blue-200 p-4 rounded-xl bg-white mb-4">
+                <h3 class="font-bold text-lg mb-2 text-blue-900">بطاقة طالب</h3>
+                <div id="modalQr" class="flex justify-center mb-2"></div>
+                <p id="modalCode" class="text-3xl font-black font-mono text-blue-600 mb-1"></p>
+                <h2 id="modalName" class="text-xl font-bold mb-1"></h2>
+                <p id="modalLevel" class="text-gray-500"></p>
+                <p class="text-[10px] text-gray-400 mt-2">Smart Center System</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="printElement('studentCardPrintArea')" class="bg-gray-800 text-white py-2 rounded text-xs font-bold">🖨️ طباعة</button>
+                <button onclick="shareStudentCard()" class="bg-green-600 text-white py-2 rounded text-xs font-bold">📱 مشاركة</button>
+                <button onclick="openStudentWindow()" class="bg-blue-600 text-white py-2 rounded text-xs font-bold">🔗 صفحة</button>
+            </div>
         </div>
     </div>
 
-    <!-- MODAL: Attendance List -->
-    <div id="attListModal" class="fixed inset-0 bg-black/80 hidden z-[100] flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-xl w-full max-w-2xl p-4 h-[85vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h3 id="attListTitle" class="font-bold text-lg"></h3>
-                <button onclick="closeModal('attListModal')" class="text-red-500 font-bold">إغلاق</button>
+    <!-- MODAL: Lists (Attendance/Finance) -->
+    <div id="detailsModal" class="fixed inset-0 bg-black/80 hidden z-[100] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-xl w-full max-w-2xl p-0 h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b bg-gray-50">
+                <h3 id="detailsTitle" class="font-bold text-lg text-gray-800"></h3>
+                <button onclick="closeModal('detailsModal')" class="text-red-500 font-bold text-lg">&times;</button>
             </div>
             
-            <!-- Filter inside Modal -->
-            <div class="flex gap-2 mb-3">
-                <select id="attFilterLevel" onchange="filterAttendanceList()" class="flex-1 p-2 border rounded bg-gray-50">
+            <div id="modalFilterContainer" class="p-2 bg-gray-100 border-b hidden">
+                <select id="attFilterLevel" onchange="filterAttendanceList()" class="w-full p-2 border rounded bg-white text-sm">
                     <option value="all">كل المراحل</option>
-                    <optgroup label="ابتدائي"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
-                    <optgroup label="إعدادي"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup>
-                    <optgroup label="ثانوي"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup>
+                    <optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
+                    <optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup>
+                    <optgroup label="الثانوية"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup>
                 </select>
             </div>
 
-            <!-- Table Header -->
-            <div class="grid grid-cols-4 gap-2 font-bold text-xs bg-gray-100 p-2 rounded mb-1 text-center">
-                <div>الاسم</div>
-                <div>الكود</div>
-                <div>المرحلة</div>
-                <div id="attTimeHeader">الوقت/التاريخ</div>
+            <div class="overflow-y-auto flex-1 p-0">
+                <table class="custom-table">
+                    <thead id="detailsTableHead"></thead>
+                    <tbody id="detailsTableBody"></tbody>
+                </table>
             </div>
-
-            <div id="attListContent" class="overflow-y-auto flex-1 space-y-1"></div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
+    <!-- Toast -->
     <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-[200] hidden font-bold text-sm"></div>
 
     <script>
-        // --- Stage Mapping (لتحويل الرموز لأسماء عربية) ---
+        // --- Config ---
         const stageMap = {
             "1ب": "الأول الابتدائي", "2ب": "الثاني الابتدائي", "3ب": "الثالث الابتدائي",
             "4ب": "الرابع الابتدائي", "5ب": "الخامس الابتدائي", "6ب": "السادس الابتدائي",
@@ -377,10 +347,14 @@
         let accounting = JSON.parse(localStorage.getItem('sc_accounting')) || { revenues: [], expenses: [] };
         const today = new Date().toISOString().split('T')[0];
 
+        // --- Global Variables for Reports ---
+        let currentReportData = { present: [], absent: [], revenues: [], expenses: [] };
+        let currentStudentReport = null; // For sharing
+
         // --- Init ---
         window.onload = () => {
             document.getElementById('headerDate').innerText = today;
-            document.getElementById('reportDate').value = today; // Default date
+            document.getElementById('reportDate').value = today;
             renderStudents();
             updateFinance();
             updateCounters();
@@ -408,10 +382,9 @@
             students.push({ id, name, level, date: today });
             saveData();
             renderStudents();
-            
             openStudentModal(id);
             document.getElementById('stdName').value = '';
-            showToast('تم التسجيل بنجاح', 'success');
+            showToast('تم التسجيل', 'success');
         }
 
         function renderStudents() {
@@ -422,33 +395,53 @@
             document.getElementById('stdCount').innerText = filtered.length;
             
             tbody.innerHTML = filtered.map(s => `
-                <tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="openStudentModal('${s.id}')">
-                    <td class="p-2 font-mono font-bold text-blue-600 border">${s.id}</td>
-                    <td class="p-2 font-bold border">${s.name}</td>
-                    <td class="p-2 border">${stageMap[s.level] || s.level}</td>
-                    <td class="p-2 border text-xs text-gray-500">${s.date || '-'}</td>
-                    <td class="p-2 border no-print" onclick="event.stopPropagation()">
-                        <button onclick="delStudent('${s.id}')" class="text-red-500 text-xs">حذف</button>
+                <tr class="cursor-pointer" onclick="openStudentModal('${s.id}')">
+                    <td class="font-mono font-bold text-blue-600">${s.id}</td>
+                    <td class="font-bold">${s.name}</td>
+                    <td>${stageMap[s.level] || s.level}</td>
+                    <td class="text-gray-500 text-xs">${s.date || '-'}</td>
+                    <td class="no-print" onclick="event.stopPropagation()">
+                        <button onclick="delStudent('${s.id}')" class="text-red-500 text-xs font-bold">حذف</button>
                     </td>
                 </tr>
             `).join('');
         }
 
+        // --- Student Modal ---
+        let currentModalStudentId = null;
         function openStudentModal(id) {
             const s = students.find(st => st.id === id);
             if(!s) return;
-            
+            currentModalStudentId = id;
             document.getElementById('modalName').innerText = s.name;
             document.getElementById('modalCode').innerText = s.id;
             document.getElementById('modalLevel').innerText = stageMap[s.level] || s.level;
             document.getElementById('modalQr').innerHTML = '';
-            new QRCode(document.getElementById("modalQr"), { text: s.id, width: 150, height: 150 });
-            
+            new QRCode(document.getElementById("modalQr"), { text: s.id, width: 120, height: 120 });
             document.getElementById('studentModal').classList.remove('hidden');
         }
 
-        function printStudentsList() {
+        function printElement(elemId) {
+            const content = document.getElementById(elemId);
+            content.classList.add('print-area');
             window.print();
+            content.classList.remove('print-area');
+        }
+
+        function shareStudentCard() {
+            const s = students.find(st => st.id === currentModalStudentId);
+            if (navigator.share) {
+                navigator.share({
+                    title: 'بيانات الطالب',
+                    text: `الطالب: ${s.name}\nالكود: ${s.id}\nالمرحلة: ${stageMap[s.level]}`
+                }).catch(console.error);
+            } else { alert('المشاركة غير مدعومة'); }
+        }
+
+        function openStudentWindow() {
+            const s = students.find(st => st.id === currentModalStudentId);
+            const win = window.open("", "Student Card", "width=400,height=500");
+            win.document.write(`<html><head><title>${s.name}</title><style>body{font-family:sans-serif;text-align:center;padding:20px;}</style></head><body><h1>${s.name}</h1><h2>${s.id}</h2><h3>${stageMap[s.level]}</h3><button onclick="window.print()">طباعة</button></body></html>`);
         }
 
         function delStudent(id) {
@@ -459,7 +452,7 @@
             }
         }
 
-        // --- Attendance (Continuous) ---
+        // --- Attendance ---
         let html5QrCode = null;
         let isScannerRunning = false;
         let isPaused = false;
@@ -469,71 +462,52 @@
             html5QrCode = new Html5Qrcode(elemId);
             await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => {
                 if(isPaused) return;
-
-                if(mode === 'attendance') {
-                    handleAttendanceScan(decodedText);
-                } else if(mode === 'payment') {
-                    handlePaymentScan(decodedText);
-                }
+                if(mode === 'attendance') handleAttendanceScan(decodedText);
+                else if(mode === 'payment') handlePaymentScan(decodedText);
             });
             isScannerRunning = true;
         }
 
         async function stopScanner() {
-            if(html5QrCode) {
-                await html5QrCode.stop();
-                html5QrCode.clear();
-                html5QrCode = null;
-                isScannerRunning = false;
-            }
+            if(html5QrCode) { await html5QrCode.stop(); html5QrCode.clear(); html5QrCode = null; isScannerRunning = false; }
         }
 
         function handleAttendanceScan(id) {
             isPaused = true;
             const student = students.find(s => s.id === id);
-            
             if(student) {
                 if(!attendance[today]) attendance[today] = [];
-                
-                // Check if already present (handle both old string format and new object format)
                 const isPresent = attendance[today].some(entry => (typeof entry === 'string' ? entry : entry.id) === id);
-
                 if(!isPresent) {
-                    // Save as object with time
                     attendance[today].push({ id: id, time: new Date().toLocaleTimeString('ar-EG') });
                     saveData();
                     updateCounters();
                     showScanFeedback(true);
                     playSound('success');
-                } else {
-                    showToast('مسجل مسبقاً', 'warning');
-                    playSound('error');
-                }
-            } else {
-                showToast('كود غير صحيح', 'error');
-                playSound('error');
-            }
-
-            setTimeout(() => { 
-                isPaused = false; 
-                showScanFeedback(false);
-            }, 2000);
+                } else { showToast('مسجل مسبقاً', 'warning'); playSound('error'); }
+            } else { showToast('كود غير صحيح', 'error'); playSound('error'); }
+            setTimeout(() => { isPaused = false; showScanFeedback(false); }, 2000);
         }
 
         function showScanFeedback(show) {
             const el = document.getElementById('scanFeedback');
-            if(show) el.classList.remove('hidden');
-            else el.classList.add('hidden');
+            if(show) el.classList.remove('hidden'); else el.classList.add('hidden');
         }
 
         function setAttMode(mode) {
             stopScanner().then(() => {
+                const btnScan = document.getElementById('btnAttScan');
+                const btnManual = document.getElementById('btnAttManual');
                 if(mode === 'scan') {
                     document.getElementById('attScanArea').classList.remove('hidden');
                     document.getElementById('attManualArea').classList.add('hidden');
+                    btnScan.classList.add('toggle-btn-active'); btnScan.classList.remove('toggle-btn-inactive');
+                    btnManual.classList.add('toggle-btn-inactive'); btnManual.classList.remove('toggle-btn-active');
                 } else {
                     document.getElementById('attScanArea').classList.add('hidden');
                     document.getElementById('attManualArea').classList.remove('hidden');
+                    btnManual.classList.add('toggle-btn-active'); btnManual.classList.remove('toggle-btn-inactive');
+                    btnScan.classList.add('toggle-btn-inactive'); btnScan.classList.remove('toggle-btn-active');
                 }
             });
         }
@@ -544,63 +518,56 @@
             document.getElementById('manualAttID').value = '';
         }
 
-        // --- Attendance Reporting (Modal) ---
+        // --- Attendance List Modal Logic ---
         let currentAttType = 'present';
-
+        
         function openAttendanceModal(type) {
             currentAttType = type;
-            document.getElementById('attListTitle').innerText = type === 'present' ? 'قائمة الحضور اليوم' : 'قائمة الغياب اليوم';
-            document.getElementById('attTimeHeader').innerText = type === 'present' ? 'وقت الحضور' : 'تاريخ الغياب';
-            document.getElementById('attListModal').classList.remove('hidden');
+            const title = type === 'present' ? 'قائمة الحضور اليوم' : 'قائمة الغياب اليوم';
+            document.getElementById('detailsTitle').innerText = title;
+            document.getElementById('modalFilterContainer').classList.remove('hidden'); // Show filter
+            
+            const thead = document.getElementById('detailsTableHead');
+            thead.innerHTML = `<tr><th>الاسم</th><th>الكود</th><th>المرحلة</th><th>${type === 'present' ? 'وقت الحضور' : 'تاريخ الغياب'}</th></tr>`;
+            
+            document.getElementById('detailsModal').classList.remove('hidden');
             filterAttendanceList();
         }
 
         function filterAttendanceList() {
             const levelFilter = document.getElementById('attFilterLevel').value;
             const todayRecords = attendance[today] || [];
-            
-            // Extract IDs of present students
             const presentIds = todayRecords.map(r => typeof r === 'string' ? r : r.id);
+            const tbody = document.getElementById('detailsTableBody');
             
-            const listDiv = document.getElementById('attListContent');
-            let html = '';
-
+            let list = [];
             let filteredStudents = students;
+            
             if(levelFilter !== 'all') {
                 filteredStudents = students.filter(s => s.level === levelFilter);
             }
 
             if(currentAttType === 'present') {
-                // Show Present Students
-                const presentList = filteredStudents.filter(s => presentIds.includes(s.id));
-                
-                html = presentList.map(s => {
-                    // Find time
-                    const record = todayRecords.find(r => (typeof r === 'string' ? r : r.id) === s.id);
-                    const time = (typeof record === 'object' && record.time) ? record.time : 'غير مسجل';
-                    
-                    return `
-                    <div class="grid grid-cols-4 gap-2 text-xs bg-green-50 p-2 rounded border-r-4 border-green-500 items-center text-center">
-                        <div class="font-bold truncate">${s.name}</div>
-                        <div class="font-mono">${s.id}</div>
-                        <div>${stageMap[s.level]}</div>
-                        <div class="text-gray-600">${time}</div>
-                    </div>`;
-                }).join('');
+                list = filteredStudents.filter(s => presentIds.includes(s.id)).map(s => {
+                    const rec = todayRecords.find(r => (typeof r === 'string' ? r : r.id) === s.id);
+                    return { ...s, time: rec.time || '-' };
+                });
             } else {
-                // Show Absent Students
-                const absentList = filteredStudents.filter(s => !presentIds.includes(s.id));
-                
-                html = absentList.map(s => `
-                    <div class="grid grid-cols-4 gap-2 text-xs bg-red-50 p-2 rounded border-r-4 border-red-500 items-center text-center">
-                        <div class="font-bold truncate">${s.name}</div>
-                        <div class="font-mono">${s.id}</div>
-                        <div>${stageMap[s.level]}</div>
-                        <div class="text-red-600">${today}</div>
-                    </div>`).join('');
+                list = filteredStudents.filter(s => !presentIds.includes(s.id)).map(s => ({ ...s, time: today }));
             }
 
-            listDiv.innerHTML = html || '<p class="text-center text-gray-400 mt-4">لا يوجد بيانات</p>';
+            if(list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 py-4">لا توجد بيانات</td></tr>`;
+            } else {
+                tbody.innerHTML = list.map(s => `
+                    <tr class="cursor-pointer hover:bg-blue-50" onclick="openStudentModal('${s.id}')">
+                        <td class="font-bold">${s.name}</td>
+                        <td class="font-mono text-blue-600">${s.id}</td>
+                        <td>${stageMap[s.level] || s.level}</td>
+                        <td class="${currentAttType === 'present' ? 'text-green-600' : 'text-red-600'}">${s.time}</td>
+                    </tr>
+                `).join('');
+            }
         }
 
         function updateCounters() {
@@ -611,70 +578,58 @@
 
         // --- Accounting ---
         let currentPayStudent = null;
-
         function togglePayMethod(method) {
+            const btnScan = document.getElementById('btnPayScan');
+            const btnManual = document.getElementById('btnPayManual');
             if(method === 'scan') {
                 document.getElementById('payScanDiv').classList.remove('hidden');
                 document.getElementById('payManualDiv').classList.add('hidden');
+                btnScan.classList.add('toggle-btn-active'); btnScan.classList.remove('toggle-btn-inactive');
+                btnManual.classList.add('toggle-btn-inactive'); btnManual.classList.remove('toggle-btn-active');
             } else {
                 document.getElementById('payScanDiv').classList.add('hidden');
                 document.getElementById('payManualDiv').classList.remove('hidden');
+                btnManual.classList.add('toggle-btn-active'); btnManual.classList.remove('toggle-btn-inactive');
+                btnScan.classList.add('toggle-btn-inactive'); btnScan.classList.remove('toggle-btn-active');
                 stopScanner();
             }
         }
 
         function handlePaymentScan(id) {
             if(!document.getElementById('paymentForm').classList.contains('hidden')) return;
-
             const student = students.find(s => s.id === id);
             if(student) {
                 currentPayStudent = student;
-                showPaymentForm();
+                document.getElementById('paymentForm').classList.remove('hidden');
+                document.getElementById('payStdName').innerText = student.name;
+                document.getElementById('payStdID').innerText = student.id;
                 playSound('success');
-            } else {
-                showToast('طالب غير موجود', 'error');
-            }
+            } else { showToast('طالب غير موجود', 'error'); }
         }
 
-        function searchStudentForPay() {
-            const id = document.getElementById('paySearchID').value;
-            handlePaymentScan(id);
-        }
-
-        function showPaymentForm() {
-            document.getElementById('paymentForm').classList.remove('hidden');
-            document.getElementById('payStdName').innerText = currentPayStudent.name;
-            document.getElementById('payStdID').innerText = currentPayStudent.id;
-        }
+        function searchStudentForPay() { handlePaymentScan(document.getElementById('paySearchID').value); }
 
         function confirmPayment() {
             const amount = parseFloat(document.getElementById('payAmount').value);
             const type = document.getElementById('payType').value;
-            
-            accounting.revenues.push({ date: today, stdId: currentPayStudent.id, name: currentPayStudent.name, amount, type });
-            saveData();
-            updateFinance();
-            
+            const time = new Date().toLocaleTimeString('ar-EG');
+            accounting.revenues.push({ date: today, time: time, stdId: currentPayStudent.id, name: currentPayStudent.name, amount, type });
+            saveData(); updateFinance();
             document.getElementById('paymentForm').classList.add('hidden');
             document.getElementById('paySearchID').value = '';
-            showToast('تم الدفع بنجاح', 'success');
+            showToast('تم الدفع', 'success');
         }
 
         function addExpense() {
             const type = document.getElementById('expType').value;
             const note = document.getElementById('expNote').value;
             const amount = parseFloat(document.getElementById('expAmount').value);
-
+            const time = new Date().toLocaleTimeString('ar-EG');
             if(!type || !amount) return showToast('أكمل البيانات', 'error');
-
-            accounting.expenses.push({ date: today, desc: `${type} ${note ? '- '+note : ''}`, amount });
-            saveData();
-            updateFinance();
-            
-            document.getElementById('expType').value = '';
-            document.getElementById('expNote').value = '';
-            document.getElementById('expAmount').value = '';
-            showToast('تم تسجيل المصروف', 'success');
+            accounting.expenses.push({ date: today, time: time, desc: `${type} ${note ? '- '+note : ''}`, amount });
+            saveData(); updateFinance();
+            document.getElementById('expType').value = ''; document.getElementById('expNote').value = ''; document.getElementById('expAmount').value = '';
+            showToast('تم التسجيل', 'success');
         }
 
         function updateFinance() {
@@ -685,7 +640,7 @@
             document.getElementById('netProfit').innerText = (rev - exp);
         }
 
-        // --- Advanced Reports ---
+        // --- Reports ---
         function toggleReportInputs() {
             const type = document.getElementById('reportType').value;
             if(type === 'daily') {
@@ -697,6 +652,92 @@
             }
         }
 
+        // --- NEW: Student Profile Report ---
+        function generateStudentReport() {
+            const query = document.getElementById('reportStudentSearch').value.toLowerCase();
+            const student = students.find(s => s.name.toLowerCase().includes(query) || s.id === query);
+            const resDiv = document.getElementById('studentReportResult');
+
+            if(!student) {
+                resDiv.innerHTML = '<p class="text-red-500 text-center">لم يتم العثور على الطالب</p>';
+                resDiv.classList.remove('hidden');
+                return;
+            }
+
+            // Calculate Stats
+            let presentDays = 0;
+            let absentDays = 0;
+            let presentDates = [];
+            let absentDates = [];
+            let totalPaid = 0;
+            let payments = [];
+
+            // Attendance Logic
+            Object.keys(attendance).forEach(date => {
+                if(date >= student.date) { // Only count days after joining
+                    const dayRecords = attendance[date];
+                    const isPresent = dayRecords.some(r => (typeof r === 'string' ? r : r.id) === student.id);
+                    if(isPresent) {
+                        presentDays++;
+                        presentDates.push(date);
+                    } else {
+                        absentDays++;
+                        absentDates.push(date);
+                    }
+                }
+            });
+
+            // Finance Logic
+            payments = accounting.revenues.filter(r => r.stdId === student.id);
+            totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+
+            // Prepare Share Text
+            currentStudentReport = `تقرير الطالب: ${student.name}\nالكود: ${student.id}\nحضور: ${presentDays} | غياب: ${absentDays}\nمدفوعات: ${totalPaid} ج.م`;
+
+            // Render HTML
+            resDiv.innerHTML = `
+                <div class="border-b pb-2 mb-2">
+                    <h4 class="font-bold text-lg text-blue-900">${student.name}</h4>
+                    <p class="text-gray-500 text-xs">كود: ${student.id} | ${stageMap[student.level]}</p>
+                    <p class="text-gray-400 text-[10px]">انضم: ${student.date}</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2 mb-4 text-center">
+                    <div class="bg-green-100 p-2 rounded">
+                        <div class="text-xs">أيام الحضور</div>
+                        <div class="font-bold text-green-700">${presentDays}</div>
+                    </div>
+                    <div class="bg-red-100 p-2 rounded">
+                        <div class="text-xs">أيام الغياب</div>
+                        <div class="font-bold text-red-700">${absentDays}</div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="font-bold text-xs mb-1">سجل المدفوعات (${totalPaid} ج.م)</h5>
+                    <div class="max-h-32 overflow-y-auto text-xs border rounded p-1">
+                        ${payments.length ? payments.map(p => `<div class="flex justify-between border-b p-1"><span>${p.type}</span><span>${p.amount} (${p.date})</span></div>`).join('') : '<p class="text-center">لا يوجد</p>'}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="font-bold text-xs mb-1">سجل الغياب</h5>
+                    <div class="max-h-32 overflow-y-auto text-xs border rounded p-1 text-red-600">
+                        ${absentDates.length ? absentDates.join(', ') : 'لا يوجد غياب'}
+                    </div>
+                </div>
+
+                <button onclick="shareStudentReport()" class="w-full bg-green-600 text-white py-1 rounded text-xs font-bold">مشاركة التقرير واتساب</button>
+            `;
+            resDiv.classList.remove('hidden');
+        }
+
+        function shareStudentReport() {
+            if(navigator.share && currentStudentReport) {
+                navigator.share({ title: 'تقرير طالب', text: currentStudentReport }).catch(console.error);
+            } else { alert(currentStudentReport); }
+        }
+
         function generateAdvancedReport() {
             const type = document.getElementById('reportType').value;
             const stage = document.getElementById('reportStage').value;
@@ -704,159 +745,153 @@
             const monthInput = document.getElementById('reportMonth').value;
             const resDiv = document.getElementById('reportResult');
 
-            let html = '';
-            let totalRev = 0;
-            let totalExp = 0;
+            let totalRev = 0, totalExp = 0;
+            
+            // Reset Global Data
+            currentReportData = { present: [], absent: [], revenues: [], expenses: [] };
+
+            let targetStudents = students;
+            if(stage !== 'all') targetStudents = students.filter(s => s.level === stage);
 
             if(type === 'daily') {
                 if(!dateInput) return showToast('اختر التاريخ', 'error');
-                
-                // Filter Attendance
                 const dayRecords = attendance[dateInput] || [];
                 const presentIds = dayRecords.map(r => typeof r === 'string' ? r : r.id);
                 
-                let targetStudents = students;
-                if(stage !== 'all') targetStudents = students.filter(s => s.level === stage);
-
-                const presentCount = targetStudents.filter(s => presentIds.includes(s.id)).length;
-                const absentCount = targetStudents.length - presentCount;
-
-                // Filter Finance
-                const dayRevs = accounting.revenues.filter(r => r.date === dateInput);
-                const dayExps = accounting.expenses.filter(e => e.date === dateInput);
-                totalRev = dayRevs.reduce((a,b)=>a+b.amount,0);
-                totalExp = dayExps.reduce((a,b)=>a+b.amount,0);
-
-                html = `
-                    <h4 class="font-bold text-center border-b pb-2 mb-2">تقرير يوم: ${dateInput}</h4>
-                    <p class="text-xs text-gray-500 text-center mb-2">المرحلة: ${stage === 'all' ? 'الكل' : stageMap[stage]}</p>
-                    
-                    <div class="grid grid-cols-2 gap-2 mb-4 text-center">
-                        <div class="bg-green-100 p-2 rounded">
-                            <div class="text-xs">حضور</div>
-                            <div class="font-bold text-green-700">${presentCount}</div>
-                        </div>
-                        <div class="bg-red-100 p-2 rounded">
-                            <div class="text-xs">غياب</div>
-                            <div class="font-bold text-red-700">${absentCount}</div>
-                        </div>
-                    </div>
-
-                    <div class="border-t pt-2">
-                        <div class="flex justify-between text-xs mb-1"><span>إيرادات:</span> <span class="font-bold text-green-600">${totalRev} ج.م</span></div>
-                        <div class="flex justify-between text-xs mb-1"><span>مصروفات:</span> <span class="font-bold text-red-600">${totalExp} ج.م</span></div>
-                        <div class="flex justify-between font-bold border-t mt-1 pt-1"><span>الصافي:</span> <span>${totalRev - totalExp} ج.م</span></div>
-                    </div>
-                `;
-
+                currentReportData.present = targetStudents.filter(s => presentIds.includes(s.id)).map(s => {
+                    const rec = dayRecords.find(r => (typeof r === 'string' ? r : r.id) === s.id);
+                    return { ...s, time: rec.time || '-' };
+                });
+                currentReportData.absent = targetStudents.filter(s => !presentIds.includes(s.id)).map(s => ({ ...s, time: 'غياب' }));
+                currentReportData.revenues = accounting.revenues.filter(r => r.date === dateInput);
+                currentReportData.expenses = accounting.expenses.filter(e => e.date === dateInput);
             } else {
-                // Monthly
                 if(!monthInput) return showToast('اختر الشهر', 'error');
-                
-                const monthRevs = accounting.revenues.filter(r => r.date.startsWith(monthInput));
-                const monthExps = accounting.expenses.filter(e => e.date.startsWith(monthInput));
-                
-                totalRev = monthRevs.reduce((a,b)=>a+b.amount,0);
-                totalExp = monthExps.reduce((a,b)=>a+b.amount,0);
-
-                html = `
-                    <h4 class="font-bold text-center border-b pb-2 mb-2">تقرير شهر: ${monthInput}</h4>
-                    <div class="space-y-2">
-                        <div class="bg-green-50 p-2 rounded border border-green-200">
-                            <p class="text-xs text-gray-500">إجمالي الإيرادات</p>
-                            <p class="font-bold text-green-700 text-lg">${totalRev} ج.م</p>
-                        </div>
-                        <div class="bg-red-50 p-2 rounded border border-red-200">
-                            <p class="text-xs text-gray-500">إجمالي المصروفات</p>
-                            <p class="font-bold text-red-700 text-lg">${totalExp} ج.م</p>
-                        </div>
-                        <div class="bg-blue-50 p-2 rounded border border-blue-200 text-center">
-                            <p class="text-xs text-gray-500">صافي الربح</p>
-                            <p class="font-bold text-blue-900 text-xl">${totalRev - totalExp} ج.م</p>
-                        </div>
-                    </div>
-                `;
+                currentReportData.revenues = accounting.revenues.filter(r => r.date.startsWith(monthInput));
+                currentReportData.expenses = accounting.expenses.filter(e => e.date.startsWith(monthInput));
             }
 
+            totalRev = currentReportData.revenues.reduce((a,b)=>a+b.amount,0);
+            totalExp = currentReportData.expenses.reduce((a,b)=>a+b.amount,0);
+
+            let html = `
+                <h4 class="font-bold text-center border-b pb-2 mb-2">تقرير ${type === 'daily' ? dateInput : monthInput}</h4>
+                ${type === 'daily' ? `
+                <div class="grid grid-cols-2 gap-2 mb-4 text-center">
+                    <div onclick='openReportDetails("present")' class="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200">
+                        <div class="text-xs">حضور</div>
+                        <div class="font-bold text-green-700">${currentReportData.present.length}</div>
+                    </div>
+                    <div onclick='openReportDetails("absent")' class="bg-red-100 p-2 rounded cursor-pointer hover:bg-red-200">
+                        <div class="text-xs">غياب</div>
+                        <div class="font-bold text-red-700">${currentReportData.absent.length}</div>
+                    </div>
+                </div>` : ''}
+                <div class="space-y-2">
+                    <div onclick='openReportDetails("revenues")' class="bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 flex justify-between">
+                        <span class="text-xs text-gray-500">إيرادات</span>
+                        <span class="font-bold text-green-700">${totalRev} ج.م</span>
+                    </div>
+                    <div onclick='openReportDetails("expenses")' class="bg-red-50 p-2 rounded border border-red-200 cursor-pointer hover:bg-red-100 flex justify-between">
+                        <span class="text-xs text-gray-500">مصروفات</span>
+                        <span class="font-bold text-red-700">${totalExp} ج.م</span>
+                    </div>
+                    <div class="bg-blue-50 p-2 rounded border border-blue-200 text-center">
+                        <span class="text-xs text-gray-500">الصافي</span>
+                        <span class="font-bold text-blue-900 text-lg block">${totalRev - totalExp} ج.م</span>
+                    </div>
+                </div>
+            `;
             resDiv.innerHTML = html;
             resDiv.classList.remove('hidden');
         }
 
-        // --- Backup & Restore ---
+        function openReportDetails(key) {
+            const list = currentReportData[key];
+            let title = '';
+            if(key === 'present') title = 'قائمة الحضور';
+            else if(key === 'absent') title = 'قائمة الغياب';
+            else if(key === 'revenues') title = 'تفاصيل الإيرادات';
+            else title = 'تفاصيل المصروفات';
+
+            document.getElementById('detailsTitle').innerText = title;
+            document.getElementById('modalFilterContainer').classList.add('hidden');
+            
+            const thead = document.getElementById('detailsTableHead');
+            const tbody = document.getElementById('detailsTableBody');
+
+            if(key === 'present' || key === 'absent') {
+                thead.innerHTML = `<tr><th>الاسم</th><th>الكود</th><th>المرحلة</th><th>الوقت</th></tr>`;
+                if(list.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">لا توجد بيانات</td></tr>`;
+                else {
+                    tbody.innerHTML = list.map(s => `
+                        <tr class="cursor-pointer hover:bg-gray-50" onclick="openStudentModal('${s.id}')">
+                            <td class="font-bold">${s.name}</td>
+                            <td class="font-mono text-blue-600">${s.id}</td>
+                            <td>${stageMap[s.level] || s.level}</td>
+                            <td>${s.time}</td>
+                        </tr>
+                    `).join('');
+                }
+            } else {
+                thead.innerHTML = `<tr><th>البند/الطالب</th><th>الوقت</th><th>المبلغ</th></tr>`;
+                if(list.length === 0) tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4">لا توجد بيانات</td></tr>`;
+                else {
+                    tbody.innerHTML = list.map(item => `
+                        <tr class="hover:bg-gray-50">
+                            <td class="font-bold">${item.name || item.desc}</td>
+                            <td class="text-gray-500 text-xs">${item.date} | ${item.time || '-'}</td>
+                            <td class="font-bold ${key === 'revenues' ? 'text-green-600' : 'text-red-600'}">${item.amount}</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+            document.getElementById('detailsModal').classList.remove('hidden');
+        }
+
+        // --- Backup ---
         function exportData() {
             const data = { students, attendance, accounting };
             const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `backup_center_${today}.json`;
-            a.click();
-            showToast('تم تحميل النسخة', 'success');
+            a.href = url; a.download = `backup_center_${today}.json`; a.click();
         }
-
         function importData(input) {
-            const file = input.files[0];
-            if(!file) return;
-            
+            const file = input.files[0]; if(!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if(data.students && data.attendance) {
+                    if(data.students) {
                         localStorage.setItem('sc_students', JSON.stringify(data.students));
                         localStorage.setItem('sc_attendance', JSON.stringify(data.attendance));
                         localStorage.setItem('sc_accounting', JSON.stringify(data.accounting));
-                        alert('تم استعادة البيانات بنجاح! سيتم تحديث الصفحة.');
                         location.reload();
-                    } else {
-                        alert('ملف غير صالح');
                     }
-                } catch(err) {
-                    alert('خطأ في قراءة الملف');
-                }
-            };
-            reader.readAsText(file);
+                } catch(err) { alert('ملف تالف'); }
+            }; reader.readAsText(file);
         }
+        function clearAllData() { if(confirm('حذف الكل؟')) { localStorage.clear(); location.reload(); } }
 
-        function clearAllData() {
-            if(confirm('تحذير: سيتم مسح كل شيء! هل أنت متأكد؟')) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        // --- Utilities ---
+        // --- Utils ---
         function saveData() {
             localStorage.setItem('sc_students', JSON.stringify(students));
             localStorage.setItem('sc_attendance', JSON.stringify(attendance));
             localStorage.setItem('sc_accounting', JSON.stringify(accounting));
         }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function showToast(msg, type) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
+            const t = document.getElementById('toast'); t.innerText = msg;
             t.className = `fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-xl z-[200] font-bold text-sm text-white ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
-            t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 3000);
+            t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000);
         }
-
         function playSound(type) {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            osc.connect(ctx.destination);
-            if(type === 'success') {
-                osc.frequency.setValueAtTime(800, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
-            } else {
-                osc.frequency.setValueAtTime(300, ctx.currentTime);
-                osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.2);
-            }
-            osc.start();
-            osc.stop(ctx.currentTime + 0.2);
+            const osc = ctx.createOscillator(); osc.connect(ctx.destination);
+            if(type === 'success') { osc.frequency.setValueAtTime(800, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1); }
+            else { osc.frequency.setValueAtTime(300, ctx.currentTime); osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.2); }
+            osc.start(); osc.stop(ctx.currentTime + 0.2);
         }
     </script>
 </body>
