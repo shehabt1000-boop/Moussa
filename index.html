@@ -48,6 +48,7 @@
         
         /* Column Widths */
         .col-index { width: 20px; text-align: center; color: #64748b; }
+        .col-code { width: 40px; }
         .col-action { width: 35px; text-align: center; }
         .col-date { width: 60px; }
 
@@ -127,7 +128,7 @@
                     <h2 class="text-center font-bold text-lg mb-2 hidden print-header">قائمة الطلاب</h2>
                     <table class="custom-table">
                         <thead>
-                            <tr><th class="col-index">م</th><th>الكود</th><th>الاسم</th><th>المرحلة</th><th class="col-date">تاريخ</th><th class="no-print col-action">حذف</th></tr>
+                            <tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th>المرحلة</th><th class="col-date">تاريخ</th><th class="no-print col-action">حذف</th></tr>
                         </thead>
                         <tbody id="studentsTable"></tbody>
                     </table>
@@ -307,14 +308,13 @@
                 <div id="reportResult" class="mt-2 hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px]"></div>
             </div>
 
-            <!-- Backup & Restore (Restored) -->
             <div class="glass-card border-t-4 border-yellow-500">
                 <h3 class="font-bold mb-2 flex items-center gap-2 text-yellow-800 text-xs"><span>💾</span> النسخ الاحتياطي</h3>
                 <div class="flex gap-2">
-                    <button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-1 rounded font-bold text-[10px] border border-yellow-300">تحميل JSON</button>
+                    <button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-1 rounded font-bold text-[10px] border border-yellow-300">تحميل</button>
                     <div class="relative flex-1">
                         <input type="file" id="importFile" onchange="importData(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <button class="w-full bg-gray-100 text-gray-700 py-1 rounded font-bold text-[10px] border border-gray-300">استعادة JSON</button>
+                        <button class="w-full bg-gray-100 text-gray-700 py-1 rounded font-bold text-[10px] border border-gray-300">استعادة</button>
                     </div>
                 </div>
             </div>
@@ -336,7 +336,7 @@
             </div>
 
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="printElement('studentCardPrintArea')" class="bg-gray-800 text-white py-1 rounded text-[10px] font-bold">🖨️ طباعة</button>
+                <button onclick="printStudentCard()" class="bg-gray-800 text-white py-1 rounded text-[10px] font-bold">🖨️ طباعة</button>
                 <button onclick="shareStudentPdf()" class="bg-red-600 text-white py-1 rounded text-[10px] font-bold">📄 PDF</button>
             </div>
         </div>
@@ -374,7 +374,7 @@
     <!-- FIREBASE MODULE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAttesgksSJWs--veymN8PTRNHBX9r27V0",
@@ -396,34 +396,27 @@
         window.doc = doc;
         window.deleteDoc = deleteDoc;
         window.onSnapshot = onSnapshot;
+        window.query = query;
+        window.where = where;
 
         const loading = document.getElementById('loadingOverlay');
         
-        // 1. Students
         onSnapshot(collection(db, "students"), (snapshot) => {
-            window.students = []; // Clear array to prevent duplicates
-            snapshot.forEach(doc => {
-                window.students.push({ ...doc.data(), docId: doc.id });
-            });
+            window.students = [];
+            snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id }));
             window.renderStudents();
             loading.style.display = 'none';
         });
 
-        // 2. Attendance
         onSnapshot(collection(db, "attendance"), (snapshot) => {
-            window.attendance = []; // Clear array
-            snapshot.forEach(doc => {
-                window.attendance.push({ ...doc.data(), docId: doc.id });
-            });
+            window.attendance = [];
+            snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id }));
             window.updateCounters();
         });
 
-        // 3. Accounting
         onSnapshot(collection(db, "accounting"), (snapshot) => {
-            window.accounting = []; // Clear array
-            snapshot.forEach(doc => {
-                window.accounting.push({ ...doc.data(), docId: doc.id });
-            });
+            window.accounting = [];
+            snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id }));
             window.updateFinance();
         });
     </script>
@@ -480,21 +473,12 @@
             while (window.students.some(s => s.id === id));
 
             try {
-                await window.addDoc(window.collection(window.db, "students"), {
-                    id, name, level, phone, date: today
-                });
-                
-                // Optimistic update for immediate modal
-                const tempStudent = { id, name, level, phone, date: today };
-                window.students.push(tempStudent); 
+                await window.addDoc(window.collection(window.db, "students"), { id, name, level, phone, date: today });
                 openStudentModal(id);
-                
                 document.getElementById('stdName').value = '';
                 document.getElementById('stdPhone').value = '';
-                showToast('تم الحفظ سحابياً', 'success');
-            } catch (e) {
-                showToast('خطأ في الاتصال', 'error');
-            }
+                showToast('تم الحفظ', 'success');
+            } catch (e) { showToast('خطأ في الاتصال', 'error'); }
         }
 
         window.renderStudents = function() {
@@ -507,17 +491,18 @@
             tbody.innerHTML = filtered.map((s, index) => `
                 <tr class="cursor-pointer" onclick="openStudentModal('${s.id}')">
                     <td class="col-index">${index + 1}</td>
-                    <td class="font-mono font-bold text-blue-600">${s.id}</td>
+                    <td class="col-code font-mono font-bold text-blue-600">${s.id}</td>
                     <td class="font-bold">${s.name}</td>
                     <td>${stageMap[s.level] || s.level}</td>
-                    <td class="text-[10px] text-gray-500">${s.date || '-'}</td>
+                    <td class="col-date text-gray-500">${s.date || '-'}</td>
                     <td class="no-print col-action" onclick="event.stopPropagation()">
-                        <button onclick="delStudent('${s.docId}')" class="text-red-500 text-[10px] font-bold">حذف</button>
+                        <button onclick="delStudent('${s.docId}', '${s.id}')" class="text-red-500 text-[10px] font-bold">حذف</button>
                     </td>
                 </tr>
             `).join('');
         }
 
+        // --- Student Modal & Printing ---
         function openStudentModal(id) {
             const s = window.students.find(st => st.id === id);
             if(!s) return;
@@ -544,9 +529,23 @@
             html2pdf().set(opt).from(element).save();
         }
 
-        async function delStudent(docId) {
-            if(confirm('حذف الطالب نهائياً؟')) {
+        async function delStudent(docId, studentId) {
+            if(!confirm('سيتم حذف الطالب وجميع سجلات حضوره ومدفوعاته! هل أنت متأكد؟')) return;
+
+            try {
+                const attQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", studentId));
+                const attSnapshot = await window.getDocs(attQuery);
+                attSnapshot.forEach(doc => window.deleteDoc(doc.ref));
+
+                const accQuery = window.query(window.collection(window.db, "accounting"), window.where("stdId", "==", studentId));
+                const accSnapshot = await window.getDocs(accQuery);
+                accSnapshot.forEach(doc => window.deleteDoc(doc.ref));
+
                 await window.deleteDoc(window.doc(window.db, "students", docId));
+                
+                showToast('تم حذف الطالب وكل بياناته', 'success');
+            } catch (e) {
+                showToast('حدث خطأ أثناء الحذف', 'error');
             }
         }
 
@@ -677,8 +676,13 @@
 
         window.updateCounters = function() {
             const dayRecords = window.attendance.filter(r => r.date === selectedAttendanceDate);
-            document.getElementById('presentCount').innerText = dayRecords.length;
-            document.getElementById('absentCount').innerText = window.students.length - dayRecords.length;
+            const presentIds = dayRecords.map(r => r.studentId);
+            
+            // Count only existing students
+            const presentCount = window.students.filter(s => presentIds.includes(s.id)).length;
+            
+            document.getElementById('presentCount').innerText = presentCount;
+            document.getElementById('absentCount').innerText = window.students.length - presentCount;
         }
 
         // --- Accounting ---
@@ -754,7 +758,6 @@
             document.getElementById('totalExp').innerText = totalExp;
             document.getElementById('netProfit').innerText = (totalRev - totalExp);
 
-            // Today's Lists
             const todayRevs = revs.filter(r => r.date === today);
             const todayExps = exps.filter(e => e.date === today);
 
@@ -785,7 +788,7 @@
             const resDiv = document.getElementById('studentReportResult');
 
             if(!student) {
-                resDiv.innerHTML = '<p class="text-red-500 text-center">لم يتم العثور على الطالب</p>';
+                resDiv.innerHTML = '<p class="text-red-500 text-center">لم يتم العثور</p>';
                 resDiv.classList.remove('hidden');
                 return;
             }
@@ -986,7 +989,6 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if(data.students) {
-                        // Batch write to Firebase (Simplified loop)
                         for(const s of data.students) await window.addDoc(window.collection(window.db, "students"), s);
                         for(const a of data.attendance) await window.addDoc(window.collection(window.db, "attendance"), a);
                         for(const c of data.accounting) await window.addDoc(window.collection(window.db, "accounting"), c);
