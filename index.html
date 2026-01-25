@@ -2,589 +2,312 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CV Maker Pro - Official One Page</title>
-
-    <!-- الخطوط -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@400;500;700;800&family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- المكتبات -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Center Manager | سجل الحضور المطور</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --editor-orange: #e67e22;
-            --navy: #2c3e50;
-            --bg-app: #f4f6f8;
-            --a4-w: 794px;
-            --a4-h: 1123px;
-        }
-
-        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; background-color: var(--bg-app); height: 100vh; overflow: hidden; font-family: 'Cairo', sans-serif; }
-
-        .app-container { display: flex; height: 100%; }
-
-        /* ================= 1. المحرر (Editor) ================= */
-        .editor-panel {
-            width: 400px; background: white; border-left: 1px solid #ddd;
-            overflow-y: auto; padding: 20px; padding-bottom: 100px; z-index: 20;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
-        }
-
-        .brand-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .brand-header h2 { margin: 0; color: var(--navy); font-weight: 900; font-size: 26px; }
-        .brand-header span { color: var(--editor-orange); }
-
-        .tpl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
-        .tpl-btn {
-            padding: 10px; background: white; border: 1px solid #ccc; border-radius: 6px;
-            cursor: pointer; font-weight: bold; font-size: 12px; color: #555; text-align: center;
-            transition: 0.2s;
-        }
-        .tpl-btn:hover { border-color: var(--editor-orange); color: var(--editor-orange); }
-        .tpl-btn.active { background: var(--editor-orange); color: white; border-color: var(--editor-orange); }
-
-        .editor-card { background: white; border: 1px solid #eee; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
-        .editor-head { 
-            background: var(--editor-orange); color: white;
-            padding: 8px 12px; border-radius: 5px; margin-bottom: 15px;
-            font-weight: 700; display: flex; justify-content: space-between; align-items: center;
-        }
-
-        .input-group { margin-bottom: 10px; }
-        .input-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #666; }
-        .input-group input, .input-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; background: #fafafa; }
-        .input-group input:focus { border-color: var(--editor-orange); background: white; }
-
-        .btn-add { background: white; color: var(--editor-orange); border: none; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .scanner-container { width: 100%; max-width: 450px; margin: auto; overflow: hidden; border-radius: 1.5rem; border: 8px solid #e2e8f0; }
         
-        /* تصميم عناصر الإدخال الديناميكية */
-        .d-item { background: #f9f9f9; border: 1px dashed #ccc; padding: 25px 10px 10px; margin-bottom: 8px; position: relative; border-radius: 6px; }
-        .d-item-skill { padding: 10px; display: flex; gap: 5px; align-items: center; } /* سطر المهارة أصغر */
-        
-        .btn-del { position: absolute; top: 5px; left: 5px; color: red; background: none; border: none; cursor: pointer; font-size: 14px; }
-        .d-item-skill .btn-del { position: static; }
-
-        .up-row { display: flex; gap: 10px; }
-        .up-btn { flex: 1; border: 2px dashed #ccc; padding: 15px; text-align: center; border-radius: 8px; cursor: pointer; position: relative; }
-        .up-btn input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
-
-        /* ================= 2. المعاينة (Preview) ================= */
-        .preview-panel {
-            flex: 1; 
-            background: #333; 
-            display: flex; 
-            justify-content: center;
-            overflow-y: auto; 
-            position: relative;
-            padding: 20px;
+        /* Attendance Sheet Styles */
+        .attendance-sheet-container { overflow-x: auto; border-radius: 0.75rem; }
+        .attendance-table { border-collapse: separate; border-spacing: 0; }
+        .attendance-table th, .attendance-table td { border: 1px solid #e2e8f0; min-width: 40px; text-align: center; }
+        .attendance-table th.sticky-col, .attendance-table td.sticky-col { 
+            position: sticky; right: 0; background: white; z-index: 10; min-width: 150px; 
         }
-
-        .cv-paper {
-            width: var(--a4-w);  
-            height: var(--a4-h); 
-            background: white;
-            display: flex; flex-direction: column;
-            overflow: hidden; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            margin: 0 auto;
-            font-size: 13px;
-        }
-
-        /* ================= 3. القواعد العامة للتصميم ================= */
-        /* قاعدة منع انكسار الاسم */
-        h1, h2, h3, .name-container { white-space: nowrap !important; }
-        
-        .cv-header { padding: 25px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; transition: 0.3s; position: relative; }
-        .cv-photo { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; background: #eee; transition: 0.3s; z-index: 10; }
-
-        .cv-body { display: flex; flex: 1; overflow: hidden; position: relative; }
-        .cv-side { width: 32%; padding: 20px; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
-        .cv-main { width: 68%; padding: 25px; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
-
-        .cv-sec-title {
-            font-weight: 800; font-size: 16px; text-transform: uppercase;
-            border-bottom: 2px solid #ccc; padding-bottom: 3px; margin-bottom: 8px;
-        }
-
-        .spacer { flex-grow: 1; } 
-        .contact-row { display: flex; align-items: center; font-size: 12px; margin-bottom: 6px; }
-        .contact-row i { width: 25px; text-align: center; font-size: 14px; }
-        
-        /* تنسيق المهارات الجديد (قائمة عمودية بدون خلفية) */
-        .skill-list { display: flex; flex-direction: column; gap: 5px; }
-        .skill-item { 
-            font-size: 13px; 
-            font-weight: 600; 
-            display: flex; 
-            align-items: center;
-            color: inherit; /* يأخذ لون النص في القسم */
-        }
-        .skill-item::before {
-            content: "•";
-            margin-left: 8px;
-            font-size: 18px;
-            line-height: 0;
-            opacity: 0.7;
-        }
-
-        .exp-item { margin-bottom: 10px; }
-        .exp-item h4 { margin: 0; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .exp-item span { font-size: 12px; opacity: 0.8; display: block; margin-bottom: 2px; }
-        .exp-item p { margin: 0; font-size: 12.5px; line-height: 1.35; color: #444; }
-
-        .side-info { display: none; text-align: center; margin-bottom: 15px; }
-        .side-info h2 { margin: 10px 0 5px; font-size: 20px; color: white; white-space: nowrap; }
-        .side-info h3 { margin: 0; font-size: 13px; color: rgba(255,255,255,0.8); font-weight: normal; }
-
-        /* --- القوالب القديمة --- */
-        .t1 .cv-header { background: #2c3e50; color: white; } .t1 .cv-side { background: #f4f6f7; } .t1 .cv-sec-title { color: #2c3e50; border-color: #3498db; }
-        .t2 .cv-header { background: white; color: #333; border-bottom: 4px solid #333; } .t2 .cv-side { background: #333; color: white; } .t2 .cv-sec-title { color: #333; } .t2 .cv-side .cv-sec-title { color: white; }
-        .t3 .cv-header { background: #145A32; color: white; } .t3 .cv-side { background: #E9F7EF; } .t3 .cv-sec-title { color: #145A32; }
-        .t4 .cv-header { border-bottom: 1px solid #ddd; } .t4 .cv-side { border-right: 1px solid #ddd; } .t4 .cv-sec-title { color: #000; }
-        .t5 .cv-header { background: #6C3483; color: white; text-align: center; flex-direction: column; } .t5 .cv-sec-title { color: #6C3483; }
-        .t6 .cv-header { background: #922B21; color: white; } .t6 .cv-side { background: #FDEDEC; } .t6 .cv-sec-title { color: #922B21; }
-        .t7 .cv-header { background: #D6EAF8; color: #21618C; } .t7 .cv-side { background: #21618C; color: white; } .t7 .cv-side .cv-sec-title { color: white; }
-        .t8 { background: white; color: black; } .t8 .cv-header { background: #000; color: white; } .t8 .cv-side { background: #f0f0f0; } .t8 .cv-sec-title { background: black; color: white; padding: 2px 8px; display: inline-block; }
-        .t9 .cv-header { display: none; } .t9 .cv-side { width: 40%; background: #2c3e50; color: white; text-align: center; padding-top: 50px; } .t9 .cv-main { width: 60%; } .t9 .side-info { display: block !important; }
-        .t10 .cv-header { background: #111; color: #D4AF37; } .t10 .cv-side { border-right: 2px solid #D4AF37; } .t10 .cv-sec-title { color: #111; border-bottom: 2px solid #D4AF37; }
-
-        /* ============================================================
-           القوالب المحدثة (مع تثبيت الاسم وتنسيق المهارات)
-           ============================================================ */
-
-        /* T11: جانبي حديث */
-        .t11 .cv-header { display: none; }
-        .t11 .cv-body { height: 100%; }
-        .t11 .cv-side { width: 33%; background: #1e272e; color: white; padding-top: 40px; text-align: center; }
-        .t11 .cv-main { width: 67%; padding: 30px; }
-        .t11 .side-info { display: block !important; margin-bottom: 20px; }
-        .t11 .cv-photo { width: 140px; height: 140px; border: 4px solid rgba(255,255,255,0.1); margin-bottom: 10px; }
-        .t11 .cv-sec-title { color: #1e272e; border-bottom: 3px solid #ffdd59; display: inline-block; padding-left: 15px; }
-        .t11 .cv-side .cv-sec-title { color: #ffdd59; border-color: rgba(255,255,255,0.2); display: block; text-align: right; }
-        .t11 .contact-row i, .t11 .skill-item::before { color: #ffdd59; }
-
-        /* T12: متداخل رسمي */
-        .t12 .cv-header { 
-            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-            height: auto; min-height: 160px; padding: 30px; padding-bottom: 60px; 
-            position: relative; margin-bottom: 0; align-items: flex-start;
-        }
-        .t12 .header-info { color: white; z-index: 2; width: 100%; padding-left: 160px; }
-        .t12 .header-info h1 { font-size: 34px; margin-bottom: 5px; white-space: nowrap; }
-        .t12 .cv-photo { 
-            position: absolute; bottom: -40px; left: 30px; 
-            width: 150px; height: 150px; border: 6px solid white; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15); z-index: 10;
-        }
-        .t12 .cv-side { background: #fff; border-left: 1px solid #eee; padding-top: 60px; }
-        .t12 .cv-sec-title { color: #2c5364; border-bottom: none; position: relative; padding-left: 15px; }
-        .t12 .cv-sec-title::before { content:''; position: absolute; right: -10px; top: 0; height: 100%; width: 5px; background: #2c5364; }
-        .t12 .skill-item::before { color: #2c5364; }
-
-        /* T13: رسمي متطور (تعديل لعرض المهارات أفقياً هنا فقط) */
-        .t13 .cv-header { 
-            background: #222; color: #d4af37; height: auto; padding: 30px;
-            align-items: center; justify-content: center; flex-direction: column; text-align: center;
-            border-bottom: 4px solid #d4af37;
-        }
-        .t13 .header-info h1 { color: #fff; font-size: 32px; white-space: nowrap; }
-        .t13 .header-info h2 { color: #d4af37; font-size: 16px; margin-top: 5px; }
-        .t13 .cv-photo { display: none; } 
-        .t13 .cv-body { display: block; padding: 0 30px; margin-top: -20px; }
-        .t13 .cv-side { 
-            width: 100%; background: white; padding: 15px; border: 1px solid #ddd; 
-            display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 15px;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.05); margin-bottom: 20px;
-        }
-        .t13 .cv-side .cv-sec-title { display: none; }
-        .t13 .contact-row { margin: 0 10px; font-weight: bold; color: #555; }
-        .t13 .contact-row i { color: #d4af37; }
-        /* استثناء لـ T13: المهارات بجانب بعض */
-        .t13 .skill-list { flex-direction: row; flex-wrap: wrap; justify-content: center; width: 100%; border-top: 1px dashed #eee; padding-top: 10px; margin-top: 5px; }
-        .t13 .skill-item { margin: 0 10px; }
-        .t13 .skill-item::before { color: #d4af37; }
-        .t13 .cv-main { width: 100%; padding: 0; }
-        .t13 .cv-sec-title { color: #222; border-bottom: 2px solid #d4af37; font-size: 18px; }
-
-        /* T14: تنفيذي */
-        .t14 .cv-header { display: none; }
-        .t14 .cv-body { height: 100%; flex-direction: row; }
-        .t14 .cv-side { 
-            width: 32%; background: #101929; color: #ecf0f1; text-align: right; 
-            padding: 20px; display: flex; flex-direction: column; align-items: center;
-        }
-        .t14 .side-info { display: block !important; width: 100%; margin-bottom: 20px; }
-        .t14 .cv-photo { 
-            width: 130px; height: 130px; border: 4px solid #dcdde1; border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); margin: 0 auto 15px; display: block;
-        }
-        .t14 .cv-main { width: 68%; padding: 30px; background: #fbfbfb; }
-        .t14 .header-info { display: none; }
-        .t14 .cv-sec-title { color: #101929; border-left: 5px solid #101929; border-bottom: none; padding-right: 15px; background: #eee; padding: 5px 15px; }
-        .t14 .cv-side .cv-sec-title { 
-            color: #fff; border-left: none; border-right: 3px solid #3498db; 
-            background: rgba(255,255,255,0.05); width: 100%; padding-right: 10px;
-        }
-        .t14 .contact-row, .t14 .skill-list, .t14 #qrBox { width: 100%; }
-        .t14 .skill-item { color: rgba(255,255,255,0.9); }
-        .t14 .skill-item::before { color: #3498db; }
-
-        /* T15: المدير الإقليمي */
-        .t15 .cv-header { 
-            background: white; padding: 30px; border-top: 8px solid #006266;
-            flex-direction: row-reverse; align-items: center; justify-content: flex-end; gap: 20px;
-        }
-        .t15 .header-info { text-align: left; padding-left: 0; flex: 1; }
-        .t15 .header-info h1 { font-size: 36px; color: #006266; font-weight: 900; white-space: nowrap; }
-        .t15 .header-info h2 { font-size: 18px; color: #666; font-weight: 500; margin: 5px 0 0; }
-        .t15 .cv-photo { width: 120px; height: 120px; border-radius: 6px; margin: 0; }
-        .t15 .cv-side { background: #006266; color: white; width: 30%; padding-top: 30px; }
-        .t15 .cv-main { width: 70%; background: #fff; padding-top: 30px; }
-        .t15 .cv-sec-title { color: #006266; letter-spacing: 1px; border-bottom: 2px dashed #006266; }
-        .t15 .cv-side .cv-sec-title { color: #a3cbcd; border-color: rgba(255,255,255,0.2); }
-        .t15 .contact-row i, .t15 .skill-item::before { color: #fab1a0; }
-
-        /* T16: مجلس الإدارة */
-        .t16 { background: #e0e0e0; }
-        .t16 .cv-paper { background: #fdfdfd; padding: 30px; height: var(--a4-h); border-right: none; }
-        .t16 .cv-header { 
-            background: white; border-bottom: 2px solid #2d3436; padding: 0 0 20px 0; margin-bottom: 20px;
-            display: flex; align-items: center; gap: 20px;
-        }
-        .t16 .cv-photo { width: 100px; height: 100px; border-radius: 8px; filter: grayscale(100%); }
-        .t16 .header-info h1 { color: #2d3436; font-size: 32px; white-space: nowrap; }
-        .t16 .header-info h2 { color: #d63031; font-weight: 600; font-size: 16px; margin: 5px 0 0; }
-        .t16 .cv-body { display: block; column-count: 2; column-gap: 30px; column-rule: 1px solid #eee; height: auto; }
-        .t16 .cv-side, .t16 .cv-main { width: 100%; padding: 0; margin: 0; break-inside: avoid; display: block; margin-bottom: 20px; }
-        .t16 .cv-sec-title { 
-            background: #2d3436; color: white; padding: 4px 12px; border-radius: 4px; 
-            display: inline-block; margin-bottom: 10px; font-size: 14px; border: none; width: auto;
-        }
-        .t16 .contact-row i, .t16 .skill-item::before { color: #d63031; }
-
-        /* ================= 4. الموبايل ================= */
-        .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; height: 60px; z-index: 100; }
-        .nav-btn { flex: 1; border: none; background: none; font-weight: bold; color: #777; }
-        .nav-btn.active { color: var(--navy); }
-
-        .fab-save {
-            position: fixed; bottom: 80px; left: 20px;
-            background: var(--navy); color: white; padding: 15px 30px;
-            border-radius: 50px; cursor: pointer; font-weight: bold; z-index: 90;
-            display: flex; gap: 10px; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        @media (max-width: 900px) {
-            .app-container { display: block; }
-            .editor-panel { width: 100%; height: 100vh; padding-bottom: 80px; }
-            .preview-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 50; padding: 0; background: #333; overflow-y: auto; padding-bottom: 100px; }
-            .preview-panel.active { display: flex; }
-            .mobile-nav { display: flex; }
-            .cv-paper { width: 100% !important; height: auto !important; min-height: 100vh; margin: 0 !important; border-radius: 0; }
-        }
+        .present-check { color: #10b981; font-weight: bold; font-size: 1.2rem; }
+        .absent-dot { color: #ef4444; opacity: 0.3; }
     </style>
 </head>
-<body>
+<body class="text-gray-800">
 
-<div class="app-container">
-
-    <!-- المحرر -->
-    <div id="editor" class="editor-panel">
-        <div class="brand-header">
-            <h2>CV Maker <span>Pro</span></h2>
-        </div>
-
-        <div class="tpl-grid">
-            <div class="tpl-btn active" onclick="setTpl(1)">كلاسيك</div>
-            <div class="tpl-btn" onclick="setTpl(2)">مودرن</div>
-            <div class="tpl-btn" onclick="setTpl(3)">احترافي</div>
-            <div class="tpl-btn" onclick="setTpl(4)">بسيط</div>
-            <div class="tpl-btn" onclick="setTpl(5)">أنيق</div>
-            <div class="tpl-btn" onclick="setTpl(6)">شركات</div>
-            <div class="tpl-btn" onclick="setTpl(7)">سماوي</div>
-            <div class="tpl-btn" onclick="setTpl(8)">تيك</div>
-            <div class="tpl-btn" onclick="setTpl(9)">إبداعي</div>
-            <div class="tpl-btn" onclick="setTpl(10)">ذهبي</div>
-            
-            <div class="tpl-btn" onclick="setTpl(11)" style="color: #e67e22; border-color: #e67e22;">جانبي حديث</div>
-            <div class="tpl-btn" onclick="setTpl(12)" style="color: #2c5364; border-color: #2c5364;">متداخل رسمي</div>
-            <div class="tpl-btn" onclick="setTpl(13)" style="color: #d4af37; border-color: #222; background:#222;">رسمي متطور</div>
-            <div class="tpl-btn" onclick="setTpl(14)" style="color: #101929; border-color: #101929;">تنفيذي (ثابت)</div>
-            <div class="tpl-btn" onclick="setTpl(15)" style="color: #006266; border-color: #006266;">المدير الإقليمي</div>
-            <div class="tpl-btn" onclick="setTpl(16)" style="color: #d63031; border-color: #2d3436;">مجلس إدارة</div>
-        </div>
-
-        <div class="editor-card">
-            <div class="editor-head">البيانات الشخصية</div>
-            <div class="input-group"><label>الاسم</label><input id="inName" oninput="render()" placeholder="الاسم الثلاثي"></div>
-            <div class="input-group"><label>الوظيفة</label><input id="inTitle" oninput="render()" placeholder="المسمى الوظيفي"></div>
-
-            <div class="up-row">
-                <div class="up-btn">
-                    <i class="fas fa-camera"></i> <span>صورة</span>
-                    <input type="file" id="uplImg" accept="image/*">
-                    <small id="stImg" style="display:block; font-size:10px"></small>
+    <!-- Top Navigation -->
+    <nav class="bg-indigo-900 text-white shadow-xl p-4 sticky top-0 z-50">
+        <div class="container mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white p-2 rounded-lg">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4338ca" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14l2 2 4-4"></path></svg>
                 </div>
-                <div class="up-btn">
-                    <i class="fas fa-video"></i> <span>QR فيديو</span>
-                    <input type="file" id="uplVid" accept="video/*">
-                    <small id="stVid" style="display:block; font-size:10px"></small>
-                </div>
+                <h1 class="text-xl font-bold tracking-tight">إدارة سنتر المتميز</h1>
+            </div>
+            <div class="flex gap-2 bg-indigo-800/50 p-1 rounded-xl overflow-x-auto no-scrollbar">
+                <button onclick="showTab('attendance')" class="nav-btn active bg-white text-indigo-900 px-4 py-2 rounded-lg font-bold transition-all">سجل الحضور</button>
+                <button onclick="showTab('students')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/10 transition-all">الطلاب</button>
+                <button onclick="showTab('accounting')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/10 transition-all">المحاسبة</button>
             </div>
         </div>
+    </nav>
 
-        <div class="editor-card">
-            <div class="editor-head">التواصل</div>
-            <div class="input-group"><label>الهاتف</label><input id="inPhone" oninput="render()"></div>
-            <div class="input-group"><label>الإيميل</label><input id="inEmail" oninput="render()"></div>
-            <div class="input-group"><label>العنوان</label><input id="inLoc" oninput="render()"></div>
-        </div>
-
-        <div class="editor-card">
-            <div class="editor-head">نبذة</div>
-            <div class="input-group"><textarea id="inSum" rows="3" oninput="render()" placeholder="ملخص مهني..."></textarea></div>
-        </div>
-
-        <div class="editor-card">
-            <div class="editor-head">الخبرات <button class="btn-add" onclick="addExp()">+ إضافة</button></div>
-            <div id="expList"></div>
-        </div>
-
-        <div class="editor-card">
-            <div class="editor-head">التعليم <button class="btn-add" onclick="addEdu()">+ إضافة</button></div>
-            <div id="eduList"></div>
-        </div>
-
-        <div class="editor-card">
-            <div class="editor-head">المهارات <button class="btn-add" onclick="addSkill()">+ إضافة</button></div>
-            <div id="skillList"></div>
-        </div>
-    </div>
-
-    <!-- المعاينة -->
-    <div id="preview" class="preview-panel">
-        <div id="cvPaper" class="cv-paper t1">
-
-            <!-- الهيدر -->
-            <div class="cv-header">
-                <div class="header-info">
-                    <h1 id="outName" style="margin:0; font-size:32px;">الاسم هنا</h1>
-                    <h2 id="outTitle" style="margin:5px 0 0; font-size:18px; opacity:0.9;">المسمى الوظيفي</h2>
-                </div>
-                <img id="outImg" class="cv-photo" src="https://via.placeholder.com/150">
-            </div>
-
-            <div class="cv-body">
-                <!-- الجانبي -->
-                <div class="cv-side">
-                    <!-- معلومات تظهر فقط في القوالب الجانبية -->
-                    <div class="side-info">
-                        <img id="outImgSide" class="cv-photo" src="https://via.placeholder.com/150" style="margin:0 auto 10px;">
-                        <h2 id="outNameSide">الاسم</h2>
-                        <h3 id="outTitleSide">المسمى الوظيفي</h3>
-                    </div>
-
-                    <div class="cv-sec-title">التواصل</div>
-                    <div class="contact-row"><i class="fas fa-phone"></i> <span id="outPhone">---</span></div>
-                    <div class="contact-row"><i class="fas fa-envelope"></i> <span id="outEmail">---</span></div>
-                    <div class="contact-row"><i class="fas fa-map-marker-alt"></i> <span id="outLoc">---</span></div>
-
-                    <div class="cv-sec-title">المهارات</div>
-                    <div id="outSkills" class="skill-list"></div>
-
-                    <div class="spacer"></div>
-
-                    <div id="qrBox" style="display:none; text-align:center; background:white; padding:10px; border-radius:8px; color:black;">
-                        <div id="qrcode"></div>
-                        <p style="margin:5px 0 0; font-size:12px; font-weight:bold;">فيديو تعريفي</p>
+    <div class="container mx-auto p-4 md:p-6">
+        
+        <!-- SECTION: Attendance & Scanner -->
+        <section id="attendance" class="tab-content active space-y-6">
+            <div class="grid lg:grid-cols-3 gap-6">
+                <!-- Scanner Side -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+                        ماسح الحضور السريع
+                    </h2>
+                    <div class="scanner-container bg-black" id="reader"></div>
+                    <div id="attendanceStatus" class="mt-4 w-full p-4 rounded-2xl text-center hidden">
+                        <p id="statusMsg" class="font-bold text-lg"></p>
                     </div>
                 </div>
 
-                <!-- الرئيسي -->
-                <div class="cv-main">
-                    <div class="cv-sec-title">نبذة عني</div>
-                    <p id="outSum" style="line-height:1.5; text-align:justify;">...</p>
+                <!-- Live Statistics -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">دفتر الحضور الشهري (<span id="currentMonthName"></span>)</h2>
+                        <div class="flex gap-2">
+                             <select id="levelFilter" onchange="renderAttendanceSheet()" class="p-2 bg-gray-50 border rounded-xl text-sm outline-none">
+                                <option value="all">كل المراحل</option>
+                                <option value="secondary-3">الثالث الثانوي</option>
+                                <option value="prep-3">الثالث الإعدادي</option>
+                             </select>
+                             <button onclick="exportToCSV()" class="p-2 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-bold border border-emerald-100">تحميل التقرير</button>
+                        </div>
+                    </div>
 
-                    <div class="cv-sec-title">الخبرات</div>
-                    <div id="outExp"></div>
-
-                    <div class="cv-sec-title">التعليم</div>
-                    <div id="outEdu"></div>
-
-                    <div class="spacer"></div>
+                    <div class="attendance-sheet-container border border-gray-100 shadow-inner">
+                        <table class="attendance-table w-full bg-white text-sm" id="mainAttendanceTable">
+                            <thead class="bg-gray-50 text-gray-600">
+                                <tr id="tableHeader">
+                                    <th class="p-3 sticky-col">اسم الطالب / ID</th>
+                                    <!-- Days will be injected here -->
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceBody" class="divide-y divide-gray-100">
+                                <!-- Data injected here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <!-- SECTION: Students Management -->
+        <section id="students" class="tab-content space-y-6">
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 h-fit">
+                    <h2 class="text-lg font-bold mb-4">إضافة طالب جديد</h2>
+                    <div class="space-y-3">
+                        <input type="text" id="stdName" placeholder="اسم الطالب" class="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 ring-indigo-500">
+                        <select id="stdLevel" class="w-full p-3 bg-gray-50 border rounded-xl outline-none">
+                            <option value="primary-6">السادس الابتدائي</option>
+                            <option value="prep-3">الثالث الإعدادي</option>
+                            <option value="secondary-3">الثالث الثانوي</option>
+                        </select>
+                        <button onclick="registerStudent()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200">حفظ وإنشاء باركود</button>
+                    </div>
+                </div>
+
+                <div id="qrPreview" class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hidden">
+                    <div id="qrcode" class="p-4 bg-white border-4 border-gray-100 rounded-2xl"></div>
+                    <p id="qrName" class="mt-4 font-bold text-lg text-indigo-900"></p>
+                    <p id="qrId" class="text-gray-400 text-xs"></p>
+                    <button onclick="printCard()" class="mt-4 text-indigo-600 underline text-sm">طباعة كارت الطالب</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Accounting -->
+        <section id="accounting" class="tab-content space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-bold mb-4 text-green-600">الإيرادات</h2>
+                    <!-- Accounting logic similar to previous but refined UI -->
+                    <div class="space-y-4">
+                        <div id="accountingSummary" class="p-4 bg-green-50 rounded-2xl flex justify-between items-center">
+                            <span class="font-bold">إجمالي الشهر:</span>
+                            <span id="totalRevenue" class="text-2xl font-bold text-green-700">0 ج.م</span>
+                        </div>
+                        <p class="text-xs text-gray-500 text-center italic">يتم تسجيل الإيرادات عند قراءة باركود الدفع في لوحة السكرتيرة</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </div>
 
-    <div class="fab-save" onclick="downloadPDF()">
-        <i class="fas fa-file-download"></i> <span id="btnTxt">تحميل PDF</span>
-    </div>
+    <script>
+        // State Management
+        let students = JSON.parse(localStorage.getItem('edu_students')) || [];
+        let attendanceLog = JSON.parse(localStorage.getItem('edu_attendance')) || {}; // Format: { "2023-10-25": ["ID1", "ID2"] }
+        
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const monthString = today.toLocaleString('ar-EG', { month: 'long' });
 
-    <div class="mobile-nav">
-        <button class="nav-btn active" onclick="tab('edit')">تعديل</button>
-        <button class="nav-btn" onclick="tab('view')">معاينة</button>
-    </div>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDn6kABt5ISTZUIc12nik0s3_OmnL0PRVU",
-      authDomain: "occasions-pwa.firebaseapp.com",
-      projectId: "occasions-pwa",
-      storageBucket: "occasions-pwa.firebasestorage.app",
-      messagingSenderId: "271278039483",
-      appId: "1:271278039483:web:999409ab6fddd9853ca49e"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const CLOUD_NAME = "db9h7zm1h";
-    const UPLOAD_PRESET = "souq_upload";
-
-    window.setTpl = (n) => {
-        document.getElementById('cvPaper').className = `cv-paper t${n}`;
-        document.querySelectorAll('.tpl-btn').forEach((b, i) => {
-            b.classList.toggle('active', i + 1 === n);
-        });
-    };
-
-    window.exps = []; window.edus = []; window.skills = [];
-
-    window.addExp = () => { window.exps.push({id:Date.now(), r:'', c:'', d:''}); renderInp(); };
-    window.addEdu = () => { window.edus.push({id:Date.now(), deg:'', s:'', d:''}); renderInp(); };
-    window.addSkill = () => { window.skills.push({id:Date.now(), val:''}); renderInp(); };
-
-    window.upd = (t, id, k, v) => {
-        if(t==='s') {
-            const i = window.skills.find(x=>x.id===id); if(i){i.val=v; render();}
-        } else {
-            const arr = t==='e'?window.exps:window.edus;
-            const i = arr.find(x=>x.id===id); if(i){i[k]=v; render();}
-        }
-    };
-    
-    window.del = (t, id) => {
-        if(t==='e') window.exps=window.exps.filter(x=>x.id!==id);
-        else if(t==='d') window.edus=window.edus.filter(x=>x.id!==id);
-        else if(t==='s') window.skills=window.skills.filter(x=>x.id!==id);
-        renderInp(); render();
-    };
-
-    function renderInp(){
-        document.getElementById('expList').innerHTML = window.exps.map(x=>`
-            <div class="d-item">
-                <button class="btn-del" onclick="del('e',${x.id})"><i class="fas fa-times"></i></button>
-                <div class="input-group"><input placeholder="الوظيفة" value="${x.r}" oninput="upd('e',${x.id},'r',this.value)"></div>
-                <div class="input-group"><input placeholder="الشركة" value="${x.c}" oninput="upd('e',${x.id},'c',this.value)"></div>
-                <div class="input-group"><input placeholder="التاريخ" value="${x.d}" oninput="upd('e',${x.id},'d',this.value)"></div>
-            </div>`).join('');
-            
-        document.getElementById('eduList').innerHTML = window.edus.map(x=>`
-            <div class="d-item">
-                <button class="btn-del" onclick="del('d',${x.id})"><i class="fas fa-times"></i></button>
-                <div class="input-group"><input placeholder="الدرجة" value="${x.deg}" oninput="upd('d',${x.id},'deg',this.value)"></div>
-                <div class="input-group"><input placeholder="الجامعة" value="${x.s}" oninput="upd('d',${x.id},'s',this.value)"></div>
-                <div class="input-group"><input placeholder="التاريخ" value="${x.d}" oninput="upd('d',${x.id},'d',this.value)"></div>
-            </div>`).join('');
-
-        document.getElementById('skillList').innerHTML = window.skills.map(x=>`
-            <div class="d-item d-item-skill">
-                <button class="btn-del" onclick="del('s',${x.id})"><i class="fas fa-times"></i></button>
-                <input style="flex:1" placeholder="اكتب المهارة" value="${x.val}" oninput="upd('s',${x.id},null,this.value)">
-            </div>`).join('');
-    }
-
-    window.render = () => {
-        ['Name','Title','Phone','Email','Loc','Sum'].forEach(k => {
-            const val = document.getElementById('in'+k).value || '---';
-            document.getElementById('out'+k).innerText = val;
-            
-            if(k==='Name') document.getElementById('outNameSide').innerText = val;
-            if(k==='Title') document.getElementById('outTitleSide').innerText = val;
-        });
-
-        // عرض المهارات
-        document.getElementById('outSkills').innerHTML = window.skills.map(s => 
-            s.val ? `<div class="skill-item">${s.val}</div>` : ''
-        ).join('');
-
-        document.getElementById('outExp').innerHTML = window.exps.map(x=>`
-            <div class="exp-item"><h4>${x.r}</h4><span>${x.c} | ${x.d}</span></div>`).join('');
-        document.getElementById('outEdu').innerHTML = window.edus.map(x=>`
-            <div class="exp-item"><h4>${x.deg}</h4><span>${x.s} | ${x.d}</span></div>`).join('');
-    };
-
-    async function upl(f, t, id) {
-        document.getElementById(id).innerText = "جاري...";
-        const fd = new FormData(); fd.append("file", f); fd.append("upload_preset", UPLOAD_PRESET);
-        try {
-            const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${t}/upload`, {method:"POST", body:fd});
-            const d = await r.json();
-            document.getElementById(id).innerText = "تم ✅";
-            return d.secure_url;
-        } catch(e){ document.getElementById(id).innerText = "خطأ"; return null; }
-    }
-
-    document.getElementById('uplImg').addEventListener('change', async e => {
-        const u = await upl(e.target.files[0], 'image', 'stImg');
-        if(u) {
-            document.getElementById('outImg').src = u;
-            document.getElementById('outImgSide').src = u;
-        }
-    });
-
-    document.getElementById('uplVid').addEventListener('change', async e => {
-        const u = await upl(e.target.files[0], 'video', 'stVid');
-        if(u) {
-            document.getElementById('qrBox').style.display = 'block';
-            document.getElementById('qrcode').innerHTML = "";
-            new QRCode(document.getElementById('qrcode'), {text:u, width:80, height:80});
-            window.vidUrl = u;
-        }
-    });
-
-    window.downloadPDF = async () => {
-        const el = document.getElementById('cvPaper');
-        const btn = document.getElementById('btnTxt');
-        btn.innerText = "جاري التجهيز...";
-
-        try{ await addDoc(collection(db,"resumes"),{name:document.getElementById('inName').value, date:new Date(), vid:window.vidUrl||""}); }catch(e){}
-
-        const opt = { 
-            margin: 0, 
-            filename: 'CV.pdf', 
-            image: {type: 'jpeg', quality: 1}, 
-            html2canvas: {scale: 2, useCORS: true, width: 794, height: 1123}, 
-            jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'} 
+        window.onload = () => {
+            document.getElementById('currentMonthName').innerText = monthString;
+            renderAttendanceSheet();
+            initScanner();
         };
-        await html2pdf().set(opt).from(el).save();
 
-        btn.innerText = "تحميل PDF";
-    };
-
-    window.tab = (t) => {
-        const e = document.getElementById('editor');
-        const p = document.getElementById('preview');
-        const b = document.querySelectorAll('.nav-btn');
-        if(t==='edit'){ 
-            e.style.display='block'; p.classList.remove('active'); 
-            b[0].classList.add('active'); b[1].classList.remove('active'); 
-        } else { 
-            e.style.display='none'; p.classList.add('active'); 
-            b[0].classList.remove('active'); b[1].classList.add('active'); 
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-indigo-900', 'font-bold');
+                btn.classList.add('hover:bg-white/10');
+            });
+            event.target.classList.add('bg-white', 'text-indigo-900', 'font-bold');
         }
-    };
 
-    window.addExp(); window.addEdu(); window.addSkill();
-</script>
+        // Attendance Sheet Logic
+        function renderAttendanceSheet() {
+            const header = document.getElementById('tableHeader');
+            const body = document.getElementById('attendanceBody');
+            const filter = document.getElementById('levelFilter').value;
 
+            // Generate Header Days
+            let headerHtml = `<th class="p-3 sticky-col">اسم الطالب / ID</th>`;
+            for(let d=1; d<=daysInMonth; d++) {
+                headerHtml += `<th class="p-2 text-xs font-medium">${d}</th>`;
+            }
+            header.innerHTML = headerHtml;
+
+            // Filter Students
+            const filteredStudents = filter === 'all' ? students : students.filter(s => s.level === filter);
+
+            // Generate Rows
+            let bodyHtml = '';
+            filteredStudents.forEach(student => {
+                bodyHtml += `<tr class="hover:bg-indigo-50/30 transition-colors">
+                    <td class="p-3 sticky-col">
+                        <div class="font-bold text-gray-800">${student.name}</div>
+                        <div class="text-[10px] text-gray-400">${student.id}</div>
+                    </td>`;
+                
+                for(let d=1; d<=daysInMonth; d++) {
+                    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    const isPresent = attendanceLog[dateStr] && attendanceLog[dateStr].includes(student.id);
+                    bodyHtml += `<td class="p-2 text-center border-l border-gray-50">
+                        ${isPresent ? '<span class="present-check">✅</span>' : '<span class="absent-dot">·</span>'}
+                    </td>`;
+                }
+                bodyHtml += `</tr>`;
+            });
+
+            body.innerHTML = bodyHtml || '<tr><td colspan="32" class="p-10 text-center text-gray-400">لا يوجد طلاب مسجلين في هذه المرحلة</td></tr>';
+        }
+
+        // Student Registration
+        function registerStudent() {
+            const name = document.getElementById('stdName').value;
+            const level = document.getElementById('stdLevel').value;
+            if(!name) return;
+
+            const id = 'ST' + Math.floor(1000 + Math.random() * 9000);
+            const student = { id, name, level, registeredDate: new Date().toISOString() };
+            students.push(student);
+            saveData();
+            
+            // Show QR Preview
+            const qrArea = document.getElementById('qrPreview');
+            qrArea.classList.remove('hidden');
+            document.getElementById('qrcode').innerHTML = '';
+            new QRCode(document.getElementById("qrcode"), { text: id, width: 140, height: 140, colorDark : "#312e81" });
+            document.getElementById('qrName').innerText = name;
+            document.getElementById('qrId').innerText = `المعرف: ${id}`;
+            
+            renderAttendanceSheet();
+            document.getElementById('stdName').value = '';
+        }
+
+        // Scanner Logic
+        let html5QrCode;
+        function initScanner() {
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, onScanSuccess);
+        }
+
+        function onScanSuccess(decodedText) {
+            const student = students.find(s => s.id === decodedText);
+            const statusBox = document.getElementById('attendanceStatus');
+            const msg = document.getElementById('statusMsg');
+            const dateStr = today.toISOString().split('T')[0];
+
+            statusBox.classList.remove('hidden');
+
+            if (student) {
+                if (!attendanceLog[dateStr]) attendanceLog[dateStr] = [];
+                
+                if (!attendanceLog[dateStr].includes(student.id)) {
+                    attendanceLog[dateStr].push(student.id);
+                    saveData();
+                    statusBox.className = "mt-4 w-full p-4 rounded-2xl text-center bg-emerald-500 text-white animate-bounce";
+                    msg.innerText = `تم تسجيل حضور: ${student.name}`;
+                    renderAttendanceSheet();
+                    playBeep(true);
+                } else {
+                    statusBox.className = "mt-4 w-full p-4 rounded-2xl text-center bg-amber-500 text-white";
+                    msg.innerText = `مسجل مسبقاً: ${student.name}`;
+                    playBeep(false);
+                }
+            } else {
+                statusBox.className = "mt-4 w-full p-4 rounded-2xl text-center bg-rose-600 text-white";
+                msg.innerText = "باركود غير معتمد!";
+                playBeep(false);
+            }
+            
+            // Reset status message after 3 seconds
+            setTimeout(() => statusBox.classList.add('hidden'), 3000);
+        }
+
+        function saveData() {
+            localStorage.setItem('edu_students', JSON.stringify(students));
+            localStorage.setItem('edu_attendance', JSON.stringify(attendanceLog));
+        }
+
+        function playBeep(success) {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = context.createOscillator();
+            osc.frequency.setValueAtTime(success ? 800 : 300, context.currentTime);
+            osc.connect(context.destination);
+            osc.start();
+            osc.stop(context.currentTime + 0.15);
+        }
+
+        function printCard() {
+            window.print();
+        }
+
+        function exportToCSV() {
+            let csv = "ID,Name,Level";
+            for(let i=1; i<=daysInMonth; i++) csv += `,Day ${i}`;
+            csv += "\n";
+
+            students.forEach(s => {
+                let row = `${s.id},${s.name},${s.level}`;
+                for(let d=1; d<=daysInMonth; d++) {
+                    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    row += `,${attendanceLog[dateStr] && attendanceLog[dateStr].includes(s.id) ? 'Present' : 'Absent'}`;
+                }
+                csv += row + "\n";
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `Attendance_Report_${monthString}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    </script>
 </body>
 </html>
 
