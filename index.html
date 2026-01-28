@@ -59,12 +59,29 @@
         #print-container { display: none; }
         @media print {
             body > *:not(#print-container) { display: none !important; }
-            #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; background: white; padding: 20px; font-size: 11pt; color: black; }
-            #print-container table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: auto !important; }
-            #print-container th, #print-container td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 10pt; }
-            #print-container th { background-color: #f0f0f0 !important; font-weight: bold; -webkit-print-color-adjust: exact; }
-            .print-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
-            .print-logo { font-size: 24px; font-weight: bold; color: #1e3a8a; }
+            #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; background: white; padding: 0; color: black; }
+            
+            /* ID Card Print Style */
+            .print-card-wrapper { 
+                width: 85.6mm; height: 54mm; /* Standard ID Card Size */
+                border: 2px solid #1e3a8a; border-radius: 10px; 
+                margin: 20px auto; padding: 10px; 
+                display: flex; flex-direction: column; align-items: center; justify-content: center; 
+                text-align: center; page-break-inside: avoid; 
+                background: white; position: relative; overflow: hidden;
+            }
+            .print-card-wrapper::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #1e3a8a; }
+            .print-card-wrapper h2 { font-size: 14pt; margin: 2px 0; color: #1e3a8a; }
+            .print-card-wrapper .code { font-family: monospace; font-size: 12pt; font-weight: bold; letter-spacing: 2px; margin: 2px 0; }
+            .print-card-wrapper p { margin: 0; font-size: 10pt; font-weight: bold; }
+            
+            /* Report Print Style */
+            .report-print-container { padding: 20px; }
+            .report-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+            .report-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+            .report-table th, .report-table td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 10pt; }
+            .report-table th { background-color: #eee !important; -webkit-print-color-adjust: exact; }
+            
             .no-print-in-paper { display: none !important; }
         }
     </style>
@@ -419,14 +436,20 @@
     <!-- FIREBASE & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         const firebaseConfig = { apiKey: "AIzaSyAttesgksSJWs--veymN8PTRNHBX9r27V0", authDomain: "system-a8c1e.firebaseapp.com", projectId: "system-a8c1e", storageBucket: "system-a8c1e.firebasestorage.app", messagingSenderId: "674440908222", appId: "1:674440908222:web:31221baab0048ee8c63def" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
-        window.db = db; window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.where = where; window.setDoc = setDoc;
+        window.db = db; window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.where = where; window.setDoc = setDoc; window.updateDoc = updateDoc;
         const loading = document.getElementById('loadingOverlay');
         
         // Load Data
-        onSnapshot(collection(db, "students"), (snapshot) => { window.students = []; snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id })); window.renderStudents(); loading.style.display = 'none'; });
+        onSnapshot(collection(db, "students"), (snapshot) => { 
+            window.students = []; 
+            snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id })); 
+            window.renderStudents(); 
+            window.checkAndMigratePasswords(); // Auto-generate passwords for old students
+            loading.style.display = 'none'; 
+        });
         onSnapshot(collection(db, "attendance"), (snapshot) => { window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); window.updateCounters(); window.renderFormalSchedule(); });
         onSnapshot(collection(db, "accounting"), (snapshot) => { window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); window.updateFinance(); });
         onSnapshot(doc(db, "settings", "schedule"), (doc) => { if(doc.exists()) window.scheduleData = doc.data(); else window.scheduleData = {}; window.renderFormalSchedule(); });
@@ -455,6 +478,20 @@
             document.getElementById('loginOverlay').style.display = 'flex';
         };
 
+        // --- Legacy Migration: Generate Passwords for Old Students ---
+        window.checkAndMigratePasswords = async function() {
+            const studentsToUpdate = window.students.filter(s => !s.password);
+            if (studentsToUpdate.length > 0) {
+                console.log(`Migrating ${studentsToUpdate.length} students...`);
+                for (const s of studentsToUpdate) {
+                    const newPass = Math.floor(100000 + Math.random() * 900000).toString();
+                    try {
+                        await window.updateDoc(window.doc(window.db, "students", s.docId), { password: newPass });
+                    } catch(e) { console.error("Migration failed for", s.id); }
+                }
+            }
+        }
+
         // --- Login Logic ---
         window.setLoginMode = function(mode) {
             loginMode = mode;
@@ -469,9 +506,8 @@
             const errorMsg = document.getElementById('loginError');
 
             if (loginMode === 'admin') {
-                // Admin Code Hash Check (Simulated for security as requested)
-                // 1032 hash simulation
-                if (btoa(code) === 'MTAzMg==' && btoa(pass) === 'MTAzMjEwMzI=') {
+                // Admin Code Hash Check (xcw6jf7BuycZt5X2iCaqGFWUwrF3)
+                if (code === '1032' && pass === '10321032') {
                     document.getElementById('loginOverlay').style.display = 'none';
                     document.getElementById('appContent').classList.remove('hidden');
                     document.getElementById('navBar').classList.remove('hidden');
@@ -566,7 +602,6 @@
                         present++;
                         history.push({ date: dateStr, day: dayAr, status: 'present', isExceptional });
                     } else {
-                        // Only count absent if it was their scheduled day OR an exceptional day they missed
                         absent++;
                         history.push({ date: dateStr, day: dayAr, status: 'absent', isExceptional });
                     }
@@ -623,7 +658,6 @@
 
         window.pdfFormalSchedule = function() {
             const element = document.getElementById('formalSchedulePrintArea');
-            // Temporarily show header for PDF
             const header = element.querySelector('.print-only-header');
             header.classList.remove('hidden');
             
@@ -671,9 +705,12 @@
             const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
             const tbody = document.getElementById('studentsTable');
             
-            if(query === '') { tbody.innerHTML = ''; return; } // Don't show all by default
-
-            const filtered = window.students.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query));
+            // Show all if empty, otherwise filter
+            let filtered = window.students;
+            if(query !== '') {
+                filtered = window.students.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query));
+            }
+            
             document.getElementById('stdCount').innerText = filtered.length;
             tbody.innerHTML = filtered.map((s, index) => `<tr class="cursor-pointer" onclick="openStudentModal('${s.id}')"><td class="col-index">${index + 1}</td><td class="col-code font-mono font-bold text-blue-600">${s.id}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="col-date text-gray-500">${s.date || '-'}</td><td class="no-print col-action" onclick="event.stopPropagation()"><button onclick="delStudent('${s.docId}', '${s.id}')" class="text-red-500 text-[10px] font-bold">حذف</button></td></tr>`).join('');
         }
@@ -894,18 +931,29 @@
 
             const printContainer = document.getElementById('print-container');
             printContainer.innerHTML = `
-                <div style="text-align: center; margin-bottom: 20px;"><h1>Smart Center</h1><h2>تقرير طالب تفصيلي</h2><p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p></div>
-                <div class="student-report-print">
-                    <h4>${s.name} <span style="font-size:12pt">(${s.id})</span></h4><p>المرحلة: ${stageMap[s.level] || s.level}</p><p>تاريخ الانضمام: ${s.date}</p>
+                <div class="report-print-container">
+                    <div class="report-header"><h1>Smart Center</h1><h2>تقرير طالب تفصيلي</h2><p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p></div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <div>
+                            <h4>${s.name} <span style="font-size:12pt">(${s.id})</span></h4>
+                            <p>المرحلة: ${stageMap[s.level] || s.level}</p>
+                            <p>تاريخ الانضمام: ${s.date}</p>
+                        </div>
+                        <div id="printReportQr"></div>
+                    </div>
                     <div class="stats-grid"><div>عدد أيام الحضور: <strong>${stats.present}</strong></div><div>عدد أيام الغياب: <strong>${stats.absent}</strong></div><div>إجمالي المدفوعات: <strong>${totalPaid} ج.م</strong></div></div>
-                    <h3 style="margin-top:15px; border-bottom:1px solid #000;">سجل المدفوعات</h3><table><thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th></tr></thead><tbody>${payments.map(p => `<tr><td>${p.date}</td><td>${p.type}</td><td>${p.amount}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table>
+                    <h3 style="margin-top:15px; border-bottom:1px solid #000;">سجل المدفوعات</h3><table class="report-table"><thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th></tr></thead><tbody>${payments.map(p => `<tr><td>${p.date}</td><td>${p.type}</td><td>${p.amount}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table>
                     <h3 style="margin-top:15px; border-bottom:1px solid #000;">سجل الحضور والغياب</h3>
-                    <table><thead><tr><th>التاريخ</th><th>اليوم</th><th>الحالة</th><th>ملاحظات</th></tr></thead><tbody>
+                    <table class="report-table"><thead><tr><th>التاريخ</th><th>اليوم</th><th>الحالة</th><th>ملاحظات</th></tr></thead><tbody>
                     ${stats.history.map(h => `<tr><td>${h.date}</td><td>${h.day}</td><td>${h.status==='present'?'حضور':'غياب'}</td><td>${h.isExceptional?'استثنائي':''}</td></tr>`).join('')}
                     </tbody></table>
                 </div>
             `;
-            window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
+            
+            // Generate QR inside the print container
+            new QRCode(document.getElementById("printReportQr"), { text: s.id, width: 80, height: 80 });
+            
+            setTimeout(() => { window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }, 500);
         }
 
         // --- Advanced Report (Monthly) ---
@@ -1028,7 +1076,7 @@
         function playSound(type) { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); osc.connect(ctx.destination); if(type === 'success') { osc.frequency.setValueAtTime(800, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1); } else { osc.frequency.setValueAtTime(300, ctx.currentTime); osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.2); } osc.start(); osc.stop(ctx.currentTime + 0.2); }
         function shareStudentReport() { if(currentParentPhone) { const url = `https://wa.me/20${currentParentPhone}?text=${encodeURIComponent(currentStudentReport)}`; window.open(url, '_blank'); } else { alert('لا يوجد رقم ولي أمر'); } }
         function printContent(elementId, title) { const content = document.getElementById(elementId).innerHTML; const printContainer = document.getElementById('print-container'); printContainer.innerHTML = `<div style="text-align: center; margin-bottom: 20px;"><h1 style="font-size: 20px; font-weight: bold;">Smart Center</h1><h2 style="font-size: 16px;">${title}</h2><p style="font-size: 12px;">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p></div><div class="print-table-wrapper">${content}</div>`; const noPrintElements = printContainer.querySelectorAll('.no-print, .no-print-in-paper, button'); noPrintElements.forEach(el => el.remove()); window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }
-        function printStudentCard() { const s = window.students.find(st => st.id === currentModalStudentId); if(!s) return; const printContainer = document.getElementById('print-container'); printContainer.innerHTML = `<div class="print-card-wrapper"><h2>Smart Center</h2><div id="printQr" style="margin: 10px auto;"></div><div class="code">${s.id}</div><h2>${s.name}</h2><p>${stageMap[s.level] || s.level}</p><p style="margin-top: 10px; font-size: 10px;">بطاقة هوية الطالب</p></div>`; new QRCode(document.getElementById("printQr"), { text: s.id, width: 150, height: 150 }); window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }
+        function printStudentCard() { const s = window.students.find(st => st.id === currentModalStudentId); if(!s) return; const printContainer = document.getElementById('print-container'); printContainer.innerHTML = `<div class="print-card-wrapper"><h2>Smart Center</h2><div id="printQr" style="margin: 5px auto;"></div><div class="code">${s.id}</div><h2>${s.name}</h2><p>${stageMap[s.level] || s.level}</p><p style="margin-top: 5px; font-size: 8px;">بطاقة هوية الطالب</p></div>`; new QRCode(document.getElementById("printQr"), { text: s.id, width: 120, height: 120 }); window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }
         function printFinancialReport() { const revs = window.accounting.filter(a => a.category === 'revenue' && a.date === today); const exps = window.accounting.filter(a => a.category === 'expense' && a.date === today); const totalRev = revs.reduce((sum, r) => sum + r.amount, 0); const totalExp = exps.reduce((sum, e) => sum + e.amount, 0); const net = totalRev - totalExp; let html = `<div style="border: 1px solid #000; padding: 10px; margin-bottom: 20px;"><h3>ملخص اليوم (${today})</h3><p>إجمالي الوارد: <strong>${totalRev}</strong></p><p>إجمالي المصروفات: <strong>${totalExp}</strong></p><p>الصافي: <strong>${net}</strong></p></div><h3>تفاصيل الإيرادات</h3><table style="width:100%; border-collapse:collapse; margin-bottom:20px;"><thead><tr><th>الاسم</th><th>المبلغ</th><th>النوع</th></tr></thead><tbody>${revs.map(r => `<tr><td>${r.name}</td><td>${r.amount}</td><td>${r.type}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table><h3>تفاصيل المصروفات</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th>البند</th><th>المبلغ</th></tr></thead><tbody>${exps.map(e => `<tr><td>${e.desc}</td><td>${e.amount}</td></tr>`).join('') || '<tr><td colspan="2">لا يوجد</td></tr>'}</tbody></table>`; const printContainer = document.getElementById('print-container'); printContainer.innerHTML = `<div style="text-align: center; margin-bottom: 20px;"><h1>Smart Center</h1><h2>التقرير المالي اليومي</h2></div>${html}`; window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }
         function shareStudentPdf() { const s = window.students.find(st => st.id === currentModalStudentId); const element = document.getElementById('studentCardDisplay'); const opt = { margin: 10, filename: `بطاقة_${s.name}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' } }; html2pdf().set(opt).from(element).save(); }
         async function delStudent(docId, studentId) { if(!confirm('سيتم حذف الطالب وجميع سجلات حضوره ومدفوعاته! هل أنت متأكد؟')) return; try { const attQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", studentId)); const attSnapshot = await window.getDocs(attQuery); attSnapshot.forEach(doc => window.deleteDoc(doc.ref)); const accQuery = window.query(window.collection(window.db, "accounting"), window.where("stdId", "==", studentId)); const accSnapshot = await window.getDocs(accQuery); accSnapshot.forEach(doc => window.deleteDoc(doc.ref)); await window.deleteDoc(window.doc(window.db, "students", docId)); showToast('تم حذف الطالب وكل بياناته', 'success'); } catch (e) { showToast('حدث خطأ أثناء الحذف', 'error'); } }
