@@ -363,35 +363,49 @@
         window.logout = function() { location.reload(); }
 
         function calculateStudentStats(student) {
-            let present = 0;
-            let absent = 0;
-            let history = [];
-            
-            const studentSchedule = window.scheduleData[student.level] || [];
-            const joinDate = student.date || '2020-01-01';
-            const allDates = getDatesInRange(joinDate, today);
+    let present = 0;
+    let absent = 0;
+    let exceptional = 0;
+    let history = [];
 
-            allDates.forEach(dateStr => {
-                const dateObj = new Date(dateStr);
-                const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
-                const dayAr = dateObj.toLocaleDateString('ar-EG', {weekday: 'long'});
+    const studentSchedule = window.scheduleData[student.level] || [];
+    const joinDate = student.date || '2020-01-01';
+    const allDates = getDatesInRange(joinDate, today);
 
-                const isPresentInDb = window.attendance.some(r => r.date === dateStr && r.studentId === student.id);
-                const isScheduled = studentSchedule.includes(dayName);
-                const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === dateStr);
-                const isGlobalExceptional = sessionRec && (!sessionRec.levels || sessionRec.levels.includes(student.level));
+    allDates.forEach(dateStr => {
+        const dateObj = new Date(dateStr);
+        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+        const dayAr = dateObj.toLocaleDateString('ar-EG', { weekday: 'long' });
 
-                if (isPresentInDb) {
-                    present++;
-                    const isExceptional = (!isScheduled && !isGlobalExceptional) || isGlobalExceptional;
-                    history.push({ date: dateStr, day: dayAr, status: 'present', isExceptional });
-                } else {
-                    if (isScheduled || isGlobalExceptional) {
-                        absent++;
-                        history.push({ date: dateStr, day: dayAr, status: 'absent', isExceptional: isGlobalExceptional });
-                    }
-                }
-            });
+        const isPresent = window.attendance.some(
+            r => r.date === dateStr && r.studentId === student.id
+        );
+
+        const sessionRec = window.attendance.find(
+            r => r.studentId === "SESSION_MARKER" && r.date === dateStr
+        );
+
+        const isScheduled = studentSchedule.includes(dayName);
+        const isExceptionalDay =
+            sessionRec && (!sessionRec.levels || sessionRec.levels.includes(student.level));
+
+        if (isPresent) {
+            if (!isScheduled || isExceptionalDay) {
+                exceptional++;
+                history.push({ date: dateStr, day: dayAr, status: 'exceptional' });
+            } else {
+                present++;
+                history.push({ date: dateStr, day: dayAr, status: 'present' });
+            }
+        } else if (isScheduled || isExceptionalDay) {
+            absent++;
+            history.push({ date: dateStr, day: dayAr, status: 'absent' });
+        }
+    });
+
+    history.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return { present, absent, exceptional, history };
+}
 
             history.sort((a, b) => new Date(b.date) - new Date(a.date));
             return { present, absent, history };
@@ -434,15 +448,33 @@
                 excTable.innerHTML = exceptionalHistory.map(h => `<tr><td>${h.date}</td><td>${h.day}</td><td class="text-green-600 font-bold">حضور استثنائي</td></tr>`).join('');
             } else { excTable.innerHTML = '<tr><td colspan="3" class="text-center text-gray-400">لا يوجد حضور استثنائي</td></tr>'; }
 
-            const historyHtml = stats.history.map(h => `
-                <div class="flex justify-between border-b p-2 ${h.status === 'absent' ? 'bg-red-50' : 'bg-green-50'}">
-                    <span>${h.date} (${h.day})</span>
-                    <span class="font-bold ${h.status === 'absent' ? 'text-red-600' : 'text-green-600'}">
-                        ${h.status === 'absent' ? 'غياب' : 'حضور'} ${h.isExceptional ? '(استثنائي)' : ''}
-                    </span>
-                </div>
-            `).join('');
-            document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
+           const historyHtml = stats.history.map(h => `
+    <div class="flex justify-between border-b p-2 ${
+        h.status === 'absent'
+            ? 'bg-red-50'
+            : h.status === 'exceptional'
+                ? 'bg-yellow-50'
+                : 'bg-green-50'
+    }">
+        <span>${h.date} (${h.day})</span>
+        <span class="font-bold ${
+            h.status === 'absent'
+                ? 'text-red-600'
+                : h.status === 'exceptional'
+                    ? 'text-yellow-600'
+                    : 'text-green-600'
+        }">
+            ${
+                h.status === 'absent'
+                    ? 'غياب'
+                    : h.status === 'exceptional'
+                        ? 'حضور استثنائي'
+                        : 'حضور'
+            }
+        </span>
+    </div>
+`).join('');
+             document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
         }
 
         window.printStudentDashboard = function() {
@@ -631,36 +663,44 @@
         }
 
         // --- FIXED: Update Counters Logic (Handles Empty Selection Correctly) ---
-        window.updateCounters = function() {
-            const selectedLevel = document.getElementById('attendanceStage').value;
-            let targetStudents = window.students.filter(s => s.date <= selectedAttendanceDate);
-            
-            // If a level is selected, filter by it. If not, we iterate ALL students.
-            if(selectedLevel) targetStudents = targetStudents.filter(s => s.level === selectedLevel);
-            
-            const dateObj = new Date(selectedAttendanceDate);
-            const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
-            const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === selectedAttendanceDate);
-            const dayRecords = window.attendance.filter(r => r.date === selectedAttendanceDate);
+      window.updateCounters = function() {
+    const selectedLevel = document.getElementById('attendanceStage').value;
+    let targetStudents = window.students.filter(s => s.date <= selectedAttendanceDate);
+    if (selectedLevel) targetStudents = targetStudents.filter(s => s.level === selectedLevel);
+    
+    const dateObj = new Date(selectedAttendanceDate);
+    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+    const sessionRec = window.attendance.find(
+        r => r.studentId === "SESSION_MARKER" && r.date === selectedAttendanceDate
+    );
+    const dayRecords = window.attendance.filter(
+        r => r.date === selectedAttendanceDate
+    );
 
-            let presentCount = 0;
-            let absentCount = 0;
+    let presentCount = 0;
+    let absentCount = 0;
 
-            targetStudents.forEach(student => {
-                const isPresentInDb = dayRecords.some(r => r.studentId === student.id);
-                const studentSchedule = window.scheduleData[student.level] || [];
-                const isScheduled = studentSchedule.includes(dayName);
-                const isGlobalExceptional = sessionRec && (!sessionRec.levels || sessionRec.levels.includes(student.level));
+    targetStudents.forEach(student => {
+        const isPresentInDb = dayRecords.some(
+            r => r.studentId === student.id
+        );
 
-                if (isPresentInDb) {
-                    presentCount++;
-                } else if (isScheduled || isGlobalExceptional) {
-                    // Only count absent if they were SUPPOSED to be here
-                    absentCount++;
-                }
-            });
+        const studentSchedule = window.scheduleData[student.level] || [];
+        const isScheduled = studentSchedule.includes(dayName);
 
-            document.getElementById('presentCount').innerText = presentCount;
+        const isGlobalExceptional =
+            sessionRec && (!sessionRec.levels || sessionRec.levels.includes(student.level));
+
+        if (isPresentInDb && (isScheduled || isGlobalExceptional)) {
+            presentCount++;
+        } else if (!isPresentInDb && (isScheduled || isGlobalExceptional)) {
+            absentCount++;
+        }
+    });
+
+    document.getElementById('presentCount').innerText = presentCount;
+    document.getElementById('absentCount').innerText = absentCount;
+};              document.getElementById('presentCount').innerText = presentCount;
             document.getElementById('absentCount').innerText = absentCount;
         }
 
