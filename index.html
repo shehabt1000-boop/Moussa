@@ -60,38 +60,57 @@
         #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; color: #1e3a8a; }
 
         /* ========================================= */
-        /* ============== إعدادات الطباعة المعدلة ============== */
+        /* ============== إعدادات الطباعة النهائية ============== */
         /* ========================================= */
         @media print {
-            /* إخفاء كل عناصر الصفحة */
-            body * {
-                visibility: hidden;
+            /* 1. إخفاء كل شيء في الصفحة */
+            body, body * {
+                visibility: hidden !important;
+                height: 0 !important;
+                overflow: hidden !important;
             }
 
-            /* إظهار المنطقة المراد طباعتها فقط */
+            /* 2. إظهار العنصر المراد طباعته فقط ومحتوياته */
             .print-area, .print-area * {
                 visibility: visible !important;
+                height: auto !important;
+                overflow: visible !important;
             }
 
-            /* تنسيق منطقة الطباعة لتكون في أعلى الورقة */
+            /* 3. تنسيق منطقة الطباعة لتملأ الورقة وتلغي تأثيرات النافذة المنبثقة */
             .print-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                margin: 0;
-                padding: 10px;
-                background: white;
-                border: none !important; /* إزالة الحدود الخارجية إن وجدت */
+                position: fixed !important; /* تثبيت العنصر في أعلى الورقة */
+                top: 20px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important; /* توسيط أفقي */
+                width: 90% !important;
+                max-width: 600px !important;
+                margin: 0 !important;
+                padding: 20px !important;
+                background-color: white !important; /* خلفية بيضاء إجبارية */
+                z-index: 99999999 !important; /* التأكد من ظهوره فوق أي شيء */
+                
+                /* إلغاء حدود وتنسيقات الكارت ليتناسب مع الورقة */
+                border: 2px solid #333 !important;
+                box-shadow: none !important;
+                border-radius: 10px !important;
+                
+                /* تنسيق المحتوى */
+                display: block !important;
+                text-align: center !important;
             }
 
-            /* إخفاء الأزرار داخل منطقة الطباعة */
-            .print-area button, 
-            .no-print {
+            /* تكبير النصوص قليلاً عند الطباعة لتكون واضحة */
+            .print-area h2 { font-size: 24px !important; margin-bottom: 10px !important; }
+            .print-area p { font-size: 16px !important; }
+            .print-area .font-mono { font-size: 30px !important; letter-spacing: 2px !important; }
+
+            /* إخفاء الأزرار وأي عناصر غير مرغوبة */
+            .no-print, button {
                 display: none !important;
             }
             
-            /* إجبار الخلفيات والألوان على الظهور */
+            /* ضمان ظهور الألوان والخلفيات */
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -552,20 +571,27 @@
             const content = document.getElementById(elemId);
             content.classList.add('print-area');
             window.print();
-            content.classList.remove('print-area');
+            setTimeout(() => {
+                content.classList.remove('print-area');
+            }, 1000);
         }
 
         // =================================================
-        // ============ دالة طباعة كارت الطالب =============
+        // ============ دالة طباعة كارت الطالب المعدلة =============
         // =================================================
         window.printStudentCard = function() {
             const cardElement = document.getElementById('studentCardPrintArea');
+            if(!cardElement) return;
+
+            // إضافة كلاس الطباعة للعنصر المحدد فقط
             cardElement.classList.add('print-area');
+            
             window.print();
-            // إزالة الكلاس بعد مهلة بسيطة لضمان التقاط أمر الطباعة
+            
+            // إزالة الكلاس بعد مهلة لضمان التقاط الطابعة له
             setTimeout(() => {
                 cardElement.classList.remove('print-area');
-            }, 500);
+            }, 1000);
         }
 
         function shareStudentPdf() {
