@@ -363,49 +363,35 @@
         window.logout = function() { location.reload(); }
 
         function calculateStudentStats(student) {
-    let present = 0;
-    let absent = 0;
-    let exceptional = 0;
-    let history = [];
+            let present = 0;
+            let absent = 0;
+            let history = [];
+            
+            const studentSchedule = window.scheduleData[student.level] || [];
+            const joinDate = student.date || '2020-01-01';
+            const allDates = getDatesInRange(joinDate, today);
 
-    const studentSchedule = window.scheduleData[student.level] || [];
-    const joinDate = student.date || '2020-01-01';
-    const allDates = getDatesInRange(joinDate, today);
+            allDates.forEach(dateStr => {
+                const dateObj = new Date(dateStr);
+                const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
+                const dayAr = dateObj.toLocaleDateString('ar-EG', {weekday: 'long'});
 
-    allDates.forEach(dateStr => {
-        const dateObj = new Date(dateStr);
-        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-        const dayAr = dateObj.toLocaleDateString('ar-EG', { weekday: 'long' });
+                const isPresentInDb = window.attendance.some(r => r.date === dateStr && r.studentId === student.id);
+                const isScheduled = studentSchedule.includes(dayName);
+                const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === dateStr);
+                const isGlobalExceptional = sessionRec && (!sessionRec.levels || sessionRec.levels.includes(student.level));
 
-        const isPresent = window.attendance.some(
-            r => r.date === dateStr && r.studentId === student.id
-        );
-
-        const sessionRec = window.attendance.find(
-            r => r.studentId === "SESSION_MARKER" && r.date === dateStr
-        );
-
-        const isScheduled = studentSchedule.includes(dayName);
-        const isExceptionalDay =
-            sessionRec && (!sessionRec.levels || sessionRec.levels.includes(student.level));
-
-        if (isPresent) {
-            if (!isScheduled || isExceptionalDay) {
-                exceptional++;
-                history.push({ date: dateStr, day: dayAr, status: 'exceptional' });
-            } else {
-                present++;
-                history.push({ date: dateStr, day: dayAr, status: 'present' });
-            }
-        } else if (isScheduled || isExceptionalDay) {
-            absent++;
-            history.push({ date: dateStr, day: dayAr, status: 'absent' });
-        }
-    });
-
-    history.sort((a, b) => new Date(b.date) - new Date(a.date));
-    return { present, absent, exceptional, history };
-}
+                if (isPresentInDb) {
+                    present++;
+                    const isExceptional = (!isScheduled && !isGlobalExceptional) || isGlobalExceptional;
+                    history.push({ date: dateStr, day: dayAr, status: 'present', isExceptional });
+                } else {
+                    if (isScheduled || isGlobalExceptional) {
+                        absent++;
+                        history.push({ date: dateStr, day: dayAr, status: 'absent', isExceptional: isGlobalExceptional });
+                    }
+                }
+            });
 
             history.sort((a, b) => new Date(b.date) - new Date(a.date));
             return { present, absent, history };
