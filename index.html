@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Smart Center Pro | Firebase</title>
-    
+
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
         body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; padding-bottom: 80px; font-size: 12px; -webkit-tap-highlight-color: transparent; }
-        
+
         /* Navigation */
         .nav-item { transition: all 0.2s; opacity: 0.7; border-bottom: 3px solid transparent; }
         .nav-item.active { opacity: 1; background: white; color: #1e3a8a; font-weight: 700; border-bottom-color: #fbbf24; transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        
+
         /* Tabs */
         .tab-content { display: none; animation: fadeIn 0.2s ease-out; }
         .tab-content.active { display: block; }
@@ -45,25 +45,58 @@
         }
         .custom-table tr:last-child td { border-bottom: none; }
         .custom-table tbody tr:hover { background-color: #f8fafc; }
-        
+
         /* Column Widths */
         .col-index { width: 20px; text-align: center; color: #64748b; }
         .col-code { width: 40px; }
         .col-action { width: 35px; text-align: center; }
         .col-date { width: 60px; }
 
-        /* Print */
-        @media print {
-            .no-print { display: none !important; }
-            .print-area { position: absolute; top: 0; left: 0; width: 100%; background: white; z-index: 9999; }
-        }
-
         /* Toggle Buttons */
         .toggle-btn-active { background-color: #ffffff; color: #1d4ed8; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-weight: 700; }
         .toggle-btn-inactive { background-color: transparent; color: #6b7280; }
-        
+
         /* Loading Overlay */
         #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; color: #1e3a8a; }
+
+        /* ========================================= */
+        /* ============== إعدادات الطباعة المعدلة ============== */
+        /* ========================================= */
+        @media print {
+            /* إخفاء كل عناصر الصفحة */
+            body * {
+                visibility: hidden;
+            }
+
+            /* إظهار المنطقة المراد طباعتها فقط */
+            .print-area, .print-area * {
+                visibility: visible !important;
+            }
+
+            /* تنسيق منطقة الطباعة لتكون في أعلى الورقة */
+            .print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 10px;
+                background: white;
+                border: none !important; /* إزالة الحدود الخارجية إن وجدت */
+            }
+
+            /* إخفاء الأزرار داخل منطقة الطباعة */
+            .print-area button, 
+            .no-print {
+                display: none !important;
+            }
+            
+            /* إجبار الخلفيات والألوان على الظهور */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
@@ -92,14 +125,14 @@
     </header>
 
     <main class="container mx-auto p-2 max-w-4xl">
-        
+
         <!-- ================= STUDENTS ================= -->
         <section id="students" class="tab-content active">
             <div class="glass-card border-r-4 border-blue-500 no-print">
                 <h2 class="font-bold text-blue-900 mb-2 text-xs">تسجيل طالب جديد</h2>
                 <div class="space-y-2">
                     <input type="text" id="stdName" class="w-full p-1.5 border rounded text-xs focus:ring-1 focus:ring-blue-500 outline-none" placeholder="اسم الطالب رباعي">
-                    
+
                     <div class="flex items-center border rounded bg-white overflow-hidden">
                         <span class="bg-gray-100 px-2 py-1.5 text-gray-600 text-[10px] font-bold border-l">+20</span>
                         <input type="tel" id="stdPhone" class="w-full p-1.5 text-xs outline-none" placeholder="رقم ولي الأمر">
@@ -123,7 +156,7 @@
                         <button onclick="printElement('studentsListArea')" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">طباعة</button>
                     </div>
                 </div>
-                
+
                 <div id="studentsListArea" class="overflow-x-auto">
                     <h2 class="text-center font-bold text-lg mb-2 hidden print-header">قائمة الطلاب</h2>
                     <table class="custom-table">
@@ -140,7 +173,7 @@
         <section id="attendance" class="tab-content">
             <div class="glass-card text-center">
                 <h2 class="text-sm font-bold text-blue-900 mb-2">سجل الحضور</h2>
-                
+
                 <div class="mb-2 bg-blue-50 p-1.5 rounded border border-blue-200">
                     <label class="text-[10px] text-blue-800 font-bold block mb-1">تاريخ القائمة</label>
                     <input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full p-1 border rounded text-center font-bold text-blue-900 text-xs">
@@ -235,7 +268,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-slate-800 text-white p-3 rounded-xl shadow-lg mt-2">
                 <div class="flex justify-between items-end mb-2">
                     <div>
@@ -247,7 +280,7 @@
                         <div class="text-red-400">صادر: <span id="totalExp">0</span></div>
                     </div>
                 </div>
-                
+
                 <div class="grid grid-cols-2 gap-2">
                     <div class="bg-white/10 p-1.5 rounded">
                         <h4 class="text-[10px] font-bold text-green-300 mb-1 border-b border-white/20">إيرادات اليوم</h4>
@@ -263,7 +296,7 @@
 
         <!-- ================= REPORTS ================= -->
         <section id="reports" class="tab-content">
-            
+
             <div class="glass-card border-t-4 border-blue-600 mb-2">
                 <h3 class="font-bold mb-2 text-blue-900 flex items-center gap-2 text-xs">
                     <span>👤</span> بحث طالب
@@ -304,7 +337,7 @@
                     </div>
                 </div>
                 <button onclick="generateAdvancedReport()" class="w-full bg-indigo-600 text-white py-1 rounded font-bold shadow hover:bg-indigo-700 text-[10px]">عرض</button>
-                
+
                 <div id="reportResult" class="mt-2 hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px]"></div>
             </div>
 
@@ -325,7 +358,7 @@
     <div id="studentModal" class="fixed inset-0 bg-black/80 hidden z-[150] flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-xl w-full max-w-xs p-4 text-center relative shadow-2xl">
             <button onclick="closeModal('studentModal')" class="absolute top-2 right-3 text-gray-500 text-xl font-bold">&times;</button>
-            
+
             <div id="studentCardPrintArea" class="border-4 border-double border-blue-200 p-3 rounded-xl bg-white mb-3">
                 <h3 class="font-bold text-sm mb-1 text-blue-900">بطاقة طالب</h3>
                 <div id="modalQr" class="flex justify-center mb-1"></div>
@@ -349,7 +382,7 @@
                 <h3 id="detailsTitle" class="font-bold text-sm text-gray-800"></h3>
                 <button onclick="closeModal('detailsModal')" class="text-red-500 font-bold text-lg">&times;</button>
             </div>
-            
+
             <div id="modalFilterContainer" class="p-2 bg-gray-100 border-b hidden">
                 <select id="attFilterLevel" onchange="filterAttendanceList()" class="w-full p-1 border rounded bg-white text-[10px]">
                     <option value="all">كل المراحل</option>
@@ -400,7 +433,7 @@
         window.where = where;
 
         const loading = document.getElementById('loadingOverlay');
-        
+
         onSnapshot(collection(db, "students"), (snapshot) => {
             window.students = [];
             snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id }));
@@ -435,7 +468,7 @@
         window.students = [];
         window.attendance = [];
         window.accounting = [];
-        
+
         const today = new Date().toISOString().split('T')[0];
         let selectedAttendanceDate = today;
         let currentReportData = { present: [], absent: [], revenues: [], expenses: [] };
@@ -485,9 +518,9 @@
             const query = document.getElementById('searchStd').value.toLowerCase();
             const tbody = document.getElementById('studentsTable');
             const filtered = window.students.filter(s => s.name.toLowerCase().includes(query) || s.id.includes(query));
-            
+
             document.getElementById('stdCount').innerText = filtered.length;
-            
+
             tbody.innerHTML = filtered.map((s, index) => `
                 <tr class="cursor-pointer" onclick="openStudentModal('${s.id}')">
                     <td class="col-index">${index + 1}</td>
@@ -522,6 +555,19 @@
             content.classList.remove('print-area');
         }
 
+        // =================================================
+        // ============ دالة طباعة كارت الطالب =============
+        // =================================================
+        window.printStudentCard = function() {
+            const cardElement = document.getElementById('studentCardPrintArea');
+            cardElement.classList.add('print-area');
+            window.print();
+            // إزالة الكلاس بعد مهلة بسيطة لضمان التقاط أمر الطباعة
+            setTimeout(() => {
+                cardElement.classList.remove('print-area');
+            }, 500);
+        }
+
         function shareStudentPdf() {
             const s = window.students.find(st => st.id === currentModalStudentId);
             const element = document.getElementById('studentCardPrintArea');
@@ -542,7 +588,7 @@
                 accSnapshot.forEach(doc => window.deleteDoc(doc.ref));
 
                 await window.deleteDoc(window.doc(window.db, "students", docId));
-                
+
                 showToast('تم حذف الطالب وكل بياناته', 'success');
             } catch (e) {
                 showToast('حدث خطأ أثناء الحذف', 'error');
@@ -623,16 +669,16 @@
 
         // --- Attendance List Modal ---
         let currentAttType = 'present';
-        
+
         function openAttendanceModal(type) {
             currentAttType = type;
             const title = type === 'present' ? `حضور (${selectedAttendanceDate})` : `غياب (${selectedAttendanceDate})`;
             document.getElementById('detailsTitle').innerText = title;
             document.getElementById('modalFilterContainer').classList.remove('hidden');
-            
+
             const thead = document.getElementById('detailsTableHead');
             thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>الكود</th><th>المرحلة</th><th>${type === 'present' ? 'وقت' : 'تاريخ'}</th></tr>`;
-            
+
             document.getElementById('detailsModal').classList.remove('hidden');
             filterAttendanceList();
         }
@@ -642,10 +688,10 @@
             const dayRecords = window.attendance.filter(r => r.date === selectedAttendanceDate);
             const presentIds = dayRecords.map(r => r.studentId);
             const tbody = document.getElementById('detailsTableBody');
-            
+
             let list = [];
             let filteredStudents = window.students;
-            
+
             if(levelFilter !== 'all') {
                 filteredStudents = window.students.filter(s => s.level === levelFilter);
             }
@@ -677,10 +723,10 @@
         window.updateCounters = function() {
             const dayRecords = window.attendance.filter(r => r.date === selectedAttendanceDate);
             const presentIds = dayRecords.map(r => r.studentId);
-            
+
             // Count only existing students
             const presentCount = window.students.filter(s => presentIds.includes(s.id)).length;
-            
+
             document.getElementById('presentCount').innerText = presentCount;
             document.getElementById('absentCount').innerText = window.students.length - presentCount;
         }
@@ -722,11 +768,11 @@
             const amount = parseFloat(document.getElementById('payAmount').value);
             const type = document.getElementById('payType').value;
             const time = new Date().toLocaleTimeString('ar-EG');
-            
+
             await window.addDoc(window.collection(window.db, "accounting"), {
                 date: today, time, stdId: currentPayStudent.id, name: currentPayStudent.name, amount, type, category: 'revenue'
             });
-            
+
             document.getElementById('paymentForm').classList.add('hidden');
             document.getElementById('paySearchID').value = '';
             showToast('تم الدفع', 'success');
@@ -738,11 +784,11 @@
             const amount = parseFloat(document.getElementById('expAmount').value);
             const time = new Date().toLocaleTimeString('ar-EG');
             if(!type || !amount) return showToast('أكمل البيانات', 'error');
-            
+
             await window.addDoc(window.collection(window.db, "accounting"), {
                 date: today, time, desc: `${type} ${note ? '- '+note : ''}`, amount, category: 'expense'
             });
-            
+
             document.getElementById('expType').value = ''; document.getElementById('expNote').value = ''; document.getElementById('expAmount').value = '';
             showToast('تم التسجيل', 'success');
         }
@@ -750,10 +796,10 @@
         window.updateFinance = function() {
             const revs = window.accounting.filter(a => a.category === 'revenue');
             const exps = window.accounting.filter(a => a.category === 'expense');
-            
+
             const totalRev = revs.reduce((sum, r) => sum + r.amount, 0);
             const totalExp = exps.reduce((sum, e) => sum + e.amount, 0);
-            
+
             document.getElementById('totalRev').innerText = totalRev;
             document.getElementById('totalExp').innerText = totalExp;
             document.getElementById('netProfit').innerText = (totalRev - totalExp);
@@ -807,7 +853,7 @@
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
             const uniqueDates = [...new Set(window.attendance.map(r => r.date))];
-            
+
             uniqueDates.forEach(date => {
                 if(date >= student.date) {
                     const isPresent = window.attendance.some(r => r.date === date && r.studentId === student.id);
@@ -875,7 +921,7 @@
                 if(!dateInput) return showToast('اختر التاريخ', 'error');
                 const dayRecords = window.attendance.filter(r => r.date === dateInput);
                 const presentIds = dayRecords.map(r => r.studentId);
-                
+
                 currentReportData.present = targetStudents.filter(s => presentIds.includes(s.id)).map(s => {
                     const rec = dayRecords.find(r => r.studentId === s.id);
                     return { ...s, time: rec.time || '-' };
@@ -885,7 +931,7 @@
                 currentReportData.expenses = window.accounting.filter(e => e.category === 'expense' && e.date === dateInput);
             } else {
                 if(!monthInput) return showToast('اختر الشهر', 'error');
-                
+
                 currentReportData.revenues = window.accounting.filter(r => r.category === 'revenue' && r.date.startsWith(monthInput));
                 currentReportData.expenses = window.accounting.filter(e => e.category === 'expense' && e.date.startsWith(monthInput));
 
@@ -897,7 +943,7 @@
                 monthDates.forEach(date => {
                     const dayRecords = window.attendance.filter(r => r.date === date);
                     const presentIds = dayRecords.map(r => r.studentId);
-                    
+
                     targetStudents.forEach(s => {
                         if(date >= s.date) {
                             if(presentIds.includes(s.id)) monthlyStats[s.id].present++;
@@ -939,7 +985,7 @@
 
             document.getElementById('detailsTitle').innerText = title;
             document.getElementById('modalFilterContainer').classList.add('hidden');
-            
+
             const thead = document.getElementById('detailsTableHead');
             const tbody = document.getElementById('detailsTableBody');
 
