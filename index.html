@@ -15,111 +15,39 @@
 
     <style>
         body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; padding-bottom: 80px; font-size: 12px; -webkit-tap-highlight-color: transparent; }
-
-        /* Navigation */
         .nav-item { transition: all 0.2s; opacity: 0.7; border-bottom: 3px solid transparent; }
         .nav-item.active { opacity: 1; background: white; color: #1e3a8a; font-weight: 700; border-bottom-color: #fbbf24; transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-
-        /* Tabs */
         .tab-content { display: none; animation: fadeIn 0.2s ease-out; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Scanner */
         .scanner-wrapper { border-radius: 0.75rem; overflow: hidden; background: black; position: relative; }
         #html5-qrcode-button-camera-stop { display: none !important; }
-
-        /* Cards */
         .glass-card { background: white; border-radius: 0.5rem; padding: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 0.5rem; }
-
-        /* Tables - Screen View */
         .custom-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; }
         .custom-table thead { background-color: #f1f5f9; color: #1e293b; font-weight: 700; }
-        .custom-table th, .custom-table td { 
-            padding: 6px 4px; 
-            border-bottom: 1px solid #e2e8f0; 
-            text-align: right; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-        }
+        .custom-table th, .custom-table td { padding: 6px 4px; border-bottom: 1px solid #e2e8f0; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .custom-table tr:last-child td { border-bottom: none; }
         .custom-table tbody tr:hover { background-color: #f8fafc; }
-
-        /* Column Widths */
         .col-index { width: 25px; text-align: center; color: #64748b; }
         .col-code { width: 50px; }
         .col-action { width: 40px; text-align: center; }
         .col-date { width: 70px; }
-
-        /* Toggle Buttons */
         .toggle-btn-active { background-color: #ffffff; color: #1d4ed8; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-weight: 700; }
         .toggle-btn-inactive { background-color: transparent; color: #6b7280; }
-
-        /* Loading Overlay */
         #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; color: #1e3a8a; }
-
-        /* ================================================================== */
-        /* ======================== نظام الطباعة الجديد ======================== */
-        /* ================================================================== */
         
-        /* إخفاء حاوية الطباعة في الوضع العادي */
+        /* Print Styles */
         #print-container { display: none; }
-
         @media print {
-            /* 1. إخفاء واجهة التطبيق بالكامل */
-            body > *:not(#print-container) {
-                display: none !important;
-            }
-
-            /* 2. إظهار حاوية الطباعة فقط */
-            #print-container {
-                display: block !important;
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                background: white;
-                padding: 20px;
-                font-size: 12pt;
-            }
-
-            /* 3. تنسيق الجداول في الطباعة */
-            #print-container table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-                font-size: 10pt;
-            }
-            #print-container th, #print-container td {
-                border: 1px solid #000;
-                padding: 8px;
-                text-align: center;
-                color: black;
-            }
-            #print-container th {
-                background-color: #f0f0f0 !important;
-                font-weight: bold;
-                -webkit-print-color-adjust: exact;
-            }
-
-            /* 4. تنسيق كارت الطالب في الطباعة */
-            .print-card-wrapper {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                border: 2px solid #000;
-                padding: 20px;
-                width: 350px;
-                margin: 50px auto; /* توسيط في الصفحة */
-                border-radius: 15px;
-                text-align: center;
-            }
-            .print-card-wrapper h2 { font-size: 24px; margin: 10px 0; }
-            .print-card-wrapper .code { font-size: 30px; font-family: monospace; font-weight: bold; margin: 10px 0; }
-            
-            /* إخفاء الأزرار والعناصر غير المرغوبة داخل منطقة الطباعة */
+            body > *:not(#print-container) { display: none !important; }
+            #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; background: white; padding: 20px; font-size: 11pt; color: black; }
+            #print-container table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: auto !important; }
+            #print-container th, #print-container td { border: 1px solid #000; padding: 5px 8px; text-align: center; font-size: 10pt; }
+            #print-container th { background-color: #f0f0f0 !important; font-weight: bold; -webkit-print-color-adjust: exact; }
+            .print-card-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid #000; padding: 20px; width: 350px; margin: 50px auto; border-radius: 15px; text-align: center; page-break-inside: avoid; }
+            .student-report-print { border: 1px solid #000; padding: 20px; margin-top: 20px; border-radius: 5px; }
+            .student-report-print h4 { font-size: 18pt; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+            .stats-grid { display: flex; justify-content: space-between; margin: 20px 0; font-weight: bold; font-size: 12pt; }
             .no-print-in-paper { display: none !important; }
         }
     </style>
@@ -131,10 +59,8 @@
         جاري الاتصال بقاعدة البيانات...
     </div>
 
-    <!-- حاوية الطباعة المخفية (سيتم نسخ المحتوى إليها عند الطباعة) -->
     <div id="print-container"></div>
 
-    <!-- Header -->
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
         <div class="container mx-auto px-4 py-2 flex justify-between items-center">
             <h1 class="text-sm font-bold flex items-center gap-2">🎓 Smart Center <span class="text-[9px] bg-green-500 px-1 rounded">Cloud</span></h1>
@@ -154,18 +80,16 @@
 
     <main id="mainContent" class="container mx-auto p-2 max-w-4xl">
 
-        <!-- ================= STUDENTS ================= -->
+        <!-- STUDENTS -->
         <section id="students" class="tab-content active">
             <div class="glass-card border-r-4 border-blue-500 no-print">
                 <h2 class="font-bold text-blue-900 mb-2 text-xs">تسجيل طالب جديد</h2>
                 <div class="space-y-2">
                     <input type="text" id="stdName" class="w-full p-1.5 border rounded text-xs focus:ring-1 focus:ring-blue-500 outline-none" placeholder="اسم الطالب رباعي">
-
                     <div class="flex items-center border rounded bg-white overflow-hidden">
                         <span class="bg-gray-100 px-2 py-1.5 text-gray-600 text-[10px] font-bold border-l">+20</span>
                         <input type="tel" id="stdPhone" class="w-full p-1.5 text-xs outline-none" placeholder="رقم ولي الأمر">
                     </div>
-
                     <select id="stdLevel" class="w-full p-1.5 border rounded bg-white text-xs">
                         <option value="">اختر المرحلة...</option>
                         <optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
@@ -175,59 +99,64 @@
                     <button onclick="registerStudent()" class="w-full bg-blue-600 text-white py-1.5 rounded font-bold shadow hover:bg-blue-700 text-xs">حفظ</button>
                 </div>
             </div>
-
             <div class="glass-card">
                 <div class="flex justify-between items-center mb-2 no-print">
                     <h2 class="font-bold text-xs">الطلاب (<span id="stdCount">0</span>)</h2>
                     <div class="flex gap-2">
                         <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث..." class="text-[10px] p-1 border rounded w-20">
-                        <!-- زر طباعة القائمة -->
                         <button onclick="printContent('studentsListArea', 'قائمة الطلاب المسجلين')" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">🖨️ طباعة القائمة</button>
                     </div>
                 </div>
-
                 <div id="studentsListArea" class="overflow-x-auto">
                     <table class="custom-table">
-                        <thead>
-                            <tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th>المرحلة</th><th class="col-date">تاريخ</th><th class="no-print col-action">حذف</th></tr>
-                        </thead>
+                        <thead><tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th>المرحلة</th><th class="col-date">تاريخ</th><th class="no-print col-action">حذف</th></tr></thead>
                         <tbody id="studentsTable"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- ================= ATTENDANCE ================= -->
+        <!-- ATTENDANCE -->
         <section id="attendance" class="tab-content">
             <div class="glass-card text-center">
                 <h2 class="text-sm font-bold text-blue-900 mb-2">سجل الحضور</h2>
-
-                <div class="mb-2 bg-blue-50 p-1.5 rounded border border-blue-200">
-                    <label class="text-[10px] text-blue-800 font-bold block mb-1">تاريخ القائمة</label>
-                    <input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full p-1 border rounded text-center font-bold text-blue-900 text-xs">
+                <div class="mb-2 bg-blue-50 p-2 rounded border border-blue-200">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[9px] text-blue-800 font-bold block mb-1">تاريخ اليوم</label>
+                            <input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full p-1 border rounded text-center font-bold text-blue-900 text-xs">
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-blue-800 font-bold block mb-1">المرحلة (هام)</label>
+                            <select id="attendanceStage" onchange="updateCounters()" class="w-full p-1 border rounded text-center font-bold text-blue-900 text-xs">
+                                <option value="">-- اختر المرحلة --</option>
+                                <optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
+                                <optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup>
+                                <optgroup label="الثانوية"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-
+                <div class="grid grid-cols-2 gap-2 mb-2 no-print">
+                    <button onclick="openScheduleModal()" class="bg-purple-100 text-purple-800 border border-purple-300 py-1 rounded font-bold text-[10px] hover:bg-purple-200">📅 إعداد الجدول</button>
+                    <button onclick="confirmSessionDay()" class="bg-indigo-100 text-indigo-800 border border-indigo-300 py-1 rounded font-bold text-[10px] hover:bg-indigo-200">✅ تثبيت استثنائي</button>
+                </div>
                 <div class="flex bg-gray-100 p-1 rounded mb-2 no-print">
                     <button onclick="setAttMode('scan')" id="btnAttScan" class="flex-1 py-1 rounded text-[10px] toggle-btn-active transition-all">📷 كاميرا</button>
                     <button onclick="setAttMode('manual')" id="btnAttManual" class="flex-1 py-1 rounded text-[10px] toggle-btn-inactive transition-all">⌨️ يدوي</button>
                 </div>
-
                 <div id="attScanArea" class="relative">
                     <div id="reader" class="scanner-wrapper h-48 w-full mb-2"></div>
-                    <div id="scanFeedback" class="absolute inset-0 flex items-center justify-center bg-green-500/90 hidden z-10 rounded-lg">
-                        <div class="text-white font-bold text-lg animate-bounce">✅ تم التسجيل</div>
-                    </div>
+                    <div id="scanFeedback" class="absolute inset-0 flex items-center justify-center bg-green-500/90 hidden z-10 rounded-lg"><div class="text-white font-bold text-lg animate-bounce">✅ تم التسجيل</div></div>
                     <div class="flex justify-center gap-2 no-print">
                         <button onclick="startScanner('reader', 'attendance')" class="bg-blue-600 text-white px-3 py-1 rounded shadow text-[10px]">تشغيل</button>
                         <button onclick="stopScanner()" class="bg-red-100 text-red-600 px-3 py-1 rounded text-[10px]">إيقاف</button>
                     </div>
                 </div>
-
                 <div id="attManualArea" class="hidden">
                     <input type="number" id="manualAttID" placeholder="الكود" class="w-full text-center text-xl font-bold p-2 border-2 border-blue-200 rounded mb-2 font-mono">
                     <button onclick="manualAttendance()" class="w-full bg-blue-600 text-white py-1.5 rounded font-bold text-xs">تسجيل</button>
                 </div>
-
                 <div class="grid grid-cols-2 gap-2 mt-3 no-print">
                     <div onclick="openAttendanceModal('present')" class="bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 transition">
                         <span class="block text-lg font-bold text-green-600" id="presentCount">0</span>
@@ -241,7 +170,7 @@
             </div>
         </section>
 
-        <!-- ================= ACCOUNTING ================= -->
+        <!-- ACCOUNTING -->
         <section id="accounting" class="tab-content">
             <div class="grid md:grid-cols-2 gap-2">
                 <div class="glass-card border-t-4 border-green-500">
@@ -259,265 +188,133 @@
                         <button onclick="searchStudentForPay()" class="bg-green-600 text-white px-2 rounded text-xs">🔍</button>
                     </div>
                     <div id="paymentForm" class="hidden bg-yellow-50 p-2 rounded border border-yellow-200">
-                        <div class="flex justify-between text-[10px] mb-1 font-bold">
-                            <span id="payStdName"></span>
-                            <span id="payStdID" class="font-mono bg-white px-1 rounded"></span>
-                        </div>
+                        <div class="flex justify-between text-[10px] mb-1 font-bold"><span id="payStdName"></span><span id="payStdID" class="font-mono bg-white px-1 rounded"></span></div>
                         <div class="flex gap-1 mb-1">
                             <input type="number" id="payAmount" value="100" class="w-1/3 p-1 border rounded text-center font-bold text-xs">
-                            <select id="payType" class="w-2/3 p-1 border rounded text-[10px]">
-                                <option value="شهرية">اشتراك</option>
-                                <option value="مذكرة">مذكرة</option>
-                                <option value="أخرى">أخرى</option>
-                            </select>
+                            <select id="payType" class="w-2/3 p-1 border rounded text-[10px]"><option value="شهرية">اشتراك</option><option value="مذكرة">مذكرة</option><option value="أخرى">أخرى</option></select>
                         </div>
                         <button onclick="confirmPayment()" class="w-full bg-green-600 text-white py-1 rounded font-bold shadow text-[10px]">تأكيد</button>
                     </div>
                 </div>
-
                 <div class="glass-card border-t-4 border-red-500">
                     <h3 class="font-bold text-red-700 mb-2 text-xs">📉 مصروفات</h3>
                     <div class="space-y-2">
-                        <select id="expType" class="w-full p-1 border rounded text-[10px] bg-white">
-                            <option value="">البند...</option>
-                            <option value="رواتب">رواتب</option>
-                            <option value="كهرباء">كهرباء</option>
-                            <option value="إيجار">إيجار</option>
-                            <option value="صيانة">صيانة</option>
-                            <option value="طباعة">طباعة</option>
-                            <option value="بوفيه">بوفيه</option>
-                            <option value="نثريات">نثريات</option>
-                        </select>
-                        <div class="flex gap-2">
-                            <input type="number" id="expAmount" placeholder="المبلغ" class="flex-1 p-1 border rounded text-[10px]">
-                            <input type="text" id="expNote" placeholder="ملاحظة" class="flex-[1.5] p-1 border rounded text-[10px]">
-                        </div>
+                        <select id="expType" class="w-full p-1 border rounded text-[10px] bg-white"><option value="">البند...</option><option value="رواتب">رواتب</option><option value="كهرباء">كهرباء</option><option value="إيجار">إيجار</option><option value="صيانة">صيانة</option><option value="طباعة">طباعة</option><option value="بوفيه">بوفيه</option><option value="نثريات">نثريات</option></select>
+                        <div class="flex gap-2"><input type="number" id="expAmount" placeholder="المبلغ" class="flex-1 p-1 border rounded text-[10px]"><input type="text" id="expNote" placeholder="ملاحظة" class="flex-[1.5] p-1 border rounded text-[10px]"></div>
                         <button onclick="addExpense()" class="w-full bg-red-50 text-red-600 border border-red-200 py-1 rounded font-bold hover:bg-red-100 text-[10px]">تسجيل</button>
                     </div>
                 </div>
             </div>
-
             <div class="bg-slate-800 text-white p-3 rounded-xl shadow-lg mt-2">
                 <div class="flex justify-between items-end mb-2">
-                    <div>
-                        <p class="text-[10px] opacity-70">الصافي</p>
-                        <p class="text-xl font-bold" id="netProfit">0</p>
-                    </div>
-                    <div class="text-left text-[10px]">
-                        <div class="text-green-400">وارد: <span id="totalRev">0</span></div>
-                        <div class="text-red-400">صادر: <span id="totalExp">0</span></div>
-                    </div>
+                    <div><p class="text-[10px] opacity-70">الصافي</p><p class="text-xl font-bold" id="netProfit">0</p></div>
+                    <div class="text-left text-[10px]"><div class="text-green-400">وارد: <span id="totalRev">0</span></div><div class="text-red-400">صادر: <span id="totalExp">0</span></div></div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-2">
-                    <div class="bg-white/10 p-1.5 rounded">
-                        <h4 class="text-[10px] font-bold text-green-300 mb-1 border-b border-white/20">إيرادات اليوم</h4>
-                        <div id="todayRevList" class="h-20 overflow-y-auto text-[9px] space-y-1"></div>
-                    </div>
-                    <div class="bg-white/10 p-1.5 rounded">
-                        <h4 class="text-[10px] font-bold text-red-300 mb-1 border-b border-white/20">مصروفات اليوم</h4>
-                        <div id="todayExpList" class="h-20 overflow-y-auto text-[9px] space-y-1"></div>
-                    </div>
+                    <div class="bg-white/10 p-1.5 rounded"><h4 class="text-[10px] font-bold text-green-300 mb-1 border-b border-white/20">إيرادات اليوم</h4><div id="todayRevList" class="h-20 overflow-y-auto text-[9px] space-y-1"></div></div>
+                    <div class="bg-white/10 p-1.5 rounded"><h4 class="text-[10px] font-bold text-red-300 mb-1 border-b border-white/20">مصروفات اليوم</h4><div id="todayExpList" class="h-20 overflow-y-auto text-[9px] space-y-1"></div></div>
                 </div>
-                <!-- زر طباعة التقرير المالي اليومي -->
                 <button onclick="printFinancialReport()" class="w-full mt-2 bg-white/20 text-white py-1 rounded text-[10px] hover:bg-white/30">🖨️ طباعة تقرير اليوم</button>
             </div>
         </section>
 
-        <!-- ================= REPORTS ================= -->
+        <!-- REPORTS -->
         <section id="reports" class="tab-content">
-
             <div class="glass-card border-t-4 border-blue-600 mb-2">
-                <h3 class="font-bold mb-2 text-blue-900 flex items-center gap-2 text-xs">
-                    <span>👤</span> بحث طالب
-                </h3>
+                <h3 class="font-bold mb-2 text-blue-900 flex items-center gap-2 text-xs"><span>👤</span> بحث طالب</h3>
                 <div class="flex gap-2 mb-2">
                     <input type="text" id="reportStudentSearch" placeholder="اسم/كود" class="flex-1 p-1 border rounded text-xs">
                     <button onclick="generateStudentReport()" class="bg-blue-600 text-white px-3 rounded font-bold text-[10px]">بحث</button>
                 </div>
                 <div id="studentReportResult" class="hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px]"></div>
             </div>
-
             <div class="glass-card border-t-4 border-indigo-500 mb-2">
                 <h3 class="font-bold mb-2 text-indigo-900 text-xs">📊 تقارير عامة</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
-                    <div>
-                        <label class="text-[9px] text-gray-500 block mb-1">النوع</label>
-                        <select id="reportType" onchange="toggleReportInputs()" class="w-full p-1 border rounded bg-white text-[10px]">
-                            <option value="daily">يومي</option>
-                            <option value="monthly">شهري</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-[9px] text-gray-500 block mb-1">المرحلة</label>
-                        <select id="reportStage" class="w-full p-1 border rounded bg-white text-[10px]">
-                            <option value="all">الكل</option>
-                            <optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
-                            <optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup>
-                            <optgroup label="الثانوية"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup>
-                        </select>
-                    </div>
-                    <div id="divDateInput">
-                        <label class="text-[9px] text-gray-500 block mb-1">اليوم</label>
-                        <input type="date" id="reportDate" class="w-full p-1 border rounded text-[10px]">
-                    </div>
-                    <div id="divMonthInput" class="hidden">
-                        <label class="text-[9px] text-gray-500 block mb-1">الشهر</label>
-                        <input type="month" id="reportMonth" class="w-full p-1 border rounded text-[10px]">
-                    </div>
+                    <div><label class="text-[9px] text-gray-500 block mb-1">النوع</label><select id="reportType" onchange="toggleReportInputs()" class="w-full p-1 border rounded bg-white text-[10px]"><option value="daily">يومي</option><option value="monthly">شهري</option></select></div>
+                    <div><label class="text-[9px] text-gray-500 block mb-1">المرحلة</label><select id="reportStage" class="w-full p-1 border rounded bg-white text-[10px]"><option value="all">الكل</option><optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup><optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup><optgroup label="الثانوية"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup></select></div>
+                    <div id="divDateInput"><label class="text-[9px] text-gray-500 block mb-1">اليوم</label><input type="date" id="reportDate" class="w-full p-1 border rounded text-[10px]"></div>
+                    <div id="divMonthInput" class="hidden"><label class="text-[9px] text-gray-500 block mb-1">الشهر</label><input type="month" id="reportMonth" class="w-full p-1 border rounded text-[10px]"></div>
                 </div>
                 <button onclick="generateAdvancedReport()" class="w-full bg-indigo-600 text-white py-1 rounded font-bold shadow hover:bg-indigo-700 text-[10px]">عرض</button>
-
                 <div id="reportResult" class="mt-2 hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px]"></div>
             </div>
-
             <div class="glass-card border-t-4 border-yellow-500">
                 <h3 class="font-bold mb-2 flex items-center gap-2 text-yellow-800 text-xs"><span>💾</span> النسخ الاحتياطي</h3>
                 <div class="flex gap-2">
                     <button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-1 rounded font-bold text-[10px] border border-yellow-300">تحميل</button>
-                    <div class="relative flex-1">
-                        <input type="file" id="importFile" onchange="importData(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <button class="w-full bg-gray-100 text-gray-700 py-1 rounded font-bold text-[10px] border border-gray-300">استعادة</button>
-                    </div>
+                    <div class="relative flex-1"><input type="file" id="importFile" onchange="importData(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"><button class="w-full bg-gray-100 text-gray-700 py-1 rounded font-bold text-[10px] border border-gray-300">استعادة</button></div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- MODAL: Student Card -->
+    <!-- MODALS -->
+    <div id="scheduleModal" class="fixed inset-0 bg-black/80 hidden z-[200] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-xl w-full max-w-md p-4 shadow-2xl h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b pb-2"><h3 class="font-bold text-lg text-purple-900">📅 إعداد جدول الحصص</h3><button onclick="closeModal('scheduleModal')" class="text-red-500 font-bold text-xl">&times;</button></div>
+            <div class="overflow-y-auto flex-1 p-2 space-y-4" id="scheduleContainer"></div>
+            <button onclick="saveSchedule()" class="w-full bg-purple-600 text-white py-2 rounded font-bold mt-2">حفظ التغييرات</button>
+        </div>
+    </div>
+
+    <div id="monthlyScheduleModal" class="fixed inset-0 bg-black/80 hidden z-[210] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-xl w-full max-w-sm p-4 shadow-2xl relative">
+            <button onclick="closeModal('monthlyScheduleModal')" class="absolute top-2 right-3 text-gray-500 text-xl font-bold">&times;</button>
+            <div id="monthlyScheduleCard">
+                <div class="text-center border-b pb-2 mb-2"><h3 class="font-bold text-lg text-blue-900" id="msStageName"></h3><input type="month" id="msMonthInput" onchange="renderMonthlySchedule()" class="mt-1 p-1 border rounded text-xs"></div>
+                <div id="msDatesList" class="max-h-60 overflow-y-auto text-sm space-y-1 p-2 border rounded bg-gray-50"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-3"><button onclick="printMonthlySchedule()" class="bg-gray-800 text-white py-1.5 rounded text-xs font-bold">🖨️ طباعة</button><button onclick="pdfMonthlySchedule()" class="bg-red-600 text-white py-1.5 rounded text-xs font-bold">📄 PDF</button></div>
+        </div>
+    </div>
+
     <div id="studentModal" class="fixed inset-0 bg-black/80 hidden z-[150] flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-xl w-full max-w-xs p-4 text-center relative shadow-2xl">
             <button onclick="closeModal('studentModal')" class="absolute top-2 right-3 text-gray-500 text-xl font-bold">&times;</button>
-
-            <!-- محتوى الكارت للعرض فقط -->
-            <div id="studentCardDisplay" class="border-4 border-double border-blue-200 p-3 rounded-xl bg-white mb-3">
-                <h3 class="font-bold text-sm mb-1 text-blue-900">بطاقة طالب</h3>
-                <div id="modalQr" class="flex justify-center mb-1"></div>
-                <p id="modalCode" class="text-xl font-black font-mono text-blue-600 mb-0"></p>
-                <h2 id="modalName" class="text-base font-bold mb-0"></h2>
-                <p id="modalLevel" class="text-gray-500 text-xs"></p>
-                <p class="text-[9px] text-gray-400 mt-1">Smart Center</p>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
-                <button onclick="printStudentCard()" class="bg-gray-800 text-white py-1 rounded text-[10px] font-bold">🖨️ طباعة</button>
-                <button onclick="shareStudentPdf()" class="bg-red-600 text-white py-1 rounded text-[10px] font-bold">📄 PDF</button>
-            </div>
+            <div id="studentCardDisplay" class="border-4 border-double border-blue-200 p-3 rounded-xl bg-white mb-3"><h3 class="font-bold text-sm mb-1 text-blue-900">بطاقة طالب</h3><div id="modalQr" class="flex justify-center mb-1"></div><p id="modalCode" class="text-xl font-black font-mono text-blue-600 mb-0"></p><h2 id="modalName" class="text-base font-bold mb-0"></h2><p id="modalLevel" class="text-gray-500 text-xs"></p><p class="text-[9px] text-gray-400 mt-1">Smart Center</p></div>
+            <div class="grid grid-cols-2 gap-2"><button onclick="printStudentCard()" class="bg-gray-800 text-white py-1 rounded text-[10px] font-bold">🖨️ طباعة</button><button onclick="shareStudentPdf()" class="bg-red-600 text-white py-1 rounded text-[10px] font-bold">📄 PDF</button></div>
         </div>
     </div>
 
-    <!-- MODAL: Lists -->
     <div id="detailsModal" class="fixed inset-0 bg-black/80 hidden z-[100] flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-xl w-full max-w-xl p-0 h-[80vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="flex justify-between items-center p-3 border-b bg-gray-50">
-                <h3 id="detailsTitle" class="font-bold text-sm text-gray-800"></h3>
-                <div class="flex gap-2">
-                    <button onclick="printContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">🖨️ طباعة</button>
-                    <button onclick="closeModal('detailsModal')" class="text-red-500 font-bold text-lg">&times;</button>
-                </div>
-            </div>
-
-            <div id="modalFilterContainer" class="p-2 bg-gray-100 border-b hidden">
-                <select id="attFilterLevel" onchange="filterAttendanceList()" class="w-full p-1 border rounded bg-white text-[10px]">
-                    <option value="all">كل المراحل</option>
-                    <optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup>
-                    <optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup>
-                    <optgroup label="الثانوية"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup>
-                </select>
-            </div>
-
-            <div id="detailsTableArea" class="overflow-y-auto flex-1 p-0">
-                <table class="custom-table">
-                    <thead id="detailsTableHead"></thead>
-                    <tbody id="detailsTableBody"></tbody>
-                </table>
-            </div>
+            <div class="flex justify-between items-center p-3 border-b bg-gray-50"><h3 id="detailsTitle" class="font-bold text-sm text-gray-800"></h3><div class="flex gap-2"><button onclick="printContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">🖨️ طباعة</button><button onclick="closeModal('detailsModal')" class="text-red-500 font-bold text-lg">&times;</button></div></div>
+            <div id="modalFilterContainer" class="p-2 bg-gray-100 border-b hidden"><select id="attFilterLevel" onchange="filterAttendanceList()" class="w-full p-1 border rounded bg-white text-[10px]"><option value="all">كل المراحل</option><optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup><optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup><optgroup label="الثانوية"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup></select></div>
+            <div id="detailsTableArea" class="overflow-y-auto flex-1 p-0"><table class="custom-table"><thead id="detailsTableHead"></thead><tbody id="detailsTableBody"></tbody></table></div>
         </div>
     </div>
 
-    <!-- Toast -->
     <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-[200] hidden font-bold text-xs"></div>
 
-    <!-- FIREBASE MODULE -->
+    <!-- FIREBASE & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAttesgksSJWs--veymN8PTRNHBX9r27V0",
-            authDomain: "system-a8c1e.firebaseapp.com",
-            projectId: "system-a8c1e",
-            storageBucket: "system-a8c1e.firebasestorage.app",
-            messagingSenderId: "674440908222",
-            appId: "1:674440908222:web:31221baab0048ee8c63def"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Expose functions
-        window.db = db;
-        window.collection = collection;
-        window.addDoc = addDoc;
-        window.getDocs = getDocs;
-        window.doc = doc;
-        window.deleteDoc = deleteDoc;
-        window.onSnapshot = onSnapshot;
-        window.query = query;
-        window.where = where;
-
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        const firebaseConfig = { apiKey: "AIzaSyAttesgksSJWs--veymN8PTRNHBX9r27V0", authDomain: "system-a8c1e.firebaseapp.com", projectId: "system-a8c1e", storageBucket: "system-a8c1e.firebasestorage.app", messagingSenderId: "674440908222", appId: "1:674440908222:web:31221baab0048ee8c63def" };
+        const app = initializeApp(firebaseConfig); const db = getFirestore(app);
+        window.db = db; window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.where = where; window.setDoc = setDoc;
         const loading = document.getElementById('loadingOverlay');
-
-        onSnapshot(collection(db, "students"), (snapshot) => {
-            window.students = [];
-            snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id }));
-            window.renderStudents();
-            loading.style.display = 'none';
-        });
-
-        onSnapshot(collection(db, "attendance"), (snapshot) => {
-            window.attendance = [];
-            snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id }));
-            window.updateCounters();
-        });
-
-        onSnapshot(collection(db, "accounting"), (snapshot) => {
-            window.accounting = [];
-            snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id }));
-            window.updateFinance();
-        });
+        onSnapshot(collection(db, "students"), (snapshot) => { window.students = []; snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id })); window.renderStudents(); loading.style.display = 'none'; });
+        onSnapshot(collection(db, "attendance"), (snapshot) => { window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); window.updateCounters(); });
+        onSnapshot(collection(db, "accounting"), (snapshot) => { window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); window.updateFinance(); });
+        onSnapshot(doc(db, "settings", "schedule"), (doc) => { if(doc.exists()) window.scheduleData = doc.data(); else window.scheduleData = {}; });
     </script>
 
-    <!-- APP LOGIC -->
     <script>
-        // --- Config ---
-        const stageMap = {
-            "1ب": "الأول الابتدائي", "2ب": "الثاني الابتدائي", "3ب": "الثالث الابتدائي",
-            "4ب": "الرابع الابتدائي", "5ب": "الخامس الابتدائي", "6ب": "السادس الابتدائي",
-            "1ع": "الأول الإعدادي", "2ع": "الثاني الإعدادي", "3ع": "الثالث الإعدادي",
-            "1ث": "الأول الثانوي", "2ث": "الثاني الثانوي", "3ث": "الثالث الثانوي"
-        };
-
-        // --- Global State ---
-        window.students = [];
-        window.attendance = [];
-        window.accounting = [];
-
+        const stageMap = { "1ب": "الأول الابتدائي", "2ب": "الثاني الابتدائي", "3ب": "الثالث الابتدائي", "4ب": "الرابع الابتدائي", "5ب": "الخامس الابتدائي", "6ب": "السادس الابتدائي", "1ع": "الأول الإعدادي", "2ع": "الثاني الإعدادي", "3ع": "الثالث الإعدادي", "1ث": "الأول الثانوي", "2ث": "الثاني الثانوي", "3ث": "الثالث الثانوي" };
+        const daysOfWeek = [{ id: 'Sunday', name: 'الأحد' }, { id: 'Monday', name: 'الاثنين' }, { id: 'Tuesday', name: 'الثلاثاء' }, { id: 'Wednesday', name: 'الأربعاء' }, { id: 'Thursday', name: 'الخميس' }, { id: 'Friday', name: 'الجمعة' }, { id: 'Saturday', name: 'السبت' }];
+        window.students = []; window.attendance = []; window.accounting = []; window.scheduleData = {};
         const today = new Date().toISOString().split('T')[0];
-        let selectedAttendanceDate = today;
-        let currentReportData = { present: [], absent: [], revenues: [], expenses: [] };
-        let currentStudentReport = null; 
-        let currentModalStudentId = null;
-        let currentParentPhone = null;
+        let selectedAttendanceDate = today; let currentModalStudentId = null; let currentParentPhone = null; let currentScheduleLevel = null; let currentReportData = {};
 
-        // --- Init ---
         window.onload = () => {
             document.getElementById('headerDate').innerText = today;
             document.getElementById('attendanceDate').value = today;
             document.getElementById('reportDate').value = today;
+            document.getElementById('msMonthInput').value = today.substring(0, 7);
         };
 
-        // --- Navigation ---
         async function showTab(id, btn) {
             if(isScannerRunning) await stopScanner();
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -526,201 +323,44 @@
             if(btn) btn.classList.add('active');
         }
 
-        // --- Students ---
         async function registerStudent() {
-            const name = document.getElementById('stdName').value;
-            const level = document.getElementById('stdLevel').value;
-            let phone = document.getElementById('stdPhone').value;
-
+            const name = document.getElementById('stdName').value; const level = document.getElementById('stdLevel').value; let phone = document.getElementById('stdPhone').value;
             if(!name || !level) return showToast('أكمل البيانات', 'error');
             if(phone.startsWith('0')) phone = phone.substring(1);
-
-            let id;
-            do { id = Math.floor(1000 + Math.random() * 9000).toString(); } 
-            while (window.students.some(s => s.id === id));
-
-            try {
-                await window.addDoc(window.collection(window.db, "students"), { id, name, level, phone, date: today });
-                openStudentModal(id);
-                document.getElementById('stdName').value = '';
-                document.getElementById('stdPhone').value = '';
-                showToast('تم الحفظ', 'success');
-            } catch (e) { showToast('خطأ في الاتصال', 'error'); }
+            let id; do { id = Math.floor(1000 + Math.random() * 9000).toString(); } while (window.students.some(s => s.id === id));
+            try { await window.addDoc(window.collection(window.db, "students"), { id, name, level, phone, date: today }); openStudentModal(id); document.getElementById('stdName').value = ''; document.getElementById('stdPhone').value = ''; showToast('تم الحفظ', 'success'); } catch (e) { showToast('خطأ في الاتصال', 'error'); }
         }
 
         window.renderStudents = function() {
             const query = document.getElementById('searchStd').value.toLowerCase();
             const tbody = document.getElementById('studentsTable');
             const filtered = window.students.filter(s => s.name.toLowerCase().includes(query) || s.id.includes(query));
-
             document.getElementById('stdCount').innerText = filtered.length;
-
-            tbody.innerHTML = filtered.map((s, index) => `
-                <tr class="cursor-pointer" onclick="openStudentModal('${s.id}')">
-                    <td class="col-index">${index + 1}</td>
-                    <td class="col-code font-mono font-bold text-blue-600">${s.id}</td>
-                    <td class="font-bold">${s.name}</td>
-                    <td>${stageMap[s.level] || s.level}</td>
-                    <td class="col-date text-gray-500">${s.date || '-'}</td>
-                    <td class="no-print col-action" onclick="event.stopPropagation()">
-                        <button onclick="delStudent('${s.docId}', '${s.id}')" class="text-red-500 text-[10px] font-bold">حذف</button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = filtered.map((s, index) => `<tr class="cursor-pointer" onclick="openStudentModal('${s.id}')"><td class="col-index">${index + 1}</td><td class="col-code font-mono font-bold text-blue-600">${s.id}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="col-date text-gray-500">${s.date || '-'}</td><td class="no-print col-action" onclick="event.stopPropagation()"><button onclick="delStudent('${s.docId}', '${s.id}')" class="text-red-500 text-[10px] font-bold">حذف</button></td></tr>`).join('');
         }
 
-        // --- Student Modal & Printing ---
         function openStudentModal(id) {
-            const s = window.students.find(st => st.id === id);
-            if(!s) return;
+            const s = window.students.find(st => st.id === id); if(!s) return;
             currentModalStudentId = id;
-            document.getElementById('modalName').innerText = s.name;
-            document.getElementById('modalCode').innerText = s.id;
-            document.getElementById('modalLevel').innerText = stageMap[s.level] || s.level;
-            document.getElementById('modalQr').innerHTML = '';
-            new QRCode(document.getElementById("modalQr"), { text: s.id, width: 100, height: 100 });
+            document.getElementById('modalName').innerText = s.name; document.getElementById('modalCode').innerText = s.id; document.getElementById('modalLevel').innerText = stageMap[s.level] || s.level;
+            document.getElementById('modalQr').innerHTML = ''; new QRCode(document.getElementById("modalQr"), { text: s.id, width: 100, height: 100 });
             document.getElementById('studentModal').classList.remove('hidden');
         }
 
-        // ==================================================================
-        // ======================== دوال الطباعة الجديدة ========================
-        // ==================================================================
+        // --- Attendance Logic ---
+        let html5QrCode = null; let isScannerRunning = false; let isPaused = false;
+        window.changeAttendanceDate = function() { selectedAttendanceDate = document.getElementById('attendanceDate').value; window.updateCounters(); }
 
-        // 1. دالة طباعة القوائم والجداول (عامة)
-        window.printContent = function(elementId, title) {
-            const content = document.getElementById(elementId).innerHTML;
-            const printContainer = document.getElementById('print-container');
-            
-            // تجهيز محتوى الطباعة
-            printContainer.innerHTML = `
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <h1 style="font-size: 20px; font-weight: bold;">Smart Center</h1>
-                    <h2 style="font-size: 16px;">${title}</h2>
-                    <p style="font-size: 12px;">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p>
-                </div>
-                <div class="print-table-wrapper">
-                    ${content}
-                </div>
-            `;
-
-            // إزالة العناصر غير المرغوبة (مثل أزرار الحذف)
-            const noPrintElements = printContainer.querySelectorAll('.no-print, .no-print-in-paper, button');
-            noPrintElements.forEach(el => el.remove());
-
-            // تنفيذ الطباعة
-            window.print();
-            
-            // تنظيف الحاوية بعد الطباعة
-            setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
-        }
-
-        // 2. دالة طباعة كارت الطالب (مخصصة)
-        window.printStudentCard = function() {
-            const s = window.students.find(st => st.id === currentModalStudentId);
-            if(!s) return;
-
-            const printContainer = document.getElementById('print-container');
-            
-            // إنشاء كارت جديد مخصص للطباعة فقط
-            printContainer.innerHTML = `
-                <div class="print-card-wrapper">
-                    <h2>Smart Center</h2>
-                    <div id="printQr" style="margin: 10px auto;"></div>
-                    <div class="code">${s.id}</div>
-                    <h2>${s.name}</h2>
-                    <p>${stageMap[s.level] || s.level}</p>
-                    <p style="margin-top: 10px; font-size: 10px;">بطاقة هوية الطالب</p>
-                </div>
-            `;
-
-            // توليد QR Code جديد للطباعة
-            new QRCode(document.getElementById("printQr"), { text: s.id, width: 150, height: 150 });
-
-            window.print();
-            setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
-        }
-
-        // 3. دالة طباعة التقرير المالي اليومي
-        window.printFinancialReport = function() {
-            const revs = window.accounting.filter(a => a.category === 'revenue' && a.date === today);
-            const exps = window.accounting.filter(a => a.category === 'expense' && a.date === today);
-            
-            const totalRev = revs.reduce((sum, r) => sum + r.amount, 0);
-            const totalExp = exps.reduce((sum, e) => sum + e.amount, 0);
-            const net = totalRev - totalExp;
-
-            let html = `
-                <div style="border: 1px solid #000; padding: 10px; margin-bottom: 20px;">
-                    <h3>ملخص اليوم (${today})</h3>
-                    <p>إجمالي الوارد: <strong>${totalRev}</strong></p>
-                    <p>إجمالي المصروفات: <strong>${totalExp}</strong></p>
-                    <p>الصافي: <strong>${net}</strong></p>
-                </div>
-                
-                <h3>تفاصيل الإيرادات</h3>
-                <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
-                    <thead><tr><th>الاسم</th><th>المبلغ</th><th>النوع</th></tr></thead>
-                    <tbody>
-                        ${revs.map(r => `<tr><td>${r.name}</td><td>${r.amount}</td><td>${r.type}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}
-                    </tbody>
-                </table>
-
-                <h3>تفاصيل المصروفات</h3>
-                <table style="width:100%; border-collapse:collapse;">
-                    <thead><tr><th>البند</th><th>المبلغ</th></tr></thead>
-                    <tbody>
-                        ${exps.map(e => `<tr><td>${e.desc}</td><td>${e.amount}</td></tr>`).join('') || '<tr><td colspan="2">لا يوجد</td></tr>'}
-                    </tbody>
-                </table>
-            `;
-
-            const printContainer = document.getElementById('print-container');
-            printContainer.innerHTML = `
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <h1>Smart Center</h1>
-                    <h2>التقرير المالي اليومي</h2>
-                </div>
-                ${html}
-            `;
-            window.print();
-            setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
-        }
-
-        function shareStudentPdf() {
-            const s = window.students.find(st => st.id === currentModalStudentId);
-            const element = document.getElementById('studentCardDisplay');
-            const opt = { margin: 10, filename: `بطاقة_${s.name}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' } };
-            html2pdf().set(opt).from(element).save();
-        }
-
-        async function delStudent(docId, studentId) {
-            if(!confirm('سيتم حذف الطالب وجميع سجلات حضوره ومدفوعاته! هل أنت متأكد؟')) return;
-
-            try {
-                const attQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", studentId));
-                const attSnapshot = await window.getDocs(attQuery);
-                attSnapshot.forEach(doc => window.deleteDoc(doc.ref));
-
-                const accQuery = window.query(window.collection(window.db, "accounting"), window.where("stdId", "==", studentId));
-                const accSnapshot = await window.getDocs(accQuery);
-                accSnapshot.forEach(doc => window.deleteDoc(doc.ref));
-
-                await window.deleteDoc(window.doc(window.db, "students", docId));
-
-                showToast('تم حذف الطالب وكل بياناته', 'success');
-            } catch (e) {
-                showToast('حدث خطأ أثناء الحذف', 'error');
+        window.confirmSessionDay = async function() {
+            const date = document.getElementById('attendanceDate').value;
+            const selectedLevel = document.getElementById('attendanceStage').value;
+            if(!selectedLevel) { showToast('يجب اختيار المرحلة أولاً لتثبيت اليوم!', 'error'); return; }
+            const sessionRecords = window.attendance.filter(r => r.date === date && r.studentId === "SESSION_MARKER");
+            const alreadyFixed = sessionRecords.some(r => r.levels && r.levels.includes(selectedLevel));
+            if(alreadyFixed) { showToast(`تم تثبيت هذا اليوم لمرحلة ${stageMap[selectedLevel]} مسبقاً`, 'warning'); return; }
+            if(confirm(`هل تريد تثبيت تاريخ ${date} كيوم عمل استثنائي لمرحلة ${stageMap[selectedLevel]}؟`)) {
+                try { await window.addDoc(window.collection(window.db, "attendance"), { date: date, studentId: "SESSION_MARKER", time: new Date().toLocaleTimeString('ar-EG'), levels: [selectedLevel] }); showToast('تم التثبيت بنجاح', 'success'); } catch(e) { showToast('حدث خطأ', 'error'); }
             }
-        }
-
-        // --- Attendance ---
-        let html5QrCode = null;
-        let isScannerRunning = false;
-        let isPaused = false;
-
-        window.changeAttendanceDate = function() {
-            selectedAttendanceDate = document.getElementById('attendanceDate').value;
-            window.updateCounters();
         }
 
         async function startScanner(elemId, mode) {
@@ -728,75 +368,41 @@
             html5QrCode = new Html5Qrcode(elemId);
             await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => {
                 if(isPaused) return;
-                if(mode === 'attendance') handleAttendanceScan(decodedText);
-                else if(mode === 'payment') handlePaymentScan(decodedText);
+                if(mode === 'attendance') handleAttendanceScan(decodedText); else if(mode === 'payment') handlePaymentScan(decodedText);
             });
             isScannerRunning = true;
         }
-
-        async function stopScanner() {
-            if(html5QrCode) { await html5QrCode.stop(); html5QrCode.clear(); html5QrCode = null; isScannerRunning = false; }
-        }
+        async function stopScanner() { if(html5QrCode) { await html5QrCode.stop(); html5QrCode.clear(); html5QrCode = null; isScannerRunning = false; } }
 
         async function handleAttendanceScan(id) {
             isPaused = true;
             const student = window.students.find(s => s.id === id);
             if(student) {
+                const selectedLevel = document.getElementById('attendanceStage').value;
+                if(selectedLevel && student.level !== selectedLevel) { if(!confirm(`تنبيه: الطالب مسجل في ${stageMap[student.level]} وأنت تسجل لـ ${stageMap[selectedLevel]}. هل تريد الاستمرار؟`)) { isPaused = false; return; } }
                 const isPresent = window.attendance.some(r => r.date === selectedAttendanceDate && r.studentId === id);
-                if(!isPresent) {
-                    await window.addDoc(window.collection(window.db, "attendance"), {
-                        date: selectedAttendanceDate,
-                        studentId: id,
-                        time: new Date().toLocaleTimeString('ar-EG')
-                    });
-                    showScanFeedback(true);
-                    playSound('success');
-                } else { showToast('مسجل مسبقاً', 'warning'); playSound('error'); }
+                if(!isPresent) { await window.addDoc(window.collection(window.db, "attendance"), { date: selectedAttendanceDate, studentId: id, time: new Date().toLocaleTimeString('ar-EG') }); showScanFeedback(true); playSound('success'); } else { showToast('مسجل مسبقاً', 'warning'); playSound('error'); }
             } else { showToast('كود غير صحيح', 'error'); playSound('error'); }
             setTimeout(() => { isPaused = false; showScanFeedback(false); }, 2000);
         }
+        function showScanFeedback(show) { const el = document.getElementById('scanFeedback'); if(show) el.classList.remove('hidden'); else el.classList.add('hidden'); }
+        function setAttMode(mode) { stopScanner().then(() => { const btnScan = document.getElementById('btnAttScan'); const btnManual = document.getElementById('btnAttManual'); if(mode === 'scan') { document.getElementById('attScanArea').classList.remove('hidden'); document.getElementById('attManualArea').classList.add('hidden'); btnScan.classList.add('toggle-btn-active'); btnScan.classList.remove('toggle-btn-inactive'); btnManual.classList.add('toggle-btn-inactive'); btnManual.classList.remove('toggle-btn-active'); } else { document.getElementById('attScanArea').classList.add('hidden'); document.getElementById('attManualArea').classList.remove('hidden'); btnManual.classList.add('toggle-btn-active'); btnManual.classList.remove('toggle-btn-inactive'); btnScan.classList.add('toggle-btn-inactive'); btnScan.classList.remove('toggle-btn-active'); } }); }
+        function manualAttendance() { const id = document.getElementById('manualAttID').value; handleAttendanceScan(id); document.getElementById('manualAttID').value = ''; }
 
-        function showScanFeedback(show) {
-            const el = document.getElementById('scanFeedback');
-            if(show) el.classList.remove('hidden'); else el.classList.add('hidden');
-        }
-
-        function setAttMode(mode) {
-            stopScanner().then(() => {
-                const btnScan = document.getElementById('btnAttScan');
-                const btnManual = document.getElementById('btnAttManual');
-                if(mode === 'scan') {
-                    document.getElementById('attScanArea').classList.remove('hidden');
-                    document.getElementById('attManualArea').classList.add('hidden');
-                    btnScan.classList.add('toggle-btn-active'); btnScan.classList.remove('toggle-btn-inactive');
-                    btnManual.classList.add('toggle-btn-inactive'); btnManual.classList.remove('toggle-btn-active');
-                } else {
-                    document.getElementById('attScanArea').classList.add('hidden');
-                    document.getElementById('attManualArea').classList.remove('hidden');
-                    btnManual.classList.add('toggle-btn-active'); btnManual.classList.remove('toggle-btn-inactive');
-                    btnScan.classList.add('toggle-btn-inactive'); btnScan.classList.remove('toggle-btn-active');
-                }
-            });
-        }
-
-        function manualAttendance() {
-            const id = document.getElementById('manualAttID').value;
-            handleAttendanceScan(id);
-            document.getElementById('manualAttID').value = '';
-        }
-
-        // --- Attendance List Modal ---
         let currentAttType = 'present';
-
         function openAttendanceModal(type) {
             currentAttType = type;
             const title = type === 'present' ? `حضور (${selectedAttendanceDate})` : `غياب (${selectedAttendanceDate})`;
             document.getElementById('detailsTitle').innerText = title;
+            
+            // FIX: Sync filter with main selection
+            const mainStage = document.getElementById('attendanceStage').value;
+            const filterDropdown = document.getElementById('attFilterLevel');
+            if(mainStage) filterDropdown.value = mainStage; else filterDropdown.value = 'all';
+            
             document.getElementById('modalFilterContainer').classList.remove('hidden');
-
             const thead = document.getElementById('detailsTableHead');
             thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>الكود</th><th>المرحلة</th><th>${type === 'present' ? 'وقت' : 'تاريخ'}</th></tr>`;
-
             document.getElementById('detailsModal').classList.remove('hidden');
             filterAttendanceList();
         }
@@ -804,16 +410,17 @@
         function filterAttendanceList() {
             const levelFilter = document.getElementById('attFilterLevel').value;
             const dayRecords = window.attendance.filter(r => r.date === selectedAttendanceDate);
-            const presentIds = dayRecords.map(r => r.studentId);
+            const presentIds = dayRecords.map(r => r.studentId).filter(id => id !== "SESSION_MARKER");
             const tbody = document.getElementById('detailsTableBody');
-
-            let list = [];
-            let filteredStudents = window.students;
+            
+            // FIX: Filter out students who joined AFTER the selected date
+            let filteredStudents = window.students.filter(s => s.date <= selectedAttendanceDate);
 
             if(levelFilter !== 'all') {
-                filteredStudents = window.students.filter(s => s.level === levelFilter);
+                filteredStudents = filteredStudents.filter(s => s.level === levelFilter);
             }
 
+            let list = [];
             if(currentAttType === 'present') {
                 list = filteredStudents.filter(s => presentIds.includes(s.id)).map(s => {
                     const rec = dayRecords.find(r => r.studentId === s.id);
@@ -840,188 +447,110 @@
 
         window.updateCounters = function() {
             const dayRecords = window.attendance.filter(r => r.date === selectedAttendanceDate);
-            const presentIds = dayRecords.map(r => r.studentId);
+            const presentIds = dayRecords.map(r => r.studentId).filter(id => id !== "SESSION_MARKER");
+            const selectedLevel = document.getElementById('attendanceStage').value;
+            
+            // FIX: Filter out students who joined AFTER the selected date
+            let targetStudents = window.students.filter(s => s.date <= selectedAttendanceDate);
+            
+            if(selectedLevel) targetStudents = targetStudents.filter(s => s.level === selectedLevel);
 
-            // Count only existing students
-            const presentCount = window.students.filter(s => presentIds.includes(s.id)).length;
-
+            const presentCount = targetStudents.filter(s => presentIds.includes(s.id)).length;
             document.getElementById('presentCount').innerText = presentCount;
-            document.getElementById('absentCount').innerText = window.students.length - presentCount;
+            document.getElementById('absentCount').innerText = targetStudents.length - presentCount;
         }
 
-        // --- Accounting ---
-        let currentPayStudent = null;
-        function togglePayMethod(method) {
-            const btnScan = document.getElementById('btnPayScan');
-            const btnManual = document.getElementById('btnPayManual');
-            if(method === 'scan') {
-                document.getElementById('payScanDiv').classList.remove('hidden');
-                document.getElementById('payManualDiv').classList.add('hidden');
-                btnScan.classList.add('toggle-btn-active'); btnScan.classList.remove('toggle-btn-inactive');
-                btnManual.classList.add('toggle-btn-inactive'); btnManual.classList.remove('toggle-btn-active');
-            } else {
-                document.getElementById('payScanDiv').classList.add('hidden');
-                document.getElementById('payManualDiv').classList.remove('hidden');
-                btnManual.classList.add('toggle-btn-active'); btnManual.classList.remove('toggle-btn-inactive');
-                btnScan.classList.add('toggle-btn-inactive'); btnScan.classList.remove('toggle-btn-active');
-                stopScanner();
-            }
-        }
-
-        function handlePaymentScan(id) {
-            if(!document.getElementById('paymentForm').classList.contains('hidden')) return;
-            const student = window.students.find(s => s.id === id);
-            if(student) {
-                currentPayStudent = student;
-                document.getElementById('paymentForm').classList.remove('hidden');
-                document.getElementById('payStdName').innerText = student.name;
-                document.getElementById('payStdID').innerText = student.id;
-                playSound('success');
-            } else { showToast('طالب غير موجود', 'error'); }
-        }
-
-        function searchStudentForPay() { handlePaymentScan(document.getElementById('paySearchID').value); }
-
-        async function confirmPayment() {
-            const amount = parseFloat(document.getElementById('payAmount').value);
-            const type = document.getElementById('payType').value;
-            const time = new Date().toLocaleTimeString('ar-EG');
-
-            await window.addDoc(window.collection(window.db, "accounting"), {
-                date: today, time, stdId: currentPayStudent.id, name: currentPayStudent.name, amount, type, category: 'revenue'
-            });
-
-            document.getElementById('paymentForm').classList.add('hidden');
-            document.getElementById('paySearchID').value = '';
-            showToast('تم الدفع', 'success');
-        }
-
-        async function addExpense() {
-            const type = document.getElementById('expType').value;
-            const note = document.getElementById('expNote').value;
-            const amount = parseFloat(document.getElementById('expAmount').value);
-            const time = new Date().toLocaleTimeString('ar-EG');
-            if(!type || !amount) return showToast('أكمل البيانات', 'error');
-
-            await window.addDoc(window.collection(window.db, "accounting"), {
-                date: today, time, desc: `${type} ${note ? '- '+note : ''}`, amount, category: 'expense'
-            });
-
-            document.getElementById('expType').value = ''; document.getElementById('expNote').value = ''; document.getElementById('expAmount').value = '';
-            showToast('تم التسجيل', 'success');
-        }
-
-        window.updateFinance = function() {
-            const revs = window.accounting.filter(a => a.category === 'revenue');
-            const exps = window.accounting.filter(a => a.category === 'expense');
-
-            const totalRev = revs.reduce((sum, r) => sum + r.amount, 0);
-            const totalExp = exps.reduce((sum, e) => sum + e.amount, 0);
-
-            document.getElementById('totalRev').innerText = totalRev;
-            document.getElementById('totalExp').innerText = totalExp;
-            document.getElementById('netProfit').innerText = (totalRev - totalExp);
-
-            const todayRevs = revs.filter(r => r.date === today);
-            const todayExps = exps.filter(e => e.date === today);
-
-            document.getElementById('todayRevList').innerHTML = todayRevs.map(r => 
-                `<div class="flex justify-between border-b border-white/10 pb-1"><span>${r.name}</span><span>${r.amount}</span></div>`
-            ).join('') || '<div class="text-center opacity-50">لا يوجد</div>';
-
-            document.getElementById('todayExpList').innerHTML = todayExps.map(e => 
-                `<div class="flex justify-between border-b border-white/10 pb-1"><span>${e.desc}</span><span>${e.amount}</span></div>`
-            ).join('') || '<div class="text-center opacity-50">لا يوجد</div>';
-        }
-
-        // --- Reports ---
-        function toggleReportInputs() {
-            const type = document.getElementById('reportType').value;
-            if(type === 'daily') {
-                document.getElementById('divDateInput').classList.remove('hidden');
-                document.getElementById('divMonthInput').classList.add('hidden');
-            } else {
-                document.getElementById('divDateInput').classList.add('hidden');
-                document.getElementById('divMonthInput').classList.remove('hidden');
-            }
+        // --- Reports (The Smart Logic) ---
+        function getDatesInRange(startDate, endDate) {
+            const date = new Date(startDate); const end = new Date(endDate); const dates = [];
+            while (date <= end) { dates.push(new Date(date).toISOString().split('T')[0]); date.setDate(date.getDate() + 1); }
+            return dates;
         }
 
         function generateStudentReport() {
             const query = document.getElementById('reportStudentSearch').value.toLowerCase();
             const student = window.students.find(s => s.name.toLowerCase().includes(query) || s.id === query);
             const resDiv = document.getElementById('studentReportResult');
-
-            if(!student) {
-                resDiv.innerHTML = '<p class="text-red-500 text-center">لم يتم العثور</p>';
-                resDiv.classList.remove('hidden');
-                return;
-            }
-
+            if(!student) { resDiv.innerHTML = '<p class="text-red-500 text-center">لم يتم العثور</p>'; resDiv.classList.remove('hidden'); return; }
             currentParentPhone = student.phone;
 
-            let presentDays = 0;
-            let absentDays = 0;
-            let absentDates = [];
-            let totalPaid = 0;
-            let payments = [];
+            let presentDays = 0; let absentDays = 0; let absentDates = [];
+            const allDates = getDatesInRange(student.date, today);
+            const studentSchedule = window.scheduleData[student.level] || [];
 
-            const joinDate = new Date(student.date);
-            const now = new Date();
-            const diffTime = Math.abs(now - joinDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            allDates.forEach(dateStr => {
+                // FIX: Ensure we don't check dates before student joined (double check)
+                if (dateStr < student.date) return;
 
-            const uniqueDates = [...new Set(window.attendance.map(r => r.date))];
+                const dateObj = new Date(dateStr);
+                const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
+                
+                // 1. Check Schedule
+                const isScheduled = studentSchedule.includes(dayName);
+                
+                // 2. Check Manual Fix (Session Marker)
+                const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === dateStr);
+                const isFixed = sessionRec && (!sessionRec.levels || sessionRec.levels.includes(student.level));
 
-            uniqueDates.forEach(date => {
-                if(date >= student.date) {
-                    const isPresent = window.attendance.some(r => r.date === date && r.studentId === student.id);
-                    if(isPresent) presentDays++;
-                    else {
-                        absentDays++;
-                        absentDates.push(date);
-                    }
+                if (isScheduled || isFixed) {
+                    const isPresent = window.attendance.some(r => r.date === dateStr && r.studentId === student.id);
+                    if (isPresent) presentDays++;
+                    else { absentDays++; absentDates.push(dateStr); }
                 }
             });
 
-            payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === student.id);
-            totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+            const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === student.id);
+            const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
 
-            currentStudentReport = `*تقرير الطالب: ${student.name}*\n` +
-                                   `الكود: ${student.id}\n` +
-                                   `المرحلة: ${stageMap[student.level]}\n` +
-                                   `تاريخ الانضمام: ${student.date}\n` +
-                                   `مدة الاشتراك: ${diffDays} يوم\n` +
-                                   `----------------\n` +
-                                   `*الغياب (${absentDays} يوم):*\n` +
-                                   (absentDates.length ? absentDates.join('\n') : 'لا يوجد غياب') + `\n` +
-                                   `----------------\n` +
-                                   `*المدفوعات (${totalPaid} ج.م):*\n` +
-                                   (payments.length ? payments.map(p => `${p.type}: ${p.amount} (${p.date})`).join('\n') : 'لا يوجد مدفوعات');
-
+            currentStudentReport = `*تقرير الطالب: ${student.name}*\nكود: ${student.id}\nالمرحلة: ${stageMap[student.level]}\n----------------\n*الغياب (${absentDays} يوم):*\n${absentDates.length ? absentDates.join('\n') : 'لا يوجد غياب'}\n----------------\n*المدفوعات (${totalPaid} ج.م):*\n${payments.length ? payments.map(p => `${p.type}: ${p.amount} (${p.date})`).join('\n') : 'لا يوجد مدفوعات'}`;
             resDiv.innerHTML = `
-                <div class="border-b pb-2 mb-2">
-                    <h4 class="font-bold text-lg text-blue-900">${student.name}</h4>
-                    <p class="text-gray-500 text-xs">كود: ${student.id} | ${stageMap[student.level]}</p>
-                    <p class="text-gray-400 text-[10px]">انضم: ${student.date} (منذ ${diffDays} يوم)</p>
-                </div>
-                <div class="grid grid-cols-2 gap-2 mb-4 text-center">
-                    <div class="bg-green-100 p-2 rounded"><div class="text-xs">حضور</div><div class="font-bold text-green-700">${presentDays}</div></div>
-                    <div class="bg-red-100 p-2 rounded"><div class="text-xs">غياب</div><div class="font-bold text-red-700">${absentDays}</div></div>
-                </div>
+                <div class="border-b pb-2 mb-2"><h4 class="font-bold text-lg text-blue-900">${student.name}</h4><p class="text-gray-500 text-xs">كود: ${student.id} | ${stageMap[student.level]}</p></div>
+                <div class="grid grid-cols-2 gap-2 mb-4 text-center"><div class="bg-green-100 p-2 rounded"><div class="text-xs">حضور</div><div class="font-bold text-green-700">${presentDays}</div></div><div class="bg-red-100 p-2 rounded"><div class="text-xs">غياب</div><div class="font-bold text-red-700">${absentDays}</div></div></div>
                 <div class="mb-4"><h5 class="font-bold text-xs mb-1">المدفوعات (${totalPaid} ج.م)</h5><div class="max-h-32 overflow-y-auto text-xs border rounded p-1">${payments.length ? payments.map(p => `<div class="flex justify-between border-b p-1"><span>${p.type}</span><span>${p.amount} (${p.date})</span></div>`).join('') : '<p class="text-center">لا يوجد</p>'}</div></div>
                 <div class="mb-4"><h5 class="font-bold text-xs mb-1">سجل الغياب</h5><div class="max-h-32 overflow-y-auto text-xs border rounded p-1 text-red-600">${absentDates.length ? absentDates.join('<br>') : 'لا يوجد غياب'}</div></div>
-                <button onclick="shareStudentReport()" class="w-full bg-green-600 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>📱</span> مشاركة واتساب</button>
+                <div class="flex gap-2"><button onclick="shareStudentReport()" class="flex-1 bg-green-600 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>📱</span> واتساب</button><button onclick="printDetailedStudentReport('${student.id}')" class="flex-1 bg-gray-800 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>🖨️</span> طباعة</button></div>
             `;
             resDiv.classList.remove('hidden');
         }
 
-        function shareStudentReport() {
-            if(currentParentPhone) {
-                const url = `https://wa.me/20${currentParentPhone}?text=${encodeURIComponent(currentStudentReport)}`;
-                window.open(url, '_blank');
-            } else { alert('لا يوجد رقم ولي أمر'); }
+        function printDetailedStudentReport(studentId) {
+            const s = window.students.find(st => st.id === studentId); if(!s) return;
+            let presentDays = 0; let absentDays = 0; let absentDates = [];
+            const allDates = getDatesInRange(s.date, today);
+            const studentSchedule = window.scheduleData[s.level] || [];
+
+            allDates.forEach(dateStr => {
+                if (dateStr < s.date) return; // FIX: Skip dates before join
+
+                const dateObj = new Date(dateStr);
+                const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
+                const isScheduled = studentSchedule.includes(dayName);
+                const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === dateStr);
+                const isFixed = sessionRec && (!sessionRec.levels || sessionRec.levels.includes(s.level));
+
+                if (isScheduled || isFixed) {
+                    const isPresent = window.attendance.some(r => r.date === dateStr && r.studentId === s.id);
+                    if (isPresent) presentDays++; else { absentDays++; absentDates.push(dateStr); }
+                }
+            });
+
+            const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === s.id);
+            const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+
+            const printContainer = document.getElementById('print-container');
+            printContainer.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;"><h1>Smart Center</h1><h2>تقرير طالب تفصيلي</h2><p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p></div>
+                <div class="student-report-print">
+                    <h4>${s.name} <span style="font-size:12pt">(${s.id})</span></h4><p>المرحلة: ${stageMap[s.level] || s.level}</p><p>تاريخ الانضمام: ${s.date}</p>
+                    <div class="stats-grid"><div>عدد أيام الحضور: <strong>${presentDays}</strong></div><div>عدد أيام الغياب: <strong>${absentDays}</strong></div><div>إجمالي المدفوعات: <strong>${totalPaid} ج.م</strong></div></div>
+                    <h3 style="margin-top:15px; border-bottom:1px solid #000;">سجل المدفوعات</h3><table><thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th></tr></thead><tbody>${payments.map(p => `<tr><td>${p.date}</td><td>${p.type}</td><td>${p.amount}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table>
+                    <h3 style="margin-top:15px; border-bottom:1px solid #000;">سجل الغياب</h3><div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:5px;">${absentDates.map(d => `<span style="border:1px solid #ccc; padding:2px 5px;">${d}</span>`).join('') || 'لا يوجد غياب'}</div>
+                </div>
+            `;
+            window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
         }
 
+        // --- Advanced Report (Monthly) ---
         function generateAdvancedReport() {
             const type = document.getElementById('reportType').value;
             const stage = document.getElementById('reportStage').value;
@@ -1037,6 +566,9 @@
 
             if(type === 'daily') {
                 if(!dateInput) return showToast('اختر التاريخ', 'error');
+                // FIX: Filter out students who joined AFTER this date
+                targetStudents = targetStudents.filter(s => s.date <= dateInput);
+
                 const dayRecords = window.attendance.filter(r => r.date === dateInput);
                 const presentIds = dayRecords.map(r => r.studentId);
 
@@ -1049,135 +581,112 @@
                 currentReportData.expenses = window.accounting.filter(e => e.category === 'expense' && e.date === dateInput);
             } else {
                 if(!monthInput) return showToast('اختر الشهر', 'error');
-
-                currentReportData.revenues = window.accounting.filter(r => r.category === 'revenue' && r.date.startsWith(monthInput));
-                currentReportData.expenses = window.accounting.filter(e => e.category === 'expense' && e.date.startsWith(monthInput));
+                const [year, month] = monthInput.split('-').map(Number);
+                
+                // 1. Get all days in the month
+                const daysInMonth = [];
+                const date = new Date(year, month - 1, 1);
+                while (date.getMonth() === month - 1) {
+                    daysInMonth.push(new Date(date));
+                    date.setDate(date.getDate() + 1);
+                }
 
                 let monthlyStats = {};
                 targetStudents.forEach(s => { monthlyStats[s.id] = { name: s.name, level: s.level, present: 0, absentDates: [] }; });
 
-                const monthDates = [...new Set(window.attendance.filter(r => r.date.startsWith(monthInput)).map(r => r.date))];
+                // 2. Iterate students and check each day
+                targetStudents.forEach(student => {
+                    const studentSchedule = window.scheduleData[student.level] || [];
+                    
+                    daysInMonth.forEach(dayObj => {
+                        const dateStr = dayObj.toISOString().split('T')[0];
+                        if (dateStr < student.date) return; // FIX: Skip days before joining
 
-                monthDates.forEach(date => {
-                    const dayRecords = window.attendance.filter(r => r.date === date);
-                    const presentIds = dayRecords.map(r => r.studentId);
+                        const dayName = dayObj.toLocaleDateString('en-US', {weekday: 'long'});
+                        const isScheduled = studentSchedule.includes(dayName);
+                        
+                        const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === dateStr);
+                        const isFixed = sessionRec && (!sessionRec.levels || sessionRec.levels.includes(student.level));
 
-                    targetStudents.forEach(s => {
-                        if(date >= s.date) {
-                            if(presentIds.includes(s.id)) monthlyStats[s.id].present++;
-                            else monthlyStats[s.id].absentDates.push(date);
+                        if (isScheduled || isFixed) {
+                            const didAttend = window.attendance.some(r => r.date === dateStr && r.studentId === student.id);
+                            if (didAttend) monthlyStats[student.id].present++;
+                            else monthlyStats[student.id].absentDates.push(dateStr);
                         }
                     });
                 });
 
                 currentReportData.present = Object.values(monthlyStats).map(s => ({ ...s, time: `${s.present} يوم` }));
                 currentReportData.absent = Object.values(monthlyStats).filter(s => s.absentDates.length > 0).map(s => ({ ...s, time: s.absentDates.join('<br>') }));
+                
+                currentReportData.revenues = window.accounting.filter(r => r.category === 'revenue' && r.date.startsWith(monthInput));
+                currentReportData.expenses = window.accounting.filter(e => e.category === 'expense' && e.date.startsWith(monthInput));
             }
 
             totalRev = currentReportData.revenues.reduce((a,b)=>a+b.amount,0);
             totalExp = currentReportData.expenses.reduce((a,b)=>a+b.amount,0);
 
-            let html = `
-                <h4 class="font-bold text-center border-b pb-2 mb-2">تقرير ${type === 'daily' ? dateInput : monthInput}</h4>
-                <div class="grid grid-cols-2 gap-2 mb-4 text-center">
-                    <div onclick='openReportDetails("present")' class="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200"><div class="text-xs">حضور</div><div class="font-bold text-green-700">${type === 'daily' ? currentReportData.present.length : 'عرض'}</div></div>
-                    <div onclick='openReportDetails("absent")' class="bg-red-100 p-2 rounded cursor-pointer hover:bg-red-200"><div class="text-xs">غياب</div><div class="font-bold text-red-700">${type === 'daily' ? currentReportData.absent.length : 'عرض'}</div></div>
-                </div>
-                <div class="space-y-2">
-                    <div onclick='openReportDetails("revenues")' class="bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 flex justify-between"><span class="text-xs text-gray-500">إيرادات</span><span class="font-bold text-green-700">${totalRev} ج.م</span></div>
-                    <div onclick='openReportDetails("expenses")' class="bg-red-50 p-2 rounded border border-red-200 cursor-pointer hover:bg-red-100 flex justify-between"><span class="text-xs text-gray-500">مصروفات</span><span class="font-bold text-red-700">${totalExp} ج.م</span></div>
-                    <div class="bg-blue-50 p-2 rounded border border-blue-200 text-center"><span class="text-xs text-gray-500">الصافي</span><span class="font-bold text-blue-900 text-lg block">${totalRev - totalExp} ج.م</span></div>
-                </div>
-            `;
+            let html = `<h4 class="font-bold text-center border-b pb-2 mb-2">تقرير ${type === 'daily' ? dateInput : monthInput}</h4><div class="grid grid-cols-2 gap-2 mb-4 text-center"><div onclick='openReportDetails("present")' class="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200"><div class="text-xs">حضور</div><div class="font-bold text-green-700">${type === 'daily' ? currentReportData.present.length : 'عرض'}</div></div><div onclick='openReportDetails("absent")' class="bg-red-100 p-2 rounded cursor-pointer hover:bg-red-200"><div class="text-xs">غياب</div><div class="font-bold text-red-700">${type === 'daily' ? currentReportData.absent.length : 'عرض'}</div></div></div><div class="space-y-2"><div onclick='openReportDetails("revenues")' class="bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 flex justify-between"><span class="text-xs text-gray-500">إيرادات</span><span class="font-bold text-green-700">${totalRev} ج.م</span></div><div onclick='openReportDetails("expenses")' class="bg-red-50 p-2 rounded border border-red-200 cursor-pointer hover:bg-red-100 flex justify-between"><span class="text-xs text-gray-500">مصروفات</span><span class="font-bold text-red-700">${totalExp} ج.م</span></div><div class="bg-blue-50 p-2 rounded border border-blue-200 text-center"><span class="text-xs text-gray-500">الصافي</span><span class="font-bold text-blue-900 text-lg block">${totalRev - totalExp} ج.م</span></div></div>`;
             resDiv.innerHTML = html;
             resDiv.classList.remove('hidden');
         }
 
-        function openReportDetails(key) {
-            const list = currentReportData[key];
-            let title = '';
-            if(key === 'present') title = 'تفاصيل الحضور';
-            else if(key === 'absent') title = 'تفاصيل الغياب';
-            else if(key === 'revenues') title = 'تفاصيل الإيرادات';
-            else title = 'تفاصيل المصروفات';
-
-            document.getElementById('detailsTitle').innerText = title;
-            document.getElementById('modalFilterContainer').classList.add('hidden');
-
-            const thead = document.getElementById('detailsTableHead');
-            const tbody = document.getElementById('detailsTableBody');
-
-            if(key === 'present' || key === 'absent') {
-                const isMonthly = document.getElementById('reportType').value === 'monthly';
-                const lastCol = isMonthly ? (key === 'present' ? 'عدد الأيام' : 'تواريخ الغياب') : 'الوقت';
-                thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>المرحلة</th><th>${lastCol}</th></tr>`;
-                if(list.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">لا توجد بيانات</td></tr>`;
-                else {
-                    tbody.innerHTML = list.map((s, i) => `
-                        <tr class="hover:bg-gray-50">
-                            <td class="text-gray-500">${i + 1}</td>
-                            <td class="font-bold">${s.name}</td>
-                            <td>${stageMap[s.level] || s.level}</td>
-                            <td class="text-xs ${key === 'absent' ? 'text-red-600' : ''}">${s.time}</td>
-                        </tr>
-                    `).join('');
-                }
-            } else {
-                thead.innerHTML = `<tr><th class="col-index">م</th><th>البند/الطالب</th><th>الوقت</th><th>المبلغ</th></tr>`;
-                if(list.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">لا توجد بيانات</td></tr>`;
-                else {
-                    tbody.innerHTML = list.map((item, i) => `
-                        <tr class="hover:bg-gray-50">
-                            <td class="text-gray-500">${i + 1}</td>
-                            <td class="font-bold">${item.name || item.desc}</td>
-                            <td class="text-gray-500 text-xs">${item.date} | ${item.time || '-'}</td>
-                            <td class="font-bold ${key === 'revenues' ? 'text-green-600' : 'text-red-600'}">${item.amount}</td>
-                        </tr>
-                    `).join('');
-                }
+        // --- Other Functions (Schedule, Accounting, etc.) ---
+        // (Same as previous logic, just ensuring they are present)
+        window.openScheduleModal = function() {
+            const container = document.getElementById('scheduleContainer'); container.innerHTML = '';
+            Object.keys(stageMap).forEach(level => {
+                const savedDays = window.scheduleData[level] || [];
+                let daysHtml = daysOfWeek.map(day => `<label class="inline-flex items-center ml-2 mb-1"><input type="checkbox" class="form-checkbox h-3 w-3 text-purple-600" name="schedule_${level}" value="${day.id}" ${savedDays.includes(day.id) ? 'checked' : ''}><span class="mr-1 text-[10px]">${day.name}</span></label>`).join('');
+                container.innerHTML += `<div class="bg-gray-50 p-2 rounded border"><div class="flex justify-between items-center mb-1"><h4 class="font-bold text-xs text-blue-900">${stageMap[level]}</h4><button onclick="openMonthlySchedule('${level}')" class="text-[9px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-200 hover:bg-blue-200">📅 عرض جدول الشهر</button></div><div class="flex flex-wrap">${daysHtml}</div></div>`;
+            });
+            document.getElementById('scheduleModal').classList.remove('hidden');
+        }
+        window.saveSchedule = async function() {
+            const newSchedule = {};
+            Object.keys(stageMap).forEach(level => { const checkboxes = document.querySelectorAll(`input[name="schedule_${level}"]:checked`); if(checkboxes.length > 0) newSchedule[level] = Array.from(checkboxes).map(cb => cb.value); });
+            try { await window.setDoc(window.doc(window.db, "settings", "schedule"), newSchedule); window.scheduleData = newSchedule; closeModal('scheduleModal'); showToast('تم حفظ الجدول بنجاح', 'success'); } catch(e) { showToast('خطأ في الحفظ', 'error'); }
+        }
+        window.openMonthlySchedule = function(level) { currentScheduleLevel = level; document.getElementById('msStageName').innerText = `جدول: ${stageMap[level]}`; renderMonthlySchedule(); document.getElementById('monthlyScheduleModal').classList.remove('hidden'); }
+        window.renderMonthlySchedule = function() {
+            if(!currentScheduleLevel) return;
+            const monthInput = document.getElementById('msMonthInput').value; const [year, month] = monthInput.split('-').map(Number);
+            const targetDays = window.scheduleData[currentScheduleLevel] || []; const listDiv = document.getElementById('msDatesList');
+            if(targetDays.length === 0) { listDiv.innerHTML = '<p class="text-center text-gray-500">لم يتم تحديد أيام لهذه المرحلة</p>'; return; }
+            let dates = []; let date = new Date(year, month - 1, 1);
+            while (date.getMonth() === month - 1) {
+                let dayName = date.toLocaleDateString('en-US', {weekday: 'long'});
+                if (targetDays.includes(dayName)) dates.push({ date: date.toISOString().split('T')[0], dayAr: date.toLocaleDateString('ar-EG', {weekday: 'long'}) });
+                date.setDate(date.getDate() + 1);
             }
-            document.getElementById('detailsModal').classList.remove('hidden');
+            listDiv.innerHTML = dates.map(d => `<div class="flex justify-between border-b border-gray-200 pb-1 last:border-0"><span class="font-bold text-blue-900">${d.dayAr}</span><span class="font-mono text-gray-600">${d.date}</span></div>`).join('');
         }
-
-        // --- Backup ---
-        function exportData() {
-            const data = { students: window.students, attendance: window.attendance, accounting: window.accounting };
-            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = `backup_center_${today}.json`; a.click();
-        }
-        function importData(input) {
-            const file = input.files[0]; if(!file) return;
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if(data.students) {
-                        for(const s of data.students) await window.addDoc(window.collection(window.db, "students"), s);
-                        for(const a of data.attendance) await window.addDoc(window.collection(window.db, "attendance"), a);
-                        for(const c of data.accounting) await window.addDoc(window.collection(window.db, "accounting"), c);
-                        alert('تم استعادة البيانات بنجاح!');
-                    }
-                } catch(err) { alert('ملف تالف'); }
-            }; reader.readAsText(file);
-        }
+        window.printMonthlySchedule = function() { const content = document.getElementById('monthlyScheduleCard').innerHTML; const printContainer = document.getElementById('print-container'); printContainer.innerHTML = `<div class="print-card-wrapper" style="width: 400px;"><h2>Smart Center</h2>${content}</div>`; window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }
+        window.pdfMonthlySchedule = function() { const element = document.getElementById('monthlyScheduleCard'); const opt = { margin: 10, filename: `جدول_${stageMap[currentScheduleLevel]}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' } }; html2pdf().set(opt).from(element).save(); }
+        
+        // Accounting & Utils
+        let currentPayStudent = null;
+        function togglePayMethod(method) { const btnScan = document.getElementById('btnPayScan'); const btnManual = document.getElementById('btnPayManual'); if(method === 'scan') { document.getElementById('payScanDiv').classList.remove('hidden'); document.getElementById('payManualDiv').classList.add('hidden'); btnScan.classList.add('toggle-btn-active'); btnScan.classList.remove('toggle-btn-inactive'); btnManual.classList.add('toggle-btn-inactive'); btnManual.classList.remove('toggle-btn-active'); } else { document.getElementById('payScanDiv').classList.add('hidden'); document.getElementById('payManualDiv').classList.remove('hidden'); btnManual.classList.add('toggle-btn-active'); btnManual.classList.remove('toggle-btn-inactive'); btnScan.classList.add('toggle-btn-inactive'); btnScan.classList.remove('toggle-btn-active'); stopScanner(); } }
+        function handlePaymentScan(id) { if(!document.getElementById('paymentForm').classList.contains('hidden')) return; const student = window.students.find(s => s.id === id); if(student) { currentPayStudent = student; document.getElementById('paymentForm').classList.remove('hidden'); document.getElementById('payStdName').innerText = student.name; document.getElementById('payStdID').innerText = student.id; playSound('success'); } else { showToast('طالب غير موجود', 'error'); } }
+        function searchStudentForPay() { handlePaymentScan(document.getElementById('paySearchID').value); }
+        async function confirmPayment() { const amount = parseFloat(document.getElementById('payAmount').value); const type = document.getElementById('payType').value; const time = new Date().toLocaleTimeString('ar-EG'); await window.addDoc(window.collection(window.db, "accounting"), { date: today, time, stdId: currentPayStudent.id, name: currentPayStudent.name, amount, type, category: 'revenue' }); document.getElementById('paymentForm').classList.add('hidden'); document.getElementById('paySearchID').value = ''; showToast('تم الدفع', 'success'); }
+        async function addExpense() { const type = document.getElementById('expType').value; const note = document.getElementById('expNote').value; const amount = parseFloat(document.getElementById('expAmount').value); const time = new Date().toLocaleTimeString('ar-EG'); if(!type || !amount) return showToast('أكمل البيانات', 'error'); await window.addDoc(window.collection(window.db, "accounting"), { date: today, time, desc: `${type} ${note ? '- '+note : ''}`, amount, category: 'expense' }); document.getElementById('expType').value = ''; document.getElementById('expNote').value = ''; document.getElementById('expAmount').value = ''; showToast('تم التسجيل', 'success'); }
+        window.updateFinance = function() { const revs = window.accounting.filter(a => a.category === 'revenue'); const exps = window.accounting.filter(a => a.category === 'expense'); const totalRev = revs.reduce((sum, r) => sum + r.amount, 0); const totalExp = exps.reduce((sum, e) => sum + e.amount, 0); document.getElementById('totalRev').innerText = totalRev; document.getElementById('totalExp').innerText = totalExp; document.getElementById('netProfit').innerText = (totalRev - totalExp); const todayRevs = revs.filter(r => r.date === today); const todayExps = exps.filter(e => e.date === today); document.getElementById('todayRevList').innerHTML = todayRevs.map(r => `<div class="flex justify-between border-b border-white/10 pb-1"><span>${r.name}</span><span>${r.amount}</span></div>`).join('') || '<div class="text-center opacity-50">لا يوجد</div>'; document.getElementById('todayExpList').innerHTML = todayExps.map(e => `<div class="flex justify-between border-b border-white/10 pb-1"><span>${e.desc}</span><span>${e.amount}</span></div>`).join('') || '<div class="text-center opacity-50">لا يوجد</div>'; }
+        function toggleReportInputs() { const type = document.getElementById('reportType').value; if(type === 'daily') { document.getElementById('divDateInput').classList.remove('hidden'); document.getElementById('divMonthInput').classList.add('hidden'); } else { document.getElementById('divDateInput').classList.add('hidden'); document.getElementById('divMonthInput').classList.remove('hidden'); } }
+        
+        function openReportDetails(key) { const list = currentReportData[key]; let title = ''; if(key === 'present') title = 'تفاصيل الحضور'; else if(key === 'absent') title = 'تفاصيل الغياب'; else if(key === 'revenues') title = 'تفاصيل الإيرادات'; else title = 'تفاصيل المصروفات'; document.getElementById('detailsTitle').innerText = title; document.getElementById('modalFilterContainer').classList.add('hidden'); const thead = document.getElementById('detailsTableHead'); const tbody = document.getElementById('detailsTableBody'); if(key === 'present' || key === 'absent') { const isMonthly = document.getElementById('reportType').value === 'monthly'; const lastCol = isMonthly ? (key === 'present' ? 'عدد الأيام' : 'تواريخ الغياب') : 'الوقت'; thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>المرحلة</th><th>${lastCol}</th></tr>`; if(list.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">لا توجد بيانات</td></tr>`; else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="text-xs ${key === 'absent' ? 'text-red-600' : ''}">${s.time}</td></tr>`).join(''); } else { thead.innerHTML = `<tr><th class="col-index">م</th><th>البند/الطالب</th><th>الوقت</th><th>المبلغ</th></tr>`; if(list.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">لا توجد بيانات</td></tr>`; else tbody.innerHTML = list.map((item, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${item.name || item.desc}</td><td class="text-gray-500 text-xs">${item.date} | ${item.time || '-'}</td><td class="font-bold ${key === 'revenues' ? 'text-green-600' : 'text-red-600'}">${item.amount}</td></tr>`).join(''); } document.getElementById('detailsModal').classList.remove('hidden'); }
+        function exportData() { const data = { students: window.students, attendance: window.attendance, accounting: window.accounting }; const blob = new Blob([JSON.stringify(data)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup_center_${today}.json`; a.click(); }
+        function importData(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = async function(e) { try { const data = JSON.parse(e.target.result); if(data.students) { for(const s of data.students) await window.addDoc(window.collection(window.db, "students"), s); for(const a of data.attendance) await window.addDoc(window.collection(window.db, "attendance"), a); for(const c of data.accounting) await window.addDoc(window.collection(window.db, "accounting"), c); alert('تم استعادة البيانات بنجاح!'); } } catch(err) { alert('ملف تالف'); } }; reader.readAsText(file); }
         function clearAllData() { if(confirm('حذف الكل؟')) { localStorage.clear(); location.reload(); } }
-
-        // --- Utils ---
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-        function showToast(msg, type) {
-            const t = document.getElementById('toast'); t.innerText = msg;
-            t.className = `fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-xl z-[200] font-bold text-sm text-white ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
-            t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000);
-        }
-        function playSound(type) {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator(); osc.connect(ctx.destination);
-            if(type === 'success') { osc.frequency.setValueAtTime(800, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1); }
-            else { osc.frequency.setValueAtTime(300, ctx.currentTime); osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.2); }
-            osc.start(); osc.stop(ctx.currentTime + 0.2);
-        }
+        function showToast(msg, type) { const t = document.getElementById('toast'); t.innerText = msg; t.className = `fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-xl z-[200] font-bold text-sm text-white ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000); }
+        function playSound(type) { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); osc.connect(ctx.destination); if(type === 'success') { osc.frequency.setValueAtTime(800, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1); } else { osc.frequency.setValueAtTime(300, ctx.currentTime); osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.2); } osc.start(); osc.stop(ctx.currentTime + 0.2); }
+        function shareStudentReport() { if(currentParentPhone) { const url = `https://wa.me/20${currentParentPhone}?text=${encodeURIComponent(currentStudentReport)}`; window.open(url, '_blank'); } else { alert('لا يوجد رقم ولي أمر'); } }
+        function printContent(elementId, title) { const content = document.getElementById(elementId).innerHTML; const printContainer = document.getElementById('print-container'); printContainer.innerHTML = `<div style="text-align: center; margin-bottom: 20px;"><h1 style="font-size: 20px; font-weight: bold;">Smart Center</h1><h2 style="font-size: 16px;">${title}</h2><p style="font-size: 12px;">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p></div><div class="print-table-wrapper">${content}</div>`; const noPrintElements = printContainer.querySelectorAll('.no-print, .no-print-in-paper, button'); noPrintElements.forEach(el => el.remove()); window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }
+        function printStudentCard() { const s = window.students.find(st => st.id === currentModalStudentId); if(!s) return; const printContainer = document.getElementById('print-container'); printContainer.innerHTML = `<div class="print-card-wrapper"><h2>Smart Center</h2><div id="printQr" style="margin: 10px auto;"></div><div class="code">${s.id}</div><h2>${s.name}</h2><p>${stageMap[s.level] || s.level}</p><p style="margin-top: 10px; font-size: 10px;">بطاقة هوية الطالب</p></div>`; new QRCode(document.getElementById("printQr"), { text: s.id, width: 150, height: 150 }); window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }
+        function printFinancialReport() { const revs = window.accounting.filter(a => a.category === 'revenue' && a.date === today); const exps = window.accounting.filter(a => a.category === 'expense' && a.date === today); const totalRev = revs.reduce((sum, r) => sum + r.amount, 0); const totalExp = exps.reduce((sum, e) => sum + e.amount, 0); const net = totalRev - totalExp; let html = `<div style="border: 1px solid #000; padding: 10px; margin-bottom: 20px;"><h3>ملخص اليوم (${today})</h3><p>إجمالي الوارد: <strong>${totalRev}</strong></p><p>إجمالي المصروفات: <strong>${totalExp}</strong></p><p>الصافي: <strong>${net}</strong></p></div><h3>تفاصيل الإيرادات</h3><table style="width:100%; border-collapse:collapse; margin-bottom:20px;"><thead><tr><th>الاسم</th><th>المبلغ</th><th>النوع</th></tr></thead><tbody>${revs.map(r => `<tr><td>${r.name}</td><td>${r.amount}</td><td>${r.type}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table><h3>تفاصيل المصروفات</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th>البند</th><th>المبلغ</th></tr></thead><tbody>${exps.map(e => `<tr><td>${e.desc}</td><td>${e.amount}</td></tr>`).join('') || '<tr><td colspan="2">لا يوجد</td></tr>'}</tbody></table>`; const printContainer = document.getElementById('print-container'); printContainer.innerHTML = `<div style="text-align: center; margin-bottom: 20px;"><h1>Smart Center</h1><h2>التقرير المالي اليومي</h2></div>${html}`; window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }
+        function shareStudentPdf() { const s = window.students.find(st => st.id === currentModalStudentId); const element = document.getElementById('studentCardDisplay'); const opt = { margin: 10, filename: `بطاقة_${s.name}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' } }; html2pdf().set(opt).from(element).save(); }
+        async function delStudent(docId, studentId) { if(!confirm('سيتم حذف الطالب وجميع سجلات حضوره ومدفوعاته! هل أنت متأكد؟')) return; try { const attQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", studentId)); const attSnapshot = await window.getDocs(attQuery); attSnapshot.forEach(doc => window.deleteDoc(doc.ref)); const accQuery = window.query(window.collection(window.db, "accounting"), window.where("stdId", "==", studentId)); const accSnapshot = await window.getDocs(accQuery); accSnapshot.forEach(doc => window.deleteDoc(doc.ref)); await window.deleteDoc(window.doc(window.db, "students", docId)); showToast('تم حذف الطالب وكل بياناته', 'success'); } catch (e) { showToast('حدث خطأ أثناء الحذف', 'error'); } }
     </script>
 </body>
 </html>
