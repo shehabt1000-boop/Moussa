@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Smart Center Pro | Firebase</title>
+    <title>Smart Center Pro | System</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -32,11 +32,11 @@
         /* Cards */
         .glass-card { background: white; border-radius: 0.5rem; padding: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 0.5rem; }
 
-        /* Tables - Compact & Single Line */
+        /* Tables - Screen View */
         .custom-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; }
         .custom-table thead { background-color: #f1f5f9; color: #1e293b; font-weight: 700; }
         .custom-table th, .custom-table td { 
-            padding: 4px 2px; 
+            padding: 6px 4px; 
             border-bottom: 1px solid #e2e8f0; 
             text-align: right; 
             white-space: nowrap; 
@@ -47,10 +47,10 @@
         .custom-table tbody tr:hover { background-color: #f8fafc; }
 
         /* Column Widths */
-        .col-index { width: 20px; text-align: center; color: #64748b; }
-        .col-code { width: 40px; }
-        .col-action { width: 35px; text-align: center; }
-        .col-date { width: 60px; }
+        .col-index { width: 25px; text-align: center; color: #64748b; }
+        .col-code { width: 50px; }
+        .col-action { width: 40px; text-align: center; }
+        .col-date { width: 70px; }
 
         /* Toggle Buttons */
         .toggle-btn-active { background-color: #ffffff; color: #1d4ed8; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-weight: 700; }
@@ -59,62 +59,68 @@
         /* Loading Overlay */
         #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; color: #1e3a8a; }
 
-        /* ========================================= */
-        /* ============== إعدادات الطباعة النهائية ============== */
-        /* ========================================= */
+        /* ================================================================== */
+        /* ======================== نظام الطباعة الجديد ======================== */
+        /* ================================================================== */
+        
+        /* إخفاء حاوية الطباعة في الوضع العادي */
+        #print-container { display: none; }
+
         @media print {
-            /* 1. إخفاء كل شيء في الصفحة */
-            body, body * {
-                visibility: hidden !important;
-                height: 0 !important;
-                overflow: hidden !important;
-            }
-
-            /* 2. إظهار العنصر المراد طباعته فقط ومحتوياته */
-            .print-area, .print-area * {
-                visibility: visible !important;
-                height: auto !important;
-                overflow: visible !important;
-            }
-
-            /* 3. تنسيق منطقة الطباعة لتملأ الورقة وتلغي تأثيرات النافذة المنبثقة */
-            .print-area {
-                position: fixed !important; /* تثبيت العنصر في أعلى الورقة */
-                top: 20px !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important; /* توسيط أفقي */
-                width: 90% !important;
-                max-width: 600px !important;
-                margin: 0 !important;
-                padding: 20px !important;
-                background-color: white !important; /* خلفية بيضاء إجبارية */
-                z-index: 99999999 !important; /* التأكد من ظهوره فوق أي شيء */
-                
-                /* إلغاء حدود وتنسيقات الكارت ليتناسب مع الورقة */
-                border: 2px solid #333 !important;
-                box-shadow: none !important;
-                border-radius: 10px !important;
-                
-                /* تنسيق المحتوى */
-                display: block !important;
-                text-align: center !important;
-            }
-
-            /* تكبير النصوص قليلاً عند الطباعة لتكون واضحة */
-            .print-area h2 { font-size: 24px !important; margin-bottom: 10px !important; }
-            .print-area p { font-size: 16px !important; }
-            .print-area .font-mono { font-size: 30px !important; letter-spacing: 2px !important; }
-
-            /* إخفاء الأزرار وأي عناصر غير مرغوبة */
-            .no-print, button {
+            /* 1. إخفاء واجهة التطبيق بالكامل */
+            body > *:not(#print-container) {
                 display: none !important;
             }
-            
-            /* ضمان ظهور الألوان والخلفيات */
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
+
+            /* 2. إظهار حاوية الطباعة فقط */
+            #print-container {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                background: white;
+                padding: 20px;
+                font-size: 12pt;
             }
+
+            /* 3. تنسيق الجداول في الطباعة */
+            #print-container table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                font-size: 10pt;
+            }
+            #print-container th, #print-container td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: center;
+                color: black;
+            }
+            #print-container th {
+                background-color: #f0f0f0 !important;
+                font-weight: bold;
+                -webkit-print-color-adjust: exact;
+            }
+
+            /* 4. تنسيق كارت الطالب في الطباعة */
+            .print-card-wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid #000;
+                padding: 20px;
+                width: 350px;
+                margin: 50px auto; /* توسيط في الصفحة */
+                border-radius: 15px;
+                text-align: center;
+            }
+            .print-card-wrapper h2 { font-size: 24px; margin: 10px 0; }
+            .print-card-wrapper .code { font-size: 30px; font-family: monospace; font-weight: bold; margin: 10px 0; }
+            
+            /* إخفاء الأزرار والعناصر غير المرغوبة داخل منطقة الطباعة */
+            .no-print-in-paper { display: none !important; }
         }
     </style>
 </head>
@@ -124,6 +130,9 @@
         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-900 mb-2"></div>
         جاري الاتصال بقاعدة البيانات...
     </div>
+
+    <!-- حاوية الطباعة المخفية (سيتم نسخ المحتوى إليها عند الطباعة) -->
+    <div id="print-container"></div>
 
     <!-- Header -->
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
@@ -143,7 +152,7 @@
         </div>
     </header>
 
-    <main class="container mx-auto p-2 max-w-4xl">
+    <main id="mainContent" class="container mx-auto p-2 max-w-4xl">
 
         <!-- ================= STUDENTS ================= -->
         <section id="students" class="tab-content active">
@@ -172,12 +181,12 @@
                     <h2 class="font-bold text-xs">الطلاب (<span id="stdCount">0</span>)</h2>
                     <div class="flex gap-2">
                         <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث..." class="text-[10px] p-1 border rounded w-20">
-                        <button onclick="printElement('studentsListArea')" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">طباعة</button>
+                        <!-- زر طباعة القائمة -->
+                        <button onclick="printContent('studentsListArea', 'قائمة الطلاب المسجلين')" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">🖨️ طباعة القائمة</button>
                     </div>
                 </div>
 
                 <div id="studentsListArea" class="overflow-x-auto">
-                    <h2 class="text-center font-bold text-lg mb-2 hidden print-header">قائمة الطلاب</h2>
                     <table class="custom-table">
                         <thead>
                             <tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th>المرحلة</th><th class="col-date">تاريخ</th><th class="no-print col-action">حذف</th></tr>
@@ -310,6 +319,8 @@
                         <div id="todayExpList" class="h-20 overflow-y-auto text-[9px] space-y-1"></div>
                     </div>
                 </div>
+                <!-- زر طباعة التقرير المالي اليومي -->
+                <button onclick="printFinancialReport()" class="w-full mt-2 bg-white/20 text-white py-1 rounded text-[10px] hover:bg-white/30">🖨️ طباعة تقرير اليوم</button>
             </div>
         </section>
 
@@ -378,7 +389,8 @@
         <div class="bg-white rounded-xl w-full max-w-xs p-4 text-center relative shadow-2xl">
             <button onclick="closeModal('studentModal')" class="absolute top-2 right-3 text-gray-500 text-xl font-bold">&times;</button>
 
-            <div id="studentCardPrintArea" class="border-4 border-double border-blue-200 p-3 rounded-xl bg-white mb-3">
+            <!-- محتوى الكارت للعرض فقط -->
+            <div id="studentCardDisplay" class="border-4 border-double border-blue-200 p-3 rounded-xl bg-white mb-3">
                 <h3 class="font-bold text-sm mb-1 text-blue-900">بطاقة طالب</h3>
                 <div id="modalQr" class="flex justify-center mb-1"></div>
                 <p id="modalCode" class="text-xl font-black font-mono text-blue-600 mb-0"></p>
@@ -399,7 +411,10 @@
         <div class="bg-white rounded-xl w-full max-w-xl p-0 h-[80vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="flex justify-between items-center p-3 border-b bg-gray-50">
                 <h3 id="detailsTitle" class="font-bold text-sm text-gray-800"></h3>
-                <button onclick="closeModal('detailsModal')" class="text-red-500 font-bold text-lg">&times;</button>
+                <div class="flex gap-2">
+                    <button onclick="printContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">🖨️ طباعة</button>
+                    <button onclick="closeModal('detailsModal')" class="text-red-500 font-bold text-lg">&times;</button>
+                </div>
             </div>
 
             <div id="modalFilterContainer" class="p-2 bg-gray-100 border-b hidden">
@@ -411,7 +426,7 @@
                 </select>
             </div>
 
-            <div class="overflow-y-auto flex-1 p-0">
+            <div id="detailsTableArea" class="overflow-y-auto flex-1 p-0">
                 <table class="custom-table">
                     <thead id="detailsTableHead"></thead>
                     <tbody id="detailsTableBody"></tbody>
@@ -567,36 +582,113 @@
             document.getElementById('studentModal').classList.remove('hidden');
         }
 
-        function printElement(elemId) {
-            const content = document.getElementById(elemId);
-            content.classList.add('print-area');
+        // ==================================================================
+        // ======================== دوال الطباعة الجديدة ========================
+        // ==================================================================
+
+        // 1. دالة طباعة القوائم والجداول (عامة)
+        window.printContent = function(elementId, title) {
+            const content = document.getElementById(elementId).innerHTML;
+            const printContainer = document.getElementById('print-container');
+            
+            // تجهيز محتوى الطباعة
+            printContainer.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h1 style="font-size: 20px; font-weight: bold;">Smart Center</h1>
+                    <h2 style="font-size: 16px;">${title}</h2>
+                    <p style="font-size: 12px;">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p>
+                </div>
+                <div class="print-table-wrapper">
+                    ${content}
+                </div>
+            `;
+
+            // إزالة العناصر غير المرغوبة (مثل أزرار الحذف)
+            const noPrintElements = printContainer.querySelectorAll('.no-print, .no-print-in-paper, button');
+            noPrintElements.forEach(el => el.remove());
+
+            // تنفيذ الطباعة
             window.print();
-            setTimeout(() => {
-                content.classList.remove('print-area');
-            }, 1000);
+            
+            // تنظيف الحاوية بعد الطباعة
+            setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
         }
 
-        // =================================================
-        // ============ دالة طباعة كارت الطالب المعدلة =============
-        // =================================================
+        // 2. دالة طباعة كارت الطالب (مخصصة)
         window.printStudentCard = function() {
-            const cardElement = document.getElementById('studentCardPrintArea');
-            if(!cardElement) return;
+            const s = window.students.find(st => st.id === currentModalStudentId);
+            if(!s) return;
 
-            // إضافة كلاس الطباعة للعنصر المحدد فقط
-            cardElement.classList.add('print-area');
+            const printContainer = document.getElementById('print-container');
             
+            // إنشاء كارت جديد مخصص للطباعة فقط
+            printContainer.innerHTML = `
+                <div class="print-card-wrapper">
+                    <h2>Smart Center</h2>
+                    <div id="printQr" style="margin: 10px auto;"></div>
+                    <div class="code">${s.id}</div>
+                    <h2>${s.name}</h2>
+                    <p>${stageMap[s.level] || s.level}</p>
+                    <p style="margin-top: 10px; font-size: 10px;">بطاقة هوية الطالب</p>
+                </div>
+            `;
+
+            // توليد QR Code جديد للطباعة
+            new QRCode(document.getElementById("printQr"), { text: s.id, width: 150, height: 150 });
+
             window.print();
+            setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
+        }
+
+        // 3. دالة طباعة التقرير المالي اليومي
+        window.printFinancialReport = function() {
+            const revs = window.accounting.filter(a => a.category === 'revenue' && a.date === today);
+            const exps = window.accounting.filter(a => a.category === 'expense' && a.date === today);
             
-            // إزالة الكلاس بعد مهلة لضمان التقاط الطابعة له
-            setTimeout(() => {
-                cardElement.classList.remove('print-area');
-            }, 1000);
+            const totalRev = revs.reduce((sum, r) => sum + r.amount, 0);
+            const totalExp = exps.reduce((sum, e) => sum + e.amount, 0);
+            const net = totalRev - totalExp;
+
+            let html = `
+                <div style="border: 1px solid #000; padding: 10px; margin-bottom: 20px;">
+                    <h3>ملخص اليوم (${today})</h3>
+                    <p>إجمالي الوارد: <strong>${totalRev}</strong></p>
+                    <p>إجمالي المصروفات: <strong>${totalExp}</strong></p>
+                    <p>الصافي: <strong>${net}</strong></p>
+                </div>
+                
+                <h3>تفاصيل الإيرادات</h3>
+                <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+                    <thead><tr><th>الاسم</th><th>المبلغ</th><th>النوع</th></tr></thead>
+                    <tbody>
+                        ${revs.map(r => `<tr><td>${r.name}</td><td>${r.amount}</td><td>${r.type}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}
+                    </tbody>
+                </table>
+
+                <h3>تفاصيل المصروفات</h3>
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead><tr><th>البند</th><th>المبلغ</th></tr></thead>
+                    <tbody>
+                        ${exps.map(e => `<tr><td>${e.desc}</td><td>${e.amount}</td></tr>`).join('') || '<tr><td colspan="2">لا يوجد</td></tr>'}
+                    </tbody>
+                </table>
+            `;
+
+            const printContainer = document.getElementById('print-container');
+            printContainer.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h1>Smart Center</h1>
+                    <h2>التقرير المالي اليومي</h2>
+                </div>
+                ${html}
+            `;
+            window.print();
+            setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
         }
 
         function shareStudentPdf() {
             const s = window.students.find(st => st.id === currentModalStudentId);
-            const element = document.getElementById('studentCardPrintArea');
+            const element = document.getElementById('studentCardDisplay');
             const opt = { margin: 10, filename: `بطاقة_${s.name}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' } };
             html2pdf().set(opt).from(element).save();
         }
