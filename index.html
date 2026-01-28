@@ -126,7 +126,6 @@
                             <h3 class="font-bold text-sm text-gray-800 border-b pb-2 mb-2">💰 سجل المدفوعات</h3>
                             <div class="overflow-x-auto"><table class="custom-table"><thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th></tr></thead><tbody id="dashPaymentsTable"></tbody></table></div>
                         </div>
-                        <!-- NEW: Exceptional Attendance Table -->
                         <div class="std-dash-card">
                             <h3 class="font-bold text-sm text-gray-800 border-b pb-2 mb-2">🌟 الحضور الاستثنائي</h3>
                             <div class="overflow-x-auto"><table class="custom-table"><thead><tr><th>التاريخ</th><th>اليوم</th><th>الحالة</th></tr></thead><tbody id="dashExceptionalTable"></tbody></table></div>
@@ -363,79 +362,41 @@
 
         window.logout = function() { location.reload(); }
 
-        // --- CORE LOGIC: UNIFIED STATS CALCULATION ---
-        // This function is now the single source of truth for attendance status
         function calculateStudentStats(student) {
-    let present = 0;
-    let absent = 0;
-    let exceptional = 0;
-    let history = [];
+            let present = 0;
+            let absent = 0;
+            let history = [];
+            
+            const studentSchedule = window.scheduleData[student.level] || [];
+            const joinDate = student.date || '2020-01-01';
+            const allDates = getDatesInRange(joinDate, today);
 
-    const studentSchedule = window.scheduleData[student.level] || [];
-    const joinDate = student.date || '2020-01-01';
-    const allDates = getDatesInRange(joinDate, today);
+            allDates.forEach(dateStr => {
+                const dateObj = new Date(dateStr);
+                const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
+                const dayAr = dateObj.toLocaleDateString('ar-EG', {weekday: 'long'});
 
-    allDates.forEach(dateStr => {
-        const dateObj = new Date(dateStr);
-        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-        const dayAr = dateObj.toLocaleDateString('ar-EG', { weekday: 'long' });
+                const isPresentInDb = window.attendance.some(r => r.date === dateStr && r.studentId === student.id);
+                const isScheduled = studentSchedule.includes(dayName);
+                const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === dateStr);
+                const isGlobalExceptional = sessionRec && (!sessionRec.levels || sessionRec.levels.includes(student.level));
 
-        const isPresent = window.attendance.some(
-            r => r.date === dateStr && r.studentId === student.id
-        );
-
-        const sessionRec = window.attendance.find(
-            r => r.studentId === "SESSION_MARKER" && r.date === dateStr
-        );
-
-        const isScheduled = studentSchedule.includes(dayName);
-        const isExceptionalDay =
-            sessionRec && (!sessionRec.levels || sessionRec.levels.includes(student.level));
-
-        // ✅ حضر
-        if (isPresent) {
-            if (!isScheduled || isExceptionalDay) {
-                exceptional++;
-                history.push({
-                    date: dateStr,
-                    day: dayAr,
-                    status: 'exceptional'
-                });
-            } else {
-                present++;
-                history.push({
-                    date: dateStr,
-                    day: dayAr,
-                    status: 'present'
-                });
-            }
-        }
-        // ❌ غياب
-        else if (isScheduled || isExceptionalDay) {
-            absent++;
-            history.push({
-                date: dateStr,
-                day: dayAr,
-                status: 'absent'
+                if (isPresentInDb) {
+                    present++;
+                    const isExceptional = (!isScheduled && !isGlobalExceptional) || isGlobalExceptional;
+                    history.push({ date: dateStr, day: dayAr, status: 'present', isExceptional });
+                } else {
+                    if (isScheduled || isGlobalExceptional) {
+                        absent++;
+                        history.push({ date: dateStr, day: dayAr, status: 'absent', isExceptional: isGlobalExceptional });
+                    }
+                }
             });
-        }
-    });
-
-    history.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    return {
-        present,
-        absent,
-        exceptional,
-        history
-    };
-}
 
             history.sort((a, b) => new Date(b.date) - new Date(a.date));
             return { present, absent, history };
         }
 
-        // --- Student Dashboard ---
         function loadStudentDashboard(student) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById('studentDashboard').classList.add('active');
@@ -467,7 +428,6 @@
                 payTable.innerHTML = payments.map(p => `<tr><td>${p.date}</td><td>${p.type}</td><td class="text-green-600 font-bold">${p.amount}</td></tr>`).join('');
             } else { payTable.innerHTML = '<tr><td colspan="3" class="text-center text-gray-400">لا توجد مدفوعات</td></tr>'; }
 
-            // NEW: Exceptional Table
             const exceptionalHistory = stats.history.filter(h => h.status === 'present' && h.isExceptional);
             const excTable = document.getElementById('dashExceptionalTable');
             if(exceptionalHistory.length > 0) {
@@ -475,31 +435,14 @@
             } else { excTable.innerHTML = '<tr><td colspan="3" class="text-center text-gray-400">لا يوجد حضور استثنائي</td></tr>'; }
 
             const historyHtml = stats.history.map(h => `
-    <div class="flex justify-between border-b p-2 ${
-        h.status === 'absent'
-            ? 'bg-red-50'
-            : h.status === 'exceptional'
-                ? 'bg-yellow-50'
-                : 'bg-green-50'
-    }">
-        <span>${h.date} (${h.day})</span>
-        <span class="font-bold ${
-            h.status === 'absent'
-                ? 'text-red-600'
-                : h.status === 'exceptional'
-                    ? 'text-yellow-600'
-                    : 'text-green-600'
-        }">
-            ${
-                h.status === 'absent'
-                    ? 'غياب'
-                    : h.status === 'exceptional'
-                        ? 'حضور استثنائي'
-                        : 'حضور'
-            }
-        </span>
-    </div>
-`).join('');            document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
+                <div class="flex justify-between border-b p-2 ${h.status === 'absent' ? 'bg-red-50' : 'bg-green-50'}">
+                    <span>${h.date} (${h.day})</span>
+                    <span class="font-bold ${h.status === 'absent' ? 'text-red-600' : 'text-green-600'}">
+                        ${h.status === 'absent' ? 'غياب' : 'حضور'} ${h.isExceptional ? '(استثنائي)' : ''}
+                    </span>
+                </div>
+            `).join('');
+            document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
         }
 
         window.printStudentDashboard = function() {
@@ -601,6 +544,7 @@
         function showCustomAlert(title, message) { document.getElementById('alertTitle').innerText = title; document.getElementById('alertMessage').innerText = message; document.getElementById('customAlertModal').style.display = 'flex'; playSound('error'); }
         window.closeCustomAlert = function() { document.getElementById('customAlertModal').style.display = 'none'; isPaused = false; }
 
+        // --- FIXED: Handle Attendance Scan (Stores Full Metadata) ---
         async function handleAttendanceScan(id) {
             isPaused = true;
             const student = window.students.find(s => s.id === id);
@@ -618,7 +562,18 @@
                 if(selectedLevel && student.level !== selectedLevel) { if(!confirm(`تنبيه: الطالب مسجل في ${stageMap[student.level]} وأنت تسجل لـ ${stageMap[selectedLevel]}. هل تريد الاستمرار؟`)) { isPaused = false; return; } }
 
                 const isPresent = window.attendance.some(r => r.date === date && r.studentId === id);
-                if(!isPresent) { await window.addDoc(window.collection(window.db, "attendance"), { date: date, studentId: id, time: new Date().toLocaleTimeString('ar-EG') }); showScanFeedback(true); playSound('success'); } else { showToast('مسجل مسبقاً', 'warning'); playSound('error'); }
+                if(!isPresent) { 
+                    // FIX: Store full metadata
+                    await window.addDoc(window.collection(window.db, "attendance"), { 
+                        date: date, 
+                        studentId: id, 
+                        time: new Date().toLocaleTimeString('ar-EG'),
+                        name: student.name,
+                        level: student.level,
+                        phone: student.phone
+                    }); 
+                    showScanFeedback(true); playSound('success'); 
+                } else { showToast('مسجل مسبقاً', 'warning'); playSound('error'); }
             } else { showToast('كود غير صحيح', 'error'); playSound('error'); }
             setTimeout(() => { isPaused = false; showScanFeedback(false); }, 2000);
         }
@@ -641,18 +596,14 @@
             filterAttendanceList();
         }
 
-        // --- FIXED: Filter List Logic to match Unified Stats ---
         function filterAttendanceList() {
             const levelFilter = document.getElementById('attFilterLevel').value;
             const tbody = document.getElementById('detailsTableBody');
             
-            // Get all students filtered by level if needed
             let targetStudents = window.students.filter(s => s.date <= selectedAttendanceDate);
             if(levelFilter !== 'all') targetStudents = targetStudents.filter(s => s.level === levelFilter);
 
             let list = [];
-            
-            // Use the same logic as calculateStudentStats for consistency
             const dateObj = new Date(selectedAttendanceDate);
             const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
             const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === selectedAttendanceDate);
@@ -669,7 +620,6 @@
                         list.push({ ...student, time: isPresentInDb.time || '-' });
                     }
                 } else {
-                    // Absent logic: Must be scheduled/global exceptional AND NOT present
                     if (!isPresentInDb && (isScheduled || isGlobalExceptional)) {
                         list.push({ ...student, time: selectedAttendanceDate });
                     }
@@ -680,45 +630,40 @@
             else tbody.innerHTML = list.map((s, index) => `<tr class="cursor-pointer hover:bg-blue-50" onclick="openStudentModal('${s.id}')"><td class="col-index">${index + 1}</td><td class="font-bold">${s.name}</td><td class="font-mono text-blue-600">${s.id}</td><td>${stageMap[s.level] || s.level}</td><td class="${currentAttType === 'present' ? 'text-green-600' : 'text-red-600'}">${s.time}</td></tr>`).join('');
         }
 
-        // --- FIXED: Update Counters Logic to match Unified Stats ---
+        // --- FIXED: Update Counters Logic (Handles Empty Selection Correctly) ---
         window.updateCounters = function() {
-    const selectedLevel = document.getElementById('attendanceStage').value;
-    let targetStudents = window.students.filter(s => s.date <= selectedAttendanceDate);
-    if (selectedLevel) targetStudents = targetStudents.filter(s => s.level === selectedLevel);
-    
-    const dateObj = new Date(selectedAttendanceDate);
-    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-    const sessionRec = window.attendance.find(
-        r => r.studentId === "SESSION_MARKER" && r.date === selectedAttendanceDate
-    );
-    const dayRecords = window.attendance.filter(
-        r => r.date === selectedAttendanceDate
-    );
+            const selectedLevel = document.getElementById('attendanceStage').value;
+            let targetStudents = window.students.filter(s => s.date <= selectedAttendanceDate);
+            
+            // If a level is selected, filter by it. If not, we iterate ALL students.
+            if(selectedLevel) targetStudents = targetStudents.filter(s => s.level === selectedLevel);
+            
+            const dateObj = new Date(selectedAttendanceDate);
+            const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
+            const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === selectedAttendanceDate);
+            const dayRecords = window.attendance.filter(r => r.date === selectedAttendanceDate);
 
-    let presentCount = 0;
-    let absentCount = 0;
+            let presentCount = 0;
+            let absentCount = 0;
 
-    targetStudents.forEach(student => {
-        const isPresentInDb = dayRecords.some(
-            r => r.studentId === student.id
-        );
+            targetStudents.forEach(student => {
+                const isPresentInDb = dayRecords.some(r => r.studentId === student.id);
+                const studentSchedule = window.scheduleData[student.level] || [];
+                const isScheduled = studentSchedule.includes(dayName);
+                const isGlobalExceptional = sessionRec && (!sessionRec.levels || sessionRec.levels.includes(student.level));
 
-        const studentSchedule = window.scheduleData[student.level] || [];
-        const isScheduled = studentSchedule.includes(dayName);
+                if (isPresentInDb) {
+                    presentCount++;
+                } else if (isScheduled || isGlobalExceptional) {
+                    // Only count absent if they were SUPPOSED to be here
+                    absentCount++;
+                }
+            });
 
-        const isGlobalExceptional =
-            sessionRec && (!sessionRec.levels || sessionRec.levels.includes(student.level));
-
-        if (isPresentInDb && (isScheduled || isGlobalExceptional)) {
-            presentCount++;
-        } else if (!isPresentInDb && (isScheduled || isGlobalExceptional)) {
-            absentCount++;
+            document.getElementById('presentCount').innerText = presentCount;
+            document.getElementById('absentCount').innerText = absentCount;
         }
-    });
 
-    document.getElementById('presentCount').innerText = presentCount;
-    document.getElementById('absentCount').innerText = absentCount;
-};
         function getDatesInRange(startDate, endDate) {
             const date = new Date(startDate); const end = new Date(endDate); const dates = [];
             while (date <= end) { dates.push(new Date(date).toISOString().split('T')[0]); date.setDate(date.getDate() + 1); }
@@ -733,14 +678,12 @@
             currentParentPhone = student.phone;
 
             const stats = calculateStudentStats(student);
-            // Fix: Correctly filter exceptional present days
             const exceptionalPresent = stats.history.filter(h => h.status === 'present' && h.isExceptional);
             const regularAbsence = stats.history.filter(h => h.status === 'absent');
 
             const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === student.id);
             const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
 
-            // Fix: WhatsApp message now includes exceptional dates correctly
             currentStudentReport = `*تقرير الطالب: ${student.name}*\nكود: ${student.id}\nتاريخ الاشتراك: ${student.date}\n----------------\n✅ أيام الحضور: ${stats.present}\n❌ أيام الغياب: ${stats.absent}\n💰 إجمالي المدفوعات: ${totalPaid} ج.م\n----------------\n*تواريخ الغياب:*\n${regularAbsence.map(h=>h.date).join('\n') || 'لا يوجد'}\n\n*🌟 حضور استثنائي:*\n${exceptionalPresent.map(h=>h.date).join('\n') || 'لا يوجد'}`;
             
             resDiv.innerHTML = `
@@ -815,8 +758,8 @@
                         
                         if (isPresent) {
                             monthlyStats[student.id].present++;
-                            if (!isScheduled && !isGlobalExceptional) monthlyStats[student.id].exceptionalDates.push(dateStr); // Individual Exception
-                            else if (isGlobalExceptional) monthlyStats[student.id].exceptionalDates.push(dateStr); // Global Exception
+                            if (!isScheduled && !isGlobalExceptional) monthlyStats[student.id].exceptionalDates.push(dateStr);
+                            else if (isGlobalExceptional) monthlyStats[student.id].exceptionalDates.push(dateStr);
                         } else if (isScheduled || isGlobalExceptional) {
                             monthlyStats[student.id].absentDates.push(dateStr);
                         }
