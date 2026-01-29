@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Smart Center Pro | Version 1.2</title>
+    <title>Smart Center Pro | Version 1.3</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
+        /* إخفاء العناصر الأساسية لمنع الرفرفة */
+        #loginOverlay, #appContent { display: none; }
+
         body { font-family: 'Cairo', sans-serif; background-color: #f1f5f9; padding-bottom: 80px; font-size: 12px; -webkit-tap-highlight-color: transparent; }
         .nav-item { transition: all 0.2s; opacity: 0.7; border-bottom: 3px solid transparent; }
         .nav-item.active { opacity: 1; background: white; color: #1e3a8a; font-weight: 700; border-bottom-color: #fbbf24; transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -25,14 +28,14 @@
         .glass-card { background: white; border-radius: 0.5rem; padding: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 0.5rem; }
         
         /* تنسيق الجداول */
-        .custom-table { width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; border: 1px solid #64748b; }
-        .custom-table thead { background-color: #f8fafc; color: #1e293b; font-weight: 700; border-bottom: 2px solid #64748b; }
-        .custom-table th, .custom-table td { padding: 6px 2px; border: 1px solid #94a3b8; text-align: center; vertical-align: middle; line-height: 1.3; }
-        .custom-table td { white-space: normal; word-wrap: break-word; }
-        .col-code { width: 45px; font-family: monospace; font-weight: bold; color: #2563eb; }
-        .col-date { width: 55px; font-size: 8px; color: #64748b; }
-        .col-index { width: 25px; color: #64748b; }
-        .col-action { width: 35px; }
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; border: 1px solid #64748b; }
+        .custom-table thead { background-color: #f8fafc; color: #1e293b; font-weight: 800; border-bottom: 2px solid #64748b; }
+        .custom-table th, .custom-table td { padding: 8px 4px; border: 1px solid #94a3b8; text-align: center; vertical-align: middle; line-height: 1.4; }
+        .custom-table td { white-space: normal; word-wrap: break-word; font-weight: 600; }
+        .col-code { width: 50px; font-family: monospace; font-weight: bold; color: #2563eb; }
+        .col-date { width: 60px; font-size: 9px; color: #64748b; }
+        .col-index { width: 30px; color: #64748b; }
+        .col-action { width: 40px; }
         .custom-table tbody tr:hover { background-color: #f1f5f9; }
         
         .toggle-btn-active { background-color: #ffffff; color: #1d4ed8; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-weight: 700; }
@@ -61,23 +64,25 @@
         .alert-btn { background: #475569; color: white; padding: 8px 20px; border-radius: 8px; font-weight: bold; margin-top: 15px; width: 100%; }
         #print-container { display: none; }
         
-        /* تنسيق زر الفلتر الأنيق */
+        /* تنسيق زر الفلتر الأنيق (تم الإصلاح) */
         .elegant-select {
             appearance: none;
             background-color: white;
             border: 1px solid #cbd5e1;
             border-radius: 9999px;
-            padding: 6px 24px 6px 12px;
-            font-size: 10px;
+            padding: 6px 12px 6px 30px; /* مساحة للسهم يساراً */
+            font-size: 11px;
             font-weight: 700;
             color: #1e3a8a;
             cursor: pointer;
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%231e3a8a' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
             background-position: left 0.5rem center;
             background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
+            background-size: 1.2em 1.2em;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             transition: all 0.2s;
+            width: auto;
+            min-width: 100px;
         }
         .elegant-select:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
 
@@ -109,11 +114,11 @@
             .card-row { margin: 8px 0; font-size: 12pt; font-weight: bold; display: flex; justify-content: space-between; }
             .card-footer { font-size: 12pt; color: #1e3a8a; margin-top: 15px; font-weight: 900; border-top: 2px solid #eee; padding-top: 10px; }
 
-            /* تصميم تقرير الطالب الرسمي (الداشبورد) */
+            /* تصميم موحد لجميع التقارير (Official Style) */
             .official-report { width: 100%; font-family: 'Cairo', sans-serif; color: #000; }
             .report-header-box { text-align: center; border-bottom: 3px double #000; padding-bottom: 15px; margin-bottom: 20px; position: relative; }
             .report-title { font-size: 24pt; font-weight: 900; margin-bottom: 5px; }
-            .report-subtitle { font-size: 14pt; color: #444; }
+            .report-subtitle { font-size: 14pt; color: #444; font-weight: bold; }
             .header-qr { position: absolute; top: 0; left: 0; width: 80px; height: 80px; }
             
             .student-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; border: 1px solid #000; padding: 15px; border-radius: 8px; }
@@ -121,19 +126,13 @@
             
             .report-section-title { background-color: #eee; padding: 8px; font-weight: 900; font-size: 14pt; border: 1px solid #000; margin-top: 20px; margin-bottom: 10px; -webkit-print-color-adjust: exact; }
             
-            .print-table { width: 100%; border-collapse: collapse; font-size: 11pt; }
-            .print-table th, .print-table td { border: 1px solid #000; padding: 8px; text-align: center; }
-            .print-table th { background-color: #f0f0f0; font-weight: 900; -webkit-print-color-adjust: exact; }
+            /* جداول الطباعة الموحدة */
+            .print-table { width: 100%; border-collapse: collapse; font-size: 12pt; margin-top: 10px; }
+            .print-table th, .print-table td { border: 1px solid #000 !important; padding: 8px; text-align: center; color: #000; }
+            .print-table th { background-color: #f0f0f0 !important; font-weight: 900; -webkit-print-color-adjust: exact; }
             
-            .report-footer { margin-top: 40px; text-align: center; font-size: 10pt; border-top: 1px solid #000; padding-top: 10px; }
+            .report-footer { margin-top: 40px; text-align: center; font-size: 10pt; border-top: 1px solid #000; padding-top: 10px; font-weight: bold; }
 
-            /* جداول الطباعة العامة */
-            .report-print-container { padding: 20px; width: 100%; }
-            .report-header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-            .report-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11pt; }
-            .report-table th, .report-table td { border: 1px solid #000 !important; padding: 8px; text-align: center; color: #000; }
-            .report-table th { background-color: #e5e7eb !important; font-weight: 900; -webkit-print-color-adjust: exact; }
-            
             .agenda-print-wrapper { width: 100%; border: 2px solid #000; padding: 15px; display: block !important; }
             .no-print-in-paper { display: none !important; }
         }
@@ -157,10 +156,10 @@
 <div id="loadingOverlay" class="hidden"><div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-900 mb-4"></div><div class="text-lg">جاري تحميل النظام...</div></div>
 <div id="print-container"></div>
 
-<div id="appContent" class="hidden">
+<div id="appContent">
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-base font-bold flex items-center gap-2">🎓 Smart Center <span class="text-[9px] bg-green-500 px-1.5 py-0.5 rounded text-white">v1.2</span></h1>
+            <h1 class="text-base font-bold flex items-center gap-2">🎓 Smart Center <span class="text-[9px] bg-green-500 px-1.5 py-0.5 rounded text-white">v1.3</span></h1>
             <div class="flex items-center gap-3"><div class="text-[10px] bg-blue-800 px-3 py-1 rounded-full font-mono border border-blue-700" id="headerDate">--/--/----</div><button onclick="logout()" class="text-[10px] bg-red-600 px-3 py-1 rounded font-bold hover:bg-red-700 transition">خروج</button></div>
         </div>
         <div class="bg-blue-800 border-t border-blue-700" id="navBar">
@@ -241,7 +240,7 @@
                 <div class="flex justify-between items-center mb-2 no-print">
                     <h2 class="font-bold text-xs">الطلاب (<span id="stdCount">0</span>)</h2>
                     <div class="flex gap-2 items-center">
-                        <!-- زر الفلتر الأنيق -->
+                        <!-- زر الفلتر الأنيق (تم الإصلاح) -->
                         <select id="studentListFilter" onchange="renderStudents()" class="elegant-select">
                             <option value="all">كل المراحل</option>
                             <option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option>
@@ -553,8 +552,7 @@
         const savedStudentId = localStorage.getItem('currentStudentId');
 
         if (savedLogin === 'true') {
-            document.getElementById('loginOverlay').style.display = 'none';
-            document.getElementById('appContent').classList.remove('hidden');
+            document.getElementById('appContent').style.display = 'block';
             loginMode = savedMode;
             
             if (loginMode === 'admin') {
@@ -597,7 +595,7 @@
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('loginMode', 'admin');
                 document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('appContent').classList.remove('hidden');
+                document.getElementById('appContent').style.display = 'block';
                 document.getElementById('navBar').classList.remove('hidden');
                 showTab('students', document.getElementById('nav-students'));
             } else { errorMsg.classList.remove('hidden'); }
@@ -608,7 +606,7 @@
                 localStorage.setItem('loginMode', 'student');
                 localStorage.setItem('currentStudentId', student.id);
                 document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('appContent').classList.remove('hidden');
+                document.getElementById('appContent').style.display = 'block';
                 document.getElementById('navBar').classList.add('hidden');
                 loadStudentDashboard(student);
             } else { errorMsg.classList.remove('hidden'); }
@@ -620,11 +618,12 @@
         location.reload(); 
     }
 
-    // --- CORE LOGIC: UNIFIED STATUS CHECKER ---
+    // --- CORE LOGIC: UNIFIED STATUS CHECKER (FIXED FOR SCHEDULE CHANGES) ---
     function getStudentStatusForDate(student, dateStr) {
         const dateObj = new Date(dateStr);
         const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
         
+        // 1. Check Database FIRST (Historical Fact)
         const attendanceRecord = window.attendance.find(r => r.date === dateStr && r.studentId === student.id);
         
         // Check for exceptional session marker
@@ -634,22 +633,18 @@
         const studentSchedule = window.scheduleData[student.level] || [];
         const isScheduled = studentSchedule.includes(dayName);
 
+        // If record exists, it is PRESENT regardless of current schedule
         if (attendanceRecord) {
             const isExceptional = (!isScheduled || isGlobalExceptional);
             return { status: 'present', time: attendanceRecord.time, isExceptional: isExceptional };
         }
 
+        // If no record, check if it SHOULD be present (Absence)
         if (isScheduled || isGlobalExceptional) {
             return { status: 'absent', isExceptional: isGlobalExceptional };
         }
 
         return { status: 'none' };
-    }
-
-    // --- FIX: Robust Calendar Logic (Fixes 30/31 Issue) ---
-    function getDaysInMonth(year, month) {
-        // Month is 1-based (1=Jan, 12=Dec)
-        return new Date(year, month, 0).getDate();
     }
 
     // --- CRITICAL FIX: Date Range Generator (Noon-based to avoid DST/Timezone skips) ---
@@ -981,12 +976,43 @@
         }
     }
 
-    // --- NEW: Migrate Old Data Function (One Click) ---
+    // --- NEW: Repair & Normalize Data Function ---
     window.migrateOldData = async function() {
-        showToast('جاري تحديث البيانات...', 'success');
+        if(!confirm('سيقوم هذا الإجراء بفحص جميع التواريخ وإصلاح أي مشاكل في التنسيق. هل تريد الاستمرار؟')) return;
+        
+        showToast('جاري فحص وإصلاح البيانات...', 'success');
+        
+        // Fix Attendance Dates
+        const attSnapshot = await window.getDocs(window.collection(window.db, "attendance"));
+        attSnapshot.forEach(async (doc) => {
+            const data = doc.data();
+            if(data.date && data.date.includes('/')) {
+                // Convert DD/MM/YYYY to YYYY-MM-DD
+                const parts = data.date.split('/');
+                if(parts.length === 3) {
+                    const newDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                    await window.updateDoc(doc.ref, { date: newDate });
+                }
+            }
+        });
+
+        // Fix Accounting Dates
+        const accSnapshot = await window.getDocs(window.collection(window.db, "accounting"));
+        accSnapshot.forEach(async (doc) => {
+            const data = doc.data();
+            if(data.date && data.date.includes('/')) {
+                const parts = data.date.split('/');
+                if(parts.length === 3) {
+                    const newDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                    await window.updateDoc(doc.ref, { date: newDate });
+                }
+            }
+        });
+
         setTimeout(() => {
-            location.reload();
-        }, 1000);
+            showToast('تم الإصلاح بنجاح! سيتم إعادة التحميل.', 'success');
+            setTimeout(() => location.reload(), 1500);
+        }, 2000);
     }
 
     async function startScanner(elemId, mode) {
@@ -1163,8 +1189,8 @@
                 <div class="report-header"><h1>Smart Center</h1><h2>تقرير طالب تفصيلي</h2><p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p></div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;"><div><h4>${s.name} <span style="font-size:12pt">(${s.id})</span></h4><p>المرحلة: ${stageMap[s.level] || s.level}</p><p>تاريخ الانضمام: ${s.date}</p></div><div id="printReportQr"></div></div>
                 <div class="stats-grid"><div>عدد أيام الحضور: <strong>${stats.present}</strong></div><div>عدد أيام الغياب: <strong>${stats.absent}</strong></div><div>إجمالي المدفوعات: <strong>${totalPaid} ج.م</strong></div></div>
-                <h3 style="margin-top:15px; border-bottom:1px solid #000;">سجل المدفوعات</h3><table class="report-table"><thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th></tr></thead><tbody>${payments.map(p => `<tr><td>${p.date}</td><td>${p.type}</td><td>${p.amount}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table>
-                <h3 style="margin-top:15px; border-bottom:1px solid #000;">سجل الحضور والغياب</h3><table class="report-table"><thead><tr><th>التاريخ</th><th>اليوم</th><th>الحالة</th><th>ملاحظات</th></tr></thead><tbody>${stats.history.map(h => `<tr><td>${h.date}</td><td>${h.day}</td><td>${h.status==='present'?'حضور':'غياب'}</td><td>${h.isExceptional?'استثنائي':''}</td></tr>`).join('')}</tbody></table>
+                <h3 style="margin-top:15px; border-bottom:1px solid #000;">سجل المدفوعات</h3><table class="print-table"><thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th></tr></thead><tbody>${payments.map(p => `<tr><td>${p.date}</td><td>${p.type}</td><td>${p.amount}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table>
+                <h3 style="margin-top:15px; border-bottom:1px solid #000;">سجل الحضور والغياب</h3><table class="print-table"><thead><tr><th>التاريخ</th><th>اليوم</th><th>الحالة</th><th>ملاحظات</th></tr></thead><tbody>${stats.history.map(h => `<tr><td>${h.date}</td><td>${h.day}</td><td>${h.status==='present'?'حضور':'غياب'}</td><td>${h.isExceptional?'استثنائي':''}</td></tr>`).join('')}</tbody></table>
             </div>
         `;
         new QRCode(document.getElementById("printReportQr"), { text: s.id, width: 80, height: 80 });
@@ -1502,7 +1528,7 @@
         setTimeout(() => { printContainer.innerHTML = ''; }, 1000); 
     }
     
-    function printFinancialReport() { const revs = window.accounting.filter(a => a.category === 'revenue' && a.date === today); const exps = window.accounting.filter(a => a.category === 'expense' && a.date === today); const totalRev = revs.reduce((sum, r) => sum + r.amount, 0); const totalExp = exps.reduce((sum, e) => sum + e.amount, 0); const net = totalRev - totalExp; let html = `<div style="border: 1px solid #000; padding: 10px; margin-bottom: 20px;"><h3>ملخص اليوم (${today})</h3><p>إجمالي الوارد: <strong>${totalRev}</strong></p><p>إجمالي المصروفات: <strong>${totalExp}</strong></p><p>الصافي: <strong>${net}</strong></p></div><h3>تفاصيل الإيرادات</h3><table class="report-table"><thead><tr><th>الاسم</th><th>المبلغ</th><th>النوع</th></tr></thead><tbody>${revs.map(r => `<tr><td>${r.name}</td><td>${r.amount}</td><td>${r.type}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table><h3>تفاصيل المصروفات</h3><table class="report-table"><thead><tr><th>البند</th><th>المبلغ</th></tr></thead><tbody>${exps.map(e => `<tr><td>${e.desc}</td><td>${e.amount}</td></tr>`).join('') || '<tr><td colspan="2">لا يوجد</td></tr>'}</tbody></table>`; const printContainer = document.getElementById('print-container'); printContainer.innerHTML = `<div class="report-print-container"><div class="report-header"><h1>Smart Center</h1><h2>التقرير المالي اليومي</h2></div>${html}</div>`; window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }
+    function printFinancialReport() { const revs = window.accounting.filter(a => a.category === 'revenue' && a.date === today); const exps = window.accounting.filter(a => a.category === 'expense' && a.date === today); const totalRev = revs.reduce((sum, r) => sum + r.amount, 0); const totalExp = exps.reduce((sum, e) => sum + e.amount, 0); const net = totalRev - totalExp; let html = `<div style="border: 1px solid #000; padding: 10px; margin-bottom: 20px;"><h3>ملخص اليوم (${today})</h3><p>إجمالي الوارد: <strong>${totalRev}</strong></p><p>إجمالي المصروفات: <strong>${totalExp}</strong></p><p>الصافي: <strong>${net}</strong></p></div><h3>تفاصيل الإيرادات</h3><table class="print-table"><thead><tr><th>الاسم</th><th>المبلغ</th><th>النوع</th></tr></thead><tbody>${revs.map(r => `<tr><td>${r.name}</td><td>${r.amount}</td><td>${r.type}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table><h3>تفاصيل المصروفات</h3><table class="print-table"><thead><tr><th>البند</th><th>المبلغ</th></tr></thead><tbody>${exps.map(e => `<tr><td>${e.desc}</td><td>${e.amount}</td></tr>`).join('') || '<tr><td colspan="2">لا يوجد</td></tr>'}</tbody></table>`; const printContainer = document.getElementById('print-container'); printContainer.innerHTML = `<div class="report-print-container"><div class="report-header"><h1>Smart Center</h1><h2>التقرير المالي اليومي</h2></div>${html}</div>`; window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }
     
     // --- FIX: Improved PDF Layout (Hidden Container) ---
     function shareStudentPdf() { 
