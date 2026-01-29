@@ -11,8 +11,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- مكتبة Excel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -27,9 +25,9 @@
         .glass-card { background: white; border-radius: 0.5rem; padding: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 0.5rem; }
         
         /* تنسيق الجداول */
-        .custom-table { width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; border: 1px solid #64748b; }
-        .custom-table thead { background-color: #f8fafc; color: #1e293b; font-weight: 700; border-bottom: 2px solid #64748b; }
-        .custom-table th, .custom-table td { padding: 6px 2px; border: 1px solid #94a3b8; text-align: center; vertical-align: middle; line-height: 1.3; }
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; border: 1px solid #000; }
+        .custom-table thead { background-color: #f8fafc; color: #1e293b; font-weight: 700; border-bottom: 2px solid #000; }
+        .custom-table th, .custom-table td { padding: 6px 2px; border: 1px solid #000; text-align: center; vertical-align: middle; line-height: 1.3; }
         .custom-table td { white-space: normal; word-wrap: break-word; }
         .col-code { width: 45px; font-family: monospace; font-weight: bold; color: #2563eb; }
         .col-date { width: 55px; font-size: 8px; color: #64748b; }
@@ -48,9 +46,9 @@
         .login-tab { flex: 1; padding: 10px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; color: #64748b; transition: all 0.3s; }
         .login-tab.active { color: #1e3a8a; border-bottom-color: #1e3a8a; background: #f1f5f9; border-radius: 5px 5px 0 0; }
         
-        .schedule-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; border: 1px solid #64748b; }
+        .schedule-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; border: 1px solid #000; }
         .schedule-table thead { background-color: #1e3a8a; color: white; }
-        .schedule-table th, .schedule-table td { padding: 8px; border: 1px solid #94a3b8; text-align: center; }
+        .schedule-table th, .schedule-table td { padding: 8px; border: 1px solid #000; text-align: center; }
         .schedule-table tbody tr:nth-child(even) { background-color: #f8fafc; }
         
         .std-dash-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
@@ -65,7 +63,7 @@
         
         @media print {
             body > *:not(#print-container) { display: none !important; }
-            #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; padding: 0; color: black; z-index: 999999; }
+            #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; padding: 0; color: black; }
             @page { margin: 0; size: auto; }
             
             .student-card-center {
@@ -80,11 +78,14 @@
                 text-align: center;
                 background: white;
                 box-shadow: 0 0 0 1px #000;
+                -webkit-print-color-adjust: exact;
             }
             .card-qr-box { display: flex; justify-content: center; margin-bottom: 15px; }
-            .card-qr-box img { width: 120px !important; height: 120px !important; display: block !important; }
+            /* Fix for QR code in print */
+            .card-qr-box img { max-width: 100% !important; display: block !important; }
+            
             .card-name-lg { font-size: 18pt; font-weight: 900; margin: 10px 0; color: #000; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-            .card-details-box { border: 2px solid #ccc; padding: 15px; border-radius: 10px; background: #f9f9f9; margin-bottom: 15px; text-align: right; }
+            .card-details-box { border: 2px solid #ccc; padding: 15px; border-radius: 10px; background: #f9f9f9; margin-bottom: 15px; text-align: right; -webkit-print-color-adjust: exact; }
             .card-row { margin: 8px 0; font-size: 12pt; font-weight: bold; display: flex; justify-content: space-between; }
             .card-footer { font-size: 12pt; color: #1e3a8a; margin-top: 15px; font-weight: 900; border-top: 2px solid #eee; padding-top: 10px; }
 
@@ -92,7 +93,7 @@
             .report-header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
             .report-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11pt; }
             .report-table th, .report-table td { border: 1px solid #000 !important; padding: 8px; text-align: center; color: #000; }
-            .report-table th { background-color: #e5e7eb !important; font-weight: 900; }
+            .report-table th { background-color: #e5e7eb !important; font-weight: 900; -webkit-print-color-adjust: exact; }
             
             .agenda-print-wrapper { width: 100%; border: 2px solid #000; padding: 15px; display: block !important; }
             .no-print-in-paper { display: none !important; }
@@ -203,7 +204,7 @@
                     <div class="flex gap-2">
                         <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث (الاسم/الكود)..." class="text-[10px] p-1.5 border rounded w-32 focus:w-48 transition-all">
                         <button onclick="printContent('studentsListArea', 'قائمة الطلاب المسجلين')" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">🖨️ طباعة</button>
-                        <button onclick="migrateOldData()" class="bg-indigo-600 text-white px-2 py-1 rounded text-[10px] font-bold">🔄 تحديث وإصلاح البيانات</button>
+                        <button onclick="migrateOldData()" class="bg-indigo-600 text-white px-2 py-1 rounded text-[10px] font-bold">🔄 تحديث وإصلاح</button>
                     </div>
                 </div>
                 <div id="studentsListArea" class="overflow-x-auto"><table class="custom-table"><thead><tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th>المرحلة</th><th class="col-date">تاريخ</th><th class="no-print col-action">حذف</th></tr></thead><tbody id="studentsTable"></tbody></table></div>
@@ -254,22 +255,6 @@
                     <button onclick="confirmSessionDay()" class="bg-indigo-100 text-indigo-800 border border-indigo-300 py-1.5 rounded font-bold text-[10px] hover:bg-indigo-200">✅ تثبيت استثنائي</button>
                     <button onclick="cancelSessionDay()" class="bg-red-100 text-red-800 border border-red-300 py-1.5 rounded font-bold text-[10px] hover:bg-red-200">❌ إلغاء التثبيت</button>
                 </div>
-                
-                <!-- NEW: Bulk Actions Section -->
-                <div class="glass-card border-t-4 border-teal-500 mb-2 no-print">
-                    <h3 class="font-bold text-teal-900 mb-2 text-xs">🚀 الإجراءات الجماعية</h3>
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <select id="bulkStage" class="p-1 border rounded text-[10px]"><option value="">اختر المرحلة...</option><optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup><optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup><optgroup label="الثانوية"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup></select>
-                        <select id="bulkType" onchange="toggleBulkInputs()" class="p-1 border rounded text-[10px]"><option value="daily">يومي</option><option value="monthly">شهري</option></select>
-                    </div>
-                    <div id="bulkDateDiv" class="mb-2"><input type="date" id="bulkDate" class="w-full p-1 border rounded text-[10px]"></div>
-                    <div id="bulkMonthDiv" class="hidden mb-2"><input type="month" id="bulkMonth" class="w-full p-1 border rounded text-[10px]"></div>
-                    <div class="flex gap-2">
-                        <button onclick="exportAttendanceExcel()" class="flex-1 bg-green-600 text-white py-1 rounded font-bold text-[10px]">📊 Excel</button>
-                        <button onclick="initiateBulkWhatsApp()" class="flex-1 bg-teal-600 text-white py-1 rounded font-bold text-[10px]">📱 إرسال واتساب</button>
-                    </div>
-                </div>
-
                 <div class="flex bg-gray-100 p-1 rounded mb-2 no-print"><button onclick="setAttMode('scan')" id="btnAttScan" class="flex-1 py-1.5 rounded text-[10px] toggle-btn-active transition-all">📷 كاميرا</button><button onclick="setAttMode('manual')" id="btnAttManual" class="flex-1 py-1.5 rounded text-[10px] toggle-btn-inactive transition-all">⌨️ يدوي</button></div>
                 <div id="attScanArea" class="relative">
                     <div id="reader" class="scanner-wrapper h-48 w-full mb-2"></div>
@@ -360,6 +345,22 @@
                 <button onclick="generateAdvancedReport()" class="w-full bg-indigo-600 text-white py-1 rounded font-bold shadow hover:bg-indigo-700 text-[10px]">عرض</button>
                 <div id="reportResult" class="mt-2 hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px]"></div>
             </div>
+            
+            <!-- NEW: Bulk Actions Section -->
+            <div class="glass-card border-t-4 border-purple-600 mb-2">
+                <h3 class="font-bold mb-2 text-purple-900 flex items-center gap-2 text-xs"><span>📢</span> إجراءات جماعية (واتساب & Excel)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+                    <div><label class="text-[9px] text-gray-500 block mb-1">المرحلة</label><select id="bulkStage" class="w-full p-1 border rounded bg-white text-[10px]"><option value="all">الكل</option><optgroup label="الابتدائية"><option value="1ب">الأول الابتدائي</option><option value="2ب">الثاني الابتدائي</option><option value="3ب">الثالث الابتدائي</option><option value="4ب">الرابع الابتدائي</option><option value="5ب">الخامس الابتدائي</option><option value="6ب">السادس الابتدائي</option></optgroup><optgroup label="الإعدادية"><option value="1ع">الأول الإعدادي</option><option value="2ع">الثاني الإعدادي</option><option value="3ع">الثالث الإعدادي</option></optgroup><optgroup label="الثانوية"><option value="1ث">الأول الثانوي</option><option value="2ث">الثاني الثانوي</option><option value="3ث">الثالث الثانوي</option></optgroup></select></div>
+                    <div><label class="text-[9px] text-gray-500 block mb-1">الفترة</label><select id="bulkType" onchange="toggleBulkInputs()" class="w-full p-1 border rounded bg-white text-[10px]"><option value="daily">يومي</option><option value="monthly">شهري</option></select></div>
+                    <div id="bulkDateDiv"><label class="text-[9px] text-gray-500 block mb-1">اليوم</label><input type="date" id="bulkDate" class="w-full p-1 border rounded text-[10px]"></div>
+                    <div id="bulkMonthDiv" class="hidden"><label class="text-[9px] text-gray-500 block mb-1">الشهر</label><input type="month" id="bulkMonth" class="w-full p-1 border rounded text-[10px]"></div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="openBulkWhatsAppModal()" class="flex-1 bg-green-600 text-white py-1.5 rounded font-bold shadow hover:bg-green-700 text-[10px]">📱 إرسال واتساب جماعي</button>
+                    <button onclick="exportBulkExcel()" class="flex-1 bg-green-800 text-white py-1.5 rounded font-bold shadow hover:bg-green-900 text-[10px]">📊 تصدير Excel شامل</button>
+                </div>
+            </div>
+
             <div class="glass-card border-t-4 border-yellow-500">
                 <h3 class="font-bold mb-2 flex items-center gap-2 text-yellow-800 text-xs"><span>💾</span> النسخ الاحتياطي</h3>
                 <div class="flex gap-2"><button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-1 rounded font-bold text-[10px] border border-yellow-300">تحميل</button><div class="relative flex-1"><input type="file" id="importFile" onchange="importData(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"><button class="w-full bg-gray-100 text-gray-700 py-1 rounded font-bold text-[10px] border border-gray-300">استعادة</button></div></div>
@@ -434,18 +435,14 @@
     </div>
 </div>
 
-<!-- Bulk WhatsApp Modal -->
+<!-- NEW: Bulk WhatsApp Modal -->
 <div id="bulkWhatsAppModal" class="fixed inset-0 bg-black/80 hidden z-[250] flex items-center justify-center p-4 no-print">
-    <div class="bg-white rounded-xl w-full max-w-sm p-4 shadow-2xl text-center">
-        <h3 class="font-bold text-lg text-teal-900 mb-2">إرسال واتساب جماعي</h3>
-        <div id="bulkProgress" class="mb-4 text-sm font-bold text-gray-600">جاري التحضير...</div>
-        <div id="currentStudentInfo" class="bg-gray-100 p-3 rounded mb-4">
-            <p class="font-bold text-lg" id="bulkStdName">-</p>
-            <p class="text-sm text-gray-500" id="bulkStdPhone">-</p>
-        </div>
-        <div class="flex gap-2">
-            <button onclick="sendNextWhatsApp()" class="flex-1 bg-green-600 text-white py-2 rounded font-bold">إرسال التالي ➡️</button>
-            <button onclick="closeModal('bulkWhatsAppModal')" class="bg-red-100 text-red-600 px-4 py-2 rounded font-bold">إغلاق</button>
+    <div class="bg-white rounded-xl w-full max-w-md p-4 shadow-2xl h-[80vh] flex flex-col">
+        <div class="flex justify-between items-center mb-4 border-b pb-2"><h3 class="font-bold text-lg text-green-900">📱 إرسال واتساب جماعي</h3><button onclick="closeModal('bulkWhatsAppModal')" class="text-red-500 font-bold text-xl">&times;</button></div>
+        <div class="bg-yellow-50 p-2 rounded border border-yellow-200 mb-2 text-[10px] text-yellow-800 font-bold">تنبيه: سيتم فتح واتساب لكل طالب. يرجى السماح بالنوافذ المنبثقة (Pop-ups).</div>
+        <div id="bulkListContainer" class="overflow-y-auto flex-1 p-2 space-y-2 border rounded bg-gray-50"></div>
+        <div class="mt-2 pt-2 border-t text-center">
+            <p id="bulkProgress" class="text-xs font-bold text-gray-600 mb-2">جاهز للإرسال</p>
         </div>
     </div>
 </div>
@@ -474,7 +471,6 @@
     const today = new Date().toISOString().split('T')[0];
     let selectedAttendanceDate = today; let currentModalStudentId = null; let currentParentPhone = null; let currentScheduleLevel = null; let currentReportData = {};
     let loginMode = 'admin';
-    let bulkQueue = []; let bulkIndex = 0;
 
     function normalizeArabic(text) { return text.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي'); }
 
@@ -484,7 +480,6 @@
         document.getElementById('reportDate').value = today;
         document.getElementById('bulkDate').value = today;
         document.getElementById('msMonthInput').value = today.substring(0, 7);
-        document.getElementById('bulkMonth').value = today.substring(0, 7);
         document.getElementById('loginOverlay').style.display = 'flex';
         showTab('students', document.getElementById('nav-students'));
     };
@@ -534,6 +529,7 @@
         
         const attendanceRecord = window.attendance.find(r => r.date === dateStr && r.studentId === student.id);
         
+        // Check for exceptional session marker
         const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === dateStr);
         const isGlobalExceptional = sessionRec && (!sessionRec.levels || sessionRec.levels.includes('all') || sessionRec.levels.includes(student.level));
 
@@ -748,10 +744,12 @@
     window.cancelSessionDay = async function() {
         const date = document.getElementById('attendanceDate').value;
         
+        // 1. Immediate UI Update (Optimistic)
         document.getElementById('exceptionalStatusIndicator').classList.add('hidden');
         window.attendance = window.attendance.filter(r => !(r.studentId === "SESSION_MARKER" && r.date === date));
         window.updateCounters();
 
+        // 2. Database Operation (Delete ALL markers for this date)
         const sessionQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", "SESSION_MARKER"), window.where("date", "==", date));
         const snapshot = await window.getDocs(sessionQuery);
         
@@ -760,6 +758,7 @@
                 await window.deleteDoc(doc.ref);
             });
             
+            // 3. Clean up attendance records for students who shouldn't be there
             const attQuery = window.query(window.collection(window.db, "attendance"), window.where("date", "==", date));
             const attSnapshot = await window.getDocs(attQuery);
             
@@ -772,6 +771,7 @@
                 const student = window.students.find(s => s.id === data.studentId);
                 if (student) {
                     const studentSchedule = window.scheduleData[student.level] || [];
+                    // If today is NOT in their schedule, delete the record
                     if (!studentSchedule.includes(dayName)) {
                         await window.deleteDoc(doc.ref);
                     }
@@ -784,11 +784,14 @@
         }
     }
 
-    // --- NEW: Migrate Old Data Function ---
+    // --- NEW: Migrate Old Data Function (One Click) ---
     window.migrateOldData = async function() {
-        if(!confirm('هل أنت متأكد؟ سيقوم هذا الإجراء بتحديث بيانات الطلاب القديمة لتتوافق مع النظام الجديد.')) return;
-        alert('تم تحديث النظام بنجاح!');
-        location.reload();
+        showToast('جاري تحديث البيانات...', 'success');
+        // This is a placeholder for any future data migration logic.
+        // Currently, it just refreshes to ensure latest code is active.
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
     }
 
     async function startScanner(elemId, mode) {
@@ -888,6 +891,7 @@
         const selectedLevel = document.getElementById('attendanceStage').value;
         const date = selectedAttendanceDate;
         
+        // تحديث مؤشر الحالة الاستثنائية
         const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === date);
         const indicator = document.getElementById('exceptionalStatusIndicator');
         const levelNameSpan = document.getElementById('exceptionalLevelName');
@@ -939,13 +943,12 @@
         const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === student.id);
         const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
 
+        // --- FIXED: Added Payment Details to WhatsApp ---
         const absenceList = regularAbsence.map(h => `${h.date} ${h.isExceptional ? '(استثنائي)' : ''}`).join('\n') || 'لا يوجد';
         const presentList = exceptionalPresent.map(h => `${h.date} (استثنائي)`).join('\n') || 'لا يوجد';
-        
-        // --- FIXED: Added Payment Details to WhatsApp ---
-        const paymentDetails = payments.map(p => `${p.amount} ج.م (${p.type}) - ${p.date}`).join('\n') || 'لا يوجد';
+        const paymentDetails = payments.map(p => `💰 ${p.amount} ج.م (${p.type}) - ${p.date}`).join('\n') || 'لا يوجد مدفوعات';
 
-        currentStudentReport = `*تقرير الطالب: ${student.name}*\nكود: ${student.id}\nتاريخ الاشتراك: ${student.date}\n----------------\n✅ أيام الحضور: ${stats.present}\n❌ أيام الغياب: ${stats.absent}\n💰 إجمالي المدفوعات: ${totalPaid} ج.م\n----------------\n*تواريخ الغياب:*\n${absenceList}\n\n*🌟 حضور استثنائي:*\n${presentList}\n\n*💰 تفاصيل المدفوعات:*\n${paymentDetails}`;
+        currentStudentReport = `*تقرير الطالب: ${student.name}*\nكود: ${student.id}\nتاريخ الاشتراك: ${student.date}\n----------------\n✅ أيام الحضور: ${stats.present}\n❌ أيام الغياب: ${stats.absent}\n💰 إجمالي المدفوعات: ${totalPaid} ج.م\n----------------\n*تفاصيل المدفوعات:*\n${paymentDetails}\n\n*تواريخ الغياب:*\n${absenceList}\n\n*🌟 حضور استثنائي:*\n${presentList}`;
         
         resDiv.innerHTML = `
             <div class="border-b pb-2 mb-2"><h4 class="font-bold text-lg text-blue-900">${student.name}</h4><p class="text-gray-500 text-xs">كود: ${student.id} | ${stageMap[student.level]}</p></div>
@@ -1059,96 +1062,82 @@
         }
     }
 
-    function getBulkData() {
+    function getBulkStudents() {
         const stage = document.getElementById('bulkStage').value;
+        let students = window.students;
+        if(stage !== 'all') students = students.filter(s => s.level === stage);
+        return students;
+    }
+
+    function exportBulkExcel() {
+        const students = getBulkStudents();
         const type = document.getElementById('bulkType').value;
-        const date = document.getElementById('bulkDate').value;
-        const month = document.getElementById('bulkMonth').value;
-
-        if(!stage) { showToast('اختر المرحلة', 'error'); return null; }
-        if(type === 'daily' && !date) { showToast('اختر التاريخ', 'error'); return null; }
-        if(type === 'monthly' && !month) { showToast('اختر الشهر', 'error'); return null; }
-
-        let targetStudents = window.students.filter(s => s.level === stage);
-        let data = [];
-
-        if(type === 'daily') {
-            targetStudents.forEach(s => {
-                const status = getStudentStatusForDate(s, date);
-                data.push({
-                    name: s.name,
-                    code: s.id,
-                    phone: s.phone,
-                    status: status.status === 'present' ? 'حضور' : (status.status === 'absent' ? 'غياب' : 'ليس يومه'),
-                    time: status.time || '-',
-                    note: status.isExceptional ? 'استثنائي' : ''
-                });
-            });
-        } else {
-            // Monthly logic simplified for bulk
-            const [y, m] = month.split('-');
-            targetStudents.forEach(s => {
-                const stats = calculateStudentStats(s); // This calculates ALL history
-                // Filter for this month
-                const monthHistory = stats.history.filter(h => h.date.startsWith(month));
-                const presentDays = monthHistory.filter(h => h.status === 'present').length;
-                const absentDays = monthHistory.filter(h => h.status === 'absent').length;
-                data.push({
-                    name: s.name,
-                    code: s.id,
-                    phone: s.phone,
-                    status: `حضور: ${presentDays} | غياب: ${absentDays}`,
-                    time: '-',
-                    note: '-'
-                });
-            });
-        }
-        return data;
-    }
-
-    window.exportAttendanceExcel = function() {
-        const data = getBulkData();
-        if(!data) return;
+        const dateVal = type === 'daily' ? document.getElementById('bulkDate').value : document.getElementById('bulkMonth').value;
         
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Report");
-        XLSX.writeFile(wb, "SmartCenter_Report.xlsx");
+        if(!dateVal) return showToast('اختر التاريخ', 'error');
+
+        let csvContent = "\uFEFF"; // BOM for Arabic support
+        csvContent += "الكود,الاسم,المرحلة,رقم الهاتف,أيام الحضور,أيام الغياب,إجمالي المدفوعات,تفاصيل المدفوعات\n";
+
+        students.forEach(s => {
+            const stats = calculateStudentStats(s);
+            const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === s.id);
+            const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+            const payDetails = payments.map(p => `${p.amount} (${p.type})`).join(' | ');
+            
+            csvContent += `${s.id},"${s.name}",${stageMap[s.level] || s.level},'${s.phone},${stats.present},${stats.absent},${totalPaid},"${payDetails}"\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `تقرير_شامل_${dateVal}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
-    window.initiateBulkWhatsApp = function() {
-        const data = getBulkData();
-        if(!data) return;
+    let bulkQueue = [];
+    function openBulkWhatsAppModal() {
+        const students = getBulkStudents();
+        if(students.length === 0) return showToast('لا يوجد طلاب', 'error');
         
-        bulkQueue = data;
-        bulkIndex = 0;
-        if(bulkQueue.length > 0) {
-            document.getElementById('bulkWhatsAppModal').classList.remove('hidden');
-            updateBulkModal();
-        } else {
-            showToast('لا يوجد طلاب', 'warning');
-        }
+        bulkQueue = students;
+        const container = document.getElementById('bulkListContainer');
+        container.innerHTML = students.map((s, i) => `
+            <div class="flex justify-between items-center border-b pb-1 mb-1" id="bulk-row-${i}">
+                <span class="text-xs font-bold">${s.name}</span>
+                <button onclick="sendSingleWhatsApp(${i})" class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[9px] font-bold hover:bg-green-200">إرسال</button>
+            </div>
+        `).join('');
+        
+        document.getElementById('bulkWhatsAppModal').classList.remove('hidden');
     }
 
-    function updateBulkModal() {
-        if(bulkIndex >= bulkQueue.length) {
-            closeModal('bulkWhatsAppModal');
-            showToast('تم الانتهاء', 'success');
-            return;
-        }
-        const student = bulkQueue[bulkIndex];
-        document.getElementById('bulkProgress').innerText = `طالب ${bulkIndex + 1} من ${bulkQueue.length}`;
-        document.getElementById('bulkStdName').innerText = student.name;
-        document.getElementById('bulkStdPhone').innerText = student.phone;
-    }
-
-    window.sendNextWhatsApp = function() {
-        const student = bulkQueue[bulkIndex];
-        const msg = `تقرير الطالب: ${student.name}\nالحالة: ${student.status}\n${student.note ? '(' + student.note + ')' : ''}`;
+    window.sendSingleWhatsApp = function(index) {
+        const student = bulkQueue[index];
+        const stats = calculateStudentStats(student);
+        const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === student.id);
+        const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+        
+        const msg = `*تقرير الطالب: ${student.name}*\nكود: ${student.id}\n✅ حضور: ${stats.present}\n❌ غياب: ${stats.absent}\n💰 مدفوعات: ${totalPaid} ج.م`;
         const url = `https://wa.me/20${student.phone}?text=${encodeURIComponent(msg)}`;
+        
         window.open(url, '_blank');
-        bulkIndex++;
-        updateBulkModal();
+        
+        // Update UI
+        const row = document.getElementById(`bulk-row-${index}`);
+        row.classList.add('bg-green-50');
+        row.querySelector('button').innerText = 'تم ✅';
+        row.querySelector('button').disabled = true;
+        
+        // Auto-scroll to next
+        if(index + 1 < bulkQueue.length) {
+            document.getElementById('bulkProgress').innerHTML = `التالي: <button onclick="sendSingleWhatsApp(${index+1})" class="text-blue-600 underline">${bulkQueue[index+1].name}</button>`;
+        } else {
+            document.getElementById('bulkProgress').innerText = "تم الانتهاء!";
+        }
     }
 
     window.openScheduleModal = function() {
