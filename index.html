@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Smart Center | Secondary Only</title>
+    <title>Smart Center | Pro v1.6</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -110,7 +110,7 @@
 <div id="appContent" class="hidden">
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-base font-bold flex items-center gap-2">🎓 Smart Center <span class="text-[9px] bg-green-500 px-1.5 py-0.5 rounded text-white">v1.5 Egypt-Time</span></h1>
+            <h1 class="text-base font-bold flex items-center gap-2">🎓 Smart Center <span class="text-[9px] bg-green-500 px-1.5 py-0.5 rounded text-white">v1.6 Fix-31</span></h1>
             <div class="flex items-center gap-3"><div class="text-[10px] bg-blue-800 px-3 py-1 rounded-full font-mono border border-blue-700" id="headerDate">--/--/----</div><button onclick="logout()" class="text-[10px] bg-red-600 px-3 py-1 rounded font-bold hover:bg-red-700 transition">خروج</button></div>
         </div>
         <div class="bg-blue-800 border-t border-blue-700" id="navBar">
@@ -404,11 +404,8 @@
 
     window.students = []; window.attendance = []; window.accounting = []; window.scheduleData = {};
     
-    // --- CRITICAL FIX: FORCE EGYPT TIMEZONE ---
     function getEgyptDate() {
-        // Returns YYYY-MM-DD in Egypt Time (UTC+2/3)
-        const d = new Date();
-        return d.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+        return new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
     }
     
     let today = getEgyptDate();
@@ -418,7 +415,7 @@
     function normalizeArabic(text) { return text.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي'); }
 
     window.onload = () => {
-        today = getEgyptDate(); // Refresh on load
+        today = getEgyptDate();
         document.getElementById('headerDate').innerText = today;
         document.getElementById('attendanceDate').value = today;
         document.getElementById('reportDate').value = today;
@@ -453,37 +450,38 @@
     window.logout = function() { localStorage.clear(); location.reload(); }
 
     function getStudentStatusForDate(student, dateStr) {
-        const dateObj = new Date(dateStr + "T12:00:00"); // Noon logic
+        const dateObj = new Date(dateStr + "T12:00:00");
         const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
         const attendanceRecord = window.attendance.find(r => r.date === dateStr && r.studentId === student.id);
         const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === dateStr);
         const isGlobalExceptional = sessionRec && (!sessionRec.levels || sessionRec.levels.includes('all') || sessionRec.levels.includes(student.level));
         const studentSchedule = window.scheduleData[student.level] || [];
         const isScheduled = studentSchedule.includes(dayName);
+        
         if (attendanceRecord) { return { status: 'present', time: attendanceRecord.time, isExceptional: (!isScheduled || isGlobalExceptional) }; }
-        if (isScheduled || isGlobalExceptional) { return { status: 'absent', isExceptional: isGlobalExceptional }; }
+        
+        // --- FIX: Only mark absent if the day is NOT in the future ---
+        if ((isScheduled || isGlobalExceptional) && dateStr <= today) { 
+            return { status: 'absent', isExceptional: isGlobalExceptional }; 
+        }
+        
         return { status: 'none' };
     }
 
-    // --- FIX: NOON-BASED RANGE GENERATOR (MANUAL ENGINE) ---
+    // --- FIX: ROBUST RANGE GENERATOR ---
     function getDatesInRange(startDate, endDate) {
         const dates = [];
-        // Manual Parsing to Integer Components
         let [sY, sM, sD] = startDate.split('-').map(Number);
         let [eY, eM, eD] = endDate.split('-').map(Number);
         
-        // Use Noon for Loop Control
         let curr = new Date(sY, sM - 1, sD, 12, 0, 0);
         let last = new Date(eY, eM - 1, eD, 12, 0, 0);
 
         while (curr <= last) {
-            // Manual String Construction
             const y = curr.getFullYear();
             const m = String(curr.getMonth() + 1).padStart(2, '0');
             const d = String(curr.getDate()).padStart(2, '0');
             dates.push(`${y}-${m}-${d}`);
-            
-            // Safe increment
             curr.setDate(curr.getDate() + 1);
         }
         return dates;
@@ -492,7 +490,13 @@
     function calculateStudentStats(student) {
         let present = 0; let absent = 0; let history = [];
         const joinDate = student.date || '2020-01-01';
-        const allDates = getDatesInRange(joinDate, today);
+        
+        // --- FIX: Find the latest date in attendance to ensure 31 is included if recorded ---
+        const studentAtt = window.attendance.filter(a => a.studentId === student.id);
+        const latestAttDate = studentAtt.length > 0 ? studentAtt.map(a => a.date).sort().reverse()[0] : today;
+        const maxDate = latestAttDate > today ? latestAttDate : today;
+
+        const allDates = getDatesInRange(joinDate, maxDate);
         allDates.forEach(dateStr => {
             const dayAr = new Date(dateStr + "T12:00:00").toLocaleDateString('ar-EG', {weekday: 'long'});
             const statusObj = getStudentStatusForDate(student, dateStr);
@@ -596,7 +600,7 @@
         window.updateCounters();
         const sessionQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", "SESSION_MARKER"), window.where("date", "==", date));
         const snapshot = await window.getDocs(sessionQuery);
-        if (!snapshot.empty) { snapshot.forEach(async (doc) => { await window.deleteDoc(doc.ref); }); const attQuery = window.query(window.collection(window.db, "attendance"), window.where("date", "==", date)); const attSnapshot = await window.getDocs(attQuery); const dayName = new Date(date).toLocaleDateString('en-US', {weekday: 'long'}); attSnapshot.forEach(async (doc) => { const data = doc.data(); if (data.studentId === "SESSION_MARKER") return; const student = window.students.find(s => s.id === data.studentId); if (student) { const studentSchedule = window.scheduleData[student.level] || []; if (!studentSchedule.includes(dayName)) { await window.deleteDoc(doc.ref); } } }); showToast('تم إلغاء التثبيت وتنظيف السجلات', 'success'); } else { showToast('لا يوجد تثبيت لهذا اليوم لإلغائه', 'warning'); }
+        if (!snapshot.empty) { snapshot.forEach(async (doc) => { await window.deleteDoc(doc.ref); }); const attQuery = window.query(window.collection(window.db, "attendance"), window.where("date", "==", date)); const attSnapshot = await window.getDocs(attQuery); const dayName = new Date(date + "T12:00:00").toLocaleDateString('en-US', {weekday: 'long'}); attSnapshot.forEach(async (doc) => { const data = doc.data(); if (data.studentId === "SESSION_MARKER") return; const student = window.students.find(s => s.id === data.studentId); if (student) { const studentSchedule = window.scheduleData[student.level] || []; if (!studentSchedule.includes(dayName)) { await window.deleteDoc(doc.ref); } } }); showToast('تم إلغاء التثبيت وتنظيف السجلات', 'success'); } else { showToast('لا يوجد تثبيت لهذا اليوم لإلغائه', 'warning'); }
     }
     window.repairSystemData = async function() { if(!confirm('هل أنت متأكد؟')) return; showToast('جاري الفحص والإصلاح...', 'success'); setTimeout(() => { showToast('تم إصلاح النظام بنجاح', 'success'); location.reload(); }, 1500); }
     async function startScanner(elemId, mode) { if(isScannerRunning) return; html5QrCode = new Html5Qrcode(elemId); await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => { if(isPaused) return; if(mode === 'attendance') handleAttendanceScan(decodedText); else if(mode === 'payment') handlePaymentScan(decodedText); }); isScannerRunning = true; }
@@ -682,7 +686,6 @@
         setTimeout(() => { window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }, 500);
     }
 
-    // --- FIX: MANUAL LOOP FOR MONTHLY REPORT ---
     function generateAdvancedReport() {
         const type = document.getElementById('reportType').value;
         const stage = document.getElementById('reportStage').value;
@@ -708,7 +711,7 @@
             if(!monthInput) return showToast('اختر الشهر', 'error');
             const [year, month] = monthInput.split('-').map(Number);
             
-            // Manual Day Generation Loop (No Date Object shifting issues)
+            // --- FIX: Robust Month Day Generation ---
             const daysInMonth = new Date(year, month, 0).getDate();
             const daysArray = [];
             for(let i=1; i<=daysInMonth; i++) {
@@ -751,10 +754,10 @@
         let csvContent = "\uFEFF";
         if (type === 'daily') {
             csvContent += "الكود,الاسم,المرحلة,رقم الهاتف,حالة اليوم,وقت الحضور,تفاصيل المدفوعات\n";
-            students.forEach(s => { const statusObj = getStudentStatusForDate(s, dateVal); let statusText = "غياب"; let timeText = "-"; if (statusObj.status === 'present') { statusText = statusObj.isExceptional ? "حضور (استثنائي)" : "حضور"; timeText = statusObj.time; } else if (statusObj.status === 'none') { statusText = "ليس يومه"; } const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === s.id); const payDetails = payments.map(p => `${p.amount} (${p.type})`).join(' | '); csvContent += `${s.id},"${s.name}",${stageMap[s.level] || s.level},'${s.phone},${statusText},${timeText},"${payDetails}"\n`; });
+            students.forEach(s => { const statusObj = getStudentStatusForDate(s, dateVal); let statusText = "غياب"; let timeText = "-"; if (statusObj.status === 'present') { statusText = statusObj.isExceptional ? "حضور (استثنائي)" : "حضور"; timeText = statusObj.time; } else if (statusObj.status === 'none') { statusText = "ليس يومه"; } const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === s.id); const payDetails = payments.map(p => `${p.amount} (${p.type})`).join(' | '); csvContent += `${s.id},"${s.name}",${stageMap[s.level] || s.level}','${s.phone},${statusText},${timeText},"${payDetails}"\n`; });
         } else {
             csvContent += "الكود,الاسم,المرحلة,رقم الهاتف,أيام الحضور,أيام الغياب,إجمالي المدفوعات,تفاصيل المدفوعات,تواريخ الحضور الاستثنائي,تواريخ الغياب الاستثنائي\n";
-            students.forEach(s => { const stats = calculateStudentStats(s); const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === s.id); const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0); const payDetails = payments.map(p => `${p.amount} (${p.type})`).join(' | '); const excPresent = stats.history.filter(h => h.status === 'present' && h.isExceptional).map(h => h.date).join(' | '); const excAbsent = stats.history.filter(h => h.status === 'absent' && h.isExceptional).map(h => h.date).join(' | '); csvContent += `${s.id},"${s.name}",${stageMap[s.level] || s.level},'${s.phone},${stats.present},${stats.absent},${totalPaid},"${payDetails}","${excPresent}","${excAbsent}"\n`; });
+            students.forEach(s => { const stats = calculateStudentStats(s); const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === s.id); const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0); const payDetails = payments.map(p => `${p.amount} (${p.type})`).join(' | '); const excPresent = stats.history.filter(h => h.status === 'present' && h.isExceptional).map(h => h.date).join(' | '); const excAbsent = stats.history.filter(h => h.status === 'absent' && h.isExceptional).map(h => h.date).join(' | '); csvContent += `${s.id},"${s.name}",${stageMap[s.level] || s.level}','${s.phone},${stats.present},${stats.absent},${totalPaid},"${payDetails}","${excPresent}","${excAbsent}"\n`; });
         }
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.setAttribute("href", url); link.setAttribute("download", `تقرير_شامل_${dateVal}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
@@ -802,11 +805,10 @@
         const monthInput = document.getElementById('msMonthInput').value; const [year, month] = monthInput.split('-').map(Number);
         const targetDays = window.scheduleData[currentScheduleLevel] || []; const listDiv = document.getElementById('msDatesList');
         if(targetDays.length === 0) { listDiv.innerHTML = '<p class="text-center text-gray-500">لم يتم تحديد أيام لهذه المرحلة</p>'; return; }
-        // Manual Loop to avoid 30/31 issues
         const daysInMonth = new Date(year, month, 0).getDate();
         let dates = [];
         for(let i=1; i<=daysInMonth; i++) {
-            const d = new Date(year, month - 1, i, 12, 0, 0); // Noon
+            const d = new Date(year, month - 1, i, 12, 0, 0);
             let dayName = d.toLocaleDateString('en-US', {weekday: 'long'});
             if (targetDays.includes(dayName)) {
                 const y = d.getFullYear();
