@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Smart Center Pro | Ultimate System</title>
+    <title>Smart Center Pro | Final Version</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -64,8 +64,31 @@
         @media print {
             body > *:not(#print-container) { display: none !important; }
             #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; padding: 0; color: black; }
-            @page { margin: 0; size: auto; }
+            @page { margin: 0.5cm; size: A4; }
             
+            /* إصلاح طباعة تقرير الطالب (الداشبورد) */
+            .std-print-profile { 
+                border: 2px solid #000; 
+                padding: 20px; 
+                border-radius: 10px; 
+                margin-bottom: 20px; 
+                display: block; 
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+            }
+            /* إجبار الباركود على الظهور */
+            #dashQr img, #printQr img { 
+                max-width: 100% !important; 
+                display: block !important; 
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            #dashQr {
+                border: 1px solid #000;
+                padding: 5px;
+                display: inline-block;
+            }
+
             /* تصميم كارت الطالب */
             .student-card-center {
                 position: absolute;
@@ -81,19 +104,8 @@
                 box-shadow: 0 0 0 1px #000;
                 -webkit-print-color-adjust: exact;
             }
-            .card-qr-box { display: flex; justify-content: center; margin-bottom: 15px; }
-            .card-qr-box img { max-width: 100% !important; display: block !important; }
-            
-            .card-name-lg { font-size: 18pt; font-weight: 900; margin: 10px 0; color: #000; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-            .card-details-box { border: 2px solid #ccc; padding: 15px; border-radius: 10px; background: #f9f9f9; margin-bottom: 15px; text-align: right; -webkit-print-color-adjust: exact; }
-            .card-row { margin: 8px 0; font-size: 12pt; font-weight: bold; display: flex; justify-content: space-between; }
-            .card-footer { font-size: 12pt; color: #1e3a8a; margin-top: 15px; font-weight: 900; border-top: 2px solid #eee; padding-top: 10px; }
 
-            /* إصلاح طباعة صفحة الطالب (الداشبورد) */
-            .std-print-profile { border: 2px solid #000; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: block; }
-            .std-print-profile #dashQr img { width: 100px !important; height: 100px !important; display: block !important; margin: 0 auto; }
-
-            .report-print-container { padding: 20px; width: 100%; }
+            .report-print-container { padding: 10px; width: 100%; }
             .report-header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
             .report-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11pt; }
             .report-table th, .report-table td { border: 1px solid #000 !important; padding: 8px; text-align: center; color: #000; }
@@ -206,9 +218,16 @@
                 <div class="flex justify-between items-center mb-2 no-print">
                     <h2 class="font-bold text-xs">الطلاب (<span id="stdCount">0</span>)</h2>
                     <div class="flex gap-2">
-                        <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث (الاسم/الكود)..." class="text-[10px] p-1.5 border rounded w-32 focus:w-48 transition-all">
+                        <!-- NEW: Stage Filter -->
+                        <select id="studentListFilter" onchange="renderStudents()" class="text-[10px] p-1.5 border rounded w-24">
+                            <option value="all">كل المراحل</option>
+                            <option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option>
+                            <option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option>
+                            <option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option>
+                            <option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option>
+                        </select>
+                        <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث (الاسم/الكود)..." class="text-[10px] p-1.5 border rounded w-24 focus:w-32 transition-all">
                         <button onclick="printContent('studentsListArea', 'قائمة الطلاب المسجلين')" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">🖨️ طباعة</button>
-                        <button onclick="migrateOldData()" class="bg-indigo-600 text-white px-2 py-1 rounded text-[10px] font-bold">🔄 تحديث وإصلاح</button>
                     </div>
                 </div>
                 <div id="studentsListArea" class="overflow-x-auto"><table class="custom-table"><thead><tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th>المرحلة</th><th class="col-date">تاريخ</th><th class="no-print col-action">حذف</th></tr></thead><tbody id="studentsTable"></tbody></table></div>
@@ -366,8 +385,12 @@
             </div>
 
             <div class="glass-card border-t-4 border-yellow-500">
-                <h3 class="font-bold mb-2 flex items-center gap-2 text-yellow-800 text-xs"><span>💾</span> النسخ الاحتياطي</h3>
-                <div class="flex gap-2"><button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-1 rounded font-bold text-[10px] border border-yellow-300">تحميل</button><div class="relative flex-1"><input type="file" id="importFile" onchange="importData(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"><button class="w-full bg-gray-100 text-gray-700 py-1 rounded font-bold text-[10px] border border-gray-300">استعادة</button></div></div>
+                <h3 class="font-bold mb-2 flex items-center gap-2 text-yellow-800 text-xs"><span>💾</span> النسخ الاحتياطي & إصلاح</h3>
+                <div class="flex gap-2">
+                    <button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-1 rounded font-bold text-[10px] border border-yellow-300">تحميل</button>
+                    <div class="relative flex-1"><input type="file" id="importFile" onchange="importData(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"><button class="w-full bg-gray-100 text-gray-700 py-1 rounded font-bold text-[10px] border border-gray-300">استعادة</button></div>
+                    <button onclick="migrateOldData()" class="flex-1 bg-indigo-600 text-white py-1 rounded font-bold text-[10px]">🔄 تحديث وإصلاح</button>
+                </div>
             </div>
         </section>
     </main>
@@ -563,6 +586,22 @@
         return { status: 'none' };
     }
 
+    // --- FIX: Date Range Logic (Timezone Safe) ---
+    function getDatesInRange(startDate, endDate) {
+        const date = new Date(startDate);
+        const end = new Date(endDate);
+        // Set to noon to avoid DST issues
+        date.setHours(12,0,0,0);
+        end.setHours(12,0,0,0);
+        
+        const dates = [];
+        while (date <= end) {
+            dates.push(date.toISOString().split('T')[0]);
+            date.setDate(date.getDate() + 1);
+        }
+        return dates;
+    }
+
     function calculateStudentStats(student) {
         let present = 0;
         let absent = 0;
@@ -688,9 +727,20 @@
 
     window.renderStudents = function() {
         const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
+        const filterStage = document.getElementById('studentListFilter').value;
         const tbody = document.getElementById('studentsTable');
+        
         let filtered = window.students;
-        if(query !== '') filtered = window.students.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query));
+        
+        // Filter by Stage
+        if(filterStage !== 'all') {
+            filtered = filtered.filter(s => s.level === filterStage);
+        }
+
+        // Filter by Search
+        if(query !== '') {
+            filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query));
+        }
         
         filtered.sort((a, b) => { 
             const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.date);
@@ -938,7 +988,10 @@
 
     function getDatesInRange(startDate, endDate) {
         const date = new Date(startDate); const end = new Date(endDate); const dates = [];
-        while (date <= end) { dates.push(new Date(date).toISOString().split('T')[0]); date.setDate(date.getDate() + 1); }
+        // Fix: Set to noon to avoid timezone skipping
+        date.setHours(12,0,0,0);
+        end.setHours(12,0,0,0);
+        while (date <= end) { dates.push(date.toISOString().split('T')[0]); date.setDate(date.getDate() + 1); }
         return dates;
     }
 
@@ -1025,6 +1078,7 @@
             if(!monthInput) return showToast('اختر الشهر', 'error');
             const [year, month] = monthInput.split('-').map(Number);
             const daysInMonth = []; const date = new Date(year, month - 1, 1);
+            // Fix: Loop until end of month correctly
             while (date.getMonth() === month - 1) { daysInMonth.push(new Date(date)); date.setDate(date.getDate() + 1); }
             
             let monthlyStats = {};
