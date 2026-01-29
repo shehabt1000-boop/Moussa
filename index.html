@@ -23,11 +23,13 @@
         .scanner-wrapper { border-radius: 0.75rem; overflow: hidden; background: black; position: relative; }
         #html5-qrcode-button-camera-stop { display: none !important; }
         .glass-card { background: white; border-radius: 0.5rem; padding: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 0.5rem; }
-        .custom-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; }
-        .custom-table thead { background-color: #f8fafc; color: #1e293b; font-weight: 700; border-bottom: 2px solid #e2e8f0; }
-        .custom-table th, .custom-table td { padding: 8px 4px; border-bottom: 1px solid #e2e8f0; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .custom-table tr:last-child td { border-bottom: none; }
+        
+        /* تنسيق الجداول بحدود واضحة */
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; border: 1px solid #cbd5e1; }
+        .custom-table thead { background-color: #f8fafc; color: #1e293b; font-weight: 700; }
+        .custom-table th, .custom-table td { padding: 8px 4px; border: 1px solid #cbd5e1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .custom-table tbody tr:hover { background-color: #f1f5f9; }
+        
         .col-index { width: 30px; text-align: center; color: #64748b; }
         .toggle-btn-active { background-color: #ffffff; color: #1d4ed8; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-weight: 700; }
         .toggle-btn-inactive { background-color: transparent; color: #6b7280; }
@@ -39,10 +41,12 @@
         .login-btn { width: 100%; padding: 12px; background: #1e3a8a; color: white; border-radius: 10px; font-weight: bold; font-size: 14px; transition: transform 0.1s; }
         .login-tab { flex: 1; padding: 10px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; color: #64748b; transition: all 0.3s; }
         .login-tab.active { color: #1e3a8a; border-bottom-color: #1e3a8a; background: #f1f5f9; border-radius: 5px 5px 0 0; }
-        .schedule-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
+        
+        .schedule-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; border: 1px solid #cbd5e1; }
         .schedule-table thead { background-color: #1e3a8a; color: white; }
         .schedule-table th, .schedule-table td { padding: 10px; border: 1px solid #cbd5e1; text-align: center; }
         .schedule-table tbody tr:nth-child(even) { background-color: #f8fafc; }
+        
         .std-dash-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         .std-info-row { display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding: 8px 0; font-size: 11px; }
         .std-info-label { color: #64748b; font-weight: 600; }
@@ -55,58 +59,38 @@
         
         @media print {
             body > *:not(#print-container) { display: none !important; }
-            #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; background: white; padding: 0; color: black; }
-            @page { margin: 0.2cm; size: auto; }
+            #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; padding: 0; color: black; }
+            @page { margin: 0; size: auto; }
             
-            /* تصميم كارت الطالب المخصص */
-            .print-card-wrapper {
-                width: 85.6mm; /* عرض الكارت القياسي */
-                height: 54mm;  /* ارتفاع الكارت القياسي */
-                border: 2px solid #1e3a8a;
-                border-radius: 10px;
-                margin: 20px auto;
-                padding: 5px;
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
+            /* تصميم كارت الطالب الجديد (منتصف الصفحة) */
+            .student-card-center {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 90mm;
+                height: auto;
+                border: 3px solid #1e3a8a;
+                border-radius: 15px;
+                padding: 20px;
+                text-align: center;
                 background: white;
-                position: relative;
-                overflow: hidden;
-                box-sizing: border-box;
+                box-shadow: 0 0 0 1px #000; /* حدود إضافية للطباعة */
             }
-            .card-info { flex: 1; text-align: right; padding-right: 10px; }
-            .card-qr { width: 30mm; display: flex; justify-content: center; align-items: center; }
-            .card-title { font-size: 12pt; font-weight: 900; color: #1e3a8a; margin-bottom: 5px; }
-            .card-name { font-size: 11pt; font-weight: bold; margin-bottom: 2px; }
-            .card-level { font-size: 9pt; color: #555; font-weight: bold; }
-            .card-code { font-family: monospace; font-size: 10pt; font-weight: bold; margin-top: 5px; background: #eee; display: inline-block; padding: 2px 5px; border-radius: 4px; }
+            .card-qr-box { display: flex; justify-content: center; margin-bottom: 10px; }
+            .card-name-lg { font-size: 16pt; font-weight: 900; margin: 10px 0; color: #000; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+            .card-details-box { border: 1px solid #ccc; padding: 10px; border-radius: 8px; background: #f9f9f9; margin-bottom: 10px; }
+            .card-row { margin: 5px 0; font-size: 11pt; font-weight: bold; }
+            .card-footer { font-size: 10pt; color: #555; margin-top: 10px; font-weight: bold; }
 
-            /* إصلاح طباعة الأجندة */
-            .agenda-print-wrapper { 
-                width: 100%; 
-                border: 1px solid #000; 
-                padding: 10px; 
-                height: auto !important; 
-                overflow: visible !important; 
-                display: block !important;
-            }
-            .agenda-print-wrapper .overflow-y-auto {
-                overflow: visible !important;
-                max-height: none !important;
-                height: auto !important;
-            }
-            .agenda-row {
-                border-bottom: 1px solid #000 !important;
-                page-break-inside: avoid;
-            }
-
-            .report-print-container { padding: 10px; width: 100%; }
+            /* تنسيق الجداول في الطباعة */
+            .report-print-container { padding: 20px; width: 100%; }
             .report-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
             .report-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 10pt; }
-            .report-table th, .report-table td { border: 1px solid #000; padding: 6px; text-align: center; }
+            .report-table th, .report-table td { border: 1px solid #000 !important; padding: 6px; text-align: center; }
             .report-table th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; font-weight: bold; }
-            .std-print-profile { border: 2px solid #000; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+            
+            .agenda-print-wrapper { width: 100%; border: 1px solid #000; padding: 10px; display: block !important; }
             .no-print-in-paper { display: none !important; }
         }
     </style>
@@ -205,7 +189,6 @@
                 <div class="mb-2 bg-blue-50 p-2 rounded border border-blue-200">
                     <div class="grid grid-cols-2 gap-2">
                         <div><label class="text-[9px] text-blue-800 font-bold block mb-1">تاريخ اليوم</label><input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full p-1.5 border rounded text-center font-bold text-blue-900 text-xs"></div>
-                        <!-- تم تعديل القائمة لتشمل "الكل" كخيار افتراضي -->
                         <div><label class="text-[9px] text-blue-800 font-bold block mb-1">المرحلة</label><select id="attendanceStage" onchange="updateCounters()" class="w-full p-1.5 border rounded text-center font-bold text-blue-900 text-xs"><option value="all" selected>الكل</option><optgroup label="الابتدائية"><option value="1ب">1ب</option><option value="2ب">2ب</option><option value="3ب">3ب</option><option value="4ب">4ب</option><option value="5ب">5ب</option><option value="6ب">6ب</option></optgroup><optgroup label="الإعدادية"><option value="1ع">1ع</option><option value="2ع">2ع</option><option value="3ع">3ع</option></optgroup><optgroup label="الثانوية"><option value="1ث">1ث</option><option value="2ث">2ث</option><option value="3ث">3ث</option></optgroup></select></div>
                     </div>
                 </div>
@@ -421,7 +404,6 @@
             
             const isScheduled = studentSchedule.includes(dayName);
             const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === dateStr);
-            // Check if global exception covers this student (either 'all' or specific level)
             const isGlobalExceptional = sessionRec && (!sessionRec.levels || sessionRec.levels.includes('all') || sessionRec.levels.includes(student.level));
 
             if (isPresentInDb) {
@@ -564,7 +546,6 @@
     window.confirmSessionDay = async function() {
         const date = document.getElementById('attendanceDate').value;
         const selectedLevel = document.getElementById('attendanceStage').value;
-        // السماح بتثبيت "الكل"
         if(!selectedLevel) { showToast('يجب اختيار المرحلة أولاً لتثبيت اليوم!', 'error'); return; }
         
         const sessionRecords = window.attendance.filter(r => r.date === date && r.studentId === "SESSION_MARKER");
@@ -612,8 +593,8 @@
                 return; 
             }
             
-            // إذا كانت القائمة ليست "الكل" والطالب في مرحلة مختلفة، نعطي تنبيه فقط ولكن نسمح بالتسجيل إذا كان اليوم صحيحاً
-            if(selectedLevel !== 'all' && selectedLevel && student.level !== selectedLevel) { 
+            // حل مشكلة التضارب: إذا كان هناك استثناء مفعل للطالب، نتجاهل اختلاف القائمة المنسدلة
+            if(selectedLevel !== 'all' && selectedLevel && student.level !== selectedLevel && !isExceptional) { 
                 if(!confirm(`تنبيه: الطالب مسجل في ${stageMap[student.level]} وأنت تسجل لـ ${stageMap[selectedLevel]}. هل تريد الاستمرار؟`)) { isPaused = false; return; } 
             }
 
@@ -680,7 +661,6 @@
         const selectedLevel = document.getElementById('attendanceStage').value;
         let targetStudents = window.students.filter(s => s.date <= selectedAttendanceDate);
         
-        // إذا لم يكن "الكل"، قم بالفلترة
         if(selectedLevel !== 'all') targetStudents = targetStudents.filter(s => s.level === selectedLevel);
         
         const dateObj = new Date(selectedAttendanceDate);
@@ -778,8 +758,27 @@
             targetStudents = targetStudents.filter(s => s.date <= dateInput);
             const dayRecords = window.attendance.filter(r => r.date === dateInput);
             const presentIds = dayRecords.map(r => r.studentId);
+            
+            // إصلاح منطق التقرير اليومي: الغياب فقط لمن كان عليه جدول أو استثناء
+            const dateObj = new Date(dateInput);
+            const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
+            const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === dateInput);
+
             currentReportData.present = targetStudents.filter(s => presentIds.includes(s.id)).map(s => { const rec = dayRecords.find(r => r.studentId === s.id); return { ...s, time: rec.time || '-' }; });
-            currentReportData.absent = targetStudents.filter(s => !presentIds.includes(s.id)).map(s => ({ ...s, time: 'غياب' }));
+            
+            currentReportData.absent = [];
+            targetStudents.forEach(s => {
+                if (!presentIds.includes(s.id)) {
+                    const studentSchedule = window.scheduleData[s.level] || [];
+                    const isScheduled = studentSchedule.includes(dayName);
+                    const isGlobalExceptional = sessionRec && (!sessionRec.levels || sessionRec.levels.includes('all') || sessionRec.levels.includes(s.level));
+                    
+                    if (isScheduled || isGlobalExceptional) {
+                        currentReportData.absent.push({ ...s, time: 'غياب' });
+                    }
+                }
+            });
+
             currentReportData.revenues = window.accounting.filter(r => r.category === 'revenue' && r.date === dateInput);
             currentReportData.expenses = window.accounting.filter(e => e.category === 'expense' && e.date === dateInput);
         } else {
@@ -877,23 +876,25 @@
     function shareStudentReport() { if(currentParentPhone) { const url = `https://wa.me/20${currentParentPhone}?text=${encodeURIComponent(currentStudentReport)}`; window.open(url, '_blank'); } else { alert('لا يوجد رقم ولي أمر'); } }
     function printContent(elementId, title) { const content = document.getElementById(elementId).innerHTML; const printContainer = document.getElementById('print-container'); printContainer.innerHTML = `<div style="text-align: center; margin-bottom: 20px;"><h1 style="font-size: 20px; font-weight: bold;">Smart Center</h1><h2 style="font-size: 16px;">${title}</h2><p style="font-size: 12px;">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p></div><div class="print-table-wrapper">${content}</div>`; const noPrintElements = printContainer.querySelectorAll('.no-print, .no-print-in-paper, button'); noPrintElements.forEach(el => el.remove()); window.print(); setTimeout(() => { printContainer.innerHTML = ''; }, 1000); }
     
-    // دالة طباعة كارت الطالب بالتصميم الجديد
+    // دالة طباعة كارت الطالب بالتصميم الجديد (منتصف الصفحة)
     function printStudentCard() { 
         const s = window.students.find(st => st.id === currentModalStudentId); 
         if(!s) return; 
         const printContainer = document.getElementById('print-container'); 
         printContainer.innerHTML = `
-            <div class="print-card-wrapper">
-                <div class="card-info">
-                    <div class="card-title">Smart Center</div>
-                    <div class="card-name">${s.name}</div>
-                    <div class="card-level">${stageMap[s.level] || s.level}</div>
-                    <div class="card-code">${s.id}</div>
+            <div class="student-card-center">
+                <div class="card-qr-box" id="printQr"></div>
+                <div class="card-name-lg">${s.name}</div>
+                <div class="card-details-box">
+                    <div class="card-row">الكود: ${s.id}</div>
+                    <div class="card-row">كلمة السر: ${s.password || '----'}</div>
                 </div>
-                <div class="card-qr" id="printQr"></div>
+                <div class="card-row">المرحلة: ${stageMap[s.level] || s.level}</div>
+                <div class="card-row" style="font-size: 10pt; color: #666;">تاريخ الاشتراك: ${s.date}</div>
+                <div class="card-footer">Smart Center Pro</div>
             </div>
         `; 
-        new QRCode(document.getElementById("printQr"), { text: s.id, width: 90, height: 90 }); 
+        new QRCode(document.getElementById("printQr"), { text: s.id, width: 120, height: 120 }); 
         window.print(); 
         setTimeout(() => { printContainer.innerHTML = ''; }, 1000); 
     }
