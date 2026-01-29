@@ -66,6 +66,7 @@
             #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; padding: 0; color: black; }
             @page { margin: 0; size: auto; }
             
+            /* تصميم كارت الطالب */
             .student-card-center {
                 position: absolute;
                 top: 50%;
@@ -81,13 +82,16 @@
                 -webkit-print-color-adjust: exact;
             }
             .card-qr-box { display: flex; justify-content: center; margin-bottom: 15px; }
-            /* Fix for QR code in print */
             .card-qr-box img { max-width: 100% !important; display: block !important; }
             
             .card-name-lg { font-size: 18pt; font-weight: 900; margin: 10px 0; color: #000; border-bottom: 2px solid #eee; padding-bottom: 10px; }
             .card-details-box { border: 2px solid #ccc; padding: 15px; border-radius: 10px; background: #f9f9f9; margin-bottom: 15px; text-align: right; -webkit-print-color-adjust: exact; }
             .card-row { margin: 8px 0; font-size: 12pt; font-weight: bold; display: flex; justify-content: space-between; }
             .card-footer { font-size: 12pt; color: #1e3a8a; margin-top: 15px; font-weight: 900; border-top: 2px solid #eee; padding-top: 10px; }
+
+            /* إصلاح طباعة صفحة الطالب (الداشبورد) */
+            .std-print-profile { border: 2px solid #000; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: block; }
+            .std-print-profile #dashQr img { width: 100px !important; height: 100px !important; display: block !important; margin: 0 auto; }
 
             .report-print-container { padding: 20px; width: 100%; }
             .report-header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
@@ -440,7 +444,16 @@
     <div class="bg-white rounded-xl w-full max-w-md p-4 shadow-2xl h-[80vh] flex flex-col">
         <div class="flex justify-between items-center mb-4 border-b pb-2"><h3 class="font-bold text-lg text-green-900">📱 إرسال واتساب جماعي</h3><button onclick="closeModal('bulkWhatsAppModal')" class="text-red-500 font-bold text-xl">&times;</button></div>
         <div class="bg-yellow-50 p-2 rounded border border-yellow-200 mb-2 text-[10px] text-yellow-800 font-bold">تنبيه: سيتم فتح واتساب لكل طالب. يرجى السماح بالنوافذ المنبثقة (Pop-ups).</div>
-        <div id="bulkListContainer" class="overflow-y-auto flex-1 p-2 space-y-2 border rounded bg-gray-50"></div>
+        
+        <!-- Table Header -->
+        <div class="grid grid-cols-12 gap-1 bg-gray-100 p-2 rounded-t font-bold text-xs border-b">
+            <div class="col-span-2 text-center">م</div>
+            <div class="col-span-7">اسم الطالب</div>
+            <div class="col-span-3 text-center">إجراء</div>
+        </div>
+        
+        <div id="bulkListContainer" class="overflow-y-auto flex-1 p-2 space-y-1 border rounded-b bg-gray-50"></div>
+        
         <div class="mt-2 pt-2 border-t text-center">
             <p id="bulkProgress" class="text-xs font-bold text-gray-600 mb-2">جاهز للإرسال</p>
         </div>
@@ -456,10 +469,12 @@
     const app = initializeApp(firebaseConfig); const db = getFirestore(app);
     window.db = db; window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.where = where; window.setDoc = setDoc; window.updateDoc = updateDoc;
     const loading = document.getElementById('loadingOverlay');
-    onSnapshot(collection(db, "students"), (snapshot) => { window.students = []; snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id })); window.renderStudents(); loading.style.display = 'none'; });
+    
+    // Fix: Update counters immediately when data loads
+    onSnapshot(collection(db, "students"), (snapshot) => { window.students = []; snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id })); window.renderStudents(); window.updateCounters(); loading.style.display = 'none'; });
     onSnapshot(collection(db, "attendance"), (snapshot) => { window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); window.updateCounters(); window.renderFormalSchedule(); });
     onSnapshot(collection(db, "accounting"), (snapshot) => { window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); window.updateFinance(); });
-    onSnapshot(doc(db, "settings", "schedule"), (doc) => { if(doc.exists()) window.scheduleData = doc.data(); else window.scheduleData = {}; window.renderFormalSchedule(); });
+    onSnapshot(doc(db, "settings", "schedule"), (doc) => { if(doc.exists()) window.scheduleData = doc.data(); else window.scheduleData = {}; window.renderFormalSchedule(); window.updateCounters(); });
 </script>
 
 <script>
@@ -787,8 +802,6 @@
     // --- NEW: Migrate Old Data Function (One Click) ---
     window.migrateOldData = async function() {
         showToast('جاري تحديث البيانات...', 'success');
-        // This is a placeholder for any future data migration logic.
-        // Currently, it just refreshes to ensure latest code is active.
         setTimeout(() => {
             location.reload();
         }, 1000);
@@ -1077,7 +1090,7 @@
         if(!dateVal) return showToast('اختر التاريخ', 'error');
 
         let csvContent = "\uFEFF"; // BOM for Arabic support
-        csvContent += "الكود,الاسم,المرحلة,رقم الهاتف,أيام الحضور,أيام الغياب,إجمالي المدفوعات,تفاصيل المدفوعات\n";
+        csvContent += "الكود,الاسم,المرحلة,رقم الهاتف,أيام الحضور,أيام الغياب,إجمالي المدفوعات,تفاصيل المدفوعات,تواريخ الحضور الاستثنائي,تواريخ الغياب الاستثنائي\n";
 
         students.forEach(s => {
             const stats = calculateStudentStats(s);
@@ -1085,7 +1098,11 @@
             const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
             const payDetails = payments.map(p => `${p.amount} (${p.type})`).join(' | ');
             
-            csvContent += `${s.id},"${s.name}",${stageMap[s.level] || s.level},'${s.phone},${stats.present},${stats.absent},${totalPaid},"${payDetails}"\n`;
+            // Extract exceptional dates
+            const excPresent = stats.history.filter(h => h.status === 'present' && h.isExceptional).map(h => h.date).join(' | ');
+            const excAbsent = stats.history.filter(h => h.status === 'absent' && h.isExceptional).map(h => h.date).join(' | ');
+            
+            csvContent += `${s.id},"${s.name}",${stageMap[s.level] || s.level},'${s.phone},${stats.present},${stats.absent},${totalPaid},"${payDetails}","${excPresent}","${excAbsent}"\n`;
         });
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1105,12 +1122,19 @@
         
         bulkQueue = students;
         const container = document.getElementById('bulkListContainer');
-        container.innerHTML = students.map((s, i) => `
-            <div class="flex justify-between items-center border-b pb-1 mb-1" id="bulk-row-${i}">
-                <span class="text-xs font-bold">${s.name}</span>
-                <button onclick="sendSingleWhatsApp(${i})" class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[9px] font-bold hover:bg-green-200">إرسال</button>
-            </div>
-        `).join('');
+        container.innerHTML = `
+            <table class="w-full text-[10px] border-collapse">
+                ${students.map((s, i) => `
+                    <tr class="border-b hover:bg-gray-100" id="bulk-row-${i}">
+                        <td class="p-1 text-center w-8 font-bold text-gray-500">${i+1}</td>
+                        <td class="p-1 font-bold">${s.name}</td>
+                        <td class="p-1 text-center w-16">
+                            <button onclick="sendSingleWhatsApp(${i})" class="bg-green-600 text-white px-2 py-1 rounded shadow hover:bg-green-700 transition">إرسال</button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </table>
+        `;
         
         document.getElementById('bulkWhatsAppModal').classList.remove('hidden');
     }
@@ -1121,22 +1145,32 @@
         const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === student.id);
         const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
         
-        const msg = `*تقرير الطالب: ${student.name}*\nكود: ${student.id}\n✅ حضور: ${stats.present}\n❌ غياب: ${stats.absent}\n💰 مدفوعات: ${totalPaid} ج.م`;
+        const exceptionalPresent = stats.history.filter(h => h.status === 'present' && h.isExceptional);
+        const regularAbsence = stats.history.filter(h => h.status === 'absent');
+        
+        const absenceList = regularAbsence.map(h => `${h.date} ${h.isExceptional ? '(استثنائي)' : ''}`).join('\n') || 'لا يوجد';
+        const presentList = exceptionalPresent.map(h => `${h.date} (استثنائي)`).join('\n') || 'لا يوجد';
+        const paymentDetails = payments.map(p => `💰 ${p.amount} ج.م (${p.type}) - ${p.date}`).join('\n') || 'لا يوجد مدفوعات';
+
+        const msg = `*تقرير الطالب: ${student.name}*\nكود: ${student.id}\nتاريخ الانضمام: ${student.date}\n----------------\n✅ حضور: ${stats.present}\n❌ غياب: ${stats.absent}\n💰 مدفوعات: ${totalPaid} ج.م\n----------------\n*تفاصيل المدفوعات:*\n${paymentDetails}\n\n*تواريخ الغياب:*\n${absenceList}\n\n*🌟 حضور استثنائي:*\n${presentList}`;
+        
         const url = `https://wa.me/20${student.phone}?text=${encodeURIComponent(msg)}`;
         
         window.open(url, '_blank');
         
         // Update UI
         const row = document.getElementById(`bulk-row-${index}`);
-        row.classList.add('bg-green-50');
-        row.querySelector('button').innerText = 'تم ✅';
-        row.querySelector('button').disabled = true;
+        row.classList.add('bg-green-100');
+        const btn = row.querySelector('button');
+        btn.innerText = 'تم ✅';
+        btn.className = 'bg-gray-400 text-white px-2 py-1 rounded cursor-not-allowed';
+        btn.disabled = true;
         
         // Auto-scroll to next
         if(index + 1 < bulkQueue.length) {
-            document.getElementById('bulkProgress').innerHTML = `التالي: <button onclick="sendSingleWhatsApp(${index+1})" class="text-blue-600 underline">${bulkQueue[index+1].name}</button>`;
+            document.getElementById('bulkProgress').innerHTML = `التالي: <button onclick="sendSingleWhatsApp(${index+1})" class="text-blue-600 underline font-bold">${bulkQueue[index+1].name}</button>`;
         } else {
-            document.getElementById('bulkProgress').innerText = "تم الانتهاء!";
+            document.getElementById('bulkProgress').innerText = "تم الانتهاء من القائمة!";
         }
     }
 
@@ -1149,11 +1183,21 @@
         });
         document.getElementById('scheduleModal').classList.remove('hidden');
     }
+    
+    // Fix: Update counters immediately after saving schedule
     window.saveSchedule = async function() {
         const newSchedule = {};
         Object.keys(stageMap).forEach(level => { const checkboxes = document.querySelectorAll(`input[name="schedule_${level}"]:checked`); if(checkboxes.length > 0) newSchedule[level] = Array.from(checkboxes).map(cb => cb.value); });
-        try { await window.setDoc(window.doc(window.db, "settings", "schedule"), newSchedule); window.scheduleData = newSchedule; closeModal('scheduleModal'); showToast('تم حفظ الجدول بنجاح', 'success'); window.renderFormalSchedule(); } catch(e) { showToast('خطأ في الحفظ', 'error'); }
+        try { 
+            await window.setDoc(window.doc(window.db, "settings", "schedule"), newSchedule); 
+            window.scheduleData = newSchedule; 
+            closeModal('scheduleModal'); 
+            showToast('تم حفظ الجدول بنجاح', 'success'); 
+            window.renderFormalSchedule(); 
+            window.updateCounters(); // Immediate update
+        } catch(e) { showToast('خطأ في الحفظ', 'error'); }
     }
+    
     window.openMonthlySchedule = function(level) { currentScheduleLevel = level; document.getElementById('msStageName').innerText = `جدول: ${stageMap[level]}`; renderMonthlySchedule(); document.getElementById('monthlyScheduleModal').classList.remove('hidden'); }
     window.renderMonthlySchedule = function() {
         if(!currentScheduleLevel) return;
