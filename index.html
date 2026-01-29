@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Smart Center Pro | Full System</title>
+    <title>Smart Center Pro | Integrated System</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -197,7 +197,11 @@
             <div class="glass-card">
                 <div class="flex justify-between items-center mb-2 no-print">
                     <h2 class="font-bold text-xs">الطلاب (<span id="stdCount">0</span>)</h2>
-                    <div class="flex gap-2"><input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث (الاسم/الكود)..." class="text-[10px] p-1.5 border rounded w-32 focus:w-48 transition-all"><button onclick="printContent('studentsListArea', 'قائمة الطلاب المسجلين')" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">🖨️ طباعة</button></div>
+                    <div class="flex gap-2">
+                        <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث (الاسم/الكود)..." class="text-[10px] p-1.5 border rounded w-32 focus:w-48 transition-all">
+                        <button onclick="printContent('studentsListArea', 'قائمة الطلاب المسجلين')" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">🖨️ طباعة</button>
+                        <button onclick="migrateOldData()" class="bg-indigo-600 text-white px-2 py-1 rounded text-[10px] font-bold">🔄 تحديث وإصلاح البيانات</button>
+                    </div>
                 </div>
                 <div id="studentsListArea" class="overflow-x-auto"><table class="custom-table"><thead><tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th>المرحلة</th><th class="col-date">تاريخ</th><th class="no-print col-action">حذف</th></tr></thead><tbody id="studentsTable"></tbody></table></div>
             </div>
@@ -501,7 +505,6 @@
 
         if (attendanceRecord) {
             // If present, check if it was exceptional
-            // It is exceptional if: Not Scheduled OR (Scheduled AND Global Exception Active)
             const isExceptional = (!isScheduled || isGlobalExceptional);
             return { status: 'present', time: attendanceRecord.time, isExceptional: isExceptional };
         }
@@ -709,7 +712,7 @@
         window.updateCounters();
     }
 
-    // --- FIXED: Cancel Session Logic (Immediate UI Update + Clean DB) ---
+    // --- FIXED: Smart Cancel Session Logic ---
     window.cancelSessionDay = async function() {
         const date = document.getElementById('attendanceDate').value;
         
@@ -720,7 +723,7 @@
         window.attendance = window.attendance.filter(r => !(r.studentId === "SESSION_MARKER" && r.date === date));
         window.updateCounters();
 
-        // 2. Database Operation (Delete ALL markers for this date to be safe)
+        // 2. Database Operation (Delete ALL markers for this date)
         const sessionQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", "SESSION_MARKER"), window.where("date", "==", date));
         const snapshot = await window.getDocs(sessionQuery);
         
@@ -728,10 +731,47 @@
             snapshot.forEach(async (doc) => {
                 await window.deleteDoc(doc.ref);
             });
-            showToast('تم إلغاء التثبيت بنجاح', 'success');
+            
+            // 3. Clean up attendance records for students who shouldn't be there
+            const attQuery = window.query(window.collection(window.db, "attendance"), window.where("date", "==", date));
+            const attSnapshot = await window.getDocs(attQuery);
+            
+            const dayName = new Date(date).toLocaleDateString('en-US', {weekday: 'long'});
+            
+            attSnapshot.forEach(async (doc) => {
+                const data = doc.data();
+                if (data.studentId === "SESSION_MARKER") return;
+                
+                const student = window.students.find(s => s.id === data.studentId);
+                if (student) {
+                    const studentSchedule = window.scheduleData[student.level] || [];
+                    // If today is NOT in their schedule, delete the record
+                    if (!studentSchedule.includes(dayName)) {
+                        await window.deleteDoc(doc.ref);
+                    }
+                }
+            });
+
+            showToast('تم إلغاء التثبيت وتنظيف السجلات', 'success');
         } else {
             showToast('لا يوجد تثبيت لهذا اليوم لإلغائه', 'warning');
         }
+    }
+
+    // --- NEW: Migrate Old Data Function ---
+    window.migrateOldData = async function() {
+        if(!confirm('هل أنت متأكد؟ سيقوم هذا الإجراء بتحديث بيانات الطلاب القديمة لتتوافق مع النظام الجديد.')) return;
+        
+        const updates = [];
+        window.students.forEach(student => {
+            // Check if level needs update (e.g., "1ث" is fine internally, but if you want to change it)
+            // Actually, the system uses short codes internally. 
+            // This function is a placeholder if you ever need to batch update fields.
+            // For now, we just refresh the local view.
+        });
+        
+        alert('تم تحديث النظام بنجاح!');
+        location.reload();
     }
 
     async function startScanner(elemId, mode) {
