@@ -110,7 +110,7 @@
 <div id="appContent" class="hidden">
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-base font-bold flex items-center gap-2">🎓 Smart Center <span class="text-[9px] bg-green-500 px-1.5 py-0.5 rounded text-white">v1.4 Noon-Engine</span></h1>
+            <h1 class="text-base font-bold flex items-center gap-2">🎓 Smart Center <span class="text-[9px] bg-green-500 px-1.5 py-0.5 rounded text-white">v1.5 Egypt-Time</span></h1>
             <div class="flex items-center gap-3"><div class="text-[10px] bg-blue-800 px-3 py-1 rounded-full font-mono border border-blue-700" id="headerDate">--/--/----</div><button onclick="logout()" class="text-[10px] bg-red-600 px-3 py-1 rounded font-bold hover:bg-red-700 transition">خروج</button></div>
         </div>
         <div class="bg-blue-800 border-t border-blue-700" id="navBar">
@@ -403,13 +403,22 @@
     const dayMap = { 'Sunday': 'الأحد', 'Monday': 'الاثنين', 'Tuesday': 'الثلاثاء', 'Wednesday': 'الأربعاء', 'Thursday': 'الخميس', 'Friday': 'الجمعة', 'Saturday': 'السبت' };
 
     window.students = []; window.attendance = []; window.accounting = []; window.scheduleData = {};
-    const today = new Date().toISOString().split('T')[0];
+    
+    // --- CRITICAL FIX: FORCE EGYPT TIMEZONE ---
+    function getEgyptDate() {
+        // Returns YYYY-MM-DD in Egypt Time (UTC+2/3)
+        const d = new Date();
+        return d.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+    }
+    
+    let today = getEgyptDate();
     let selectedAttendanceDate = today; let currentModalStudentId = null; let currentParentPhone = null; let currentScheduleLevel = null; let currentReportData = {};
     let loginMode = 'admin';
 
     function normalizeArabic(text) { return text.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي'); }
 
     window.onload = () => {
+        today = getEgyptDate(); // Refresh on load
         document.getElementById('headerDate').innerText = today;
         document.getElementById('attendanceDate').value = today;
         document.getElementById('reportDate').value = today;
