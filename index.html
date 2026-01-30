@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Smart Center | Pro v2.3</title>
+    <title>Smart Center | Pro v2.4</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,7 +17,7 @@
         /* --- تحسينات التصميم العامة --- */
         body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; padding-bottom: 80px; font-size: 12px; -webkit-tap-highlight-color: transparent; user-select: none; }
         
-        /* النمط الأساسي للحقول (رفيع وأنيق) */
+        /* النمط الأساسي للحقول */
         input, select, textarea {
             border: 1px solid #1e3a8a;
             border-radius: 0.5rem;
@@ -29,7 +29,6 @@
         
         input::placeholder { color: #94a3b8; font-weight: normal; }
         
-        /* أيقونة القائمة المنسدلة */
         select, input[type="date"], input[type="month"] { 
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%231e3a8a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); 
             background-position: left 0.5rem center; 
@@ -40,7 +39,7 @@
             height: 38px;
         }
 
-        /* --- تخصيص الألوان حسب الأقسام (Themes) --- */
+        /* --- تخصيص الألوان (Themes) --- */
         .theme-green input, .theme-green select { border-color: #15803d !important; color: #14532d; }
         .theme-green input:focus, .theme-green select:focus { box-shadow: 0 0 0 2px rgba(21, 128, 61, 0.15) !important; outline: none; }
         .theme-green .sub-nav-item { border-color: #15803d !important; color: #15803d; }
@@ -102,7 +101,6 @@
         .col-code { width: 50px; font-family: monospace; font-weight: bold; color: #1e3a8a; }
         .col-date { width: 60px; font-size: 8px; color: #64748b; }
         .col-index { width: 30px; color: #64748b; }
-        /* إصلاح عمود الحذف في الآيباد */
         .col-action { width: 50px; min-width: 50px; } 
         .custom-table tbody tr:hover { background-color: #f0f9ff; }
         
@@ -123,7 +121,7 @@
         .std-info-label { color: #64748b; font-weight: 600; }
         .std-info-val { color: #0f172a; font-weight: 700; }
         
-        #customAlertModal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        #customAlertModal, #paymentConfirmModal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
         .alert-card { background: white; border-radius: 15px; padding: 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-top: 5px solid #1e3a8a; }
         .alert-icon { font-size: 40px; margin-bottom: 10px; display: block; }
         .alert-btn { background: #1e3a8a; color: white; padding: 8px 20px; border-radius: 8px; font-weight: bold; margin-top: 15px; width: 100%; }
@@ -232,6 +230,19 @@
         <h3 id="alertTitle" class="text-base font-bold text-gray-800 mb-1">تنبيه</h3>
         <p id="alertMessage" class="text-[11px] text-gray-600 font-bold mb-4"></p>
         <button onclick="closeCustomAlert()" class="alert-btn shadow-lg" style="padding: 8px; font-size: 13px;">حسناً</button>
+    </div>
+</div>
+
+<!-- نافذة تأكيد الدفع المخصصة -->
+<div id="paymentConfirmModal">
+    <div class="alert-card border-t-4 border-green-600">
+        <div class="text-4xl mb-2">💰</div>
+        <h3 class="text-base font-bold text-gray-800 mb-1">تأكيد الدفع</h3>
+        <p id="payConfirmMsg" class="text-[11px] text-gray-600 font-bold mb-4"></p>
+        <div class="flex gap-2">
+            <button onclick="proceedWithPayment()" class="flex-1 bg-green-600 text-white py-2 rounded font-bold text-xs shadow">نعم، تسجيل جديد</button>
+            <button onclick="closePaymentConfirm()" class="flex-1 bg-gray-500 text-white py-2 rounded font-bold text-xs">إلغاء</button>
+        </div>
     </div>
 </div>
 
@@ -586,9 +597,16 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
     const firebaseConfig = { apiKey: "AIzaSyAttesgksSJWs--veymN8PTRNHBX9r27V0", authDomain: "system-a8c1e.firebaseapp.com", projectId: "system-a8c1e", storageBucket: "system-a8c1e.firebasestorage.app", messagingSenderId: "674440908222", appId: "1:674440908222:web:31221baab0048ee8c63def" };
-    const app = initializeApp(firebaseConfig); const db = getFirestore(app);
-    window.db = db; window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.where = where; window.setDoc = setDoc; window.updateDoc = updateDoc;
+    const app = initializeApp(firebaseConfig); 
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    window.db = db; window.auth = auth; window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.where = where; window.setDoc = setDoc; window.updateDoc = updateDoc;
+    window.signInWithEmailAndPassword = signInWithEmailAndPassword; window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+
     const loading = document.getElementById('loadingOverlay');
     onSnapshot(collection(db, "students"), (snapshot) => { window.students = []; snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id })); window.renderStudents(); window.updateCounters(); loading.style.display = 'none'; });
     onSnapshot(collection(db, "attendance"), (snapshot) => { window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); window.updateCounters(); window.renderFormalSchedule(); });
@@ -600,10 +618,10 @@
     // --- Security Measures (Anti-Theft) ---
     document.addEventListener('contextmenu', event => event.preventDefault());
     document.onkeydown = function(e) {
-        if(e.keyCode == 123) return false; // F12
-        if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
-        if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; // Ctrl+Shift+J
-        if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
+        if(e.keyCode == 123) return false; 
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; 
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; 
+        if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; 
     }
 
     const stageMap = { "1ث": "الأول الثانوي", "2ث": "الثاني الثانوي", "3ث": "الثالث الثانوي" };
@@ -654,7 +672,64 @@
 
     window.validatePhone = function(input) { let val = input.value.replace(/\D/g, ''); if (val.startsWith('0')) val = val.substring(1); if (val.length > 10) val = val.substring(0, 10); input.value = val; }
     window.setLoginMode = function(mode) { loginMode = mode; document.getElementById('tabAdmin').className = mode === 'admin' ? 'login-tab active' : 'login-tab'; document.getElementById('tabStudent').className = mode === 'student' ? 'login-tab active' : 'login-tab'; document.getElementById('loginCode').placeholder = mode === 'admin' ? 'كود الإدارة' : 'كود الطالب'; }
-    window.handleLogin = function() { const code = document.getElementById('loginCode').value; const pass = document.getElementById('loginPass').value; const errorMsg = document.getElementById('loginError'); if (loginMode === 'admin') { if (code === 'xcw6jf7BuycZt5X2iCaqGFWUwrF3') { localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('loginMode', 'admin'); document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('appContent').classList.remove('hidden'); document.getElementById('navBar').classList.remove('hidden'); showTab('students', document.getElementById('nav-students')); } else { errorMsg.classList.remove('hidden'); } } else { const student = window.students.find(s => s.id === code); if (student && student.password === pass) { localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('loginMode', 'student'); localStorage.setItem('currentStudentId', student.id); document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('appContent').classList.remove('hidden'); document.getElementById('navBar').classList.add('hidden'); loadStudentDashboard(student); } else { errorMsg.classList.remove('hidden'); } } }
+    
+    window.handleLogin = async function() { 
+        const code = document.getElementById('loginCode').value; 
+        const pass = document.getElementById('loginPass').value; 
+        const errorMsg = document.getElementById('loginError'); 
+        
+        if (loginMode === 'admin') { 
+            if (code === '1032' && pass === '10321032') { 
+                try {
+                    await window.signInWithEmailAndPassword(window.auth, "1032@gmail.com", "10321032");
+                    proceedLogin('admin');
+                } catch (error) {
+                    // إذا لم يكن الحساب موجوداً، قم بإنشائه (لأول مرة فقط)
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                        try {
+                            await window.createUserWithEmailAndPassword(window.auth, "1032@gmail.com", "10321032");
+                            proceedLogin('admin');
+                        } catch (createError) {
+                            errorMsg.classList.remove('hidden');
+                        }
+                    } else {
+                        errorMsg.classList.remove('hidden');
+                    }
+                }
+            } else { 
+                errorMsg.classList.remove('hidden'); 
+            } 
+        } else { 
+            const student = window.students.find(s => s.id === code); 
+            if (student && student.password === pass) { 
+                try {
+                    await window.signInWithEmailAndPassword(window.auth, `${code}@smartcenter.app`, pass);
+                    localStorage.setItem('currentStudentId', student.id); 
+                    proceedLogin('student');
+                } catch (error) {
+                    errorMsg.classList.remove('hidden');
+                }
+            } else { 
+                errorMsg.classList.remove('hidden'); 
+            } 
+        } 
+    }
+
+    function proceedLogin(mode) {
+        localStorage.setItem('isLoggedIn', 'true'); 
+        localStorage.setItem('loginMode', mode); 
+        document.getElementById('loginOverlay').style.display = 'none'; 
+        document.getElementById('appContent').classList.remove('hidden'); 
+        if (mode === 'admin') {
+            document.getElementById('navBar').classList.remove('hidden'); 
+            showTab('students', document.getElementById('nav-students')); 
+        } else {
+            document.getElementById('navBar').classList.add('hidden'); 
+            const s = window.students.find(st => st.id === localStorage.getItem('currentStudentId'));
+            if(s) loadStudentDashboard(s);
+        }
+    }
+
     window.logout = function() { localStorage.clear(); location.reload(); }
 
     function getStudentStatusForDate(student, dateStr) {
@@ -824,7 +899,35 @@
     }
 
     async function showTab(id, btn) { if(isScannerRunning) await stopScanner(); document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); if(btn) btn.classList.add('active'); localStorage.setItem('activeTab', id); if(id === 'attendance') window.renderFormalSchedule(); }
-    async function registerStudent() { const name = document.getElementById('stdName').value; const level = document.getElementById('stdLevel').value; let phone = document.getElementById('stdPhone').value; if(!name || !level) return showToast('أكمل البيانات', 'error'); phone = phone.replace(/\D/g, ''); if(phone.startsWith('0')) phone = phone.substring(1); let id; do { id = Math.floor(1000 + Math.random() * 9000).toString(); } while (window.students.some(s => s.id === id)); const password = Math.floor(100000 + Math.random() * 900000).toString(); const createdAt = new Date().toISOString(); try { await window.addDoc(window.collection(window.db, "students"), { id, name, level, phone, date: today, password, createdAt }); openStudentModal(id); document.getElementById('stdName').value = ''; document.getElementById('stdPhone').value = ''; showToast('تم الحفظ وإنشاء الحساب', 'success'); } catch (e) { showToast('خطأ في الاتصال', 'error'); } }
+    
+    async function registerStudent() { 
+        const name = document.getElementById('stdName').value; 
+        const level = document.getElementById('stdLevel').value; 
+        let phone = document.getElementById('stdPhone').value; 
+        if(!name || !level) return showToast('أكمل البيانات', 'error'); 
+        phone = phone.replace(/\D/g, ''); if(phone.startsWith('0')) phone = phone.substring(1); 
+        
+        let id; 
+        do { id = Math.floor(1000 + Math.random() * 9000).toString(); } while (window.students.some(s => s.id === id)); 
+        const password = Math.floor(100000 + Math.random() * 900000).toString(); 
+        const createdAt = new Date().toISOString(); 
+        
+        try { 
+            // إنشاء حساب حقيقي في Firebase Auth
+            await window.createUserWithEmailAndPassword(window.auth, `${id}@smartcenter.app`, password);
+            
+            // حفظ البيانات في Firestore
+            await window.addDoc(window.collection(window.db, "students"), { id, name, level, phone, date: today, password, createdAt }); 
+            
+            openStudentModal(id); 
+            document.getElementById('stdName').value = ''; 
+            document.getElementById('stdPhone').value = ''; 
+            showToast('تم الحفظ وإنشاء الحساب', 'success'); 
+        } catch (e) { 
+            showToast('خطأ في الاتصال أو الحساب موجود', 'error'); 
+        } 
+    }
+
     window.renderStudents = function() {
         const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
         const filterStage = document.getElementById('studentListFilter').value;
@@ -1123,33 +1226,49 @@
     window.pdfMonthlySchedule = function() { const element = document.getElementById('monthlyScheduleCard'); const opt = { margin: 10, filename: `جدول_${stageMap[currentScheduleLevel]}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' } }; html2pdf().set(opt).from(element).save(); }
     let currentPayStudent = null;
     function togglePayMethod(method) { const btnScan = document.getElementById('btnPayScan'); const btnManual = document.getElementById('btnPayManual'); if(method === 'scan') { document.getElementById('payScanDiv').classList.remove('hidden'); document.getElementById('payManualDiv').classList.add('hidden'); btnScan.classList.add('active'); btnManual.classList.remove('active'); } else { document.getElementById('payScanDiv').classList.add('hidden'); document.getElementById('payManualDiv').classList.remove('hidden'); btnManual.classList.add('active'); btnScan.classList.remove('active'); stopScanner(); } }
+    
     function handlePaymentScan(id) { 
         if(!document.getElementById('paymentForm').classList.contains('hidden')) return; 
         const student = window.students.find(s => s.id === id); 
         if(student) { 
-            // --- التحقق من تكرار الدفع ---
+            currentPayStudent = student;
+            // التحقق من تكرار الدفع
             const existingPay = window.accounting.find(a => a.stdId === id && a.date === today && a.category === 'revenue');
             if (existingPay) {
-                if (!confirm(`تنبيه: الطالب ${student.name} قام بالدفع اليوم بالفعل (${existingPay.amount} ج.م - ${existingPay.type}). هل تريد تسجيل دفع جديد؟`)) {
-                    return;
-                }
+                document.getElementById('payConfirmMsg').innerText = `الطالب ${student.name} قام بالدفع اليوم بالفعل (${existingPay.amount} ج.م - ${existingPay.type}). هل تريد تسجيل دفع جديد؟`;
+                document.getElementById('paymentConfirmModal').style.display = 'flex';
+                isPaused = true;
+                return;
             }
-
-            currentPayStudent = student; 
-            document.getElementById('paymentForm').classList.remove('hidden'); 
-            document.getElementById('payStdName').innerText = student.name; 
-            document.getElementById('payStdID').innerText = student.id; 
-            
-            // ملء البيانات الافتراضية من الشريط
-            document.getElementById('payAmount').value = document.getElementById('defPayAmount').value;
-            document.getElementById('payType').value = document.getElementById('defPayType').value;
-            document.getElementById('payNote').value = document.getElementById('defPayNote').value;
-
-            playSound('success'); 
+            showPaymentForm();
         } else { 
             showToast('طالب غير موجود', 'error'); 
         } 
     }
+
+    window.proceedWithPayment = function() {
+        document.getElementById('paymentConfirmModal').style.display = 'none';
+        isPaused = false;
+        showPaymentForm();
+    }
+
+    window.closePaymentConfirm = function() {
+        document.getElementById('paymentConfirmModal').style.display = 'none';
+        isPaused = false;
+    }
+
+    function showPaymentForm() {
+        document.getElementById('paymentForm').classList.remove('hidden'); 
+        document.getElementById('payStdName').innerText = currentPayStudent.name; 
+        document.getElementById('payStdID').innerText = currentPayStudent.id; 
+        
+        document.getElementById('payAmount').value = document.getElementById('defPayAmount').value;
+        document.getElementById('payType').value = document.getElementById('defPayType').value;
+        document.getElementById('payNote').value = document.getElementById('defPayNote').value;
+
+        playSound('success'); 
+    }
+
     function searchStudentForPay() { handlePaymentScan(document.getElementById('paySearchID').value); }
     async function confirmPayment() { 
         const amount = parseFloat(document.getElementById('payAmount').value); 
