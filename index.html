@@ -91,34 +91,85 @@
 </head>
 <body class="bg-slate-100 text-slate-800">
 
-<div id="loginOverlay">
+<div id="loginOverlay" style="display: flex; align-items: center; justify-content: center;">
+    <style>
+        /* ستايل إضافي لضمان التصغير على الموبايل */
+        #loginOverlay .login-card {
+            max-width: 310px !important; /* تصغير عرض الصندوق */
+            padding: 20px !important;    /* تقليل الفراغات الداخلية */
+        }
+        #loginOverlay .login-input {
+            padding: 10px !important;    /* تصغير طول خانة الإدخال */
+            margin-bottom: 10px !important;
+            font-size: 13px !important;
+        }
+        #loginOverlay .login-btn {
+            padding: 10px !important;    /* تصغير حجم الزر */
+            font-size: 14px !important;
+        }
+    </style>
+    
     <div class="login-card">
-        <div class="mb-6"><h1 class="text-3xl font-black text-blue-900 mb-1">🎓 Smart Center</h1><p class="text-gray-500 text-xs font-bold">نظام الإدارة التعليمي (ثانوي)</p></div>
-        <div class="flex border-b mb-6"><div onclick="setLoginMode('admin')" id="tabAdmin" class="login-tab active">الإدارة</div><div onclick="setLoginMode('student')" id="tabStudent" class="login-tab">الطالب</div></div>
-        <div id="loginForm"><input type="text" id="loginCode" class="login-input" placeholder="كود الدخول"><input type="password" id="loginPass" class="login-input" placeholder="كلمة المرور"><button onclick="handleLogin()" class="login-btn shadow-lg shadow-blue-900/30">تسجيل الدخول</button></div>
-        <p id="loginError" class="text-red-500 text-xs mt-3 hidden font-bold bg-red-50 p-2 rounded">بيانات الدخول غير صحيحة</p>
+        <div class="mb-4">
+            <h1 class="text-2xl font-black text-blue-900 mb-1">🎓 Smart Center</h1>
+            <p class="text-gray-500 text-[10px] font-bold">نظام الإدارة التعليمي (ثانوي)</p>
+        </div>
+        
+        <div class="flex border-b mb-4">
+            <div onclick="setLoginMode('admin')" id="tabAdmin" class="login-tab active" style="padding: 8px; font-size: 13px;">الإدارة</div>
+            <div onclick="setLoginMode('student')" id="tabStudent" class="login-tab" style="padding: 8px; font-size: 13px;">الطالب</div>
+        </div>
+
+        <div id="loginForm">
+            <input type="text" id="loginCode" class="login-input" placeholder="كود الدخول">
+            <input type="password" id="loginPass" class="login-input" placeholder="كلمة المرور">
+            <button onclick="handleLogin()" class="login-btn shadow-lg shadow-blue-900/30">تسجيل الدخول</button>
+        </div>
+        
+        <p id="loginError" class="text-red-500 text-[10px] mt-2 hidden font-bold bg-red-50 p-2 rounded">بيانات الدخول غير صحيحة</p>
     </div>
 </div>
 
 <div id="customAlertModal">
-    <div class="alert-card"><div id="alertIcon" class="alert-icon">⚠️</div><h3 id="alertTitle" class="text-lg font-bold text-gray-800 mb-2">تنبيه</h3><p id="alertMessage" class="text-sm text-gray-600 font-bold mb-4"></p><button onclick="closeCustomAlert()" class="alert-btn shadow-lg">حسناً</button></div>
+    <div class="alert-card">
+        <div id="alertIcon" class="alert-icon" style="width: 40px; height: 40px; line-height: 40px; font-size: 20px;">⚠️</div>
+        <h3 id="alertTitle" class="text-base font-bold text-gray-800 mb-1">تنبيه</h3>
+        <p id="alertMessage" class="text-[11px] text-gray-600 font-bold mb-4"></p>
+        <button onclick="closeCustomAlert()" class="alert-btn shadow-lg" style="padding: 8px; font-size: 13px;">حسناً</button>
+    </div>
 </div>
 
-<div id="loadingOverlay" class="hidden"><div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-900 mb-4"></div><div class="text-lg">جاري تحميل النظام...</div></div>
+<div id="loadingOverlay" class="hidden">
+    <div class="animate-spin rounded-full h-10 w-10 border-b-4 border-blue-900 mb-4"></div>
+    <div class="text-base">جاري تحميل النظام...</div>
+</div>
+
 <div id="print-container"></div>
 
 <div id="appContent" class="hidden">
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-base font-bold flex items-center gap-2">🎓 Smart Center <span class="text-[9px] bg-green-500 px-1.5 py-0.5 rounded text-white">v1.7 Future-Fix</span></h1>
-            <div class="flex items-center gap-3"><div class="text-[10px] bg-blue-800 px-3 py-1 rounded-full font-mono border border-blue-700" id="headerDate">--/--/----</div><button onclick="logout()" class="text-[10px] bg-red-600 px-3 py-1 rounded font-bold hover:bg-red-700 transition">خروج</button></div>
+        <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+            <h1 class="text-sm font-bold flex items-center gap-2">🎓 Smart Center <span class="text-[8px] bg-green-500 px-1 py-0.5 rounded text-white">v1.7</span></h1>
+            <div class="flex items-center gap-2">
+                <div class="text-[9px] bg-blue-800 px-2 py-1 rounded-full font-mono border border-blue-700" id="headerDate">--/--/----</div>
+                <button onclick="logout()" class="text-[9px] bg-red-600 px-2 py-1 rounded font-bold hover:bg-red-700 transition">خروج</button>
+            </div>
         </div>
         <div class="bg-blue-800 border-t border-blue-700" id="navBar">
-            <div class="container mx-auto px-2"><div class="flex gap-1 overflow-x-auto py-2 no-scrollbar"><button id="nav-students" onclick="showTab('students', this)" class="nav-item px-4 py-1.5 rounded text-xs text-blue-100 flex-shrink-0">الطلاب</button><button id="nav-attendance" onclick="showTab('attendance', this)" class="nav-item px-4 py-1.5 rounded text-xs text-blue-100 flex-shrink-0">الحضور</button><button id="nav-accounting" onclick="showTab('accounting', this)" class="nav-item px-4 py-1.5 rounded text-xs text-blue-100 flex-shrink-0">المحاسبة</button><button id="nav-reports" onclick="showTab('reports', this)" class="nav-item px-4 py-1.5 rounded text-xs text-blue-100 flex-shrink-0">التقارير</button></div></div>
+            <div class="container mx-auto px-1">
+                <div class="flex gap-1 overflow-x-auto py-1.5 no-scrollbar">
+                    <button id="nav-students" onclick="showTab('students', this)" class="nav-item px-3 py-1 rounded text-[11px] text-blue-100 flex-shrink-0">الطلاب</button>
+                    <button id="nav-attendance" onclick="showTab('attendance', this)" class="nav-item px-3 py-1 rounded text-[11px] text-blue-100 flex-shrink-0">الحضور</button>
+                    <button id="nav-accounting" onclick="showTab('accounting', this)" class="nav-item px-3 py-1 rounded text-[11px] text-blue-100 flex-shrink-0">المحاسبة</button>
+                    <button id="nav-reports" onclick="showTab('reports', this)" class="nav-item px-3 py-1 rounded text-[11px] text-blue-100 flex-shrink-0">التقارير</button>
+                </div>
+            </div>
         </div>
     </header>
 
     <main id="mainContent" class="container mx-auto p-3 max-w-4xl">
+
+
         <!-- STUDENT DASHBOARD -->
         <section id="studentDashboard" class="tab-content">
             <div class="flex justify-end mb-2 no-print"><button onclick="printStudentDashboard()" class="bg-gray-800 text-white px-3 py-1 rounded text-xs font-bold">🖨️ طباعة تقرير رسمي</button></div>
