@@ -129,7 +129,6 @@
         <p id="loginError" class="text-red-500 text-[10px] mt-2 hidden font-bold bg-red-50 p-2 rounded">بيانات الدخول غير صحيحة</p>
     </div>
 </div>
-
 <div id="customAlertModal">
     <div class="alert-card">
         <div id="alertIcon" class="alert-icon" style="width: 40px; height: 40px; line-height: 40px; font-size: 20px;">⚠️</div>
@@ -155,13 +154,14 @@
                 <button onclick="logout()" class="text-[9px] bg-red-600 px-2 py-1 rounded font-bold hover:bg-red-700 transition">خروج</button>
             </div>
         </div>
+        
         <div class="bg-blue-800 border-t border-blue-700" id="navBar">
-            <div class="container mx-auto px-1">
-                <div class="flex gap-1 overflow-x-auto py-1.5 no-scrollbar">
-                    <button id="nav-students" onclick="showTab('students', this)" class="nav-item px-3 py-1 rounded text-[11px] text-blue-100 flex-shrink-0">الطلاب</button>
-                    <button id="nav-attendance" onclick="showTab('attendance', this)" class="nav-item px-3 py-1 rounded text-[11px] text-blue-100 flex-shrink-0">الحضور</button>
-                    <button id="nav-accounting" onclick="showTab('accounting', this)" class="nav-item px-3 py-1 rounded text-[11px] text-blue-100 flex-shrink-0">المحاسبة</button>
-                    <button id="nav-reports" onclick="showTab('reports', this)" class="nav-item px-3 py-1 rounded text-[11px] text-blue-100 flex-shrink-0">التقارير</button>
+            <div class="container mx-auto px-2">
+                <div class="flex w-full gap-2 py-2">
+                    <button id="nav-students" onclick="showTab('students', this)" class="nav-item flex-1 py-2 rounded text-[11px] text-blue-100 font-bold text-center hover:bg-blue-700 transition">الطلاب</button>
+                    <button id="nav-attendance" onclick="showTab('attendance', this)" class="nav-item flex-1 py-2 rounded text-[11px] text-blue-100 font-bold text-center hover:bg-blue-700 transition">الحضور</button>
+                    <button id="nav-accounting" onclick="showTab('accounting', this)" class="nav-item flex-1 py-2 rounded text-[11px] text-blue-100 font-bold text-center hover:bg-blue-700 transition">المحاسبة</button>
+                    <button id="nav-reports" onclick="showTab('reports', this)" class="nav-item flex-1 py-2 rounded text-[11px] text-blue-100 font-bold text-center hover:bg-blue-700 transition">التقارير</button>
                 </div>
             </div>
         </div>
@@ -207,60 +207,39 @@
             </div>
         </section>
 
+        <!-- STUDENTS TAB -->
         <section id="students" class="tab-content">
-    <div class="glass-card border-r-4 border-blue-500 no-print" style="width: 100%; max-width: 400px; margin-bottom: 15px; padding: 15px;">
-        <h2 class="font-bold text-blue-900 mb-2 text-xs md:text-sm">تسجيل طالب جديد</h2>
-        <div class="space-y-2">
-            <input type="text" id="stdName" class="w-full p-2 border rounded text-xs focus:ring-1 focus:ring-blue-500 outline-none" placeholder="اسم الطالب رباعي">
-            
-            <div class="flex items-center border rounded bg-white overflow-hidden">
-                <span class="bg-gray-100 px-3 py-2 text-gray-600 text-[10px] font-bold border-l">+20</span>
-                <input type="tel" id="stdPhone" oninput="validatePhone(this)" class="w-full p-2 text-xs outline-none" placeholder="رقم ولي الأمر (10 أرقام)">
+            <div class="glass-card border-r-4 border-blue-500 no-print">
+                <h2 class="font-bold text-blue-900 mb-2 text-xs">تسجيل طالب جديد</h2>
+                <div class="space-y-2">
+                    <input type="text" id="stdName" class="w-full p-2 border rounded text-xs focus:ring-1 focus:ring-blue-500 outline-none" placeholder="اسم الطالب رباعي">
+                    <div class="flex items-center border rounded bg-white overflow-hidden"><span class="bg-gray-100 px-3 py-2 text-gray-600 text-[10px] font-bold border-l">+20</span><input type="tel" id="stdPhone" oninput="validatePhone(this)" class="w-full p-2 text-xs outline-none" placeholder="رقم ولي الأمر (10 أرقام)"></div>
+                    <select id="stdLevel" class="w-full p-2 border rounded bg-white text-xs">
+                        <option value="">اختر المرحلة...</option>
+                        <option value="1ث">الأول الثانوي</option>
+                        <option value="2ث">الثاني الثانوي</option>
+                        <option value="3ث">الثالث الثانوي</option>
+                    </select>
+                    <button onclick="registerStudent()" class="w-full bg-blue-600 text-white py-2 rounded font-bold shadow hover:bg-blue-700 text-xs transition">حفظ وإنشاء حساب</button>
+                </div>
             </div>
-
-            <select id="stdLevel" class="w-full p-2 border rounded bg-white text-xs">
-                <option value="">اختر المرحلة...</option>
-                <option value="1ث">الأول الثانوي</option>
-                <option value="2ث">الثاني الثانوي</option>
-                <option value="3ث">الثالث الثانوي</option>
-            </select>
-
-            <button onclick="registerStudent()" class="w-full bg-blue-600 text-white py-2 rounded font-bold shadow hover:bg-blue-700 text-xs transition">حفظ وإنشاء حساب</button>
-        </div>
-    </div>
-
-    <div class="glass-card" style="padding: 15px;">
-        <div class="flex justify-between items-center mb-3 no-print">
-            <h2 class="font-bold text-xs md:text-sm">الطلاب (<span id="stdCount">0</span>)</h2>
-            <div class="flex gap-2 items-center">
-                <select id="studentListFilter" onchange="renderStudents()" class="elegant-select" style="font-size: 11px; padding: 4px;">
-                    <option value="all">كل المراحل</option>
-                    <option value="1ث">1ث</option>
-                    <option value="2ث">2ث</option>
-                    <option value="3ث">3ث</option>
-                </select>
-                <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث..." class="text-[11px] p-1.5 border rounded w-24 sm:w-40 focus:w-48 transition-all">
-                <button onclick="printContent('studentsListArea', 'قائمة الطلاب')" class="bg-gray-800 text-white px-3 py-1.5 rounded text-[11px]">🖨️</button>
+            <div class="glass-card">
+                <div class="flex justify-between items-center mb-2 no-print">
+                    <h2 class="font-bold text-xs">الطلاب (<span id="stdCount">0</span>)</h2>
+                    <div class="flex gap-2 items-center">
+                        <select id="studentListFilter" onchange="renderStudents()" class="elegant-select">
+                            <option value="all">كل المراحل</option>
+                            <option value="1ث">1ث</option>
+                            <option value="2ث">2ث</option>
+                            <option value="3ث">3ث</option>
+                        </select>
+                        <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث (الاسم/الكود)..." class="text-[10px] p-1.5 border rounded w-24 focus:w-32 transition-all">
+                        <button onclick="printContent('studentsListArea', 'قائمة الطلاب المسجلين')" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">🖨️ طباعة</button>
+                    </div>
+                </div>
+                <div id="studentsListArea" class="overflow-x-auto"><table class="custom-table"><thead><tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th>المرحلة</th><th class="col-date">تاريخ</th><th class="no-print col-action">حذف</th></tr></thead><tbody id="studentsTable"></tbody></table></div>
             </div>
-        </div>
-        
-        <div id="studentsListArea" class="overflow-x-auto">
-            <table class="custom-table" style="font-size: 11px;">
-                <thead>
-                    <tr>
-                        <th class="col-index">م</th>
-                        <th class="col-code">الكود</th>
-                        <th>الاسم</th>
-                        <th>المرحلة</th>
-                        <th class="col-date">تاريخ</th>
-                        <th class="no-print col-action">حذف</th>
-                    </tr>
-                </thead>
-                <tbody id="studentsTable"></tbody>
-            </table>
-        </div>
-    </div>
-</section>
+        </section>
 
         <!-- ATTENDANCE TAB -->
         <section id="attendance" class="tab-content">
