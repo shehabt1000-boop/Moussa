@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Smart Center | Pro v2.4</title>
+    <title>Smart Center | Pro v2.5</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,7 +17,7 @@
         /* --- تحسينات التصميم العامة --- */
         body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; padding-bottom: 80px; font-size: 12px; -webkit-tap-highlight-color: transparent; user-select: none; }
         
-        /* النمط الأساسي للحقول */
+        /* النمط الأساسي للحقول (رفيع وأنيق) */
         input, select, textarea {
             border: 1px solid #1e3a8a;
             border-radius: 0.5rem;
@@ -479,7 +479,16 @@
         <section id="reports" class="tab-content">
             <div class="glass-card theme-blue border-t-4 border-blue-600 mb-2">
                 <h3 class="font-bold mb-2 text-blue-900 flex items-center gap-2 text-xs md:text-base"><span>👤</span> بحث طالب</h3>
-                <div class="flex gap-2 mb-2"><input type="text" id="reportStudentSearch" placeholder="اسم/كود" class="flex-1 p-1 text-xs md:text-sm md:p-2"><button onclick="generateStudentReport()" class="bg-blue-600 text-white px-3 rounded font-bold text-[10px] md:text-sm">بحث</button></div>
+                <div class="flex gap-1 mb-2">
+                    <select id="searchStage" class="w-1/4 p-1 bg-white text-[10px] md:text-sm md:p-2">
+                        <option value="all">الكل</option>
+                        <option value="1ث">1ث</option>
+                        <option value="2ث">2ث</option>
+                        <option value="3ث">3ث</option>
+                    </select>
+                    <input type="text" id="reportStudentSearch" placeholder="اسم/كود" class="flex-1 p-1 text-xs md:text-sm md:p-2">
+                    <button onclick="generateStudentReport()" class="bg-blue-600 text-white px-3 rounded font-bold text-[10px] md:text-sm">بحث</button>
+                </div>
                 <div id="studentReportResult" class="hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm"></div>
             </div>
             <div class="glass-card theme-indigo border-t-4 border-indigo-500 mb-2">
@@ -679,12 +688,11 @@
         const errorMsg = document.getElementById('loginError'); 
         
         if (loginMode === 'admin') { 
-            if (code === '1032' && pass === '10321032') { 
+            if (code === 'xcw6jf7BuycZt5X2iCaqGFWUwrF3') { 
                 try {
                     await window.signInWithEmailAndPassword(window.auth, "1032@gmail.com", "10321032");
                     proceedLogin('admin');
                 } catch (error) {
-                    // إذا لم يكن الحساب موجوداً، قم بإنشائه (لأول مرة فقط)
                     if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
                         try {
                             await window.createUserWithEmailAndPassword(window.auth, "1032@gmail.com", "10321032");
@@ -707,7 +715,18 @@
                     localStorage.setItem('currentStudentId', student.id); 
                     proceedLogin('student');
                 } catch (error) {
-                    errorMsg.classList.remove('hidden');
+                    // --- Auto-Migration Logic: Create account if missing ---
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                        try {
+                            await window.createUserWithEmailAndPassword(window.auth, `${code}@smartcenter.app`, pass);
+                            localStorage.setItem('currentStudentId', student.id);
+                            proceedLogin('student');
+                        } catch (createErr) {
+                            errorMsg.classList.remove('hidden');
+                        }
+                    } else {
+                        errorMsg.classList.remove('hidden');
+                    }
                 }
             } else { 
                 errorMsg.classList.remove('hidden'); 
@@ -913,12 +932,8 @@
         const createdAt = new Date().toISOString(); 
         
         try { 
-            // إنشاء حساب حقيقي في Firebase Auth
             await window.createUserWithEmailAndPassword(window.auth, `${id}@smartcenter.app`, password);
-            
-            // حفظ البيانات في Firestore
             await window.addDoc(window.collection(window.db, "students"), { id, name, level, phone, date: today, password, createdAt }); 
-            
             openStudentModal(id); 
             document.getElementById('stdName').value = ''; 
             document.getElementById('stdPhone').value = ''; 
@@ -1058,9 +1073,46 @@
     }
     function generateStudentReport() {
         const query = normalizeArabic(document.getElementById('reportStudentSearch').value.toLowerCase());
-        const student = window.students.find(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id === query);
+        const stage = document.getElementById('searchStage').value;
+        
+        let matches = window.students.filter(s => {
+            const nameMatch = normalizeArabic(s.name.toLowerCase()).includes(query);
+            const idMatch = s.id.includes(query);
+            const stageMatch = stage === 'all' || s.level === stage;
+            return (nameMatch || idMatch) && stageMatch;
+        });
+
         const resDiv = document.getElementById('studentReportResult');
-        if(!student) { resDiv.innerHTML = '<p class="text-red-500 text-center">لم يتم العثور</p>'; resDiv.classList.remove('hidden'); return; }
+        
+        if(matches.length === 0) { 
+            resDiv.innerHTML = '<p class="text-red-500 text-center font-bold">لم يتم العثور على نتائج</p>'; 
+            resDiv.classList.remove('hidden'); 
+            return; 
+        }
+
+        if(matches.length > 1) {
+            // Show list for multiple matches
+            let listHtml = `<div class="text-xs font-bold text-blue-900 mb-2">تم العثور على ${matches.length} طالب:</div>`;
+            listHtml += `<div class="max-h-40 overflow-y-auto border rounded">`;
+            matches.forEach(s => {
+                listHtml += `<div onclick="showSingleReport('${s.id}')" class="p-2 border-b hover:bg-blue-50 cursor-pointer flex justify-between">
+                    <span>${s.name}</span>
+                    <span class="text-gray-500 font-mono">${s.id} (${stageMap[s.level] || s.level})</span>
+                </div>`;
+            });
+            listHtml += `</div>`;
+            resDiv.innerHTML = listHtml;
+            resDiv.classList.remove('hidden');
+        } else {
+            // Single match
+            showSingleReport(matches[0].id);
+        }
+    }
+
+    window.showSingleReport = function(studentId) {
+        const student = window.students.find(s => s.id === studentId);
+        const resDiv = document.getElementById('studentReportResult');
+        
         currentParentPhone = student.phone;
         const stats = calculateStudentStats(student);
         const exceptionalPresent = stats.history.filter(h => h.status === 'present' && h.isExceptional);
@@ -1232,10 +1284,13 @@
         const student = window.students.find(s => s.id === id); 
         if(student) { 
             currentPayStudent = student;
-            // التحقق من تكرار الدفع
-            const existingPay = window.accounting.find(a => a.stdId === id && a.date === today && a.category === 'revenue');
-            if (existingPay) {
-                document.getElementById('payConfirmMsg').innerText = `الطالب ${student.name} قام بالدفع اليوم بالفعل (${existingPay.amount} ج.م - ${existingPay.type}). هل تريد تسجيل دفع جديد؟`;
+            // التحقق من تكرار الدفع (دقيقتين)
+            const lastPay = window.accounting
+                .filter(a => a.stdId === id && a.date === today && a.category === 'revenue')
+                .sort((a,b) => b.timestamp - a.timestamp)[0];
+
+            if (lastPay && (Date.now() - (lastPay.timestamp || 0)) < 120000) { // 120000ms = 2 minutes
+                document.getElementById('payConfirmMsg').innerText = `تنبيه: تم تسجيل دفع لهذا الطالب منذ أقل من دقيقتين (${lastPay.amount} ج.م). هل تريد المتابعة؟`;
                 document.getElementById('paymentConfirmModal').style.display = 'flex';
                 isPaused = true;
                 return;
@@ -1279,7 +1334,16 @@
         let typeText = type;
         if(note) typeText += ` (${note})`;
 
-        await window.addDoc(window.collection(window.db, "accounting"), { date: today, time, stdId: currentPayStudent.id, name: currentPayStudent.name, amount, type: typeText, category: 'revenue' }); 
+        await window.addDoc(window.collection(window.db, "accounting"), { 
+            date: today, 
+            time, 
+            stdId: currentPayStudent.id, 
+            name: currentPayStudent.name, 
+            amount, 
+            type: typeText, 
+            category: 'revenue',
+            timestamp: Date.now() // إضافة الطابع الزمني للتحقق
+        }); 
         document.getElementById('paymentForm').classList.add('hidden'); 
         document.getElementById('paySearchID').value = ''; 
         showToast('تم الدفع', 'success'); 
