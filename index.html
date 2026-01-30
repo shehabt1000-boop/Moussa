@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Smart Center | Pro v2.1</title>
+    <title>Smart Center | Pro v2.2</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,26 +14,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* --- تحسينات التصميم العامة (الإطارات الغامقة) --- */
-        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; padding-bottom: 80px; font-size: 12px; -webkit-tap-highlight-color: transparent; user-select: none; /* منع تحديد النص */ }
+        /* --- تحسينات التصميم العامة --- */
+        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; padding-bottom: 80px; font-size: 12px; -webkit-tap-highlight-color: transparent; user-select: none; }
         
-        /* توحيد شكل الحقول بإطار أزرق غامق */
+        /* النمط الأساسي للحقول (رفيع وأنيق) */
         input, select, textarea {
-            border: 2px solid #1e3a8a !important; /* لون الهيدر */
+            border: 1px solid #1e3a8a; /* افتراضي أزرق */
             border-radius: 0.5rem;
             background-color: #ffffff;
-            color: #1e3a8a;
+            color: #1e293b;
             font-weight: bold;
+            transition: all 0.2s ease-in-out;
         }
         
         input::placeholder { color: #94a3b8; font-weight: normal; }
         
-        input:focus, select:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15) !important;
-            border-color: #1e3a8a !important;
-        }
-
         /* أيقونة القائمة المنسدلة */
         select, input[type="date"], input[type="month"] { 
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%231e3a8a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); 
@@ -42,12 +37,41 @@
             background-size: 1.2em 1.2em; 
             padding-left: 2.5rem !important; 
             appearance: none; 
-            height: 40px;
+            height: 38px;
         }
 
-        /* أزرار التبديل (كاميرا/يدوي) */
+        /* --- تخصيص الألوان حسب الأقسام (Themes) --- */
+        
+        /* الأخضر (استلام نقدية) */
+        .theme-green input, .theme-green select { border-color: #15803d !important; color: #14532d; }
+        .theme-green input:focus, .theme-green select:focus { box-shadow: 0 0 0 2px rgba(21, 128, 61, 0.15) !important; outline: none; }
+        .theme-green .sub-nav-item { border-color: #15803d !important; color: #15803d; }
+        .theme-green .sub-nav-item.active { background: #15803d !important; color: white !important; }
+
+        /* الأحمر (مصروفات) */
+        .theme-red input, .theme-red select { border-color: #b91c1c !important; color: #7f1d1d; }
+        .theme-red input:focus, .theme-red select:focus { box-shadow: 0 0 0 2px rgba(185, 28, 28, 0.15) !important; outline: none; }
+
+        /* الأزرق (الطلاب / بحث) */
+        .theme-blue input, .theme-blue select { border-color: #1d4ed8 !important; color: #1e3a8a; }
+        .theme-blue input:focus, .theme-blue select:focus { box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15) !important; outline: none; }
+
+        /* النيلي (تقارير عامة) */
+        .theme-indigo input, .theme-indigo select { border-color: #4338ca !important; color: #312e81; }
+        .theme-indigo input:focus, .theme-indigo select:focus { box-shadow: 0 0 0 2px rgba(67, 56, 202, 0.15) !important; outline: none; }
+
+        /* البنفسجي (إجراءات جماعية) */
+        .theme-purple input, .theme-purple select { border-color: #7e22ce !important; color: #581c87; }
+        .theme-purple input:focus, .theme-purple select:focus { box-shadow: 0 0 0 2px rgba(126, 34, 206, 0.15) !important; outline: none; }
+
+        /* الأصفر (نسخ احتياطي) */
+        .theme-yellow input, .theme-yellow select { border-color: #a16207 !important; color: #713f12; }
+        .theme-yellow input:focus, .theme-yellow select:focus { box-shadow: 0 0 0 2px rgba(161, 98, 7, 0.15) !important; outline: none; }
+
+
+        /* أزرار التبديل العامة */
         .sub-nav-item {
-            border: 2px solid #1e3a8a !important;
+            border: 1px solid #1e3a8a !important;
             color: #1e3a8a;
             background: transparent;
             font-weight: bold;
@@ -56,7 +80,7 @@
         .sub-nav-item.active {
             background: #1e3a8a !important;
             color: white !important;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         /* تحسينات التابلت */
@@ -75,7 +99,7 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        .scanner-wrapper { border-radius: 0.75rem; overflow: hidden; background: #1e293b; position: relative; width: 100%; min-height: 300px; border: 2px solid #1e3a8a; }
+        .scanner-wrapper { border-radius: 0.75rem; overflow: hidden; background: #1e293b; position: relative; width: 100%; min-height: 300px; border: 1px solid #1e3a8a; }
         @media (min-width: 768px) { .scanner-wrapper { height: 400px; } }
         #html5-qrcode-button-camera-stop, #html5-qrcode-anchor-scan-type-change { display: none !important; }
         
@@ -94,7 +118,7 @@
         #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; color: #1e3a8a; }
         #loginOverlay { position: fixed; inset: 0; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); z-index: 100000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .login-card { background: rgba(255, 255, 255, 0.95); width: 100%; max-width: 380px; border-radius: 20px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); text-align: center; }
-        .login-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #1e3a8a; border-radius: 10px; font-size: 14px; outline: none; transition: all 0.3s; }
+        .login-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #1e3a8a; border-radius: 10px; font-size: 14px; outline: none; transition: all 0.3s; }
         .login-btn { width: 100%; padding: 12px; background: #1e3a8a; color: white; border-radius: 10px; font-weight: bold; font-size: 14px; transition: transform 0.1s; }
         .login-tab { flex: 1; padding: 10px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; color: #64748b; transition: all 0.3s; }
         .login-tab.active { color: #1e3a8a; border-bottom-color: #1e3a8a; background: #f1f5f9; border-radius: 5px 5px 0 0; }
@@ -295,11 +319,11 @@
 
         <!-- STUDENTS TAB -->
         <section id="students" class="tab-content">
-            <div class="glass-card border-r-4 border-blue-500 no-print mb-4">
+            <div class="glass-card theme-blue border-r-4 border-blue-500 no-print mb-4">
                 <h2 class="font-bold text-blue-900 mb-2 text-xs md:text-base">تسجيل طالب جديد</h2>
                 <div class="space-y-2 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
                     <input type="text" id="stdName" class="w-full p-2 text-xs md:text-sm" placeholder="اسم الطالب رباعي">
-                    <div class="flex items-center border-2 border-blue-900 rounded bg-white overflow-hidden"><span class="bg-gray-100 px-3 py-2 text-gray-600 text-[10px] font-bold border-l md:text-sm">+20</span><input type="tel" id="stdPhone" oninput="validatePhone(this)" class="w-full p-2 text-xs outline-none md:text-sm !border-0" placeholder="رقم ولي الأمر (10 أرقام)"></div>
+                    <div class="flex items-center border border-blue-800 rounded bg-white overflow-hidden"><span class="bg-gray-100 px-3 py-2 text-gray-600 text-[10px] font-bold border-l md:text-sm">+20</span><input type="tel" id="stdPhone" oninput="validatePhone(this)" class="w-full p-2 text-xs outline-none md:text-sm !border-0" placeholder="رقم ولي الأمر (10 أرقام)"></div>
                     <select id="stdLevel" class="w-full p-2 text-xs md:text-sm">
                         <option value="">اختر المرحلة...</option>
                         <option value="1ث">الأول الثانوي</option>
@@ -309,7 +333,7 @@
                     <button onclick="registerStudent()" class="w-full bg-blue-600 text-white py-2 rounded font-bold shadow hover:bg-blue-700 text-xs transition md:text-sm md:col-span-2 md:py-3">حفظ وإنشاء حساب</button>
                 </div>
             </div>
-            <div class="glass-card">
+            <div class="glass-card theme-blue">
                 <div class="flex justify-between items-center mb-2 no-print flex-wrap gap-2">
                     <h2 class="font-bold text-[10px] md:text-sm">الطلاب (<span id="stdCount">0</span>)</h2>
                     <div class="flex gap-1.5 items-center">
@@ -388,7 +412,7 @@
         <!-- ACCOUNTING TAB -->
         <section id="accounting" class="tab-content">
             <div class="grid md:grid-cols-2 gap-2 md:gap-4">
-                <div class="glass-card border-t-4 border-green-500">
+                <div class="glass-card theme-green border-t-4 border-green-500">
                     <h3 class="font-bold text-green-700 mb-2 text-xs md:text-base">💵 استلام نقدية</h3>
                     
                     <div class="flex bg-gray-100 p-1 rounded mb-2 no-print">
@@ -432,7 +456,7 @@
                         <button onclick="confirmPayment()" class="w-full bg-green-600 text-white py-1 rounded font-bold shadow text-[10px] md:text-sm md:py-2">تأكيد</button>
                     </div>
                 </div>
-                <div class="glass-card border-t-4 border-red-500">
+                <div class="glass-card theme-red border-t-4 border-red-500">
                     <h3 class="font-bold text-red-700 mb-2 text-xs md:text-base">📉 مصروفات</h3>
                     <div class="space-y-2">
                         <div class="flex gap-1">
@@ -451,12 +475,12 @@
 
         <!-- REPORTS TAB -->
         <section id="reports" class="tab-content">
-            <div class="glass-card border-t-4 border-blue-600 mb-2">
+            <div class="glass-card theme-blue border-t-4 border-blue-600 mb-2">
                 <h3 class="font-bold mb-2 text-blue-900 flex items-center gap-2 text-xs md:text-base"><span>👤</span> بحث طالب</h3>
                 <div class="flex gap-2 mb-2"><input type="text" id="reportStudentSearch" placeholder="اسم/كود" class="flex-1 p-1 text-xs md:text-sm md:p-2"><button onclick="generateStudentReport()" class="bg-blue-600 text-white px-3 rounded font-bold text-[10px] md:text-sm">بحث</button></div>
                 <div id="studentReportResult" class="hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm"></div>
             </div>
-            <div class="glass-card border-t-4 border-indigo-500 mb-2">
+            <div class="glass-card theme-indigo border-t-4 border-indigo-500 mb-2">
                 <h3 class="font-bold mb-2 text-indigo-900 text-xs md:text-base">📊 تقارير عامة</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2 md:gap-4">
                     <div><label class="text-[9px] text-gray-500 block mb-1 md:text-xs">النوع</label><select id="reportType" onchange="toggleReportInputs()" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2"><option value="daily">يومي</option><option value="monthly">شهري</option></select></div>
@@ -475,7 +499,7 @@
                 <button onclick="generateAdvancedReport()" class="w-full bg-indigo-600 text-white py-1 rounded font-bold shadow hover:bg-indigo-700 text-[10px] md:text-sm md:py-2">عرض</button>
                 <div id="reportResult" class="mt-2 hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm"></div>
             </div>
-            <div class="glass-card border-t-4 border-purple-600 mb-2">
+            <div class="glass-card theme-purple border-t-4 border-purple-600 mb-2">
                 <h3 class="font-bold mb-2 text-purple-900 flex items-center gap-2 text-xs md:text-base"><span>📢</span> إجراءات جماعية (واتساب & Excel)</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2 md:gap-4">
                     <div><label class="text-[9px] text-gray-500 block mb-1 md:text-xs">المرحلة</label><select id="bulkStage" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2"><option value="all">الكل</option><option value="1ث">الأول الثانوي</option><option value="2ث">الثاني الثانوي</option><option value="3ث">الثالث الثانوي</option></select></div>
@@ -488,7 +512,7 @@
                     <button onclick="exportBulkExcel()" class="flex-1 bg-green-800 text-white py-1.5 rounded font-bold shadow hover:bg-green-900 text-[10px] md:text-sm md:py-2">📊 تصدير Excel شامل</button>
                 </div>
             </div>
-            <div class="glass-card border-t-4 border-yellow-500">
+            <div class="glass-card theme-yellow border-t-4 border-yellow-500">
                 <h3 class="font-bold mb-2 flex items-center gap-2 text-yellow-800 text-xs md:text-base"><span>💾</span> النسخ الاحتياطي & إصلاح</h3>
                 <div class="flex gap-2">
                     <button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-1 rounded font-bold text-[10px] border border-yellow-300 md:text-sm md:py-2">تحميل</button>
