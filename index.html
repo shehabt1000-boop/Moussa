@@ -108,13 +108,13 @@
             font-size: 14px !important;
         }
     </style>
-    
+
     <div class="login-card">
         <div class="mb-4">
             <h1 class="text-2xl font-black text-blue-900 mb-1">🎓 Smart Center</h1>
             <p class="text-gray-500 text-[10px] font-bold">نظام الإدارة التعليمي (ثانوي)</p>
         </div>
-        
+
         <div class="flex border-b mb-4">
             <div onclick="setLoginMode('admin')" id="tabAdmin" class="login-tab active" style="padding: 8px; font-size: 13px;">الإدارة</div>
             <div onclick="setLoginMode('student')" id="tabStudent" class="login-tab" style="padding: 8px; font-size: 13px;">الطالب</div>
@@ -125,7 +125,7 @@
             <input type="password" id="loginPass" class="login-input" placeholder="كلمة المرور">
             <button onclick="handleLogin()" class="login-btn shadow-lg shadow-blue-900/30">تسجيل الدخول</button>
         </div>
-        
+
         <p id="loginError" class="text-red-500 text-[10px] mt-2 hidden font-bold bg-red-50 p-2 rounded">بيانات الدخول غير صحيحة</p>
     </div>
 </div>
@@ -147,7 +147,7 @@
 <div id="print-container"></div>
 
 <div id="appContent" class="hidden">
-    
+
     <style>
         /* إصلاح لون النص للزر النشط ليكون واضحاً بالتصميم الأصلي */
         #navBar .nav-item.active {
@@ -239,18 +239,22 @@
             </div>
             <div class="glass-card">
                 <div class="flex justify-between items-center mb-2 no-print">
-                    <h2 class="font-bold text-xs">الطلاب (<span id="stdCount">0</span>)</h2>
-                    <div class="flex gap-2 items-center">
-                        <select id="studentListFilter" onchange="renderStudents()" class="elegant-select">
-                            <option value="all">كل المراحل</option>
-                            <option value="1ث">1ث</option>
-                            <option value="2ث">2ث</option>
-                            <option value="3ث">3ث</option>
-                        </select>
-                        <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث (الاسم/الكود)..." class="text-[10px] p-1.5 border rounded w-24 focus:w-32 transition-all">
-                        <button onclick="printContent('studentsListArea', 'قائمة الطلاب المسجلين')" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px]">🖨️ طباعة</button>
-                    </div>
-                </div>
+    <h2 class="font-bold text-[10px]">الطلاب (<span id="stdCount">0</span>)</h2>
+    <div class="flex gap-1.5 items-center">
+        <select id="studentListFilter" onchange="renderStudents()" class="border rounded text-[10px] px-1 h-8 bg-white outline-none w-16 text-center appearance-none cursor-pointer border-gray-300">
+            <option value="all">الكل</option>
+            <option value="1ث">1ث</option>
+            <option value="2ث">2ث</option>
+            <option value="3ث">3ث</option>
+        </select>
+
+        <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث باسم أو كود..." class="text-[10px] px-2 border border-gray-300 rounded w-24 h-8 focus:w-32 transition-all outline-none focus:ring-1 focus:ring-blue-500">
+
+        <button onclick="printContent('studentsListArea', 'قائمة الطلاب المسجلين')" class="bg-gray-800 text-white px-2 h-8 rounded text-[10px] flex items-center justify-center gap-1 hover:bg-black transition">
+            <span>🖨️ طباعة</span>
+        </button>
+    </div>
+</div>
                 <div id="studentsListArea" class="overflow-x-auto"><table class="custom-table"><thead><tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th>المرحلة</th><th class="col-date">تاريخ</th><th class="no-print col-action">حذف</th></tr></thead><tbody id="studentsTable"></tbody></table></div>
             </div>
         </section>
@@ -468,11 +472,11 @@
     const dayMap = { 'Sunday': 'الأحد', 'Monday': 'الاثنين', 'Tuesday': 'الثلاثاء', 'Wednesday': 'الأربعاء', 'Thursday': 'الخميس', 'Friday': 'الجمعة', 'Saturday': 'السبت' };
 
     window.students = []; window.attendance = []; window.accounting = []; window.scheduleData = {};
-    
+
     function getEgyptDate() {
         return new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
     }
-    
+
     let today = getEgyptDate();
     let selectedAttendanceDate = today; let currentModalStudentId = null; let currentParentPhone = null; let currentScheduleLevel = null; let currentReportData = {};
     let loginMode = 'admin';
@@ -523,14 +527,14 @@
         const isGlobalExceptional = sessionRec && (!sessionRec.levels || sessionRec.levels.includes('all') || sessionRec.levels.includes(student.level));
         const studentSchedule = window.scheduleData[student.level] || [];
         const isScheduled = studentSchedule.includes(dayName);
-        
+
         if (attendanceRecord) { return { status: 'present', time: attendanceRecord.time, isExceptional: (!isScheduled || isGlobalExceptional) }; }
-        
+
         // If it's a scheduled day or exceptional session, it's "Absent" (even if future, for viewing purposes)
         if (isScheduled || isGlobalExceptional) { 
             return { status: 'absent', isExceptional: isGlobalExceptional }; 
         }
-        
+
         return { status: 'none' };
     }
 
@@ -553,7 +557,7 @@
     function calculateStudentStats(student) {
         let present = 0; let absent = 0; let history = [];
         const joinDate = student.date || '2020-01-01';
-        
+
         // For the Profile Stats, we only count up to TODAY
         const allDatesForStats = getDatesInRange(joinDate, today);
         allDatesForStats.forEach(dateStr => {
@@ -566,7 +570,7 @@
         const studentAtt = window.attendance.filter(a => a.studentId === student.id);
         const latestAttDate = studentAtt.length > 0 ? studentAtt.map(a => a.date).sort().reverse()[0] : today;
         const maxDateForHistory = latestAttDate > today ? latestAttDate : today;
-        
+
         const allDatesForHistory = getDatesInRange(joinDate, maxDateForHistory);
         allDatesForHistory.forEach(dateStr => {
             const dayAr = new Date(dateStr + "T12:00:00").toLocaleDateString('ar-EG', {weekday: 'long'});
@@ -793,7 +797,7 @@
 
             let monthlyStats = {};
             targetStudents.forEach(s => { monthlyStats[s.id] = { name: s.name, level: s.level, present: 0, absentDates: [], exceptionalDates: [] }; });
-            
+
             targetStudents.forEach(student => {
                 daysArray.forEach(dateStr => {
                     if (dateStr < student.date) return;
