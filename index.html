@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Smart Center | Pro v1.6</title>
+    <title>Smart Center | Pro v1.7</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -110,7 +110,7 @@
 <div id="appContent" class="hidden">
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-base font-bold flex items-center gap-2">🎓 Smart Center <span class="text-[9px] bg-green-500 px-1.5 py-0.5 rounded text-white">v1.6 Fix-31</span></h1>
+            <h1 class="text-base font-bold flex items-center gap-2">🎓 Smart Center <span class="text-[9px] bg-green-500 px-1.5 py-0.5 rounded text-white">v1.7 Future-Fix</span></h1>
             <div class="flex items-center gap-3"><div class="text-[10px] bg-blue-800 px-3 py-1 rounded-full font-mono border border-blue-700" id="headerDate">--/--/----</div><button onclick="logout()" class="text-[10px] bg-red-600 px-3 py-1 rounded font-bold hover:bg-red-700 transition">خروج</button></div>
         </div>
         <div class="bg-blue-800 border-t border-blue-700" id="navBar">
@@ -449,6 +449,7 @@
     window.handleLogin = function() { const code = document.getElementById('loginCode').value; const pass = document.getElementById('loginPass').value; const errorMsg = document.getElementById('loginError'); if (loginMode === 'admin') { if (code === '1032' && pass === '10321032') { localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('loginMode', 'admin'); document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('appContent').classList.remove('hidden'); document.getElementById('navBar').classList.remove('hidden'); showTab('students', document.getElementById('nav-students')); } else { errorMsg.classList.remove('hidden'); } } else { const student = window.students.find(s => s.id === code); if (student && student.password === pass) { localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('loginMode', 'student'); localStorage.setItem('currentStudentId', student.id); document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('appContent').classList.remove('hidden'); document.getElementById('navBar').classList.add('hidden'); loadStudentDashboard(student); } else { errorMsg.classList.remove('hidden'); } } }
     window.logout = function() { localStorage.clear(); location.reload(); }
 
+    // --- FIX: REMOVED TODAY LIMIT FOR SPECIFIC DATE VIEWING ---
     function getStudentStatusForDate(student, dateStr) {
         const dateObj = new Date(dateStr + "T12:00:00");
         const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
@@ -460,23 +461,20 @@
         
         if (attendanceRecord) { return { status: 'present', time: attendanceRecord.time, isExceptional: (!isScheduled || isGlobalExceptional) }; }
         
-        // --- FIX: Only mark absent if the day is NOT in the future ---
-        if ((isScheduled || isGlobalExceptional) && dateStr <= today) { 
+        // If it's a scheduled day or exceptional session, it's "Absent" (even if future, for viewing purposes)
+        if (isScheduled || isGlobalExceptional) { 
             return { status: 'absent', isExceptional: isGlobalExceptional }; 
         }
         
         return { status: 'none' };
     }
 
-    // --- FIX: ROBUST RANGE GENERATOR ---
     function getDatesInRange(startDate, endDate) {
         const dates = [];
         let [sY, sM, sD] = startDate.split('-').map(Number);
         let [eY, eM, eD] = endDate.split('-').map(Number);
-        
         let curr = new Date(sY, sM - 1, sD, 12, 0, 0);
         let last = new Date(eY, eM - 1, eD, 12, 0, 0);
-
         while (curr <= last) {
             const y = curr.getFullYear();
             const m = String(curr.getMonth() + 1).padStart(2, '0');
@@ -491,18 +489,28 @@
         let present = 0; let absent = 0; let history = [];
         const joinDate = student.date || '2020-01-01';
         
-        // --- FIX: Find the latest date in attendance to ensure 31 is included if recorded ---
+        // For the Profile Stats, we only count up to TODAY
+        const allDatesForStats = getDatesInRange(joinDate, today);
+        allDatesForStats.forEach(dateStr => {
+            const statusObj = getStudentStatusForDate(student, dateStr);
+            if (statusObj.status === 'present') present++;
+            else if (statusObj.status === 'absent') absent++;
+        });
+
+        // For the History List, we show everything recorded (including future if any)
         const studentAtt = window.attendance.filter(a => a.studentId === student.id);
         const latestAttDate = studentAtt.length > 0 ? studentAtt.map(a => a.date).sort().reverse()[0] : today;
-        const maxDate = latestAttDate > today ? latestAttDate : today;
-
-        const allDates = getDatesInRange(joinDate, maxDate);
-        allDates.forEach(dateStr => {
+        const maxDateForHistory = latestAttDate > today ? latestAttDate : today;
+        
+        const allDatesForHistory = getDatesInRange(joinDate, maxDateForHistory);
+        allDatesForHistory.forEach(dateStr => {
             const dayAr = new Date(dateStr + "T12:00:00").toLocaleDateString('ar-EG', {weekday: 'long'});
             const statusObj = getStudentStatusForDate(student, dateStr);
-            if (statusObj.status === 'present') { present++; history.push({ date: dateStr, day: dayAr, status: 'present', isExceptional: statusObj.isExceptional }); }
-            else if (statusObj.status === 'absent') { absent++; history.push({ date: dateStr, day: dayAr, status: 'absent', isExceptional: statusObj.isExceptional }); }
+            if (statusObj.status === 'present' || (statusObj.status === 'absent' && dateStr <= today)) {
+                history.push({ date: dateStr, day: dayAr, status: statusObj.status, isExceptional: statusObj.isExceptional });
+            }
         });
+
         history.sort((a, b) => new Date(b.date) - new Date(a.date));
         return { present, absent, history };
     }
@@ -710,8 +718,6 @@
         } else {
             if(!monthInput) return showToast('اختر الشهر', 'error');
             const [year, month] = monthInput.split('-').map(Number);
-            
-            // --- FIX: Robust Month Day Generation ---
             const daysInMonth = new Date(year, month, 0).getDate();
             const daysArray = [];
             for(let i=1; i<=daysInMonth; i++) {
