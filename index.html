@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Smart Center | Pro v2.5</title>
+    <title>Smart Center | Pro v2.6</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,7 +17,7 @@
         /* --- تحسينات التصميم العامة --- */
         body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; padding-bottom: 80px; font-size: 12px; -webkit-tap-highlight-color: transparent; user-select: none; }
         
-        /* النمط الأساسي للحقول (رفيع وأنيق) */
+        /* النمط الأساسي للحقول */
         input, select, textarea {
             border: 1px solid #1e3a8a;
             border-radius: 0.5rem;
@@ -88,7 +88,8 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        .scanner-wrapper { border-radius: 0.75rem; overflow: hidden; background: #1e293b; position: relative; width: 100%; min-height: 300px; border: 1px solid #1e3a8a; }
+        /* خلفية سوداء للماسح لمنع السطوع */
+        .scanner-wrapper { border-radius: 0.75rem; overflow: hidden; background: #000000; position: relative; width: 100%; min-height: 300px; border: 1px solid #1e3a8a; }
         @media (min-width: 768px) { .scanner-wrapper { height: 400px; } }
         #html5-qrcode-button-camera-stop, #html5-qrcode-anchor-scan-type-change { display: none !important; }
         
@@ -405,7 +406,7 @@
                     <div class="flex justify-between items-center mb-2"><h3 class="font-bold text-sm text-blue-900 md:text-base">جدول الحصص الرسمي</h3><div class="flex gap-2"><button onclick="printFormalSchedule()" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px] md:text-sm">🖨️ طباعة ملونة</button></div></div>
                     <div id="formalSchedulePrintArea" class="overflow-x-auto rounded border border-gray-200 bg-white p-2">
                         <div class="hidden print-only-header text-center mb-4"><h1 class="text-xl font-bold text-blue-900">Smart Center</h1><p class="text-sm text-gray-500">جدول المواعيد الرسمي</p></div>
-                        <table class="schedule-table"><thead><tr><th>المرحلة</th><th>أيام الحضور</th><th class="no-print">أجندة الشهر</th></tr></thead><tbody id="formalScheduleBody"></tbody></table>
+                        <table class="schedule-table"><thead><tr><th>المرحلة</th><th>أيام الحضور</th><th>الموعد</th><th class="no-print">أجندة الشهر</th></tr></thead><tbody id="formalScheduleBody"></tbody></table>
                     </div>
                 </div>
             </div>
@@ -455,7 +456,10 @@
                             </select>
                         </div>
                         <input type="text" id="payNote" class="w-full p-1 text-[10px] mb-1" placeholder="تفاصيل الإيراد">
-                        <button onclick="confirmPayment()" class="w-full bg-green-600 text-white py-1 rounded font-bold shadow text-[10px] md:text-sm md:py-2">تأكيد</button>
+                        <div class="flex gap-2 mt-2">
+                            <button onclick="confirmPayment()" class="flex-1 bg-green-600 text-white py-1 rounded font-bold shadow text-[10px] md:text-sm md:py-2">تأكيد</button>
+                            <button onclick="cancelPayment()" class="flex-1 bg-gray-500 text-white py-1 rounded font-bold shadow text-[10px] md:text-sm md:py-2">إلغاء</button>
+                        </div>
                     </div>
                 </div>
                 <div class="glass-card theme-red border-t-4 border-red-500">
@@ -757,8 +761,8 @@
         const attendanceRecord = window.attendance.find(r => r.date === dateStr && r.studentId === student.id);
         const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === dateStr);
         const isGlobalExceptional = sessionRec && (!sessionRec.levels || sessionRec.levels.includes('all') || sessionRec.levels.includes(student.level));
-        const studentSchedule = window.scheduleData[student.level] || [];
-        const isScheduled = studentSchedule.includes(dayName);
+        const studentSchedule = window.scheduleData[student.level] || { days: [] };
+        const isScheduled = (studentSchedule.days || []).includes(dayName);
 
         if (attendanceRecord) { return { status: 'present', time: attendanceRecord.time, isExceptional: (!isScheduled || isGlobalExceptional) }; }
 
@@ -862,13 +866,17 @@
         if(!tbody) return;
         tbody.innerHTML = '';
         Object.keys(stageMap).forEach(level => {
-            const days = window.scheduleData[level] || [];
+            const data = window.scheduleData[level] || { days: [], times: {} };
+            const days = data.days || [];
+            const times = data.times || {};
+            
             if(days.length > 0) {
                 const daysAr = days.map(d => dayMap[d]).join('، ');
-                tbody.innerHTML += `<tr><td class="font-bold text-blue-900">${stageMap[level]}</td><td>${daysAr}</td><td class="no-print"><button onclick="openMonthlySchedule('${level}')" class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-[9px] font-bold hover:bg-blue-200 border border-blue-200">📅 أجندة الشهر</button></td></tr>`;
+                const timesAr = days.map(d => times[d] || '-').join('، ');
+                tbody.innerHTML += `<tr><td class="font-bold text-blue-900">${stageMap[level]}</td><td>${daysAr}</td><td>${timesAr}</td><td class="no-print"><button onclick="openMonthlySchedule('${level}')" class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-[9px] font-bold hover:bg-blue-200 border border-blue-200">📅 أجندة الشهر</button></td></tr>`;
             }
         });
-        if(tbody.innerHTML === '') tbody.innerHTML = '<tr><td colspan="3" class="text-center text-gray-500 py-2">لم يتم إعداد الجدول بعد</td></tr>';
+        if(tbody.innerHTML === '') tbody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-2">لم يتم إعداد الجدول بعد</td></tr>';
     }
 
     window.printFormalSchedule = function() { 
@@ -880,10 +888,13 @@
         
         let cleanRows = '';
         Object.keys(stageMap).forEach(level => {
-            const days = window.scheduleData[level] || [];
+            const data = window.scheduleData[level] || { days: [], times: {} };
+            const days = data.days || [];
+            const times = data.times || {};
             if(days.length > 0) {
                 const daysAr = days.map(d => dayMap[d]).join('، ');
-                cleanRows += `<tr><td>${stageMap[level]}</td><td>${daysAr}</td></tr>`;
+                const timesAr = days.map(d => times[d] || '-').join('، ');
+                cleanRows += `<tr><td>${stageMap[level]}</td><td>${daysAr}</td><td>${timesAr}</td></tr>`;
             }
         });
 
@@ -901,10 +912,11 @@
                                 <tr>
                                     <th style="width: 30%;">المرحلة الدراسية</th>
                                     <th>أيام الحضور</th>
+                                    <th>الموعد</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${cleanRows || '<tr><td colspan="2">لم يتم تحديد مواعيد</td></tr>'}
+                                ${cleanRows || '<tr><td colspan="3">لم يتم تحديد مواعيد</td></tr>'}
                             </tbody>
                         </table>
                         <div style="margin-top: 30px; text-align: center; color: #64748b; font-weight: bold;">
@@ -932,8 +944,12 @@
         const createdAt = new Date().toISOString(); 
         
         try { 
+            // إنشاء حساب حقيقي في Firebase Auth
             await window.createUserWithEmailAndPassword(window.auth, `${id}@smartcenter.app`, password);
+            
+            // حفظ البيانات في Firestore
             await window.addDoc(window.collection(window.db, "students"), { id, name, level, phone, date: today, password, createdAt }); 
+            
             openStudentModal(id); 
             document.getElementById('stdName').value = ''; 
             document.getElementById('stdPhone').value = ''; 
@@ -975,9 +991,22 @@
         window.updateCounters();
         const sessionQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", "SESSION_MARKER"), window.where("date", "==", date));
         const snapshot = await window.getDocs(sessionQuery);
-        if (!snapshot.empty) { snapshot.forEach(async (doc) => { await window.deleteDoc(doc.ref); }); const attQuery = window.query(window.collection(window.db, "attendance"), window.where("date", "==", date)); const attSnapshot = await window.getDocs(attQuery); const dayName = new Date(date + "T12:00:00").toLocaleDateString('en-US', {weekday: 'long'}); attSnapshot.forEach(async (doc) => { const data = doc.data(); if (data.studentId === "SESSION_MARKER") return; const student = window.students.find(s => s.id === data.studentId); if (student) { const studentSchedule = window.scheduleData[student.level] || []; if (!studentSchedule.includes(dayName)) { await window.deleteDoc(doc.ref); } } }); showToast('تم إلغاء التثبيت وتنظيف السجلات', 'success'); } else { showToast('لا يوجد تثبيت لهذا اليوم لإلغائه', 'warning'); }
+        if (!snapshot.empty) { snapshot.forEach(async (doc) => { await window.deleteDoc(doc.ref); }); const attQuery = window.query(window.collection(window.db, "attendance"), window.where("date", "==", date)); const attSnapshot = await window.getDocs(attQuery); const dayName = new Date(date + "T12:00:00").toLocaleDateString('en-US', {weekday: 'long'}); attSnapshot.forEach(async (doc) => { const data = doc.data(); if (data.studentId === "SESSION_MARKER") return; const student = window.students.find(s => s.id === data.studentId); if (student) { const studentSchedule = window.scheduleData[student.level] || { days: [] }; if (!studentSchedule.days.includes(dayName)) { await window.deleteDoc(doc.ref); } } }); showToast('تم إلغاء التثبيت وتنظيف السجلات', 'success'); } else { showToast('لا يوجد تثبيت لهذا اليوم لإلغائه', 'warning'); }
     }
-    window.repairSystemData = async function() { if(!confirm('هل أنت متأكد؟')) return; showToast('جاري الفحص والإصلاح...', 'success'); setTimeout(() => { showToast('تم إصلاح النظام بنجاح', 'success'); location.reload(); }, 1500); }
+    window.repairSystemData = async function() { 
+        if(!confirm('هل أنت متأكد؟ سيتم إصلاح حساب الإدارة وتجهيز حسابات الطلاب للدخول التلقائي.')) return; 
+        showToast('جاري الفحص...', 'success'); 
+        
+        // التأكد من أن كل طالب لديه كلمة مرور
+        window.students.forEach(async (s) => {
+            if (!s.password) {
+                const newPass = Math.floor(100000 + Math.random() * 900000).toString();
+                await window.updateDoc(window.doc(window.db, "students", s.docId), { password: newPass });
+            }
+        });
+
+        setTimeout(() => { showToast('تم إصلاح النظام. سيتم إنشاء حسابات الطلاب تلقائياً عند دخولهم.', 'success'); }, 2000); 
+    }
     
     async function startScanner(elemId, mode) { 
         if(isScannerRunning) return; 
@@ -1032,8 +1061,8 @@
             if (statusObj.status === 'present') { showToast('مسجل مسبقاً', 'warning'); playSound('error'); setTimeout(() => { isPaused = false; }, 2000); return; }
             const dateObj = new Date(date + "T12:00:00");
             const dayName = dateObj.toLocaleDateString('en-US', {weekday: 'long'});
-            const studentSchedule = window.scheduleData[student.level] || [];
-            const isScheduled = studentSchedule.includes(dayName);
+            const studentSchedule = window.scheduleData[student.level] || { days: [] };
+            const isScheduled = (studentSchedule.days || []).includes(dayName);
             const sessionRec = window.attendance.find(r => r.studentId === "SESSION_MARKER" && r.date === date);
             const isExceptional = sessionRec && (!sessionRec.levels || sessionRec.levels.includes('all') || sessionRec.levels.includes(student.level));
             if (!isScheduled && !isExceptional) { showCustomAlert("يوم خاطئ", `هذا ليس يوم حضور الطالب (${student.name}) ولم يتم تفعيل تثبيت استثنائي!`); return; }
@@ -1091,7 +1120,6 @@
         }
 
         if(matches.length > 1) {
-            // Show list for multiple matches
             let listHtml = `<div class="text-xs font-bold text-blue-900 mb-2">تم العثور على ${matches.length} طالب:</div>`;
             listHtml += `<div class="max-h-40 overflow-y-auto border rounded">`;
             matches.forEach(s => {
@@ -1104,7 +1132,6 @@
             resDiv.innerHTML = listHtml;
             resDiv.classList.remove('hidden');
         } else {
-            // Single match
             showSingleReport(matches[0].id);
         }
     }
@@ -1247,11 +1274,38 @@
 
     window.openScheduleModal = function() {
         const container = document.getElementById('scheduleContainer'); container.innerHTML = '';
-        Object.keys(stageMap).forEach(level => { const savedDays = window.scheduleData[level] || []; let daysHtml = daysOfWeek.map(day => `<label class="inline-flex items-center ml-2 mb-1"><input type="checkbox" class="form-checkbox h-3 w-3 text-purple-600" name="schedule_${level}" value="${day.id}" ${savedDays.includes(day.id) ? 'checked' : ''}><span class="mr-1 text-[10px]">${day.name}</span></label>`).join(''); container.innerHTML += `<div class="bg-gray-50 p-2 rounded border"><div class="flex justify-between items-center mb-1"><h4 class="font-bold text-xs text-blue-900">${stageMap[level]}</h4></div><div class="flex flex-wrap">${daysHtml}</div></div>`; });
+        Object.keys(stageMap).forEach(level => { 
+            const data = window.scheduleData[level] || { days: [], times: {} };
+            const savedDays = data.days || [];
+            const savedTimes = data.times || {};
+            
+            let daysHtml = daysOfWeek.map(day => `
+                <div class="flex items-center justify-between mb-1 border-b pb-1">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" class="form-checkbox h-3 w-3 text-purple-600" name="schedule_${level}" value="${day.id}" ${savedDays.includes(day.id) ? 'checked' : ''}>
+                        <span class="mr-1 text-[10px]">${day.name}</span>
+                    </label>
+                    <input type="time" class="p-0.5 border rounded text-[10px] w-20" name="time_${level}_${day.id}" value="${savedTimes[day.id] || ''}">
+                </div>
+            `).join(''); 
+            container.innerHTML += `<div class="bg-gray-50 p-2 rounded border"><div class="flex justify-between items-center mb-1"><h4 class="font-bold text-xs text-blue-900">${stageMap[level]}</h4></div><div>${daysHtml}</div></div>`; 
+        });
         document.getElementById('scheduleModal').classList.remove('hidden');
     }
+    
     window.saveSchedule = async function() {
-        const newSchedule = {}; Object.keys(stageMap).forEach(level => { const checkboxes = document.querySelectorAll(`input[name="schedule_${level}"]:checked`); if(checkboxes.length > 0) newSchedule[level] = Array.from(checkboxes).map(cb => cb.value); });
+        const newSchedule = {}; 
+        Object.keys(stageMap).forEach(level => { 
+            const checkboxes = document.querySelectorAll(`input[name="schedule_${level}"]:checked`); 
+            const days = Array.from(checkboxes).map(cb => cb.value);
+            const times = {};
+            days.forEach(day => {
+                const timeVal = document.querySelector(`input[name="time_${level}_${day}"]`).value;
+                if(timeVal) times[day] = timeVal;
+            });
+            
+            if(days.length > 0) newSchedule[level] = { days, times }; 
+        });
         try { await window.setDoc(window.doc(window.db, "settings", "schedule"), newSchedule); window.scheduleData = newSchedule; closeModal('scheduleModal'); showToast('تم حفظ الجدول بنجاح', 'success'); window.renderFormalSchedule(); window.updateCounters(); } catch(e) { showToast('خطأ في الحفظ', 'error'); }
     }
     window.openMonthlySchedule = function(level) { currentScheduleLevel = level; document.getElementById('msStageName').innerText = `جدول: ${stageMap[level]}`; renderMonthlySchedule(); document.getElementById('monthlyScheduleModal').classList.remove('hidden'); }
@@ -1310,6 +1364,12 @@
     window.closePaymentConfirm = function() {
         document.getElementById('paymentConfirmModal').style.display = 'none';
         isPaused = false;
+    }
+    
+    window.cancelPayment = function() {
+        document.getElementById('paymentForm').classList.add('hidden');
+        document.getElementById('paySearchID').value = '';
+        currentPayStudent = null;
     }
 
     function showPaymentForm() {
