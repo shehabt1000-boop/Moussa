@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <title>Smart Center | Pro v5.5</title>
+    <title>Smart Center | Pro v6.0</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -30,6 +30,9 @@
             -webkit-tap-highlight-color: transparent; 
             user-select: none; 
         }
+
+        /* منع تحديد النصوص وسرقة الكود */
+        body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
 
         /* النمط الأساسي للحقول */
         input, select, textarea {
@@ -200,21 +203,24 @@
             .print-box-title { font-size: 12pt; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; }
             .print-box-val { font-size: 16pt; font-weight: 900; }
 
-            /* بطاقة الطالب الجديدة */
-            .print-student-card { 
+            /* بطاقة الطالب الموحدة (للشاشة والطباعة) */
+            .unified-student-card { 
                 border: 4px double #000; 
                 border-radius: 15px; 
                 padding: 20px; 
-                width: 350px; 
-                margin: 20px auto; 
+                width: 100%; 
+                max-width: 350px;
+                margin: 0 auto 20px auto; 
                 text-align: center; 
-                page-break-inside: avoid;
                 background: #fff;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             }
-            .print-card-title { font-size: 16pt; font-weight: bold; margin-bottom: 10px; color: #000; }
-            .print-card-name { font-size: 20pt; font-weight: 900; margin: 10px 0; border-bottom: 2px solid #000; padding-bottom: 10px; }
-            .print-card-row { font-size: 12pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; }
-            .print-card-footer { margin-top: 15px; font-size: 10pt; color: #555; font-weight: bold; border-top: 1px solid #000; padding-top: 5px; }
+            .print-student-card { page-break-inside: avoid; } /* خاص بالطباعة */
+            
+            .card-title { font-size: 16pt; font-weight: bold; margin-bottom: 10px; color: #000; }
+            .card-name { font-size: 20pt; font-weight: 900; margin: 10px 0; border-bottom: 2px solid #000; padding-bottom: 10px; color: #000; }
+            .card-row { font-size: 12pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; color: #000; }
+            .card-footer { margin-top: 15px; font-size: 10pt; color: #555; font-weight: bold; border-top: 1px solid #000; padding-top: 5px; }
 
             .no-print { display: none !important; }
         }
@@ -711,14 +717,8 @@
 <div id="studentModal" class="fixed inset-0 bg-black/80 hidden z-[150] flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-xl w-full max-w-xs p-4 text-center relative shadow-2xl md:max-w-sm">
         <button onclick="closeModal('studentModal')" class="absolute top-2 right-3 text-gray-500 text-xl font-bold">&times;</button>
-        <div id="studentCardDisplay" class="border-4 double border-gray-300 p-3 rounded-xl bg-white mb-3">
-            <h3 class="font-bold text-sm mb-1 text-gray-900 md:text-base">بطاقة طالب</h3>
-            <div id="modalQr" class="flex justify-center mb-1"></div>
-            <p id="modalCode" class="text-xl font-black font-mono text-gray-800 mb-0 md:text-2xl"></p>
-            <h2 id="modalName" class="text-base font-bold mb-0 md:text-lg"></h2>
-            <p id="modalLevel" class="text-gray-500 text-xs md:text-sm"></p>
-            <div id="modalPasswordArea" class="mt-2 bg-yellow-50 p-1 rounded border border-yellow-200 hidden"><p class="text-[9px] text-gray-500 md:text-xs">كلمة المرور (للطالب)</p><p class="font-mono font-bold text-lg text-red-600 md:text-xl" id="modalPassword"></p></div>
-            <p class="text-[9px] text-gray-400 mt-1">Smart Center</p>
+        <div id="studentCardDisplay" class="unified-student-card">
+            <!-- سيتم تعبئة هذا الجزء بواسطة JS ليتطابق مع الطباعة -->
         </div>
         <div class="grid grid-cols-2 gap-2"><button onclick="printStudentCard()" class="bg-gray-800 text-white py-1 rounded text-[10px] font-bold md:text-sm md:py-2 border border-gray-900">🖨️ طباعة</button><button onclick="shareStudentPdf()" class="bg-red-700 text-white py-1 rounded text-[10px] font-bold md:text-sm md:py-2 border border-red-800">📄 PDF</button></div>
     </div>
@@ -850,14 +850,15 @@
         const errorMsg = document.getElementById('loginError'); 
 
         if (loginMode === 'admin') { 
+            // استخدام الكود ككلمة مرور لحساب الإدارة الموحد
             if (code === 'xcw6jf7BuycZt5X2iCaqGFWUwrF3') { 
                 try {
-                    await window.signInWithEmailAndPassword(window.auth, "1032@gmail.com", "10321032");
+                    await window.signInWithEmailAndPassword(window.auth, "admin@smartcenter.app", code);
                     proceedLogin('admin');
                 } catch (error) {
                     if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
                         try {
-                            await window.createUserWithEmailAndPassword(window.auth, "1032@gmail.com", "10321032");
+                            await window.createUserWithEmailAndPassword(window.auth, "admin@smartcenter.app", code);
                             proceedLogin('admin');
                         } catch (createError) {
                             errorMsg.classList.remove('hidden');
@@ -877,15 +878,12 @@
                     localStorage.setItem('currentStudentId', student.id); 
                     proceedLogin('student');
                 } catch (error) {
-                    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                        try {
-                            await window.createUserWithEmailAndPassword(window.auth, `${code}@smartcenter.app`, pass);
-                            localStorage.setItem('currentStudentId', student.id);
-                            proceedLogin('student');
-                        } catch (createErr) {
-                            errorMsg.classList.remove('hidden');
-                        }
-                    } else {
+                    // محاولة إنشاء الحساب إذا لم يكن موجوداً (لإصلاح البيانات القديمة)
+                    try {
+                        await window.createUserWithEmailAndPassword(window.auth, `${code}@smartcenter.app`, pass);
+                        localStorage.setItem('currentStudentId', student.id);
+                        proceedLogin('student');
+                    } catch (createErr) {
                         errorMsg.classList.remove('hidden');
                     }
                 }
@@ -1030,22 +1028,25 @@
         setTimeout(() => {
             window.print();
             setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
-        }, 50); // Reduced timeout for instant print
+        }, 500);
     }
 
-    // --- دالة حفظ PDF عامة ---
+    // --- دالة حفظ PDF عامة (RTL Fix) ---
     function savePDF(title, content) {
         const pdfContainer = document.getElementById('pdf-generator-container');
         const date = new Date().toLocaleDateString('ar-EG');
         
+        // استخدام حاوية خاصة للـ PDF لضبط الاتجاه
         pdfContainer.innerHTML = `
-            <div style="width: 210mm; padding: 20px; font-family: 'Cairo', sans-serif; background: white;">
+            <div style="width: 210mm; padding: 20px; font-family: 'Cairo', sans-serif; background: white; direction: rtl; text-align: right;">
                 <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
                     <h1 style="font-size: 24px; font-weight: bold; margin: 0;">Smart Center</h1>
                     <h2 style="font-size: 18px; margin: 5px 0;">${title}</h2>
                     <p style="font-size: 12px; color: #666;">تاريخ: ${date}</p>
                 </div>
-                ${content}
+                <div style="width: 100%; margin: 0 auto;">
+                    ${content}
+                </div>
             </div>
         `;
 
@@ -1065,10 +1066,10 @@
 
         const element = pdfContainer.firstElementChild;
         const opt = {
-            margin: 10,
+            margin: 0,
             filename: `${title}_${date}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
+            html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
@@ -1098,13 +1099,13 @@
 
         const content = `
             <div class="print-student-card">
-                <div class="print-card-title">بطاقة الطالب</div>
-                <div class="print-card-name">${name}</div>
+                <div class="card-title">بطاقة الطالب</div>
+                <div class="card-name">${name}</div>
                 <div id="printDashQr" style="display:flex; justify-content:center; margin:10px 0;"></div>
-                <div class="print-card-row"><span>كود الطالب:</span> <span>${code}</span></div>
-                <div class="print-card-row"><span>المرحلة:</span> <span>${level}</span></div>
-                <div class="print-card-row"><span>تاريخ الاشتراك:</span> <span>${joinDate}</span></div>
-                <div class="print-card-footer">Smart Center Pro</div>
+                <div class="card-row"><span>كود الطالب:</span> <span>${code}</span></div>
+                <div class="card-row"><span>المرحلة:</span> <span>${level}</span></div>
+                <div class="card-row"><span>تاريخ الاشتراك:</span> <span>${joinDate}</span></div>
+                <div class="card-footer">Smart Center Pro</div>
             </div>
             
             <table class="print-stats-table">
@@ -1123,7 +1124,7 @@
         `;
 
         printHTML('تقرير متابعة طالب', content);
-        setTimeout(() => { new QRCode(document.getElementById("printDashQr"), { text: code, width: 100, height: 100 }); }, 100);
+        setTimeout(() => { new QRCode(document.getElementById("printDashQr"), { text: code, width: 100, height: 100 }); }, 200);
     }
 
     window.pdfStudentDashboard = function() {
@@ -1146,16 +1147,18 @@
         });
 
         const content = `
-            <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px; text-align: center;">
+            <div style="border: 4px double #000; padding: 15px; margin-bottom: 20px; text-align: center; border-radius: 15px; width: 300px; margin: 0 auto 20px auto;">
                 <h3 style="margin:0 0 10px 0;">بطاقة الطالب</h3>
-                <h2 style="margin:0 0 10px 0;">${name}</h2>
-                <p>الكود: ${code} | المرحلة: ${level}</p>
+                <h2 style="margin:0 0 10px 0; border-bottom: 2px solid #000; padding-bottom: 5px;">${name}</h2>
+                <p style="font-weight: bold;">الكود: ${code}</p>
+                <p style="font-weight: bold;">المرحلة: ${level}</p>
+                <p style="font-weight: bold;">تاريخ الاشتراك: ${joinDate}</p>
             </div>
             <table style="width:100%; margin-bottom:20px;">
                 <tr>
-                    <td style="background:#e6fffa; padding:10px; text-align:center;"><strong>حضور:</strong> ${present}</td>
-                    <td style="background:#fff5f5; padding:10px; text-align:center;"><strong>غياب:</strong> ${absent}</td>
-                    <td style="background:#ebf8ff; padding:10px; text-align:center;"><strong>مدفوعات:</strong> ${totalPaid}</td>
+                    <td style="background:#e6fffa; padding:10px; text-align:center; border: 1px solid #000;"><strong>حضور:</strong> ${present}</td>
+                    <td style="background:#fff5f5; padding:10px; text-align:center; border: 1px solid #000;"><strong>غياب:</strong> ${absent}</td>
+                    <td style="background:#ebf8ff; padding:10px; text-align:center; border: 1px solid #000;"><strong>مدفوعات:</strong> ${totalPaid}</td>
                 </tr>
             </table>
             <h3>سجل المدفوعات</h3>
@@ -1167,45 +1170,32 @@
     }
 
     window.printStudentsList = function() {
-        // بناء الجدول يدوياً لضمان النظافة
-        let rows = '';
-        const filterStage = document.getElementById('studentListFilter').value;
-        const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
+        const tbody = document.getElementById('studentsTable').innerHTML;
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = tbody;
+        const buttons = tempDiv.querySelectorAll('button');
+        buttons.forEach(btn => btn.parentElement.remove());
         
-        let filtered = window.students;
-        if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
-        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
-        
-        filtered.forEach((s, i) => {
-            rows += `<tr><td>${i+1}</td><td>${s.id}</td><td>${s.name}</td><td>${stageMap[s.level] || s.level}</td><td>${s.date}</td></tr>`;
-        });
-
         const content = `
             <table class="print-table">
                 <thead><tr><th style="width: 50px;">م</th><th style="width: 100px;">الكود</th><th>الاسم</th><th>المرحلة</th><th>تاريخ الانضمام</th></tr></thead>
-                <tbody>${rows}</tbody>
+                <tbody>${tempDiv.innerHTML}</tbody>
             </table>
         `;
         printHTML('قائمة الطلاب المسجلين', content);
     }
 
     window.pdfStudentsList = function() {
-        let rows = '';
-        const filterStage = document.getElementById('studentListFilter').value;
-        const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
-        
-        let filtered = window.students;
-        if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
-        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
-        
-        filtered.forEach((s, i) => {
-            rows += `<tr><td>${i+1}</td><td>${s.id}</td><td>${s.name}</td><td>${stageMap[s.level] || s.level}</td><td>${s.date}</td></tr>`;
-        });
+        const tbody = document.getElementById('studentsTable').innerHTML;
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = tbody;
+        const buttons = tempDiv.querySelectorAll('button');
+        buttons.forEach(btn => btn.parentElement.remove());
         
         const content = `
             <table class="print-table">
                 <thead><tr><th style="width: 50px;">م</th><th style="width: 100px;">الكود</th><th>الاسم</th><th>المرحلة</th><th>تاريخ الانضمام</th></tr></thead>
-                <tbody>${rows}</tbody>
+                <tbody>${tempDiv.innerHTML}</tbody>
             </table>
         `;
         savePDF('قائمة الطلاب المسجلين', content);
@@ -1299,7 +1289,26 @@
         tbody.innerHTML = filtered.map((s, index) => `<tr class="cursor-pointer" onclick="openStudentModal('${s.id}')"><td class="col-index">${index + 1}</td><td class="col-code font-mono font-bold text-gray-900">${s.id}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="col-date text-gray-500">${s.date || '-'}</td><td class="no-print col-action" onclick="event.stopPropagation()"><button onclick="delStudent('${s.docId}', '${s.id}')" class="text-red-500 text-[10px] font-bold">حذف</button></td></tr>`).join('');
     }
 
-    function openStudentModal(id) { const s = window.students.find(st => st.id === id); if(!s) return; currentModalStudentId = id; document.getElementById('modalName').innerText = s.name; document.getElementById('modalCode').innerText = s.id; document.getElementById('modalLevel').innerText = stageMap[s.level] || s.level; const passArea = document.getElementById('modalPasswordArea'); const passTxt = document.getElementById('modalPassword'); if(s.password) { passArea.classList.remove('hidden'); passTxt.innerText = s.password; } else { passArea.classList.add('hidden'); } document.getElementById('modalQr').innerHTML = ''; new QRCode(document.getElementById("modalQr"), { text: s.id, width: 100, height: 100 }); document.getElementById('studentModal').classList.remove('hidden'); }
+    function openStudentModal(id) { 
+        const s = window.students.find(st => st.id === id); if(!s) return; 
+        currentModalStudentId = id; 
+        
+        // تعبئة البطاقة الموحدة
+        const card = document.getElementById('studentCardDisplay');
+        card.innerHTML = `
+            <div class="card-title">بطاقة الطالب</div>
+            <div class="card-name">${s.name}</div>
+            <div id="modalQr" style="display:flex; justify-content:center; margin:10px 0;"></div>
+            <div class="card-row"><span>كود الطالب:</span> <span>${s.id}</span></div>
+            <div class="card-row"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div>
+            <div class="card-row"><span>المرحلة:</span> <span>${stageMap[s.level] || s.level}</span></div>
+            <div class="card-row"><span>تاريخ الاشتراك:</span> <span>${s.date}</span></div>
+            <div class="card-footer">Smart Center Pro</div>
+        `;
+        
+        new QRCode(document.getElementById("modalQr"), { text: s.id, width: 100, height: 100 }); 
+        document.getElementById('studentModal').classList.remove('hidden'); 
+    }
     let html5QrCode = null; let isScannerRunning = false; let isPaused = false;
     window.changeAttendanceDate = function() { selectedAttendanceDate = document.getElementById('attendanceDate').value; window.updateCounters(); }
     window.confirmSessionDay = async function() {
@@ -1489,13 +1498,13 @@
         
         const content = `
             <div class="print-student-card">
-                <div class="print-card-title">بطاقة الطالب</div>
-                <div class="print-card-name">${s.name}</div>
+                <div class="card-title">بطاقة الطالب</div>
+                <div class="card-name">${s.name}</div>
                 <div id="printReportQr" style="display:flex; justify-content:center; margin:10px 0;"></div>
-                <div class="print-card-row"><span>كود الطالب:</span> <span>${s.id}</span></div>
-                <div class="print-card-row"><span>المرحلة:</span> <span>${stageMap[s.level] || s.level}</span></div>
-                <div class="print-card-row"><span>تاريخ الانضمام:</span> <span>${s.date}</span></div>
-                <div class="print-card-footer">Smart Center Pro</div>
+                <div class="card-row"><span>كود الطالب:</span> <span>${s.id}</span></div>
+                <div class="card-row"><span>المرحلة:</span> <span>${stageMap[s.level] || s.level}</span></div>
+                <div class="card-row"><span>تاريخ الانضمام:</span> <span>${s.date}</span></div>
+                <div class="card-footer">Smart Center Pro</div>
             </div>
             
             <table class="print-stats-table">
@@ -1516,7 +1525,7 @@
         printHTML('تقرير طالب تفصيلي', content);
         setTimeout(() => {
             new QRCode(document.getElementById("printReportQr"), { text: s.id, width: 100, height: 100 });
-        }, 100);
+        }, 200);
     }
 
     // --- إصلاح منطق التقارير العامة (يومي / شهري) ---
@@ -1888,20 +1897,20 @@
     function printStudentCard() { const s = window.students.find(st => st.id === currentModalStudentId); if(!s) return; 
         const content = `
             <div class="print-student-card">
-                <div class="print-card-title">بطاقة الطالب</div>
-                <div class="print-card-name">${s.name}</div>
+                <div class="card-title">بطاقة الطالب</div>
+                <div class="card-name">${s.name}</div>
                 <div id="printQr" style="display:flex; justify-content:center; margin:10px 0;"></div>
-                <div class="print-card-row"><span>كود الطالب:</span> <span>${s.id}</span></div>
-                <div class="print-card-row"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div>
-                <div class="print-card-row"><span>المرحلة:</span> <span>${stageMap[s.level] || s.level}</span></div>
-                <div class="print-card-row"><span>تاريخ الاشتراك:</span> <span>${s.date}</span></div>
-                <div class="print-card-footer">Smart Center Pro</div>
+                <div class="card-row"><span>كود الطالب:</span> <span>${s.id}</span></div>
+                <div class="card-row"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div>
+                <div class="card-row"><span>المرحلة:</span> <span>${stageMap[s.level] || s.level}</span></div>
+                <div class="card-row"><span>تاريخ الاشتراك:</span> <span>${s.date}</span></div>
+                <div class="card-footer">Smart Center Pro</div>
             </div>
         `;
         printHTML('بطاقة طالب', content);
         setTimeout(() => {
             new QRCode(document.getElementById("printQr"), { text: s.id, width: 120, height: 120 });
-        }, 100);
+        }, 200);
     }
     function printFinancialReport() { 
         const revs = window.accounting.filter(a => a.category === 'revenue' && a.date === today).sort((a,b) => a.time.localeCompare(b.time)); 
