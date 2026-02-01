@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <title>Smart Center | Pro v7.1</title>
+    <title>Smart Center | Pro v7.2</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -215,74 +215,94 @@
         .unified-card-row { font-size: 11pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 4px 0; color: #1f2937; }
         .unified-card-footer { margin-top: 15px; font-size: 9pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1f2937; padding-top: 5px; }
 
-        /* --- نظام الطباعة الموحد (Fix Popup & Barcode) --- */
-        #print-container { display: none; }
+        /* --- نظام الطباعة الموحد (Fix Popup & Pagination) --- */
+        
+        /* الحاوية مخفية تماماً عن الشاشة العادية */
+        #print-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0px; /* ارتفاع صفر لمنع ظهورها */
+            overflow: hidden; /* إخفاء المحتوى */
+            z-index: -1; /* خلف الموقع */
+            background: white;
+            visibility: hidden; /* مخفي بصرياً */
+        }
 
         @media print {
-            body * { visibility: hidden; height: 0; overflow: hidden; }
-            #print-container, #print-container * { visibility: visible; height: auto; overflow: visible; }
+            /* إخفاء كل عناصر الموقع الأساسية */
+            body > *:not(#print-container) { 
+                display: none !important; 
+                height: 0 !important; 
+                overflow: hidden !important; 
+            }
+
+            /* إظهار حاوية الطباعة فقط */
+            #print-container, #print-container * {
+                visibility: visible !important;
+            }
+
             #print-container { 
                 display: block !important; 
                 position: absolute; 
-                left: 0; 
                 top: 0; 
+                left: 0; 
                 width: 100%; 
-                background: white; 
+                height: auto !important; /* السماح بالتمدد لصفحات متعددة */
+                overflow: visible !important; /* السماح بظهور المحتوى المقسم */
                 z-index: 9999999; 
-                padding: 0;
                 margin: 0;
+                padding: 0;
+            }
+
+            @page { 
+                size: A4; 
+                margin: 10mm; 
+            }
+
+            .print-page { 
+                width: 100%; 
+                max-width: 100%; 
+                margin: 0 auto; 
+                font-family: 'Cairo', sans-serif; 
+                color: #000; 
+                direction: rtl; 
+            }
+
+            /* --- قواعد تقسيم الصفحات (Pagination) --- */
+            table { 
+                width: 100%; 
+                border-collapse: collapse; 
+                page-break-inside: auto; /* السماح بكسر الجدول */
             }
             
-            /* إخفاء العناصر الأخرى تماماً */
-            #appContent, #loginOverlay, #loadingOverlay { display: none !important; }
-
-            @page { size: A4; margin: 1cm; }
-
-            .print-page { width: 100%; max-width: 210mm; margin: 0 auto; font-family: 'Cairo', sans-serif; color: #000; direction: rtl; }
-
-            .print-header { 
-                text-align: center; 
-                border-bottom: 3px solid #000; 
-                padding-bottom: 15px; 
-                margin-bottom: 20px; 
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
+            tr { 
+                page-break-inside: avoid; /* منع كسر الصف الواحد */
+                page-break-after: auto; 
             }
+            
+            thead { 
+                display: table-header-group; /* تكرار الهيدر في كل صفحة جديدة */
+            }
+            
+            tfoot { 
+                display: table-footer-group; 
+            }
+
+            /* تنسيقات العناصر */
+            .print-header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
             .print-logo-area { font-size: 35px; }
-            .print-title-area { text-align: center; flex: 1; }
-            .print-meta-area { text-align: left; font-size: 10pt; }
-
-            .print-main-title { font-size: 24pt; font-weight: 900; margin: 0; line-height: 1.2; }
-            .print-sub-title { font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; color: #333; }
-
-            /* الجداول النظيفة */
-            .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11pt; table-layout: fixed; }
+            .print-title-area h1 { font-size: 22pt; font-weight: 900; margin: 0; }
+            .print-title-area h2 { font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; }
+            .print-meta-area { font-size: 10pt; text-align: left; }
+            
             .print-table th { background-color: #eee !important; color: #000 !important; font-weight: 900; border: 1px solid #000; padding: 8px; text-align: center; -webkit-print-color-adjust: exact; }
-            .print-table td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; word-wrap: break-word; }
-            .print-table tr:nth-child(even) { background-color: #f9f9f9 !important; -webkit-print-color-adjust: exact; }
-
-            /* البطاقات والإحصائيات */
-            .print-stats-table { width: 100%; margin-bottom: 20px; border-collapse: separate; border-spacing: 10px 0; }
-            .print-stats-cell { border: 1px solid #000; padding: 10px; text-align: center; border-radius: 8px; width: 33%; vertical-align: middle; }
-            .print-box-title { font-size: 12pt; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; }
-            .print-box-val { font-size: 16pt; font-weight: 900; }
-
-            /* بطاقة الطالب في الطباعة */
-            .print-student-card { 
-                border: 4px double #000; 
-                border-radius: 15px; 
-                padding: 20px; 
-                width: 350px; 
-                margin: 20px auto; 
-                text-align: center; 
-                page-break-inside: avoid;
-                background: #fff;
-            }
-            .print-card-title { font-size: 16pt; font-weight: bold; margin-bottom: 10px; color: #000; text-align: center; }
-            .print-card-name { font-size: 20pt; font-weight: 900; margin: 10px 0; border-bottom: 2px solid #000; padding-bottom: 10px; color: #000; text-align: center; }
-            .print-card-row { font-size: 12pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; color: #000; }
-            .print-card-footer { margin-top: 15px; font-size: 10pt; color: #555; font-weight: bold; border-top: 1px solid #000; padding-top: 5px; text-align: center; }
+            .print-table td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; }
+            
+            /* بطاقة الطالب لا تنقسم */
+            .print-student-card { page-break-inside: avoid; }
+            .print-stats-table { page-break-inside: avoid; }
 
             .no-print { display: none !important; }
         }
@@ -384,8 +404,8 @@
     </div>
 </div>
 
-<!-- حاوية الطباعة (معدلة لتكون Full Screen Overlay) -->
-<div id="print-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: white; z-index: 999999; display: none; overflow-y: auto;"></div>
+<!-- حاوية الطباعة (مخفية عن الشاشة) -->
+<div id="print-container"></div>
 
 <div id="appContent" class="hidden">
     <style>
@@ -1084,7 +1104,7 @@
         document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
     }
 
-    // --- نظام الطباعة الموحد (Fix Popup & Barcode) ---
+    // --- نظام الطباعة الموحد (Fix Popup & Barcode & Pagination) ---
     
     function getPrintTemplate(title, content) {
         const date = new Date().toLocaleDateString('ar-EG');
@@ -1116,21 +1136,22 @@
         isPrinting = true;
 
         const printContainer = document.getElementById('print-container');
-        // تنظيف الحاوية أولاً
+        
+        // تنظيف الحاوية
         printContainer.innerHTML = '';
-        printContainer.style.display = 'block';
-
-        // تعبئة المحتوى الجديد
+        
+        // تعبئة المحتوى (الـ CSS سيخفيه عن الشاشة ويظهره للطابعة فقط)
         printContainer.innerHTML = getPrintTemplate(title, content);
 
-        // انتظار قصير جداً للتأكد من الريندر
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // انتظار قصير جداً للتأكد من تحميل الصور (الباركود Base64)
+        await new Promise(resolve => setTimeout(resolve, 200));
 
+        // فتح نافذة الطباعة
         window.print();
 
-        // التنظيف بعد الانتهاء
+        // تنظيف الذاكرة بعد الانتهاء
         setTimeout(() => {
-            printContainer.style.display = 'none'; 
+            printContainer.innerHTML = ''; 
             isPrinting = false;
         }, 1000);
     };
