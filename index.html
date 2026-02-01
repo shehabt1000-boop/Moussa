@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <title>Smart Center | Pro v6.9</title>
+    <title>Smart Center | Pro v7.0</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -129,9 +129,9 @@
         .col-action { width: 45px; min-width: 45px; } 
         .custom-table tbody tr:hover { background-color: #f3f4f6; }
 
-        #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; color: #1f2937; }
+        #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.98); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; color: #1f2937; }
         
-        /* تعديل شاشة الدخول لتكون مخفية افتراضياً لمنع الوميض */
+        /* شاشة الدخول مخفية افتراضياً لمنع الوميض */
         #loginOverlay { position: fixed; inset: 0; background: linear-gradient(135deg, #111827 0%, #374151 100%); z-index: 100000; display: none; align-items: center; justify-content: center; padding: 20px; }
         
         .login-card { background: rgba(255, 255, 255, 0.95); width: 100%; max-width: 380px; border-radius: 15px; padding: 25px; box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3); text-align: center; border: 1px solid #4b5563; }
@@ -327,7 +327,7 @@
     </div>
 </div>
 
-<div id="loadingOverlay" class="hidden">
+<div id="loadingOverlay">
     <div class="animate-spin rounded-full h-10 w-10 border-b-4 border-gray-900 mb-4"></div>
     <div class="text-base">جاري تحميل النظام...</div>
 </div>
@@ -797,11 +797,51 @@
     window.db = db; window.auth = auth; window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.where = where; window.setDoc = setDoc; window.updateDoc = updateDoc;
     window.signInWithEmailAndPassword = signInWithEmailAndPassword; window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
 
+    // --- تعديل جذري لمنطق التحميل لتجنب التعليق ---
     const loading = document.getElementById('loadingOverlay');
-    onSnapshot(collection(db, "students"), (snapshot) => { window.students = []; snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id })); window.renderStudents(); window.updateCounters(); loading.style.display = 'none'; });
-    onSnapshot(collection(db, "attendance"), (snapshot) => { window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); window.updateCounters(); window.renderFormalSchedule(); });
-    onSnapshot(collection(db, "accounting"), (snapshot) => { window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); window.updateFinance(); });
-    onSnapshot(doc(db, "settings", "schedule"), (doc) => { if(doc.exists()) window.scheduleData = doc.data(); else window.scheduleData = {}; window.renderFormalSchedule(); window.updateCounters(); });
+    
+    // دالة مساعدة لإخفاء التحميل بأمان
+    const hideLoading = () => {
+        if(loading) loading.style.display = 'none';
+    };
+
+    // مؤقت أمان: إخفاء التحميل إجبارياً بعد 3 ثوانٍ إذا تأخرت البيانات
+    setTimeout(hideLoading, 3000);
+
+    onSnapshot(collection(db, "students"), (snapshot) => { 
+        try {
+            window.students = []; 
+            snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id })); 
+            if(window.renderStudents) window.renderStudents(); 
+            if(window.updateCounters) window.updateCounters(); 
+        } catch(e) { console.error(e); }
+        finally { hideLoading(); } // إخفاء التحميل دائماً
+    });
+
+    onSnapshot(collection(db, "attendance"), (snapshot) => { 
+        try {
+            window.attendance = []; 
+            snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); 
+            if(window.updateCounters) window.updateCounters(); 
+            if(window.renderFormalSchedule) window.renderFormalSchedule(); 
+        } catch(e) { console.error(e); }
+    });
+
+    onSnapshot(collection(db, "accounting"), (snapshot) => { 
+        try {
+            window.accounting = []; 
+            snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); 
+            if(window.updateFinance) window.updateFinance(); 
+        } catch(e) { console.error(e); }
+    });
+
+    onSnapshot(doc(db, "settings", "schedule"), (doc) => { 
+        try {
+            if(doc.exists()) window.scheduleData = doc.data(); else window.scheduleData = {}; 
+            if(window.renderFormalSchedule) window.renderFormalSchedule(); 
+            if(window.updateCounters) window.updateCounters(); 
+        } catch(e) { console.error(e); }
+    });
 </script>
 
 <script>
@@ -837,7 +877,7 @@
     let selectedAttendanceDate = today; let currentModalStudentId = null; let currentParentPhone = null; let currentScheduleLevel = null; let currentReportData = {};
     let loginMode = 'admin';
     let isPrinting = false; 
-    let html5QrCode = null; // Global scanner instance
+    let html5QrCode = null; 
     let isScannerRunning = false;
     let isPaused = false;
 
@@ -857,7 +897,7 @@
         const savedStudentId = localStorage.getItem('currentStudentId');
 
         if (savedLogin === 'true') {
-            // المستخدم مسجل دخول، لا تظهر شاشة الدخول
+            // المستخدم مسجل: إظهار المحتوى فوراً (التحميل سيختفي تلقائياً)
             document.getElementById('appContent').classList.remove('hidden');
             loginMode = savedMode;
             if (loginMode === 'admin') {
@@ -868,7 +908,8 @@
                 setTimeout(() => { const student = window.students.find(s => s.id === savedStudentId); if(student) loadStudentDashboard(student); }, 1000);
             }
         } else {
-            // المستخدم غير مسجل، أظهر شاشة الدخول الآن
+            // المستخدم غير مسجل: إخفاء التحميل فوراً وإظهار الدخول
+            document.getElementById('loadingOverlay').style.display = 'none';
             document.getElementById('loginOverlay').style.display = 'flex';
             showTab('students', document.getElementById('nav-students'));
         }
@@ -1040,7 +1081,7 @@
         document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
     }
 
-    // --- نظام الطباعة الموحد المحسن (مع منع التجمد وتنظيف الذاكرة) ---
+    // --- نظام الطباعة الموحد المحسن ---
     function printHTML(title, content) {
         if(isPrinting) return; 
         if(!content) return; 
@@ -1087,7 +1128,7 @@
         }, 500); 
     }
 
-    // دالة مساعدة لإنشاء باركود HTML جاهز (محسنة لتنظيف الذاكرة)
+    // دالة مساعدة لإنشاء باركود HTML جاهز
     function generateQRHtml(text) {
         return new Promise((resolve) => {
             const holder = document.createElement('div');
@@ -1171,9 +1212,9 @@
         }, 500);
     }
 
-    // --- دوال الماسح الضوئي المحسنة (Singleton) ---
+    // --- دوال الماسح الضوئي المحسنة (إصلاح التعارض) ---
     async function startScanner(elemId, mode) { 
-        // تأكد من إيقاف أي ماسح سابق أولاً
+        // تنظيف أي ماسح سابق إجبارياً
         await stopScanner();
 
         html5QrCode = new Html5Qrcode(elemId); 
@@ -1196,7 +1237,7 @@
                 else if(mode === 'payment') handlePaymentScan(decodedText); 
                 else if(mode === 'check') handleCheckScan(decodedText);
                 
-                // إعادة التفعيل فقط إذا لم نكن في وضع الدفع أو الفحص (لأنها تفتح نوافذ)
+                // إعادة التفعيل فقط إذا لم نكن في وضع الدفع أو الفحص
                 if(mode !== 'check' && mode !== 'payment') {
                      setTimeout(() => { isPaused = false; }, 1500);
                 }
