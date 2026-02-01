@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <title>Smart Center | Pro v7.0</title>
+    <title>Smart Center | Pro v6.9</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -129,11 +129,41 @@
         .col-action { width: 45px; min-width: 45px; } 
         .custom-table tbody tr:hover { background-color: #f3f4f6; }
 
-        #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.98); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; color: #1f2937; }
-        
-        /* شاشة الدخول مخفية افتراضياً لمنع الوميض */
-        #loginOverlay { position: fixed; inset: 0; background: linear-gradient(135deg, #111827 0%, #374151 100%); z-index: 100000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        
+        /* --- شاشة التحميل العصرية (Fix #5) --- */
+        #loadingOverlay { 
+            position: fixed; inset: 0; 
+            background: rgba(17, 24, 39, 0.95); 
+            backdrop-filter: blur(10px);
+            z-index: 99999; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            color: white;
+            transition: opacity 0.3s ease;
+        }
+        .modern-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- إخفاء شاشة الدخول افتراضياً لمنع الوميض (Fix #3) --- */
+        #loginOverlay { 
+            position: fixed; inset: 0; 
+            background: linear-gradient(135deg, #111827 0%, #374151 100%); 
+            z-index: 100000; 
+            display: none; /* مخفي افتراضياً */
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px; 
+        }
+
         .login-card { background: rgba(255, 255, 255, 0.95); width: 100%; max-width: 380px; border-radius: 15px; padding: 25px; box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3); text-align: center; border: 1px solid #4b5563; }
         .login-input { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #4b5563; border-radius: 8px; font-size: 13px; outline: none; transition: all 0.3s; padding-left: 2.5rem; }
         .login-btn { width: 100%; padding: 10px; background: #1f2937; color: white; border-radius: 8px; font-weight: bold; font-size: 13px; transition: transform 0.1s; border: 1px solid #000; }
@@ -243,6 +273,13 @@
 </head>
 <body class="text-gray-800">
 
+<!-- شاشة التحميل العصرية -->
+<div id="loadingOverlay">
+    <div class="modern-spinner"></div>
+    <div class="text-lg font-bold tracking-wider">Smart Center Pro</div>
+    <div class="text-xs text-gray-400 mt-2">جاري تهيئة النظام...</div>
+</div>
+
 <div id="loginOverlay">
     <div class="login-card">
         <div class="mb-4">
@@ -325,11 +362,6 @@
         </div>
         <button onclick="closeModal('checkResultModal')" class="w-full bg-gray-800 text-white py-2 rounded font-bold mt-4 text-xs">إغلاق</button>
     </div>
-</div>
-
-<div id="loadingOverlay">
-    <div class="animate-spin rounded-full h-10 w-10 border-b-4 border-gray-900 mb-4"></div>
-    <div class="text-base">جاري تحميل النظام...</div>
 </div>
 
 <!-- حاوية الطباعة -->
@@ -797,51 +829,11 @@
     window.db = db; window.auth = auth; window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.where = where; window.setDoc = setDoc; window.updateDoc = updateDoc;
     window.signInWithEmailAndPassword = signInWithEmailAndPassword; window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
 
-    // --- تعديل جذري لمنطق التحميل لتجنب التعليق ---
     const loading = document.getElementById('loadingOverlay');
-    
-    // دالة مساعدة لإخفاء التحميل بأمان
-    const hideLoading = () => {
-        if(loading) loading.style.display = 'none';
-    };
-
-    // مؤقت أمان: إخفاء التحميل إجبارياً بعد 3 ثوانٍ إذا تأخرت البيانات
-    setTimeout(hideLoading, 3000);
-
-    onSnapshot(collection(db, "students"), (snapshot) => { 
-        try {
-            window.students = []; 
-            snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id })); 
-            if(window.renderStudents) window.renderStudents(); 
-            if(window.updateCounters) window.updateCounters(); 
-        } catch(e) { console.error(e); }
-        finally { hideLoading(); } // إخفاء التحميل دائماً
-    });
-
-    onSnapshot(collection(db, "attendance"), (snapshot) => { 
-        try {
-            window.attendance = []; 
-            snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); 
-            if(window.updateCounters) window.updateCounters(); 
-            if(window.renderFormalSchedule) window.renderFormalSchedule(); 
-        } catch(e) { console.error(e); }
-    });
-
-    onSnapshot(collection(db, "accounting"), (snapshot) => { 
-        try {
-            window.accounting = []; 
-            snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); 
-            if(window.updateFinance) window.updateFinance(); 
-        } catch(e) { console.error(e); }
-    });
-
-    onSnapshot(doc(db, "settings", "schedule"), (doc) => { 
-        try {
-            if(doc.exists()) window.scheduleData = doc.data(); else window.scheduleData = {}; 
-            if(window.renderFormalSchedule) window.renderFormalSchedule(); 
-            if(window.updateCounters) window.updateCounters(); 
-        } catch(e) { console.error(e); }
-    });
+    onSnapshot(collection(db, "students"), (snapshot) => { window.students = []; snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id })); window.renderStudents(); window.updateCounters(); loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); });
+    onSnapshot(collection(db, "attendance"), (snapshot) => { window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); window.updateCounters(); window.renderFormalSchedule(); });
+    onSnapshot(collection(db, "accounting"), (snapshot) => { window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); window.updateFinance(); });
+    onSnapshot(doc(db, "settings", "schedule"), (doc) => { if(doc.exists()) window.scheduleData = doc.data(); else window.scheduleData = {}; window.renderFormalSchedule(); window.updateCounters(); });
 </script>
 
 <script>
@@ -876,10 +868,7 @@
     let today = getEgyptDate();
     let selectedAttendanceDate = today; let currentModalStudentId = null; let currentParentPhone = null; let currentScheduleLevel = null; let currentReportData = {};
     let loginMode = 'admin';
-    let isPrinting = false; 
-    let html5QrCode = null; 
-    let isScannerRunning = false;
-    let isPaused = false;
+    let isPrinting = false; // متغير لمنع تكرار الطباعة
 
     function normalizeArabic(text) { return text.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي'); }
 
@@ -896,8 +885,8 @@
         const savedTab = localStorage.getItem('activeTab');
         const savedStudentId = localStorage.getItem('currentStudentId');
 
+        // Fix #3: منع الوميض - التحقق قبل إظهار أي شيء
         if (savedLogin === 'true') {
-            // المستخدم مسجل: إظهار المحتوى فوراً (التحميل سيختفي تلقائياً)
             document.getElementById('appContent').classList.remove('hidden');
             loginMode = savedMode;
             if (loginMode === 'admin') {
@@ -908,8 +897,7 @@
                 setTimeout(() => { const student = window.students.find(s => s.id === savedStudentId); if(student) loadStudentDashboard(student); }, 1000);
             }
         } else {
-            // المستخدم غير مسجل: إخفاء التحميل فوراً وإظهار الدخول
-            document.getElementById('loadingOverlay').style.display = 'none';
+            // فقط إذا لم يكن مسجلاً، أظهر شاشة الدخول
             document.getElementById('loginOverlay').style.display = 'flex';
             showTab('students', document.getElementById('nav-students'));
         }
@@ -918,14 +906,17 @@
     window.validatePhone = function(input) { let val = input.value.replace(/\D/g, ''); if (val.startsWith('0')) val = val.substring(1); if (val.length > 10) val = val.substring(0, 10); input.value = val; }
     window.setLoginMode = function(mode) { loginMode = mode; document.getElementById('tabAdmin').className = mode === 'admin' ? 'login-tab active' : 'login-tab'; document.getElementById('tabStudent').className = mode === 'student' ? 'login-tab active' : 'login-tab'; document.getElementById('loginCode').placeholder = mode === 'admin' ? 'كود الإدارة' : 'كود الطالب'; }
 
+    // --- تعديل دالة تسجيل الدخول ---
     window.handleLogin = async function() { 
         const code = document.getElementById('loginCode').value.trim(); 
         const pass = document.getElementById('loginPass').value.trim(); 
         const errorMsg = document.getElementById('loginError'); 
 
         if (loginMode === 'admin') { 
+            // الكود: 1032 | الباسورد: 10321032
             if (code === '1032' && pass === '10321032') { 
                 const adminEmail = "admin_pro@smartcenter.app"; 
+                
                 try {
                     await window.signInWithEmailAndPassword(window.auth, adminEmail, pass);
                     proceedLogin('admin');
@@ -935,13 +926,15 @@
                             await window.createUserWithEmailAndPassword(window.auth, adminEmail, pass);
                             proceedLogin('admin');
                         } catch (createError) {
+                            console.error("Create Admin Error:", createError);
                             errorMsg.innerText = "خطأ في إنشاء حساب الإدارة";
                             errorMsg.classList.remove('hidden');
                         }
                     } else if (error.code === 'auth/wrong-password') {
-                        errorMsg.innerText = "كلمة المرور غير صحيحة";
+                        errorMsg.innerText = "كلمة المرور غير صحيحة للحساب المسجل";
                         errorMsg.classList.remove('hidden');
                     } else {
+                        console.error("Login Error:", error);
                         errorMsg.innerText = "حدث خطأ غير متوقع";
                         errorMsg.classList.remove('hidden');
                     }
@@ -1081,12 +1074,12 @@
         document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
     }
 
-    // --- نظام الطباعة الموحد المحسن ---
+    // --- نظام الطباعة الموحد المحسن (مع منع التجمد) ---
     function printHTML(title, content) {
-        if(isPrinting) return; 
+        if(isPrinting) return; // منع التكرار
         if(!content) return; 
         
-        isPrinting = true;
+        isPrinting = true; // قفل الطباعة
         
         const printContainer = document.getElementById('print-container');
         const date = new Date().toLocaleDateString('ar-EG');
@@ -1116,19 +1109,23 @@
         
         // انتظار تحميل الصور (الباركود) قبل فتح نافذة الطباعة
         setTimeout(() => {
-            try {
-                window.print();
-            } finally {
-                // تنظيف الذاكرة وفتح القفل بعد وقت كافٍ
-                setTimeout(() => { 
-                    printContainer.innerHTML = ''; 
-                    isPrinting = false; 
-                }, 1000);
-            }
+            window.print();
+            
+            // تنظيف الذاكرة فوراً بعد الطباعة
+            window.onafterprint = function() {
+                printContainer.innerHTML = ''; 
+                isPrinting = false; 
+            };
+
+            // احتياطي في حال لم يعمل onafterprint
+            setTimeout(() => { 
+                printContainer.innerHTML = ''; 
+                isPrinting = false; 
+            }, 2000);
         }, 500); 
     }
 
-    // دالة مساعدة لإنشاء باركود HTML جاهز
+    // دالة مساعدة لإنشاء باركود HTML جاهز (محسنة لتنظيف الذاكرة)
     function generateQRHtml(text) {
         return new Promise((resolve) => {
             const holder = document.createElement('div');
@@ -1144,6 +1141,7 @@
                 correctLevel : QRCode.CorrectLevel.H
             });
             
+            // استخدام onload لضمان جاهزية الصورة
             setTimeout(() => {
                 const canvas = holder.querySelector('canvas');
                 const img = holder.querySelector('img');
@@ -1153,10 +1151,20 @@
                     const dataUrl = canvas.toDataURL("image/png");
                     html = `<img src="${dataUrl}" style="width:100px; height:100px; margin:0 auto;" />`;
                 } else if (img) {
-                    img.style.width = '100px';
-                    img.style.height = '100px';
-                    img.style.margin = '0 auto';
-                    html = img.outerHTML;
+                    if (img.complete) {
+                         img.style.width = '100px';
+                         img.style.height = '100px';
+                         img.style.margin = '0 auto';
+                         html = img.outerHTML;
+                    } else {
+                        // محاولة أخيرة
+                        img.onload = function() {
+                             img.style.width = '100px';
+                             img.style.height = '100px';
+                             img.style.margin = '0 auto';
+                        }
+                        html = img.outerHTML;
+                    }
                 }
 
                 document.body.removeChild(holder); // حذف العنصر فوراً
@@ -1212,21 +1220,326 @@
         }, 500);
     }
 
-    // --- دوال الماسح الضوئي المحسنة (إصلاح التعارض) ---
+    window.printStudentDashboard = async function() {
+        if(isPrinting) return;
+        const name = document.getElementById('dashName').innerText;
+        const code = document.getElementById('dashCode').innerText;
+        
+        if(!name || !code) { showToast('لا توجد بيانات للطباعة', 'error'); return; }
+        showToast('جاري تجهيز الطباعة...', 'success');
+
+        const level = document.getElementById('dashLevel').innerText;
+        const joinDate = document.getElementById('dashJoinDate').innerText;
+        const present = document.getElementById('dashPresent').innerText;
+        const absent = document.getElementById('dashAbsent').innerText;
+        const totalPaid = document.getElementById('dashPaymentsTotal').innerText;
+        const paymentsHTML = document.getElementById('dashPaymentsTable').innerHTML;
+
+        const qrImageHtml = await generateQRHtml(code);
+
+        let historyTableRows = '';
+        const historyDivs = document.getElementById('dashHistory').querySelectorAll('div');
+        historyDivs.forEach(div => { 
+            const spans = div.querySelectorAll('span'); 
+            if(spans.length >= 2) { 
+                historyTableRows += `<tr><td>${spans[0].innerText}</td><td>${spans[1].innerText}</td></tr>`; 
+            } 
+        });
+
+        const content = `
+            <div class="print-student-card">
+                <div class="print-card-title">بطاقة الطالب</div>
+                <div class="print-card-name">${name}</div>
+                <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
+                <div class="print-card-row"><span>كود الطالب:</span> <span>${code}</span></div>
+                <div class="print-card-row"><span>المرحلة:</span> <span>${level}</span></div>
+                <div class="print-card-row"><span>تاريخ الاشتراك:</span> <span>${joinDate}</span></div>
+                <div class="print-card-footer">Smart Center Pro</div>
+            </div>
+            
+            <table class="print-stats-table">
+                <tr>
+                    <td class="print-stats-cell"><div class="print-box-title">أيام الحضور</div><div class="print-box-val" style="color:green;">${present}</div></td>
+                    <td class="print-stats-cell"><div class="print-box-title">أيام الغياب</div><div class="print-box-val" style="color:red;">${absent}</div></td>
+                    <td class="print-stats-cell"><div class="print-box-title">المدفوعات</div><div class="print-box-val">${totalPaid}</div></td>
+                </tr>
+            </table>
+
+            <h3 style="border-bottom: 2px solid #000; margin-top: 20px;">سجل المدفوعات</h3>
+            <table class="print-table"><thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th></tr></thead><tbody>${paymentsHTML}</tbody></table>
+
+            <h3 style="border-bottom: 2px solid #000; margin-top: 20px;">سجل الحضور والغياب</h3>
+            <table class="print-table"><thead><tr><th>التاريخ</th><th>الحالة</th></tr></thead><tbody>${historyTableRows || '<tr><td colspan="2">لا يوجد سجل</td></tr>'}</tbody></table>
+        `;
+
+        printHTML('تقرير متابعة طالب', content);
+    }
+
+    window.pdfStudentDashboard = function() {
+        const name = document.getElementById('dashName').innerText;
+        const code = document.getElementById('dashCode').innerText;
+        const level = document.getElementById('dashLevel').innerText;
+        const joinDate = document.getElementById('dashJoinDate').innerText;
+        const present = document.getElementById('dashPresent').innerText;
+        const absent = document.getElementById('dashAbsent').innerText;
+        const totalPaid = document.getElementById('dashPaymentsTotal').innerText;
+        const paymentsHTML = document.getElementById('dashPaymentsTable').innerHTML;
+
+        let historyTableRows = '';
+        const historyDivs = document.getElementById('dashHistory').querySelectorAll('div');
+        historyDivs.forEach(div => { 
+            const spans = div.querySelectorAll('span'); 
+            if(spans.length >= 2) { 
+                historyTableRows += `<tr><td>${spans[0].innerText}</td><td>${spans[1].innerText}</td></tr>`; 
+            } 
+        });
+
+        const content = `
+            <div style="border: 4px double #000; padding: 15px; margin-bottom: 20px; text-align: center; border-radius: 15px; width: 300px; margin: 0 auto 20px auto;">
+                <h3 style="margin:0 0 10px 0;">بطاقة الطالب</h3>
+                <h2 style="margin:0 0 10px 0; border-bottom: 2px solid #000; padding-bottom: 5px;">${name}</h2>
+                <div id="pdfDashQr" style="display:flex; justify-content:center; margin:10px 0;"></div>
+                <p style="font-weight: bold;">الكود: ${code}</p>
+                <p style="font-weight: bold;">المرحلة: ${level}</p>
+                <p style="font-weight: bold;">تاريخ الاشتراك: ${joinDate}</p>
+            </div>
+            <table style="width:100%; margin-bottom:20px;">
+                <tr>
+                    <td style="background:#e6fffa; padding:10px; text-align:center; border: 1px solid #000;"><strong>حضور:</strong> ${present}</td>
+                    <td style="background:#fff5f5; padding:10px; text-align:center; border: 1px solid #000;"><strong>غياب:</strong> ${absent}</td>
+                    <td style="background:#ebf8ff; padding:10px; text-align:center; border: 1px solid #000;"><strong>مدفوعات:</strong> ${totalPaid}</td>
+                </tr>
+            </table>
+            <h3>سجل المدفوعات</h3>
+            <table><thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th></tr></thead><tbody>${paymentsHTML}</tbody></table>
+            <h3>سجل الحضور</h3>
+            <table><thead><tr><th>التاريخ</th><th>الحالة</th></tr></thead><tbody>${historyTableRows}</tbody></table>
+        `;
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = content;
+        document.body.appendChild(tempDiv);
+        new QRCode(tempDiv.querySelector("#pdfDashQr"), { text: code, width: 100, height: 100 });
+
+        setTimeout(() => {
+            savePDF(`تقرير_${name}`, tempDiv.innerHTML);
+            document.body.removeChild(tempDiv);
+        }, 500);
+    }
+
+    window.printStudentsList = function() {
+        if(isPrinting) return;
+        let rows = '';
+        const filterStage = document.getElementById('studentListFilter').value;
+        const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
+
+        let filtered = window.students;
+        if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
+        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
+
+        filtered.forEach((s, i) => {
+            rows += `<tr><td style="width:50px;">${i+1}</td><td style="width:100px;">${s.id}</td><td>${s.name}</td><td>${stageMap[s.level] || s.level}</td><td>${s.date}</td></tr>`;
+        });
+
+        const content = `
+            <table class="print-table">
+                <thead><tr><th style="width: 50px;">م</th><th style="width: 100px;">الكود</th><th>الاسم</th><th>المرحلة</th><th>تاريخ الانضمام</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>
+        `;
+        printHTML('قائمة الطلاب المسجلين', content);
+    }
+
+    window.pdfStudentsList = function() {
+        let rows = '';
+        const filterStage = document.getElementById('studentListFilter').value;
+        const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
+
+        let filtered = window.students;
+        if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
+        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
+
+        filtered.forEach((s, i) => {
+            rows += `<tr><td style="width:50px;">${i+1}</td><td style="width:100px;">${s.id}</td><td>${s.name}</td><td>${stageMap[s.level] || s.level}</td><td>${s.date}</td></tr>`;
+        });
+
+        const content = `
+            <table class="print-table">
+                <thead><tr><th style="width: 50px;">م</th><th style="width: 100px;">الكود</th><th>الاسم</th><th>المرحلة</th><th>تاريخ الانضمام</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>
+        `;
+        savePDF('قائمة الطلاب المسجلين', content);
+    }
+
+    window.renderFormalSchedule = function() {
+        const tbody = document.getElementById('formalScheduleBody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        Object.keys(stageMap).forEach(level => {
+            const data = window.scheduleData[level] || { days: [], times: {} };
+            const days = data.days || [];
+            const times = data.times || {};
+
+            if(days.length > 0) {
+                const daysAr = days.map(d => `<div class="mb-1">${dayMap[d]}</div>`).join('');
+                const timesAr = days.map(d => `<div class="mb-1">${times[d] || '-'}</div>`).join('');
+
+                tbody.innerHTML += `<tr><td class="font-bold text-gray-900 align-top pt-2">${stageMap[level]}</td><td class="align-top pt-2">${daysAr}</td><td class="align-top pt-2">${timesAr}</td><td class="no-print align-middle"><button onclick="openMonthlySchedule('${level}')" class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-[9px] font-bold hover:bg-gray-200 border border-gray-300">📅 أجندة الشهر</button></td></tr>`;
+            }
+        });
+        if(tbody.innerHTML === '') tbody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-2">لم يتم إعداد الجدول بعد</td></tr>';
+    }
+
+    window.printFormalSchedule = function() { 
+        if(isPrinting) return;
+        let cleanRows = '';
+        Object.keys(stageMap).forEach(level => {
+            const data = window.scheduleData[level] || { days: [], times: {} };
+            const days = data.days || [];
+            const times = data.times || {};
+            if(days.length > 0) {
+                const scheduleDetails = days.map(d => `<div style="display:flex; justify-content:space-between; border-bottom:1px dashed #ccc; padding:4px;"><span>${dayMap[d]}</span><span>${times[d] || '-'}</span></div>`).join('');
+                cleanRows += `<tr><td style="vertical-align:middle; font-weight:bold; font-size:14pt;">${stageMap[level]}</td><td style="text-align:right; padding:10px;">${scheduleDetails}</td></tr>`;
+            }
+        });
+
+        const content = `<table class="print-table"><thead><tr><th style="width: 30%;">المرحلة الدراسية</th><th>المواعيد</th></tr></thead><tbody>${cleanRows || '<tr><td colspan="2">لم يتم تحديد مواعيد</td></tr>'}</tbody></table>`;
+        printHTML('جدول المواعيد الرسمي', content);
+    }
+
+    window.pdfFormalSchedule = function() {
+        let cleanRows = '';
+        Object.keys(stageMap).forEach(level => {
+            const data = window.scheduleData[level] || { days: [], times: {} };
+            const days = data.days || [];
+            const times = data.times || {};
+            if(days.length > 0) {
+                const scheduleDetails = days.map(d => `<div style="display:flex; justify-content:space-between; border-bottom:1px dashed #ccc; padding:4px;"><span>${dayMap[d]}</span><span>${times[d] || '-'}</span></div>`).join('');
+                cleanRows += `<tr><td style="vertical-align:middle; font-weight:bold; font-size:14pt;">${stageMap[level]}</td><td style="text-align:right; padding:10px;">${scheduleDetails}</td></tr>`;
+            }
+        });
+        const content = `<table class="print-table"><thead><tr><th style="width: 30%;">المرحلة الدراسية</th><th>المواعيد</th></tr></thead><tbody>${cleanRows || '<tr><td colspan="2">لم يتم تحديد مواعيد</td></tr>'}</tbody></table>`;
+        savePDF('جدول المواعيد الرسمي', content);
+    }
+
+    async function showTab(id, btn) { if(isScannerRunning) await stopScanner(); document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); if(btn) btn.classList.add('active'); localStorage.setItem('activeTab', id); if(id === 'attendance') window.renderFormalSchedule(); }
+
+    async function registerStudent() { 
+        const name = document.getElementById('stdName').value; 
+        const level = document.getElementById('stdLevel').value; 
+        let phone = document.getElementById('stdPhone').value; 
+        if(!name || !level) return showToast('أكمل البيانات', 'error'); 
+        phone = phone.replace(/\D/g, ''); if(phone.startsWith('0')) phone = phone.substring(1); 
+
+        let id; 
+        do { id = Math.floor(1000 + Math.random() * 9000).toString(); } while (window.students.some(s => s.id === id)); 
+        const password = Math.floor(100000 + Math.random() * 900000).toString(); 
+        const createdAt = new Date().toISOString(); 
+
+        try { 
+            await window.createUserWithEmailAndPassword(window.auth, `${id}@smartcenter.app`, password);
+            await window.addDoc(window.collection(window.db, "students"), { id, name, level, phone, date: today, password, createdAt }); 
+            openStudentModal(id); 
+            document.getElementById('stdName').value = ''; 
+            document.getElementById('stdPhone').value = ''; 
+            showToast('تم الحفظ وإنشاء الحساب', 'success'); 
+        } catch (e) { 
+            showToast('خطأ في الاتصال أو الحساب موجود', 'error'); 
+        } 
+    }
+
+    window.renderStudents = function() {
+        const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
+        const filterStage = document.getElementById('studentListFilter').value;
+        const tbody = document.getElementById('studentsTable');
+        let filtered = window.students;
+        if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
+        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
+        filtered.sort((a, b) => { const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.date); const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.date); return dateB - dateA; });
+        document.getElementById('stdCount').innerText = filtered.length;
+        tbody.innerHTML = filtered.map((s, index) => `<tr class="cursor-pointer" onclick="openStudentModal('${s.id}')"><td class="col-index">${index + 1}</td><td class="col-code font-mono font-bold text-gray-900">${s.id}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="col-date text-gray-500">${s.date || '-'}</td><td class="no-print col-action" onclick="event.stopPropagation()"><button onclick="delStudent('${s.docId}', '${s.id}')" class="text-red-500 text-[10px] font-bold">حذف</button></td></tr>`).join('');
+    }
+
+    function openStudentModal(id) { 
+        const s = window.students.find(st => st.id === id); if(!s) return; 
+        currentModalStudentId = id; 
+
+        // تعبئة البطاقة الموحدة
+        const card = document.getElementById('studentCardDisplay');
+        card.innerHTML = `
+            <div class="unified-card-title">بطاقة الطالب</div>
+            <div class="unified-card-name">${s.name}</div>
+            <div id="modalQr" style="display:flex; justify-content:center; margin:10px 0;"></div>
+            <div class="unified-card-row"><span>كود الطالب:</span> <span>${s.id}</span></div>
+            <div class="unified-card-row"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div>
+            <div class="unified-card-row"><span>المرحلة:</span> <span>${stageMap[s.level] || s.level}</span></div>
+            <div class="unified-card-row"><span>تاريخ الاشتراك:</span> <span>${s.date}</span></div>
+            <div class="unified-card-footer">Smart Center Pro</div>
+        `;
+
+        new QRCode(document.getElementById("modalQr"), { text: s.id, width: 100, height: 100 }); 
+        document.getElementById('studentModal').classList.remove('hidden'); 
+    }
+    let html5QrCode = null; let isScannerRunning = false; let isPaused = false;
+    window.changeAttendanceDate = function() { selectedAttendanceDate = document.getElementById('attendanceDate').value; window.updateCounters(); }
+    window.confirmSessionDay = async function() {
+        const date = document.getElementById('attendanceDate').value;
+        const selectedLevel = document.getElementById('attendanceStage').value;
+        if(!selectedLevel) { showToast('يجب اختيار المرحلة أولاً!', 'error'); return; }
+        const sessionQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", "SESSION_MARKER"), window.where("date", "==", date));
+        const snapshot = await window.getDocs(sessionQuery);
+        let newLevels = [];
+        if (!snapshot.empty) { const docRef = snapshot.docs[0].ref; const currentData = snapshot.docs[0].data(); let currentLevels = currentData.levels || []; if (selectedLevel === 'all') { newLevels = ['all']; } else { if (currentLevels.includes('all')) currentLevels = []; if (!currentLevels.includes(selectedLevel)) currentLevels.push(selectedLevel); newLevels = currentLevels; } await window.updateDoc(docRef, { levels: newLevels }); } else { newLevels = selectedLevel === 'all' ? ['all'] : [selectedLevel]; await window.addDoc(window.collection(window.db, "attendance"), { date: date, studentId: "SESSION_MARKER", time: new Date().toLocaleTimeString('ar-EG'), levels: newLevels }); }
+        showToast(`تم تفعيل الوضع الاستثنائي بنجاح`, 'success'); window.updateCounters();
+    }
+    window.cancelSessionDay = async function() {
+        const date = document.getElementById('attendanceDate').value;
+        document.getElementById('exceptionalStatusIndicator').classList.add('hidden');
+        window.attendance = window.attendance.filter(r => !(r.studentId === "SESSION_MARKER" && r.date === date));
+        window.updateCounters();
+        const sessionQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", "SESSION_MARKER"), window.where("date", "==", date));
+        const snapshot = await window.getDocs(sessionQuery);
+        if (!snapshot.empty) { snapshot.forEach(async (doc) => { await window.deleteDoc(doc.ref); }); const attQuery = window.query(window.collection(window.db, "attendance"), window.where("date", "==", date)); const attSnapshot = await window.getDocs(attQuery); const dayName = new Date(date + "T12:00:00").toLocaleDateString('en-US', {weekday: 'long'}); attSnapshot.forEach(async (doc) => { const data = doc.data(); if (data.studentId === "SESSION_MARKER") return; const student = window.students.find(s => s.id === data.studentId); if (student) { const studentSchedule = window.scheduleData[student.level] || { days: [] }; if (!studentSchedule.days.includes(dayName)) { await window.deleteDoc(doc.ref); } } }); showToast('تم إلغاء التثبيت وتنظيف السجلات', 'success'); } else { showToast('لا يوجد تثبيت لهذا اليوم لإلغائه', 'warning'); }
+    }
+    window.repairSystemData = async function() { 
+        if(!confirm('هل أنت متأكد؟ سيتم إصلاح حساب الإدارة وتجهيز حسابات الطلاب للدخول التلقائي.')) return; 
+        showToast('جاري الفحص...', 'success'); 
+        window.students.forEach(async (s) => {
+            if (!s.password) {
+                const newPass = Math.floor(100000 + Math.random() * 900000).toString();
+                await window.updateDoc(window.doc(window.db, "students", s.docId), { password: newPass });
+            }
+        });
+        setTimeout(() => { showToast('تم إصلاح النظام. سيتم إنشاء حسابات الطلاب تلقائياً عند دخولهم.', 'success'); }, 2000); 
+    }
+
+    // --- تعديل دالة الماسح الضوئي لتوسيع المنطقة ---
     async function startScanner(elemId, mode) { 
-        // تنظيف أي ماسح سابق إجبارياً
-        await stopScanner();
+        if(isScannerRunning && html5QrCode) {
+            return;
+        }
 
         html5QrCode = new Html5Qrcode(elemId); 
         
+        // إعدادات محسنة لتغطية مساحة أكبر (حل مشكلة الآيباد)
         const qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
-            let minEdgePercentage = 0.85; 
+            let minEdgePercentage = 0.85; // استخدام 85% من مساحة العرض
             let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
             let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
-            return { width: qrboxSize, height: qrboxSize };
+            return {
+                width: qrboxSize,
+                height: qrboxSize
+            };
         };
 
-        const config = { fps: 20, qrbox: qrboxFunction, aspectRatio: 1.0, disableFlip: false, focusMode: "continuous" };
+        const config = { 
+            fps: 20, 
+            qrbox: qrboxFunction, 
+            aspectRatio: 1.0, 
+            disableFlip: false,
+            focusMode: "continuous" 
+        };
 
         try {
             await html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => { 
@@ -1237,7 +1550,6 @@
                 else if(mode === 'payment') handlePaymentScan(decodedText); 
                 else if(mode === 'check') handleCheckScan(decodedText);
                 
-                // إعادة التفعيل فقط إذا لم نكن في وضع الدفع أو الفحص
                 if(mode !== 'check' && mode !== 'payment') {
                      setTimeout(() => { isPaused = false; }, 1500);
                 }
@@ -1249,20 +1561,20 @@
         }
     }
 
+    // --- Fix #1: إيقاف الماسح الضوئي بشكل كامل وقوي ---
     async function stopScanner() { 
         if(html5QrCode) { 
             try {
-                if(html5QrCode.isScanning) {
-                    await html5QrCode.stop();
-                }
+                await html5QrCode.stop(); 
                 html5QrCode.clear(); 
-            } catch(e) { console.log("Scanner stop error:", e); }
-            html5QrCode = null; 
-        }
-        isScannerRunning = false;
-        isPaused = false;
+            } catch(e) { console.log("Stop error:", e); }
+            html5QrCode = null; // تفريغ المتغير تماماً
+            isScannerRunning = false; 
+            isPaused = false;
+        } 
     }
 
+    // --- منطق فحص الباركود الجديد ---
     window.startCheckScanner = function() {
         document.getElementById('checkReader').classList.remove('hidden');
         document.getElementById('btnStartCheck').classList.add('hidden');
@@ -1291,7 +1603,6 @@
 
             document.getElementById('checkResultModal').classList.remove('hidden');
             playSound('success');
-            stopScanner(); // إيقاف الكاميرا عند فتح النافذة
         } else {
             showToast('طالب غير موجود', 'error');
             setTimeout(() => { isPaused = false; }, 2000);
@@ -1299,7 +1610,9 @@
     }
     window.closeModal = function(id) {
         document.getElementById(id).classList.add('hidden');
-        isPaused = false; 
+        if(id === 'checkResultModal') {
+            isPaused = false; 
+        }
     }
 
     function showCustomAlert(title, message) { document.getElementById('alertTitle').innerText = title; document.getElementById('alertMessage').innerText = message; document.getElementById('customAlertModal').style.display = 'flex'; playSound('error'); }
@@ -1327,23 +1640,7 @@
         setTimeout(() => { isPaused = false; showScanFeedback(false); }, 2000);
     }
     function showScanFeedback(show) { const el = document.getElementById('scanFeedback'); if(show) el.classList.remove('hidden'); else el.classList.add('hidden'); }
-    function setAttMode(mode) { 
-        stopScanner().then(() => { 
-            const btnScan = document.getElementById('btnAttScan'); 
-            const btnManual = document.getElementById('btnAttManual'); 
-            if(mode === 'scan') { 
-                document.getElementById('attScanArea').classList.remove('hidden'); 
-                document.getElementById('attManualArea').classList.add('hidden'); 
-                btnScan.classList.add('active'); 
-                btnManual.classList.remove('active'); 
-            } else { 
-                document.getElementById('attScanArea').classList.add('hidden'); 
-                document.getElementById('attManualArea').classList.remove('hidden'); 
-                btnManual.classList.add('active'); 
-                btnScan.classList.remove('active'); 
-            } 
-        }); 
-    }
+    function setAttMode(mode) { stopScanner().then(() => { const btnScan = document.getElementById('btnAttScan'); const btnManual = document.getElementById('btnAttManual'); if(mode === 'scan') { document.getElementById('attScanArea').classList.remove('hidden'); document.getElementById('attManualArea').classList.add('hidden'); btnScan.classList.add('active'); btnManual.classList.remove('active'); } else { document.getElementById('attScanArea').classList.add('hidden'); document.getElementById('attManualArea').classList.remove('hidden'); btnManual.classList.add('active'); btnScan.classList.remove('active'); } }); }
     function manualAttendance() { const id = document.getElementById('manualAttID').value; handleAttendanceScan(id); document.getElementById('manualAttID').value = ''; }
     let currentAttType = 'present';
     function openAttendanceModal(type) { currentAttType = type; const title = type === 'present' ? `حضور (${selectedAttendanceDate})` : `غياب (${selectedAttendanceDate})`; document.getElementById('detailsTitle').innerText = title; const mainStage = document.getElementById('attendanceStage').value; const filterDropdown = document.getElementById('attFilterLevel'); if(mainStage) filterDropdown.value = mainStage; else filterDropdown.value = 'all'; document.getElementById('modalFilterContainer').classList.remove('hidden'); const thead = document.getElementById('detailsTableHead'); thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>الكود</th><th>المرحلة</th><th>${type === 'present' ? 'وقت' : 'تاريخ'}</th></tr>`; document.getElementById('detailsModal').classList.remove('hidden'); filterAttendanceList(); }
@@ -1477,8 +1774,8 @@
 
             targetStudents.forEach(student => {
                 daysArray.forEach(dateStr => {
-                    if (dateStr < student.date) return; // تخطي الأيام قبل الاشتراك
-                    if (dateStr > today) return; // --- إصلاح: تجاهل الأيام المستقبلية ---
+                    if (dateStr < student.date) return; 
+                    if (dateStr > today) return; // Fix #4: تجاهل الأيام المستقبلية في الغياب
 
                     const statusObj = getStudentStatusForDate(student, dateStr);
                     if (statusObj.status === 'present') {
@@ -1632,37 +1929,19 @@
     }
     window.pdfMonthlySchedule = function() { const element = document.getElementById('monthlyScheduleCard'); const opt = { margin: 10, filename: `جدول_${stageMap[currentScheduleLevel]}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' } }; html2pdf().set(opt).from(element).save(); }
     let currentPayStudent = null;
-    function togglePayMethod(method) { 
-        stopScanner().then(() => {
-            const btnScan = document.getElementById('btnPayScan'); 
-            const btnManual = document.getElementById('btnPayManual'); 
-            if(method === 'scan') { 
-                document.getElementById('payScanDiv').classList.remove('hidden'); 
-                document.getElementById('payManualDiv').classList.add('hidden'); 
-                btnScan.classList.add('active'); 
-                btnManual.classList.remove('active'); 
-            } else { 
-                document.getElementById('payScanDiv').classList.add('hidden'); 
-                document.getElementById('payManualDiv').classList.remove('hidden'); 
-                btnManual.classList.add('active'); 
-                btnScan.classList.remove('active'); 
-            } 
-        });
-    }
+    function togglePayMethod(method) { const btnScan = document.getElementById('btnPayScan'); const btnManual = document.getElementById('btnPayManual'); if(method === 'scan') { document.getElementById('payScanDiv').classList.remove('hidden'); document.getElementById('payManualDiv').classList.add('hidden'); btnScan.classList.add('active'); btnManual.classList.remove('active'); } else { document.getElementById('payScanDiv').classList.add('hidden'); document.getElementById('payManualDiv').classList.remove('hidden'); btnManual.classList.add('active'); btnScan.classList.remove('active'); stopScanner(); } }
 
     function handlePaymentScan(id) { 
         if(!document.getElementById('paymentForm').classList.contains('hidden')) return; 
         const student = window.students.find(s => s.id === id); 
         if(student) { 
             currentPayStudent = student;
-            // إيقاف الكاميرا فوراً عند العثور على طالب
-            stopScanner();
-
+            // التحقق من تكرار الدفع (دقيقتين)
             const lastPay = window.accounting
                 .filter(a => a.stdId === id && a.date === today && a.category === 'revenue')
                 .sort((a,b) => b.timestamp - a.timestamp)[0];
 
-            if (lastPay && (Date.now() - (lastPay.timestamp || 0)) < 120000) { 
+            if (lastPay && (Date.now() - (lastPay.timestamp || 0)) < 120000) { // 120000ms = 2 minutes
                 document.getElementById('payConfirmMsg').innerText = `تنبيه: تم تسجيل دفع لهذا الطالب منذ أقل من دقيقتين (${lastPay.amount} ج.م). هل تريد المتابعة؟`;
                 document.getElementById('paymentConfirmModal').style.display = 'flex';
                 isPaused = true;
@@ -1689,6 +1968,7 @@
         document.getElementById('paymentForm').classList.add('hidden');
         document.getElementById('paySearchID').value = '';
         currentPayStudent = null;
+        isPaused = false; // إعادة تفعيل المسح
     }
 
     function showPaymentForm() {
@@ -1701,6 +1981,7 @@
         document.getElementById('payNote').value = document.getElementById('defPayNote').value;
 
         playSound('success'); 
+        isPaused = true; // إيقاف مؤقت للمسح أثناء الدفع
     }
 
     function searchStudentForPay() { handlePaymentScan(document.getElementById('paySearchID').value); }
@@ -1721,11 +2002,12 @@
             amount, 
             type: typeText, 
             category: 'revenue',
-            timestamp: Date.now() 
+            timestamp: Date.now() // إضافة الطابع الزمني للتحقق
         }); 
         document.getElementById('paymentForm').classList.add('hidden'); 
         document.getElementById('paySearchID').value = ''; 
         showToast('تم الدفع', 'success'); 
+        isPaused = false; // إعادة تفعيل المسح
     }
     async function addExpense() { 
         const type = document.getElementById('expType').value; 
