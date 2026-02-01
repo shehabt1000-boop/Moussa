@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <title>Smart Center | Pro v7.2</title>
+    <title>Smart Center | Pro v7.3</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -198,7 +198,7 @@
         .alert-icon { font-size: 35px; margin-bottom: 8px; display: block; }
         .alert-btn { background: #1f2937; color: white; padding: 8px 20px; border-radius: 6px; font-weight: bold; margin-top: 15px; width: 100%; border: 1px solid #000; }
 
-        /* --- تصميم البطاقة الموحد --- */
+        /* --- تصميم البطاقة الموحد (للعرض داخل الموقع) --- */
         .unified-card {
             border: 4px double #1f2937;
             border-radius: 15px;
@@ -215,7 +215,7 @@
         .unified-card-row { font-size: 11pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 4px 0; color: #1f2937; }
         .unified-card-footer { margin-top: 15px; font-size: 9pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1f2937; padding-top: 5px; }
 
-        /* --- نظام الطباعة الموحد (Fix Popup & Pagination) --- */
+        /* --- نظام الطباعة الموحد (Fix Popup & Pagination & Styling) --- */
         
         /* الحاوية مخفية تماماً عن الشاشة العادية */
         #print-container {
@@ -249,8 +249,8 @@
                 top: 0; 
                 left: 0; 
                 width: 100%; 
-                height: auto !important; /* السماح بالتمدد لصفحات متعددة */
-                overflow: visible !important; /* السماح بظهور المحتوى المقسم */
+                height: auto !important; 
+                overflow: visible !important; 
                 z-index: 9999999; 
                 margin: 0;
                 padding: 0;
@@ -260,49 +260,6 @@
                 size: A4; 
                 margin: 10mm; 
             }
-
-            .print-page { 
-                width: 100%; 
-                max-width: 100%; 
-                margin: 0 auto; 
-                font-family: 'Cairo', sans-serif; 
-                color: #000; 
-                direction: rtl; 
-            }
-
-            /* --- قواعد تقسيم الصفحات (Pagination) --- */
-            table { 
-                width: 100%; 
-                border-collapse: collapse; 
-                page-break-inside: auto; /* السماح بكسر الجدول */
-            }
-            
-            tr { 
-                page-break-inside: avoid; /* منع كسر الصف الواحد */
-                page-break-after: auto; 
-            }
-            
-            thead { 
-                display: table-header-group; /* تكرار الهيدر في كل صفحة جديدة */
-            }
-            
-            tfoot { 
-                display: table-footer-group; 
-            }
-
-            /* تنسيقات العناصر */
-            .print-header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-            .print-logo-area { font-size: 35px; }
-            .print-title-area h1 { font-size: 22pt; font-weight: 900; margin: 0; }
-            .print-title-area h2 { font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; }
-            .print-meta-area { font-size: 10pt; text-align: left; }
-            
-            .print-table th { background-color: #eee !important; color: #000 !important; font-weight: 900; border: 1px solid #000; padding: 8px; text-align: center; -webkit-print-color-adjust: exact; }
-            .print-table td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; }
-            
-            /* بطاقة الطالب لا تنقسم */
-            .print-student-card { page-break-inside: avoid; }
-            .print-stats-table { page-break-inside: avoid; }
 
             .no-print { display: none !important; }
         }
@@ -1104,22 +1061,55 @@
         document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
     }
 
-    // --- نظام الطباعة الموحد (Fix Popup & Barcode & Pagination) ---
+    // --- نظام الطباعة الموحد (Fix Popup & Barcode & Pagination & Styling) ---
     
     function getPrintTemplate(title, content) {
         const date = new Date().toLocaleDateString('ar-EG');
+        // تضمين CSS مباشرة لضمان التنسيق في كل الحالات
+        const printStyle = `
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+                body { font-family: 'Cairo', sans-serif; direction: rtl; }
+                .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 20px; background: white; color: #000; }
+                .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
+                .print-meta-area { text-align: left; font-size: 10pt; }
+                .print-title-area { text-align: center; flex: 1; }
+                .print-title-area h1 { font-size: 24pt; font-weight: 900; margin: 0; }
+                .print-title-area h2 { font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; color: #333; }
+                .print-logo-area { font-size: 40px; }
+                
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11pt; table-layout: fixed; page-break-inside: auto; }
+                tr { page-break-inside: avoid; page-break-after: auto; }
+                thead { display: table-header-group; }
+                th { background-color: #eee !important; color: #000 !important; font-weight: 900; border: 1px solid #000; padding: 8px; text-align: center; -webkit-print-color-adjust: exact; }
+                td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; }
+                
+                .print-student-card { border: 4px double #000 !important; border-radius: 15px; padding: 20px; width: 350px; margin: 20px auto; text-align: center; page-break-inside: avoid; background: #fff; }
+                .print-card-title { font-size: 16pt; font-weight: bold; margin-bottom: 10px; color: #000; }
+                .print-card-name { font-size: 20pt; font-weight: 900; margin: 10px 0; border-bottom: 2px solid #000; padding-bottom: 10px; color: #000; }
+                .print-card-row { font-size: 12pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; color: #000; }
+                .print-card-footer { margin-top: 15px; font-size: 10pt; color: #555; font-weight: bold; border-top: 1px solid #000; padding-top: 5px; }
+                
+                .print-stats-table { width: 100%; margin-bottom: 20px; border-collapse: separate; border-spacing: 10px 0; page-break-inside: avoid; }
+                .print-stats-cell { border: 1px solid #000; padding: 10px; text-align: center; border-radius: 8px; width: 33%; vertical-align: middle; }
+                .print-box-title { font-size: 12pt; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; }
+                .print-box-val { font-size: 16pt; font-weight: 900; }
+            </style>
+        `;
+
         return `
-            <div class="print-page" style="font-family: 'Cairo', sans-serif; direction: rtl; padding: 20px; background: white;">
-                <div class="print-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
-                    <div class="print-meta-area" style="text-align: left; font-size: 10pt;">
+            ${printStyle}
+            <div class="print-page">
+                <div class="print-header">
+                    <div class="print-meta-area">
                         <div>التاريخ: ${date}</div>
                         <div>Smart Center Pro</div>
                     </div>
-                    <div class="print-title-area" style="text-align: center; flex: 1;">
-                        <h1 style="font-size: 24pt; font-weight: 900; margin: 0;">Smart Center</h1>
-                        <h2 style="font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; color: #333;">${title}</h2>
+                    <div class="print-title-area">
+                        <h1>Smart Center</h1>
+                        <h2>${title}</h2>
                     </div>
-                    <div class="print-logo-area" style="font-size: 40px;">🎓</div>
+                    <div class="print-logo-area">🎓</div>
                 </div>
                 <div class="print-body">
                     ${content}
@@ -1158,39 +1148,24 @@
 
     window.savePDF = function(title, content) {
         const pdfContainer = document.getElementById('pdf-generator-container');
+        // تعيين عرض ثابت للحاوية لضمان عدم قص المحتوى
+        pdfContainer.style.width = '800px'; 
         pdfContainer.innerHTML = getPrintTemplate(title, content);
 
         const element = pdfContainer.firstElementChild;
-        
-        // تطبيق تنسيقات إجبارية للجداول داخل PDF
-        const tables = element.querySelectorAll('table');
-        tables.forEach(t => {
-            t.style.width = '100%';
-            t.style.borderCollapse = 'collapse';
-            t.style.marginBottom = '10px';
-            t.querySelectorAll('th, td').forEach(cell => {
-                cell.style.border = '1px solid #000';
-                cell.style.padding = '8px';
-                cell.style.textAlign = 'center';
-                cell.style.fontSize = '12px';
-            });
-            t.querySelectorAll('th').forEach(h => {
-                h.style.backgroundColor = '#f3f4f6';
-                h.style.fontWeight = 'bold';
-            });
-        });
 
         const opt = {
             margin: [10, 10, 10, 10],
             filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: false },
+            html2canvas: { scale: 2, useCORS: true, logging: false, scrollX: 0, scrollY: 0, windowWidth: 800 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
         setTimeout(() => {
             html2pdf().set(opt).from(element).save().then(() => {
                 pdfContainer.innerHTML = '';
+                pdfContainer.style.width = 'auto'; // إعادة تعيين العرض
             });
         }, 500);
     }
