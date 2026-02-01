@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <title>Smart Center | Pro v6.5</title>
+    <title>Smart Center | Pro v6.6</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -170,7 +170,7 @@
 
         /* --- نظام الطباعة الموحد (Clean Print System) --- */
         #print-container { display: none; }
-        
+
         @media print {
             body * { visibility: hidden; height: 0; overflow: hidden; }
             #print-container, #print-container * { visibility: visible; height: auto; overflow: visible; }
@@ -185,11 +185,11 @@
                 padding: 0;
                 margin: 0;
             }
-            
+
             @page { size: A4; margin: 1cm; }
 
             .print-page { width: 100%; max-width: 210mm; margin: 0 auto; font-family: 'Cairo', sans-serif; color: #000; }
-            
+
             .print-header { 
                 text-align: center; 
                 border-bottom: 3px solid #000; 
@@ -202,7 +202,7 @@
             .print-logo-area { text-align: right; }
             .print-title-area { text-align: center; flex: 1; }
             .print-meta-area { text-align: left; font-size: 10pt; }
-            
+
             .print-main-title { font-size: 24pt; font-weight: 900; margin: 0; line-height: 1.2; }
             .print-sub-title { font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; color: #333; }
 
@@ -869,22 +869,25 @@
     window.validatePhone = function(input) { let val = input.value.replace(/\D/g, ''); if (val.startsWith('0')) val = val.substring(1); if (val.length > 10) val = val.substring(0, 10); input.value = val; }
     window.setLoginMode = function(mode) { loginMode = mode; document.getElementById('tabAdmin').className = mode === 'admin' ? 'login-tab active' : 'login-tab'; document.getElementById('tabStudent').className = mode === 'student' ? 'login-tab active' : 'login-tab'; document.getElementById('loginCode').placeholder = mode === 'admin' ? 'كود الإدارة' : 'كود الطالب'; }
 
+    // --- تعديل دالة تسجيل الدخول ---
     window.handleLogin = async function() { 
-        const code = document.getElementById('loginCode').value; 
-        const pass = document.getElementById('loginPass').value; 
+        const code = document.getElementById('loginCode').value.trim(); 
+        const pass = document.getElementById('loginPass').value.trim(); 
         const errorMsg = document.getElementById('loginError'); 
 
         if (loginMode === 'admin') { 
-            if (code === 'xcw6jf7BuycZt5X2iCaqGFWUwrF3') { 
+            // تعديل كود الإدارة والباسورد حسب الطلب
+            if (code === '1032' && pass === '10321032') { 
                 try {
-                    await window.signInWithEmailAndPassword(window.auth, "admin@smartcenter.app", code);
+                    await window.signInWithEmailAndPassword(window.auth, "admin@smartcenter.app", "10321032");
                     proceedLogin('admin');
                 } catch (error) {
                     if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
                         try {
-                            await window.createUserWithEmailAndPassword(window.auth, "admin@smartcenter.app", code);
+                            await window.createUserWithEmailAndPassword(window.auth, "admin@smartcenter.app", "10321032");
                             proceedLogin('admin');
                         } catch (createError) {
+                            console.error(createError);
                             errorMsg.classList.remove('hidden');
                         }
                     } else {
@@ -902,11 +905,17 @@
                     localStorage.setItem('currentStudentId', student.id); 
                     proceedLogin('student');
                 } catch (error) {
-                    try {
-                        await window.createUserWithEmailAndPassword(window.auth, `${code}@smartcenter.app`, pass);
-                        localStorage.setItem('currentStudentId', student.id);
-                        proceedLogin('student');
-                    } catch (createErr) {
+                    // حل المشكلة رقم 5: إذا كان الطالب قديم وليس له حساب، يتم إنشاؤه فوراً
+                    if (error.code === 'auth/user-not-found') {
+                        try {
+                            await window.createUserWithEmailAndPassword(window.auth, `${code}@smartcenter.app`, pass);
+                            localStorage.setItem('currentStudentId', student.id);
+                            proceedLogin('student');
+                        } catch (createErr) {
+                            console.error(createErr);
+                            errorMsg.classList.remove('hidden');
+                        }
+                    } else {
                         errorMsg.classList.remove('hidden');
                     }
                 }
@@ -1021,11 +1030,13 @@
         document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
     }
 
-    // --- نظام الطباعة الموحد (Clean Print System) ---
+    // --- نظام الطباعة الموحد المحسن (حل مشكلة الصفحة البيضاء والباركود) ---
     function printHTML(title, content) {
+        if(!content) return; // منع الطباعة الفارغة
+        
         const printContainer = document.getElementById('print-container');
         const date = new Date().toLocaleDateString('ar-EG');
-        
+
         const template = `
             <div class="print-page">
                 <div class="print-header">
@@ -1046,20 +1057,43 @@
                 </div>
             </div>
         `;
-        
+
         printContainer.innerHTML = template;
+        
+        // انتظار تحميل الصور (الباركود) قبل فتح نافذة الطباعة
         setTimeout(() => {
             window.print();
             setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
-        }, 200); 
+        }, 500); 
     }
 
-    // --- دالة حفظ PDF عامة (RTL Fix) ---
+    // دالة مساعدة لإنشاء باركود HTML جاهز
+    function generateQRHtml(text) {
+        return new Promise((resolve) => {
+            const tempDiv = document.createElement('div');
+            new QRCode(tempDiv, { text: text, width: 100, height: 100 });
+            setTimeout(() => {
+                const img = tempDiv.querySelector('img');
+                if (img) {
+                    resolve(img.outerHTML);
+                } else {
+                    const canvas = tempDiv.querySelector('canvas');
+                    if(canvas) {
+                        const dataUrl = canvas.toDataURL();
+                        resolve(`<img src="${dataUrl}" width="100" height="100" />`);
+                    } else {
+                        resolve('');
+                    }
+                }
+            }, 100);
+        });
+    }
+
+    // --- دالة حفظ PDF عامة ---
     function savePDF(title, content) {
         const pdfContainer = document.getElementById('pdf-generator-container');
         const date = new Date().toLocaleDateString('ar-EG');
-        
-        // استخدام حاوية خاصة للـ PDF لضبط الاتجاه
+
         pdfContainer.innerHTML = `
             <div style="width: 210mm; padding: 20px; font-family: 'Cairo', sans-serif; background: white; direction: rtl; text-align: right;">
                 <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
@@ -1073,7 +1107,6 @@
             </div>
         `;
 
-        // تحويل الجداول لتناسب PDF
         const tables = pdfContainer.querySelectorAll('table');
         tables.forEach(t => {
             t.style.width = '100%';
@@ -1096,7 +1129,6 @@
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // تأخير بسيط لضمان رسم الباركود
         setTimeout(() => {
             html2pdf().set(opt).from(element).save().then(() => {
                 pdfContainer.innerHTML = '';
@@ -1104,15 +1136,22 @@
         }, 500);
     }
 
-    window.printStudentDashboard = function() {
+    window.printStudentDashboard = async function() {
         const name = document.getElementById('dashName').innerText;
         const code = document.getElementById('dashCode').innerText;
+        
+        if(!name || !code) { showToast('لا توجد بيانات للطباعة', 'error'); return; }
+        showToast('جاري تجهيز الطباعة...', 'success');
+
         const level = document.getElementById('dashLevel').innerText;
         const joinDate = document.getElementById('dashJoinDate').innerText;
         const present = document.getElementById('dashPresent').innerText;
         const absent = document.getElementById('dashAbsent').innerText;
         const totalPaid = document.getElementById('dashPaymentsTotal').innerText;
         const paymentsHTML = document.getElementById('dashPaymentsTable').innerHTML;
+
+        // توليد الباركود مسبقاً
+        const qrImageHtml = await generateQRHtml(code);
 
         let historyTableRows = '';
         const historyDivs = document.getElementById('dashHistory').querySelectorAll('div');
@@ -1127,7 +1166,7 @@
             <div class="print-student-card">
                 <div class="print-card-title">بطاقة الطالب</div>
                 <div class="print-card-name">${name}</div>
-                <div id="printDashQr" style="display:flex; justify-content:center; margin:10px 0;"></div>
+                <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
                 <div class="print-card-row"><span>كود الطالب:</span> <span>${code}</span></div>
                 <div class="print-card-row"><span>المرحلة:</span> <span>${level}</span></div>
                 <div class="print-card-row"><span>تاريخ الاشتراك:</span> <span>${joinDate}</span></div>
@@ -1150,7 +1189,6 @@
         `;
 
         printHTML('تقرير متابعة طالب', content);
-        setTimeout(() => { new QRCode(document.getElementById("printDashQr"), { text: code, width: 100, height: 100 }); }, 200);
     }
 
     window.pdfStudentDashboard = function() {
@@ -1193,14 +1231,12 @@
             <h3>سجل الحضور</h3>
             <table><thead><tr><th>التاريخ</th><th>الحالة</th></tr></thead><tbody>${historyTableRows}</tbody></table>
         `;
-        
-        // إنشاء عنصر مؤقت لتوليد الباركود قبل الحفظ
+
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = content;
         document.body.appendChild(tempDiv);
         new QRCode(tempDiv.querySelector("#pdfDashQr"), { text: code, width: 100, height: 100 });
-        
-        // ننتظر قليلاً ثم نحفظ
+
         setTimeout(() => {
             savePDF(`تقرير_${name}`, tempDiv.innerHTML);
             document.body.removeChild(tempDiv);
@@ -1211,11 +1247,11 @@
         let rows = '';
         const filterStage = document.getElementById('studentListFilter').value;
         const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
-        
+
         let filtered = window.students;
         if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
         if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
-        
+
         filtered.forEach((s, i) => {
             rows += `<tr><td style="width:50px;">${i+1}</td><td style="width:100px;">${s.id}</td><td>${s.name}</td><td>${stageMap[s.level] || s.level}</td><td>${s.date}</td></tr>`;
         });
@@ -1233,15 +1269,15 @@
         let rows = '';
         const filterStage = document.getElementById('studentListFilter').value;
         const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
-        
+
         let filtered = window.students;
         if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
         if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
-        
+
         filtered.forEach((s, i) => {
             rows += `<tr><td style="width:50px;">${i+1}</td><td style="width:100px;">${s.id}</td><td>${s.name}</td><td>${stageMap[s.level] || s.level}</td><td>${s.date}</td></tr>`;
         });
-        
+
         const content = `
             <table class="print-table">
                 <thead><tr><th style="width: 50px;">م</th><th style="width: 100px;">الكود</th><th>الاسم</th><th>المرحلة</th><th>تاريخ الانضمام</th></tr></thead>
@@ -1342,7 +1378,7 @@
     function openStudentModal(id) { 
         const s = window.students.find(st => st.id === id); if(!s) return; 
         currentModalStudentId = id; 
-        
+
         // تعبئة البطاقة الموحدة
         const card = document.getElementById('studentCardDisplay');
         card.innerHTML = `
@@ -1355,7 +1391,7 @@
             <div class="unified-card-row"><span>تاريخ الاشتراك:</span> <span>${s.date}</span></div>
             <div class="unified-card-footer">Smart Center Pro</div>
         `;
-        
+
         new QRCode(document.getElementById("modalQr"), { text: s.id, width: 100, height: 100 }); 
         document.getElementById('studentModal').classList.remove('hidden'); 
     }
@@ -1392,22 +1428,51 @@
         setTimeout(() => { showToast('تم إصلاح النظام. سيتم إنشاء حسابات الطلاب تلقائياً عند دخولهم.', 'success'); }, 2000); 
     }
 
+    // --- تعديل دالة الماسح الضوئي لتوسيع المنطقة ---
     async function startScanner(elemId, mode) { 
         if(isScannerRunning && html5QrCode) {
             return;
         }
 
         html5QrCode = new Html5Qrcode(elemId); 
-        const config = { fps: 15, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0, disableFlip: false };
+        
+        // إعدادات محسنة لتغطية مساحة أكبر (حل مشكلة الآيباد)
+        const qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
+            let minEdgePercentage = 0.85; // استخدام 85% من مساحة العرض
+            let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+            let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+            return {
+                width: qrboxSize,
+                height: qrboxSize
+            };
+        };
+
+        const config = { 
+            fps: 20, 
+            qrbox: qrboxFunction, 
+            aspectRatio: 1.0, 
+            disableFlip: false,
+            focusMode: "continuous" 
+        };
+
         try {
             await html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => { 
                 if(isPaused) return; 
+                isPaused = true;
+                
                 if(mode === 'attendance') handleAttendanceScan(decodedText); 
                 else if(mode === 'payment') handlePaymentScan(decodedText); 
                 else if(mode === 'check') handleCheckScan(decodedText);
+                
+                if(mode !== 'check' && mode !== 'payment') {
+                     setTimeout(() => { isPaused = false; }, 1500);
+                }
             }); 
             isScannerRunning = true; 
-        } catch (err) { showToast("تعذر تشغيل الكاميرا", "error"); }
+        } catch (err) { 
+            console.error(err);
+            showToast("تعذر تشغيل الكاميرا", "error"); 
+        }
     }
 
     async function stopScanner() { 
@@ -1540,17 +1605,19 @@
         resDiv.classList.remove('hidden');
     }
 
-    function printDetailedStudentReport(studentId) {
+    window.printDetailedStudentReport = async function(studentId) {
         const s = window.students.find(st => st.id === studentId); if(!s) return;
+        showToast('جاري تجهيز التقرير...', 'success');
+        const qrImageHtml = await generateQRHtml(s.id);
         const stats = calculateStudentStats(s);
         const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === s.id);
         const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-        
+
         const content = `
             <div class="print-student-card">
                 <div class="print-card-title">بطاقة الطالب</div>
                 <div class="print-card-name">${s.name}</div>
-                <div id="printReportQr" style="display:flex; justify-content:center; margin:10px 0;"></div>
+                <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
                 <div class="print-card-row"><span>كود الطالب:</span> <span>${s.id}</span></div>
                 <div class="print-card-row"><span>المرحلة:</span> <span>${stageMap[s.level] || s.level}</span></div>
                 <div class="print-card-row"><span>تاريخ الانضمام:</span> <span>${s.date}</span></div>
@@ -1571,19 +1638,8 @@
             <h3 style="border-bottom: 2px solid #000; margin-top: 15px;">سجل الحضور والغياب</h3>
             <table class="print-table"><thead><tr><th>التاريخ</th><th>اليوم</th><th>الحالة</th><th>ملاحظات</th></tr></thead><tbody>${stats.history.map(h => `<tr><td>${h.date}</td><td>${h.day}</td><td>${h.status==='present'?'حضور':'غياب'}</td><td>${h.isExceptional?'استثنائي':''}</td></tr>`).join('')}</tbody></table>
         `;
-        
-        // إنشاء عنصر مؤقت لتوليد الباركود قبل الطباعة
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = content;
-        document.body.appendChild(tempDiv);
-        new QRCode(tempDiv.querySelector("#printReportQr"), { text: s.id, width: 100, height: 100 });
-        
-        // طباعة المحتوى
-        printHTML('تقرير طالب تفصيلي', tempDiv.innerHTML);
-        document.body.removeChild(tempDiv);
-        
-        // حفظ PDF (اختياري، يمكن فصله)
-        // savePDF(`تقرير_${s.name}`, tempDiv.innerHTML);
+
+        printHTML('تقرير طالب تفصيلي', content);
     }
 
     // --- إصلاح منطق التقارير العامة (يومي / شهري) ---
@@ -1598,7 +1654,7 @@
         let totalRev = 0, totalExp = 0;
         // تصفير البيانات السابقة
         currentReportData = { present: [], absent: [], revenues: [], expenses: [] };
-        
+
         let targetStudents = window.students;
         if(stage !== 'all') targetStudents = window.students.filter(s => s.level === stage);
 
@@ -1623,10 +1679,10 @@
                 const m = String(month).padStart(2, '0');
                 daysArray.push(`${year}-${m}-${d}`);
             }
-            
+
             let monthlyStats = {};
             targetStudents.forEach(s => { monthlyStats[s.id] = { name: s.name, level: s.level, present: 0, absentDates: [], exceptionalDates: [] }; });
-            
+
             targetStudents.forEach(student => {
                 daysArray.forEach(dateStr => {
                     if (dateStr < student.date) return; // تخطي الأيام قبل الاشتراك
@@ -1641,16 +1697,16 @@
                     }
                 });
             });
-            
+
             // تحويل النتائج الشهرية إلى مصفوفة للعرض
             currentReportData.present = Object.values(monthlyStats).filter(s => s.present > 0).map(s => ({ ...s, time: `${s.present} يوم`, exceptionalDates: s.exceptionalDates }));
             currentReportData.absent = Object.values(monthlyStats).filter(s => s.absentDates.length > 0).map(s => ({ ...s, time: `${s.absentDates.length} يوم`, absentDatesList: s.absentDates }));
-            
+
             // تصفية الحسابات للشهر المحدد
             currentReportData.revenues = window.accounting.filter(r => r.category === 'revenue' && r.date.startsWith(monthInput));
             currentReportData.expenses = window.accounting.filter(e => e.category === 'expense' && e.date.startsWith(monthInput));
         }
-        
+
         totalRev = currentReportData.revenues.reduce((a,b)=>a+b.amount,0);
         totalExp = currentReportData.expenses.reduce((a,b)=>a+b.amount,0);
 
@@ -1910,7 +1966,7 @@
 
         if(key === 'present' || key === 'absent') { 
             const isMonthly = document.getElementById('reportType').value === 'monthly'; 
-            
+
             if (isMonthly) {
                 if (key === 'present') {
                     thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>المرحلة</th><th>عدد الأيام</th><th>تواريخ استثنائية</th></tr>`;
@@ -1952,12 +2008,20 @@
         const content = `<table class="print-table"><thead>${document.getElementById('detailsTableHead').innerHTML}</thead><tbody>${document.getElementById('detailsTableBody').innerHTML}</tbody></table>`;
         savePDF(title, content);
     }
-    function printStudentCard() { const s = window.students.find(st => st.id === currentModalStudentId); if(!s) return; 
+    
+    // --- تعديل دالة طباعة البطاقة ---
+    window.printStudentCard = async function() { 
+        const s = window.students.find(st => st.id === currentModalStudentId); 
+        if(!s) return; 
+        
+        showToast('جاري تجهيز البطاقة...', 'success');
+        const qrImageHtml = await generateQRHtml(s.id);
+
         const content = `
             <div class="print-student-card">
                 <div class="print-card-title">بطاقة الطالب</div>
                 <div class="print-card-name">${s.name}</div>
-                <div id="printQr" style="display:flex; justify-content:center; margin:10px 0;"></div>
+                <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
                 <div class="print-card-row"><span>كود الطالب:</span> <span>${s.id}</span></div>
                 <div class="print-card-row"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div>
                 <div class="print-card-row"><span>المرحلة:</span> <span>${stageMap[s.level] || s.level}</span></div>
@@ -1966,10 +2030,8 @@
             </div>
         `;
         printHTML('بطاقة طالب', content);
-        setTimeout(() => {
-            new QRCode(document.getElementById("printQr"), { text: s.id, width: 120, height: 120 });
-        }, 200);
     }
+
     function printFinancialReport() { 
         const revs = window.accounting.filter(a => a.category === 'revenue' && a.date === today).sort((a,b) => a.time.localeCompare(b.time)); 
         const exps = window.accounting.filter(a => a.category === 'expense' && a.date === today).sort((a,b) => a.time.localeCompare(b.time)); 
