@@ -863,6 +863,30 @@
     </div>
 </div>
 
+<!-- نافذة تثبيت التطبيق العصرية -->
+<div id="pwaInstallBanner" class="fixed bottom-6 left-4 right-4 z-[999999] translate-y-24 opacity-0 transition-all duration-500 ease-out hidden">
+    <div class="bg-gray-900/95 backdrop-blur-md border border-gray-700 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-3">
+        <!-- الأيقونة والنص -->
+        <div class="flex items-center gap-3">
+            <div class="bg-gray-800 p-2 rounded-xl border border-gray-600">
+                <span class="text-2xl">📲</span>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-sm">تثبيت التطبيق</h4>
+                <p class="text-gray-400 text-[10px]">لسهولة وسرعة الدخول</p>
+            </div>
+        </div>
+        <!-- زر التثبيت -->
+        <button id="pwaInstallBtn" class="bg-yellow-500 text-black px-4 py-2 rounded-xl font-bold text-xs shadow-lg hover:bg-yellow-400 transition transform active:scale-95">
+            تثبيت
+        </button>
+        <!-- زر الإغلاق -->
+        <button onclick="dismissInstallBanner()" class="absolute -top-2 -left-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-md">
+            &times;
+        </button>
+    </div>
+</div>
+
 <!-- تم تعديل نمط الحاوية لإصلاح مشكلة الصفحة البيضاء والتداخل -->
 <div id="pdf-generator-container" style="position: fixed; left: -5000px; top: 0; width: 210mm; min-height: 297mm; background: white; z-index: -100; visibility: hidden;"></div>
 <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-[200] hidden font-bold text-xs md:text-sm md:px-8 md:py-4"></div>
@@ -888,38 +912,58 @@
 </script>
 
 <script>
-    // --- PWA Service Worker Registration & Install Prompt ---
+    // --- PWA Install Logic (Modern & Timed) ---
     let deferredPrompt;
+    const pwaBanner = document.getElementById('pwaInstallBanner');
+    const installBtn = document.getElementById('pwaInstallBtn');
+
+    // دالة لإخفاء البانر
+    window.dismissInstallBanner = function() {
+        pwaBanner.classList.remove('translate-y-0', 'opacity-100');
+        pwaBanner.classList.add('translate-y-24', 'opacity-0');
+        setTimeout(() => {
+            pwaBanner.classList.add('hidden');
+        }, 500); // انتظار انتهاء الانيميشن
+    };
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // منع ظهور نافذة المتصفح الافتراضية القبيحة
+        e.preventDefault();
+        deferredPrompt = e;
+
+        // إظهار البانر العصري
+        pwaBanner.classList.remove('hidden');
+        // تأخير بسيط لتفعيل الانيميشن
+        setTimeout(() => {
+            pwaBanner.classList.remove('translate-y-24', 'opacity-0');
+            pwaBanner.classList.add('translate-y-0', 'opacity-100');
+        }, 100);
+
+        // إخفاء تلقائي بعد 5 ثوانٍ (كما طلبت)
+        setTimeout(() => {
+            dismissInstallBanner();
+        }, 6000); // 6000 مللي ثانية (1 ثانية ظهور + 5 ثواني عرض)
+    });
+
+    // عند الضغط على زر التثبيت
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response: ${outcome}`);
+            deferredPrompt = null;
+            dismissInstallBanner();
+        }
+    });
+
+    // تسجيل Service Worker (كما هو)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./service-worker.js')
-                .then(registration => console.log('SW registered: ', registration))
-                .catch(registrationError => console.log('SW registration failed: ', registrationError));
+                .then(registration => console.log('SW registered'))
+                .catch(err => console.log('SW failed', err));
         });
     }
-
-    // PWA Install Logic
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent the mini-infobar from appearing on mobile
-        e.preventDefault();
-        // Stash the event so it can be triggered later.
-        deferredPrompt = e;
-        // Update UI notify the user they can install the PWA
-        showToast('📲 اضغط هنا لتثبيت التطبيق', 'success');
-        
-        // Add click listener to the toast to trigger install
-        const toast = document.getElementById('toast');
-        toast.style.cursor = 'pointer';
-        toast.onclick = async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`User response to the install prompt: ${outcome}`);
-                deferredPrompt = null;
-                toast.classList.add('hidden');
-            }
-        };
-    });
 
     // --- Security Measures (Anti-Theft) ---
     document.addEventListener('contextmenu', event => event.preventDefault());
