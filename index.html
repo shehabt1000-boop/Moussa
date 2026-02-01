@@ -810,7 +810,8 @@
     </div>
 </div>
 
-<div id="pdf-generator-container" style="position: absolute; top: -9999px; left: -9999px;"></div>
+<!-- تم تعديل نمط الحاوية لإصلاح مشكلة الصفحة البيضاء -->
+<div id="pdf-generator-container" style="position: fixed; top: 0; left: 0; width: 210mm; z-index: -9999; opacity: 0; pointer-events: none;"></div>
 <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-[200] hidden font-bold text-xs md:text-sm md:px-8 md:py-4"></div>
 
 <script type="module">
@@ -1148,24 +1149,23 @@
 
     window.savePDF = function(title, content) {
         const pdfContainer = document.getElementById('pdf-generator-container');
-        // تعيين عرض ثابت للحاوية لضمان عدم قص المحتوى
-        pdfContainer.style.width = '800px'; 
+        
+        // تعبئة المحتوى
         pdfContainer.innerHTML = getPrintTemplate(title, content);
 
-        const element = pdfContainer.firstElementChild;
-
-        const opt = {
-            margin: [10, 10, 10, 10],
-            filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: false, scrollX: 0, scrollY: 0, windowWidth: 800 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
+        // الانتظار قليلاً للتأكد من تحميل الصور (الباركود)
         setTimeout(() => {
+            const element = pdfContainer.firstElementChild;
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false, scrollX: 0, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
             html2pdf().set(opt).from(element).save().then(() => {
                 pdfContainer.innerHTML = '';
-                pdfContainer.style.width = 'auto'; // إعادة تعيين العرض
             });
         }, 500);
     }
@@ -1194,7 +1194,7 @@
                 } else {
                     resolve(''); // فشل التوليد
                 }
-            }, 50);
+            }, 100);
         });
     }
 
@@ -1388,6 +1388,9 @@
         if(btn) btn.classList.add('active'); 
         localStorage.setItem('activeTab', id); 
         
+        // --- إصلاح مشكلة التمرير ---
+        window.scrollTo(0, 0);
+
         // Fix #3: تأكيد استدعاء الجدول عند فتح تبويب الحضور
         if(id === 'attendance') {
             setTimeout(() => window.renderFormalSchedule(), 100);
