@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <title>Smart Center | Pro v7.3</title>
+    <title>Smart Center | Pro v7.4</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -232,18 +232,16 @@
 
         @media print {
             /* إخفاء كل عناصر الموقع الأساسية */
-            body > *:not(#print-container) { 
+            body > *:not(#print-container):not(#appContent) { 
                 display: none !important; 
-                height: 0 !important; 
-                overflow: hidden !important; 
             }
 
-            /* إظهار حاوية الطباعة فقط */
-            #print-container, #print-container * {
-                visibility: visible !important;
+            /* إذا كانت حاوية الطباعة الخاصة بنا ممتلئة، اطبعها وأخفِ التطبيق */
+            body:has(#print-container:not(:empty)) > #appContent {
+                display: none !important;
             }
-
-            #print-container { 
+            
+            body:has(#print-container:not(:empty)) #print-container {
                 display: block !important; 
                 position: absolute; 
                 top: 0; 
@@ -252,15 +250,35 @@
                 height: auto !important; 
                 overflow: visible !important; 
                 z-index: 9999999; 
-                margin: 0;
-                padding: 0;
+                visibility: visible !important;
+            }
+
+            /* إصلاح الطباعة العادية (Native Print) */
+            /* إذا كانت حاوية الطباعة فارغة، اطبع محتوى التطبيق الحالي */
+            body:not(:has(#print-container:not(:empty))) {
+                background: white;
+                height: auto;
+                overflow: visible;
+            }
+            
+            body:not(:has(#print-container:not(:empty))) #appContent {
+                display: block !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            body:not(:has(#print-container:not(:empty))) .no-print,
+            body:not(:has(#print-container:not(:empty))) header,
+            body:not(:has(#print-container:not(:empty))) .glass-card {
+                box-shadow: none;
+                border: 1px solid #ccc;
             }
 
             @page { 
                 size: A4; 
                 margin: 10mm; 
             }
-
+            
             .no-print { display: none !important; }
         }
     </style>
@@ -810,8 +828,8 @@
     </div>
 </div>
 
-<!-- تم تعديل نمط الحاوية لإصلاح مشكلة الصفحة البيضاء -->
-<div id="pdf-generator-container" style="position: fixed; left: 0; top: 0; width: 210mm; min-height: 297mm; background: white; z-index: -100; visibility: hidden;"></div>
+<!-- تم تعديل نمط الحاوية لإصلاح مشكلة الصفحة البيضاء والتداخل -->
+<div id="pdf-generator-container" style="position: fixed; left: -5000px; top: 0; width: 210mm; min-height: 297mm; background: white; z-index: -100; visibility: hidden;"></div>
 <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-[200] hidden font-bold text-xs md:text-sm md:px-8 md:py-4"></div>
 
 <script type="module">
@@ -1125,69 +1143,90 @@
     window.printHTML = async function(title, content) {
         if(isPrinting) return;
         isPrinting = true;
+        showToast('جاري تحضير الطباعة...', 'success');
 
-        const printContainer = document.getElementById('print-container');
-        
-        // تنظيف الحاوية
-        printContainer.innerHTML = '';
-        
-        // تعبئة المحتوى (الـ CSS سيخفيه عن الشاشة ويظهره للطابعة فقط)
-        printContainer.innerHTML = getPrintTemplate(title, content);
+        try {
+            const printContainer = document.getElementById('print-container');
+            
+            // تنظيف الحاوية
+            printContainer.innerHTML = '';
+            
+            // تعبئة المحتوى (الـ CSS سيخفيه عن الشاشة ويظهره للطابعة فقط)
+            printContainer.innerHTML = getPrintTemplate(title, content);
 
-        // انتظار قصير جداً للتأكد من تحميل الصور (الباركود Base64)
-        await new Promise(resolve => setTimeout(resolve, 200));
+            // انتظار قصير جداً للتأكد من تحميل الصور (الباركود Base64)
+            await new Promise(resolve => setTimeout(resolve, 300));
 
-        // فتح نافذة الطباعة
-        window.print();
+            // فتح نافذة الطباعة
+            window.print();
 
-        // تنظيف الذاكرة بعد الانتهاء
-        setTimeout(() => {
-            printContainer.innerHTML = ''; 
+            // تنظيف الذاكرة بعد الانتهاء
+            setTimeout(() => {
+                printContainer.innerHTML = ''; 
+            }, 1000);
+        } catch (e) {
+            console.error(e);
+            showToast('حدث خطأ أثناء الطباعة', 'error');
+        } finally {
             isPrinting = false;
-        }, 1000);
+        }
     };
 
     window.savePDF = function(title, content) {
+        if(isPrinting) return;
+        isPrinting = true;
+        showToast('جاري إنشاء PDF...', 'success');
+
         const pdfContainer = document.getElementById('pdf-generator-container');
         
-        // 1. إجبار الحاوية على اتجاه LTR لتجنب مشاكل القص في html2canvas
-        pdfContainer.style.direction = 'ltr';
-        
-        // 2. وضع المحتوى داخل div داخلي باتجاه RTL للحفاظ على التنسيق العربي
-        // مع إضافة margin: auto لتوسيط المحتوى
-        pdfContainer.innerHTML = `
-            <div style="direction: rtl; width: 100%; margin: 0 auto;">
-                ${getPrintTemplate(title, content)}
-            </div>
-        `;
+        try {
+            // 1. إجبار الحاوية على اتجاه LTR لتجنب مشاكل القص في html2canvas
+            pdfContainer.style.direction = 'ltr';
+            
+            // 2. وضع المحتوى داخل div داخلي باتجاه RTL للحفاظ على التنسيق العربي
+            // مع إضافة margin: auto لتوسيط المحتوى
+            pdfContainer.innerHTML = `
+                <div style="direction: rtl; width: 100%; margin: 0 auto;">
+                    ${getPrintTemplate(title, content)}
+                </div>
+            `;
 
-        // 3. جعل الحاوية مرئية (لكن خلف الموقع بفضل z-index)
-        pdfContainer.style.visibility = 'visible';
+            // 3. جعل الحاوية مرئية (لكن خلف الموقع بفضل z-index)
+            pdfContainer.style.visibility = 'visible';
 
-        // 4. الانتظار قليلاً للتأكد من تحميل الصور (الباركود)
-        setTimeout(() => {
-            const element = pdfContainer.firstElementChild;
-            const opt = {
-                margin: [10, 10, 10, 10],
-                filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
-                    scale: 2, 
-                    useCORS: true, 
-                    logging: false, 
-                    scrollX: 0, 
-                    scrollY: 0,
-                    windowWidth: document.body.scrollWidth // ضمان التقاط العرض الكامل
-                },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            // 4. الانتظار قليلاً للتأكد من تحميل الصور (الباركود)
+            setTimeout(() => {
+                const element = pdfContainer.firstElementChild;
+                const opt = {
+                    margin: [10, 10, 10, 10],
+                    filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2, 
+                        useCORS: true, 
+                        logging: false, 
+                        scrollX: 0, 
+                        scrollY: 0,
+                        windowWidth: document.body.scrollWidth // ضمان التقاط العرض الكامل
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                // تنظيف بعد الانتهاء
-                pdfContainer.style.visibility = 'hidden';
-                pdfContainer.innerHTML = '';
-            });
-        }, 500);
+                html2pdf().set(opt).from(element).save().then(() => {
+                    // تنظيف بعد الانتهاء
+                    pdfContainer.style.visibility = 'hidden';
+                    pdfContainer.innerHTML = '';
+                    isPrinting = false;
+                }).catch(err => {
+                    console.error(err);
+                    showToast('فشل الحفظ', 'error');
+                    isPrinting = false;
+                });
+            }, 500);
+        } catch (e) {
+            console.error(e);
+            isPrinting = false;
+        }
     }
 
     // دالة جديدة لإنشاء باركود Base64 مضمون الظهور
@@ -1214,7 +1253,7 @@
                 } else {
                     resolve(''); // فشل التوليد
                 }
-            }, 100);
+            }, 300); // زيادة الوقت لضمان الرسم
         });
     }
 
@@ -1224,8 +1263,6 @@
         const name = document.getElementById('dashName').innerText;
         const code = document.getElementById('dashCode').innerText;
         if(!name || !code) { showToast('لا توجد بيانات', 'error'); return; }
-        
-        showToast('جاري تجهيز الطباعة...', 'success');
         
         const level = document.getElementById('dashLevel').innerText;
         const joinDate = document.getElementById('dashJoinDate').innerText;
@@ -1277,6 +1314,8 @@
     window.pdfStudentDashboard = async function() {
         const name = document.getElementById('dashName').innerText;
         const code = document.getElementById('dashCode').innerText;
+        if(!name || !code) { showToast('لا توجد بيانات', 'error'); return; }
+
         const level = document.getElementById('dashLevel').innerText;
         const joinDate = document.getElementById('dashJoinDate').innerText;
         const present = document.getElementById('dashPresent').innerText;
