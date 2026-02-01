@@ -863,25 +863,25 @@
     </div>
 </div>
 
-<!-- نافذة تثبيت التطبيق العصرية -->
-<div id="pwaInstallBanner" class="fixed bottom-6 left-4 right-4 z-[999999] translate-y-24 opacity-0 transition-all duration-500 ease-out hidden">
-    <div class="bg-gray-900/95 backdrop-blur-md border border-gray-700 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-3">
+<!-- نافذة تثبيت التطبيق العصرية (تم التعديل: محاذاة لليسار وحجم أصغر) -->
+<div id="pwaInstallBanner" class="fixed bottom-4 left-4 z-[999999] translate-y-24 opacity-0 transition-all duration-500 ease-out hidden w-auto max-w-[280px]">
+    <div class="bg-gray-900/95 backdrop-blur-md border border-gray-700 rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-3">
         <!-- الأيقونة والنص -->
-        <div class="flex items-center gap-3">
-            <div class="bg-gray-800 p-2 rounded-xl border border-gray-600">
-                <span class="text-2xl">📲</span>
+        <div class="flex items-center gap-2">
+            <div class="bg-gray-800 p-1.5 rounded-xl border border-gray-600">
+                <span class="text-xl">📲</span>
             </div>
             <div>
-                <h4 class="text-white font-bold text-sm">تثبيت التطبيق</h4>
-                <p class="text-gray-400 text-[10px]">لسهولة وسرعة الدخول</p>
+                <h4 class="text-white font-bold text-xs">تثبيت التطبيق</h4>
+                <p class="text-gray-400 text-[9px]">لسهولة الدخول</p>
             </div>
         </div>
         <!-- زر التثبيت -->
-        <button id="pwaInstallBtn" class="bg-yellow-500 text-black px-4 py-2 rounded-xl font-bold text-xs shadow-lg hover:bg-yellow-400 transition transform active:scale-95">
+        <button id="pwaInstallBtn" class="bg-yellow-500 text-black px-3 py-1.5 rounded-lg font-bold text-[10px] shadow-lg hover:bg-yellow-400 transition transform active:scale-95 whitespace-nowrap">
             تثبيت
         </button>
         <!-- زر الإغلاق -->
-        <button onclick="dismissInstallBanner()" class="absolute -top-2 -left-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-md">
+        <button onclick="dismissInstallBanner()" class="absolute -top-2 -left-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] shadow-md">
             &times;
         </button>
     </div>
@@ -905,7 +905,28 @@
     window.signInWithEmailAndPassword = signInWithEmailAndPassword; window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
 
     const loading = document.getElementById('loadingOverlay');
-    onSnapshot(collection(db, "students"), (snapshot) => { window.students = []; snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id })); window.renderStudents(); window.updateCounters(); loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); });
+    
+    // --- تم التعديل هنا لإصلاح مشكلة الشاشة البيضاء عند التحديث ---
+    onSnapshot(collection(db, "students"), (snapshot) => { 
+        window.students = []; 
+        snapshot.forEach(doc => window.students.push({ ...doc.data(), docId: doc.id })); 
+        window.renderStudents(); 
+        window.updateCounters(); 
+        
+        // التحقق مما إذا كان يجب تحميل لوحة الطالب فوراً (لحل مشكلة الشاشة البيضاء)
+        if(localStorage.getItem('isLoggedIn') === 'true' && localStorage.getItem('loginMode') === 'student') {
+            const savedId = localStorage.getItem('currentStudentId');
+            const student = window.students.find(s => s.id === savedId);
+            if(student) {
+                loadStudentDashboard(student);
+                document.getElementById('appContent').classList.remove('hidden');
+            }
+        }
+
+        loading.style.opacity = '0'; 
+        setTimeout(()=>loading.style.display='none', 300); 
+    });
+
     onSnapshot(collection(db, "attendance"), (snapshot) => { window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); window.updateCounters(); window.renderFormalSchedule(); });
     onSnapshot(collection(db, "accounting"), (snapshot) => { window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); window.updateFinance(); });
     onSnapshot(doc(db, "settings", "schedule"), (doc) => { if(doc.exists()) window.scheduleData = doc.data(); else window.scheduleData = {}; window.renderFormalSchedule(); window.updateCounters(); });
@@ -1012,7 +1033,7 @@
                 showTab(savedTab || 'students', document.getElementById(`nav-${savedTab || 'students'}`));
             } else {
                 document.getElementById('navBar').classList.add('hidden');
-                setTimeout(() => { const student = window.students.find(s => s.id === savedStudentId); if(student) loadStudentDashboard(student); }, 1000);
+                // تم إزالة setTimeout من هنا ونقل المنطق إلى onSnapshot لمنع الشاشة البيضاء
             }
         } else {
             document.getElementById('loginOverlay').style.display = 'flex';
