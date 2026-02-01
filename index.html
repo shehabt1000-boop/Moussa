@@ -811,7 +811,7 @@
 </div>
 
 <!-- تم تعديل نمط الحاوية لإصلاح مشكلة الصفحة البيضاء -->
-<div id="pdf-generator-container" style="position: fixed; top: 0; left: 0; width: 210mm; z-index: -9999; opacity: 0; pointer-events: none;"></div>
+<div id="pdf-generator-container" style="position: fixed; left: 0; top: 0; width: 210mm; min-height: 297mm; background: white; z-index: -100; visibility: hidden;"></div>
 <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-[200] hidden font-bold text-xs md:text-sm md:px-8 md:py-4"></div>
 
 <script type="module">
@@ -1150,21 +1150,41 @@
     window.savePDF = function(title, content) {
         const pdfContainer = document.getElementById('pdf-generator-container');
         
-        // تعبئة المحتوى
-        pdfContainer.innerHTML = getPrintTemplate(title, content);
+        // 1. إجبار الحاوية على اتجاه LTR لتجنب مشاكل القص في html2canvas
+        pdfContainer.style.direction = 'ltr';
+        
+        // 2. وضع المحتوى داخل div داخلي باتجاه RTL للحفاظ على التنسيق العربي
+        // مع إضافة margin: auto لتوسيط المحتوى
+        pdfContainer.innerHTML = `
+            <div style="direction: rtl; width: 100%; margin: 0 auto;">
+                ${getPrintTemplate(title, content)}
+            </div>
+        `;
 
-        // الانتظار قليلاً للتأكد من تحميل الصور (الباركود)
+        // 3. جعل الحاوية مرئية (لكن خلف الموقع بفضل z-index)
+        pdfContainer.style.visibility = 'visible';
+
+        // 4. الانتظار قليلاً للتأكد من تحميل الصور (الباركود)
         setTimeout(() => {
             const element = pdfContainer.firstElementChild;
             const opt = {
                 margin: [10, 10, 10, 10],
                 filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false, scrollX: 0, scrollY: 0 },
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true, 
+                    logging: false, 
+                    scrollX: 0, 
+                    scrollY: 0,
+                    windowWidth: document.body.scrollWidth // ضمان التقاط العرض الكامل
+                },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             html2pdf().set(opt).from(element).save().then(() => {
+                // تنظيف بعد الانتهاء
+                pdfContainer.style.visibility = 'hidden';
                 pdfContainer.innerHTML = '';
             });
         }, 500);
@@ -2052,85 +2072,6 @@
     function importData(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = async function(e) { try { const data = JSON.parse(e.target.result); if(data.students) { for(const s of data.students) await window.addDoc(window.collection(window.db, "students"), s); for(const a of data.attendance) await window.addDoc(window.collection(window.db, "attendance"), a); for(const c of data.accounting) await window.addDoc(window.collection(window.db, "accounting"), c); alert('تم استعادة البيانات بنجاح!'); } } catch(err) { alert('ملف تالف'); } }; reader.readAsText(file); }
     function showToast(msg, type) { const t = document.getElementById('toast'); t.innerText = msg; t.className = `fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-xl z-[200] font-bold text-sm text-white ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000); }
     function playSound(type) { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); osc.connect(ctx.destination); if(type === 'success') { osc.frequency.setValueAtTime(800, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1); } else { osc.frequency.setValueAtTime(300, ctx.currentTime); osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.2); } osc.start(); osc.stop(ctx.currentTime + 0.2); }
-    function shareStudentReport() { if(currentParentPhone) { const url = `https://wa.me/20${currentParentPhone}?text=${encodeURIComponent(currentStudentReport)}`; window.open(url, '_blank'); } else { alert('لا يوجد رقم ولي أمر'); } }
-    function printContent(elementId, title) { 
-        const content = `<table class="print-table"><thead>${document.getElementById('detailsTableHead').innerHTML}</thead><tbody>${document.getElementById('detailsTableBody').innerHTML}</tbody></table>`;
-        printHTML(title, content);
-    }
-    function pdfContent(elementId, title) {
-        const content = `<table class="print-table"><thead>${document.getElementById('detailsTableHead').innerHTML}</thead><tbody>${document.getElementById('detailsTableBody').innerHTML}</tbody></table>`;
-        savePDF(title, content);
-    }
-    
-    window.printStudentCard = async function() { 
-        const s = window.students.find(st => st.id === currentModalStudentId); 
-        if(!s) return; 
-        
-        showToast('جاري تجهيز البطاقة...', 'success');
-        const qrImageHtml = await generateQRBase64(s.id);
-
-        const content = `
-            <div class="print-student-card">
-                <div class="print-card-title">بطاقة الطالب</div>
-                <div class="print-card-name">${s.name}</div>
-                <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
-                <div class="print-card-row"><span>كود الطالب:</span> <span>${s.id}</span></div>
-                <div class="print-card-row"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div>
-                <div class="print-card-row"><span>المرحلة:</span> <span>${stageMap[s.level] || s.level}</span></div>
-                <div class="print-card-row"><span>تاريخ الاشتراك:</span> <span>${s.date}</span></div>
-            </div>
-        `;
-        printHTML('بطاقة طالب', content);
-    }
-
-    function printFinancialReport() { 
-        const revs = window.accounting.filter(a => a.category === 'revenue' && a.date === today).sort((a,b) => a.time.localeCompare(b.time)); 
-        const exps = window.accounting.filter(a => a.category === 'expense' && a.date === today).sort((a,b) => a.time.localeCompare(b.time)); 
-        const totalRev = revs.reduce((sum, r) => sum + r.amount, 0); 
-        const totalExp = exps.reduce((sum, e) => sum + e.amount, 0); 
-        const net = totalRev - totalExp; 
-
-        const content = `
-            <table class="print-stats-table">
-                <tr>
-                    <td class="print-stats-cell"><div class="print-box-title">إجمالي الوارد</div><div class="print-box-val" style="color:green;">${totalRev}</div></td>
-                    <td class="print-stats-cell"><div class="print-box-title">إجمالي المصروفات</div><div class="print-box-val" style="color:red;">${totalExp}</div></td>
-                    <td class="print-stats-cell"><div class="print-box-title">الصافي</div><div class="print-box-val">${net}</div></td>
-                </tr>
-            </table>
-            
-            <h3 style="border-bottom: 2px solid #000; margin-top: 20px;">تفاصيل الإيرادات</h3>
-            <table class="print-table"><thead><tr><th>م</th><th>الاسم</th><th>المبلغ</th><th>النوع</th></tr></thead><tbody>${revs.map((r, i) => `<tr><td>${i+1}</td><td>${r.name}</td><td>${r.amount}</td><td>${r.type}</td></tr>`).join('') || '<tr><td colspan="4">لا يوجد</td></tr>'}</tbody></table>
-            
-            <h3 style="border-bottom: 2px solid #000; margin-top: 20px;">تفاصيل المصروفات</h3>
-            <table class="print-table"><thead><tr><th>م</th><th>البند</th><th>المبلغ</th></tr></thead><tbody>${exps.map((e, i) => `<tr><td>${i+1}</td><td>${e.desc}</td><td>${e.amount}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table>
-        `;
-        printHTML('التقرير المالي اليومي', content);
-    }
-    function pdfFinancialReport() {
-        const revs = window.accounting.filter(a => a.category === 'revenue' && a.date === today).sort((a,b) => a.time.localeCompare(b.time)); 
-        const exps = window.accounting.filter(a => a.category === 'expense' && a.date === today).sort((a,b) => a.time.localeCompare(b.time)); 
-        const totalRev = revs.reduce((sum, r) => sum + r.amount, 0); 
-        const totalExp = exps.reduce((sum, e) => sum + e.amount, 0); 
-        const net = totalRev - totalExp; 
-
-        const content = `
-            <table class="print-stats-table">
-                <tr>
-                    <td class="print-stats-cell"><div class="print-box-title">إجمالي الوارد</div><div class="print-box-val" style="color:green;">${totalRev}</div></td>
-                    <td class="print-stats-cell"><div class="print-box-title">إجمالي المصروفات</div><div class="print-box-val" style="color:red;">${totalExp}</div></td>
-                    <td class="print-stats-cell"><div class="print-box-title">الصافي</div><div class="print-box-val">${net}</div></td>
-                </tr>
-            </table>
-            
-            <h3 style="border-bottom: 2px solid #000; margin-top: 20px;">تفاصيل الإيرادات</h3>
-            <table class="print-table"><thead><tr><th>م</th><th>الاسم</th><th>المبلغ</th><th>النوع</th></tr></thead><tbody>${revs.map((r, i) => `<tr><td>${i+1}</td><td>${r.name}</td><td>${r.amount}</td><td>${r.type}</td></tr>`).join('') || '<tr><td colspan="4">لا يوجد</td></tr>'}</tbody></table>
-            
-            <h3 style="border-bottom: 2px solid #000; margin-top: 20px;">تفاصيل المصروفات</h3>
-            <table class="print-table"><thead><tr><th>م</th><th>البند</th><th>المبلغ</th></tr></thead><tbody>${exps.map((e, i) => `<tr><td>${i+1}</td><td>${e.desc}</td><td>${e.amount}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table>
-        `;
-        savePDF('التقرير المالي اليومي', content);
-    }
     function shareStudentPdf() { const s = window.students.find(st => st.id === currentModalStudentId); if(!s) return; 
         const content = `
             <div class="print-student-card">
