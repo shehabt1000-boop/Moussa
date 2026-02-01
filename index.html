@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <title>Smart Center | Pro v7.0</title>
+    <title>Smart Center | Pro v7.1</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -129,7 +129,7 @@
         .col-action { width: 45px; min-width: 45px; } 
         .custom-table tbody tr:hover { background-color: #f3f4f6; }
 
-        /* --- شاشة التحميل العصرية (Updated) --- */
+        /* --- شاشة التحميل العصرية --- */
         #loadingOverlay { 
             position: fixed; inset: 0; 
             background: rgba(17, 24, 39, 0.98); 
@@ -215,7 +215,7 @@
         .unified-card-row { font-size: 11pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 4px 0; color: #1f2937; }
         .unified-card-footer { margin-top: 15px; font-size: 9pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1f2937; padding-top: 5px; }
 
-        /* --- نظام الطباعة الموحد (Fix Blank Page) --- */
+        /* --- نظام الطباعة الموحد (Fix Popup & Barcode) --- */
         #print-container { display: none; }
 
         @media print {
@@ -290,7 +290,7 @@
 </head>
 <body class="text-gray-800">
 
-<!-- شاشة التحميل العصرية (Updated) -->
+<!-- شاشة التحميل العصرية -->
 <div id="loadingOverlay">
     <div class="spinner-box">
         <div class="modern-spinner"></div>
@@ -384,8 +384,8 @@
     </div>
 </div>
 
-<!-- حاوية الطباعة -->
-<div id="print-container"></div>
+<!-- حاوية الطباعة (معدلة لتكون Full Screen Overlay) -->
+<div id="print-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: white; z-index: 999999; display: none; overflow-y: auto;"></div>
 
 <div id="appContent" class="hidden">
     <style>
@@ -1084,7 +1084,7 @@
         document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
     }
 
-    // --- نظام الطباعة الموحد (Fix Blank Page & Unified Design) ---
+    // --- نظام الطباعة الموحد (Fix Popup & Barcode) ---
     
     function getPrintTemplate(title, content) {
         const date = new Date().toLocaleDateString('ar-EG');
@@ -1116,15 +1116,15 @@
         isPrinting = true;
 
         const printContainer = document.getElementById('print-container');
-        // تنظيف الحاوية أولاً لضمان عدم وجود بقايا
+        // تنظيف الحاوية أولاً
         printContainer.innerHTML = '';
         printContainer.style.display = 'block';
 
         // تعبئة المحتوى الجديد
         printContainer.innerHTML = getPrintTemplate(title, content);
 
-        // انتظار تحميل الصور (الباركود)
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // انتظار قصير جداً للتأكد من الريندر
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         window.print();
 
@@ -1174,14 +1174,11 @@
         }, 500);
     }
 
-    // دالة مساعدة لإنشاء باركود HTML جاهز
-    function generateQRHtml(text) {
+    // دالة جديدة لإنشاء باركود Base64 مضمون الظهور
+    function generateQRBase64(text) {
         return new Promise((resolve) => {
             const holder = document.createElement('div');
-            holder.style.position = 'absolute';
-            holder.style.top = '-9999px';
-            document.body.appendChild(holder);
-
+            // نستخدم مكتبة qrcodejs
             new QRCode(holder, { 
                 text: text, 
                 width: 120, 
@@ -1189,18 +1186,19 @@
                 correctLevel : QRCode.CorrectLevel.H
             });
             
+            // ننتظر قليلاً حتى تقوم المكتبة بالرسم
             setTimeout(() => {
                 const img = holder.querySelector('img');
-                let html = '';
-                if (img) {
-                     img.style.width = '100px';
-                     img.style.height = '100px';
-                     img.style.margin = '0 auto';
-                     html = img.outerHTML;
+                const canvas = holder.querySelector('canvas');
+                
+                if (img && img.src) {
+                    resolve(`<img src="${img.src}" style="width:100px; height:100px; margin:0 auto;" />`);
+                } else if (canvas) {
+                    resolve(`<img src="${canvas.toDataURL()}" style="width:100px; height:100px; margin:0 auto;" />`);
+                } else {
+                    resolve(''); // فشل التوليد
                 }
-                document.body.removeChild(holder);
-                resolve(html);
-            }, 300);
+            }, 50);
         });
     }
 
@@ -1211,13 +1209,17 @@
         const code = document.getElementById('dashCode').innerText;
         if(!name || !code) { showToast('لا توجد بيانات', 'error'); return; }
         
+        showToast('جاري تجهيز الطباعة...', 'success');
+        
         const level = document.getElementById('dashLevel').innerText;
         const joinDate = document.getElementById('dashJoinDate').innerText;
         const present = document.getElementById('dashPresent').innerText;
         const absent = document.getElementById('dashAbsent').innerText;
         const totalPaid = document.getElementById('dashPaymentsTotal').innerText;
         const paymentsHTML = document.getElementById('dashPaymentsTable').innerHTML;
-        const qrImageHtml = await generateQRHtml(code);
+        
+        // استخدام الدالة الجديدة المضمونة
+        const qrImageHtml = await generateQRBase64(code);
 
         let historyTableRows = '';
         const historyDivs = document.getElementById('dashHistory').querySelectorAll('div');
@@ -1257,7 +1259,6 @@
     }
 
     window.pdfStudentDashboard = async function() {
-        // نفس المحتوى تماماً للـ PDF
         const name = document.getElementById('dashName').innerText;
         const code = document.getElementById('dashCode').innerText;
         const level = document.getElementById('dashLevel').innerText;
@@ -1266,7 +1267,7 @@
         const absent = document.getElementById('dashAbsent').innerText;
         const totalPaid = document.getElementById('dashPaymentsTotal').innerText;
         const paymentsHTML = document.getElementById('dashPaymentsTable').innerHTML;
-        const qrImageHtml = await generateQRHtml(code);
+        const qrImageHtml = await generateQRBase64(code);
 
         let historyTableRows = '';
         const historyDivs = document.getElementById('dashHistory').querySelectorAll('div');
@@ -1364,7 +1365,38 @@
         savePDF('جدول المواعيد الرسمي', content);
     }
 
-    async function showTab(id, btn) { if(isScannerRunning) await stopScanner(); document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); if(btn) btn.classList.add('active'); localStorage.setItem('activeTab', id); if(id === 'attendance') window.renderFormalSchedule(); }
+    window.renderFormalSchedule = function() {
+        const tbody = document.getElementById('formalScheduleBody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        Object.keys(stageMap).forEach(level => {
+            const data = window.scheduleData[level] || { days: [], times: {} };
+            const days = data.days || [];
+            const times = data.times || {};
+
+            if(days.length > 0) {
+                const daysAr = days.map(d => `<div class="mb-1">${dayMap[d]}</div>`).join('');
+                const timesAr = days.map(d => `<div class="mb-1">${times[d] || '-'}</div>`).join('');
+
+                tbody.innerHTML += `<tr><td class="font-bold text-gray-900 align-top pt-2">${stageMap[level]}</td><td class="align-top pt-2">${daysAr}</td><td class="align-top pt-2">${timesAr}</td><td class="no-print align-middle"><button onclick="openMonthlySchedule('${level}')" class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-[9px] font-bold hover:bg-gray-200 border border-gray-300">📅 أجندة الشهر</button></td></tr>`;
+            }
+        });
+        if(tbody.innerHTML === '') tbody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-2">لم يتم إعداد الجدول بعد</td></tr>';
+    }
+
+    async function showTab(id, btn) { 
+        if(isScannerRunning) await stopScanner(); 
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); 
+        document.getElementById(id).classList.add('active'); 
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); 
+        if(btn) btn.classList.add('active'); 
+        localStorage.setItem('activeTab', id); 
+        
+        // Fix #3: تأكيد استدعاء الجدول عند فتح تبويب الحضور
+        if(id === 'attendance') {
+            setTimeout(() => window.renderFormalSchedule(), 100);
+        }
+    }
 
     async function registerStudent() { 
         const name = document.getElementById('stdName').value; 
@@ -1632,7 +1664,7 @@
     window.printDetailedStudentReport = async function(studentId) {
         const s = window.students.find(st => st.id === studentId); if(!s) return;
         showToast('جاري تجهيز التقرير...', 'success');
-        const qrImageHtml = await generateQRHtml(s.id);
+        const qrImageHtml = await generateQRBase64(s.id);
         const stats = calculateStudentStats(s);
         const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === s.id);
         const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
@@ -2036,7 +2068,7 @@
         if(!s) return; 
         
         showToast('جاري تجهيز البطاقة...', 'success');
-        const qrImageHtml = await generateQRHtml(s.id);
+        const qrImageHtml = await generateQRBase64(s.id);
 
         const content = `
             <div class="print-student-card">
@@ -2113,7 +2145,6 @@
             </div>
         `;
         
-        // نستخدم حاوية مؤقتة لتوليد الباركود قبل الحفظ
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = content;
         document.body.appendChild(tempDiv);
