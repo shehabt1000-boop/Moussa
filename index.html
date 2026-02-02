@@ -215,7 +215,7 @@
 
 
 <div id="paymentConfirmModal">
-    <div class="alert-card border-t-4 border-green-600"><div class="text-4xl mb-2">💰</div><h3 class="text-base font-bold text-gray-800 mb-1">تأكيد الدفع</h3><p id="payConfirmMsg" class="text-[11px] text-gray-600 font-bold mb-4"></p><div class="flex gap-2"><button onclick="proceedWithPayment()" class="flex-1 bg-green-600 text-white py-2 rounded font-bold text-xs shadow">نعم</button><button onclick="closePaymentConfirm()" class="flex-1 bg-gray-500 text-white py-2 rounded font-bold text-xs">إلغاء</button></div></div>
+    <div class="alert-card border-t-4 border-green-600"><div class="text-4xl mb-2">💵</div><h3 class="text-base font-bold text-gray-800 mb-1">تأكيد الدفع</h3><p id="payConfirmMsg" class="text-[11px] text-gray-600 font-bold mb-4"></p><div class="flex gap-2"><button onclick="proceedWithPayment()" class="flex-1 bg-green-600 text-white py-2 rounded font-bold text-xs shadow">نعم</button><button onclick="closePaymentConfirm()" class="flex-1 bg-gray-500 text-white py-2 rounded font-bold text-xs">إلغاء</button></div></div>
 </div>
 
 
@@ -326,7 +326,7 @@
                         <div class="std-info-row"><span class="std-info-label">إجمالي المدفوعات</span><span class="std-info-val text-green-600" id="dashPaymentsTotal"></span></div>
                     </div>
                     <div class="std-dash-card">
-                        <h3 class="font-bold text-sm text-gray-800 border-b pb-2 mb-2 md:text-base">💰 سجل المدفوعات</h3>
+                        <h3 class="font-bold text-sm text-gray-800 border-b pb-2 mb-2 md:text-base">💵 سجل المدفوعات</h3>
                         <div class="overflow-x-auto"><table class="custom-table"><thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th></tr></thead><tbody id="dashPaymentsTable"></tbody></table></div>
                     </div>
                     <div class="std-dash-card">
@@ -509,7 +509,7 @@
         <section id="accounting" class="tab-content">
             <div class="grid md:grid-cols-2 gap-2 md:gap-4">
                 <div class="glass-card border-t-4 border-green-600">
-                    <h3 class="font-bold text-green-800 mb-2 text-xs md:text-base">💰 تحصيل الإيرادات</h3>
+                    <h3 class="font-bold text-green-800 mb-2 text-xs md:text-base">💵 تحصيل الإيرادات</h3>
 
 
                     <div id="defaultPaymentBar" class="bg-green-50 p-2 rounded mb-2 border border-green-200">
@@ -1508,64 +1508,59 @@
 
 
 window.showSingleReport = function(studentId) {
-        // 1. التأكد من وجود الطالب لتجنب الأخطاء
         const student = window.students.find(s => s.id === studentId);
         if (!student) return;
 
 
         const resDiv = document.getElementById('studentReportResult');
         currentParentPhone = student.phone;
-
-
-        // 2. الحسابات
+        
+        // الحسابات
         const stats = calculateStudentStats(student);
         const exceptionalPresent = stats.history.filter(h => h.status === 'present' && h.isExceptional);
         const regularAbsence = stats.history.filter(h => h.status === 'absent');
         const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === student.id);
         const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-
-
-        // 3. تجهيز نصوص الواتساب
+        
+        // تجهيز النصوص
         const absenceList = regularAbsence.map(h => `${h.date} ${h.isExceptional ? '(استثنائي)' : ''}`).join('\n') || 'لا يوجد';
         const presentList = exceptionalPresent.map(h => `${h.date} (استثنائي)`).join('\n') || 'لا يوجد';
-        const paymentDetails = payments.map(p => `💰 ${p.amount} ج.م (${p.type}) - ${p.date}`).join('\n') || 'لا يوجد مدفوعات';
-        currentStudentReport = `*تقرير الطالب: ${student.name}*\nكود: ${student.id}\nتاريخ الاشتراك: ${student.date}\n----------------\n✅ أيام الحضور: ${stats.present}\n❌ أيام الغياب: ${stats.absent}\n💰 إجمالي المدفوعات: ${totalPaid} ج.م\n----------------\n*تفاصيل المدفوعات:*\n${paymentDetails}\n\n*تواريخ الغياب:*\n${absenceList}\n\n*🌟 حضور استثنائي:*\n${presentList}`;
+        const paymentDetails = payments.map(p => `💵 ${p.amount} ج.م (${p.type}) - ${p.date}`).join('\n') || 'لا يوجد مدفوعات';
+        currentStudentReport = `*تقرير الطالب: ${student.name}*\nكود: ${student.id}\nتاريخ الاشتراك: ${student.date}\n----------------\n✅ أيام الحضور: ${stats.present}\n❌ أيام الغياب: ${stats.absent}\n💵 إجمالي المدفوعات: ${totalPaid} ج.م\n----------------\n*تفاصيل المدفوعات:*\n${paymentDetails}\n\n*تواريخ الغياب:*\n${absenceList}\n\n*🌟 حضور استثنائي:*\n${presentList}`;
         
-        // 4. عرض النتيجة (تم تعديل التنسيق ليكون في المنتصف)
+        // HTML بتصميم لوحة التحكم (Dashboard Style)
         resDiv.innerHTML = `
-            <div class="border-b pb-3 mb-2 text-center">
-                <!-- الاسم في المنتصف وبخط واضح -->
-                <h4 class="font-bold text-xl text-gray-900 mb-2">${student.name}</h4>
+            <div class="text-center border-b pb-3 mb-2">
+                <!-- اسم الطالب -->
+                <p class="text-[10px] text-gray-500 font-bold mb-0.5">اسم الطالب</p>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">${student.name}</h2>
                 
-                <!-- الكود في المنتصف -->
-                <div class="flex justify-center items-center gap-2 mb-1">
-                    <span class="text-gray-500 text-[10px]">الكود:</span>
-                    <span class="font-mono text-sm font-bold text-gray-800 bg-gray-100 px-2 py-0.5 rounded">${student.id}</span>
+                <!-- كود الطالب -->
+                <p class="text-[10px] text-gray-500 font-bold mb-0.5">كود الطالب</p>
+                <p class="text-gray-500 font-mono text-lg font-bold mb-2">${student.id}</p>
+                
+                <!-- المرحلة -->
+                <p class="text-[10px] text-gray-500 font-bold mb-0.5">المرحلة</p>
+                <div class="bg-gray-100 rounded-lg p-2 text-xs text-gray-800 font-bold inline-block mb-3">
+                    ${stageMap[student.level] || student.level}
                 </div>
 
 
-                <!-- المرحلة في المنتصف -->
-                <div class="flex justify-center items-center gap-2">
-                    <span class="text-gray-500 text-[10px]">المرحلة:</span>
-                    <span class="text-xs font-bold text-gray-800">${stageMap[student.level] || student.level}</span>
-                </div>
-            </div>
-
-
-            <!-- باقي البيانات (أرقام الهواتف) -->
-            <div class="space-y-1 mb-3 text-xs border-b pb-2">
-                <div class="flex justify-between">
-                    <span>رقم ولي الأمر:</span> 
-                    <a href="https://wa.me/20${student.phone}" target="_blank" class="text-blue-600 font-bold hover:underline">${student.phone}</a>
-                </div>
-                <div class="flex justify-between">
-                    <span>رقم الطالب:</span> 
-                    <a href="https://wa.me/20${student.ownPhone}" target="_blank" class="text-blue-600 font-bold hover:underline">${student.ownPhone || 'غير مسجل'}</a>
+                <!-- أرقام الهواتف (مفصولة بخط متقطع) -->
+                <div class="mt-2 pt-2 border-t border-dashed border-gray-300 text-xs">
+                    <div class="flex justify-between items-center mb-1 px-2">
+                        <span class="text-gray-500 font-bold">رقم الطالب:</span>
+                        <a href="https://wa.me/20${student.ownPhone}" target="_blank" class="text-blue-600 font-bold hover:underline font-mono">${student.ownPhone || 'غير مسجل'}</a>
+                    </div>
+                    <div class="flex justify-between items-center px-2">
+                        <span class="text-gray-500 font-bold">رقم ولي الأمر:</span>
+                        <a href="https://wa.me/20${student.phone}" target="_blank" class="text-blue-600 font-bold hover:underline font-mono">${student.phone}</a>
+                    </div>
                 </div>
             </div>
 
 
-            <!-- العدادات -->
+            <!-- عدادات الحضور والغياب -->
             <div class="grid grid-cols-2 gap-2 mb-4 text-center">
                 <div class="bg-green-100 p-2 rounded">
                     <div class="text-xs">الحضور</div>
@@ -1609,8 +1604,7 @@ window.showSingleReport = function(studentId) {
                 <button onclick="shareStudentReport()" class="flex-1 bg-green-700 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>📱</span> واتساب</button>
                 <button onclick="pdfDetailedStudentReport('${student.id}')" class="flex-1 bg-red-700 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>📄</span> PDF</button>
                 <button onclick="printDetailedStudentReport('${student.id}')" class="flex-1 bg-gray-800 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>🖨️</span> طباعة</button>
-            </div>
-        `;
+            </div>`;
         
         resDiv.classList.remove('hidden');
     }
