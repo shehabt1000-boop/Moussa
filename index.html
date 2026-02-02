@@ -1507,6 +1507,115 @@
     }
 
 
+window.showSingleReport = function(studentId) {
+        // 1. التأكد من وجود الطالب لتجنب الأخطاء
+        const student = window.students.find(s => s.id === studentId);
+        if (!student) return;
+
+
+        const resDiv = document.getElementById('studentReportResult');
+        currentParentPhone = student.phone;
+
+
+        // 2. الحسابات
+        const stats = calculateStudentStats(student);
+        const exceptionalPresent = stats.history.filter(h => h.status === 'present' && h.isExceptional);
+        const regularAbsence = stats.history.filter(h => h.status === 'absent');
+        const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === student.id);
+        const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+
+
+        // 3. تجهيز نصوص الواتساب
+        const absenceList = regularAbsence.map(h => `${h.date} ${h.isExceptional ? '(استثنائي)' : ''}`).join('\n') || 'لا يوجد';
+        const presentList = exceptionalPresent.map(h => `${h.date} (استثنائي)`).join('\n') || 'لا يوجد';
+        const paymentDetails = payments.map(p => `💰 ${p.amount} ج.م (${p.type}) - ${p.date}`).join('\n') || 'لا يوجد مدفوعات';
+        currentStudentReport = `*تقرير الطالب: ${student.name}*\nكود: ${student.id}\nتاريخ الاشتراك: ${student.date}\n----------------\n✅ أيام الحضور: ${stats.present}\n❌ أيام الغياب: ${stats.absent}\n💰 إجمالي المدفوعات: ${totalPaid} ج.م\n----------------\n*تفاصيل المدفوعات:*\n${paymentDetails}\n\n*تواريخ الغياب:*\n${absenceList}\n\n*🌟 حضور استثنائي:*\n${presentList}`;
+        
+        // 4. عرض النتيجة (تم تعديل التنسيق ليكون في المنتصف)
+        resDiv.innerHTML = `
+            <div class="border-b pb-3 mb-2 text-center">
+                <!-- الاسم في المنتصف وبخط واضح -->
+                <h4 class="font-bold text-xl text-gray-900 mb-2">${student.name}</h4>
+                
+                <!-- الكود في المنتصف -->
+                <div class="flex justify-center items-center gap-2 mb-1">
+                    <span class="text-gray-500 text-[10px]">الكود:</span>
+                    <span class="font-mono text-sm font-bold text-gray-800 bg-gray-100 px-2 py-0.5 rounded">${student.id}</span>
+                </div>
+
+
+                <!-- المرحلة في المنتصف -->
+                <div class="flex justify-center items-center gap-2">
+                    <span class="text-gray-500 text-[10px]">المرحلة:</span>
+                    <span class="text-xs font-bold text-gray-800">${stageMap[student.level] || student.level}</span>
+                </div>
+            </div>
+
+
+            <!-- باقي البيانات (أرقام الهواتف) -->
+            <div class="space-y-1 mb-3 text-xs border-b pb-2">
+                <div class="flex justify-between">
+                    <span>رقم ولي الأمر:</span> 
+                    <a href="https://wa.me/20${student.phone}" target="_blank" class="text-blue-600 font-bold hover:underline">${student.phone}</a>
+                </div>
+                <div class="flex justify-between">
+                    <span>رقم الطالب:</span> 
+                    <a href="https://wa.me/20${student.ownPhone}" target="_blank" class="text-blue-600 font-bold hover:underline">${student.ownPhone || 'غير مسجل'}</a>
+                </div>
+            </div>
+
+
+            <!-- العدادات -->
+            <div class="grid grid-cols-2 gap-2 mb-4 text-center">
+                <div class="bg-green-100 p-2 rounded">
+                    <div class="text-xs">الحضور</div>
+                    <div class="font-bold text-green-700">${stats.present}</div>
+                </div>
+                <div class="bg-red-100 p-2 rounded">
+                    <div class="text-xs">الغياب</div>
+                    <div class="font-bold text-red-700">${stats.absent}</div>
+                </div>
+            </div>
+
+
+            <!-- القوائم التفصيلية -->
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <div class="border rounded p-1">
+                    <h5 class="font-bold text-[10px] text-red-700 mb-1 border-b">سجل الغياب</h5>
+                    <div class="max-h-24 overflow-y-auto text-[9px] text-red-600">
+                        ${regularAbsence.map(h=>`<div>${h.date} (${h.day}) ${h.isExceptional ? '<span class="font-bold text-black">(استثنائي)</span>' : ''}</div>`).join('') || 'لا يوجد'}
+                    </div>
+                </div>
+                <div class="border rounded p-1">
+                    <h5 class="font-bold text-[10px] text-black mb-1 border-b">حضور استثنائي</h5>
+                    <div class="max-h-24 overflow-y-auto text-[9px] text-black font-bold">
+                        ${exceptionalPresent.map(h=>`<div>${h.date} (${h.day}) (استثنائي)</div>`).join('') || 'لا يوجد'}
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- المدفوعات -->
+            <div class="mb-4">
+                <h5 class="font-bold text-xs mb-1">المدفوعات (${totalPaid} ج.م)</h5>
+                <div class="max-h-32 overflow-y-auto text-xs border rounded p-1">
+                    ${payments.length ? payments.map(p => `<div class="flex justify-between border-b p-1"><span>${p.type}</span><span>${p.amount} (${p.date})</span></div>`).join('') : '<p class="text-center">لا يوجد</p>'}
+                </div>
+            </div>
+
+
+            <!-- الأزرار -->
+            <div class="flex gap-2">
+                <button onclick="shareStudentReport()" class="flex-1 bg-green-700 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>📱</span> واتساب</button>
+                <button onclick="pdfDetailedStudentReport('${student.id}')" class="flex-1 bg-red-700 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>📄</span> PDF</button>
+                <button onclick="printDetailedStudentReport('${student.id}')" class="flex-1 bg-gray-800 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>🖨️</span> طباعة</button>
+            </div>
+        `;
+        
+        resDiv.classList.remove('hidden');
+    }
+
+
     window.printDetailedStudentReport = async function(studentId) {
         const s = window.students.find(st => st.id === studentId); if(!s) return;
         showToast('جاري تجهيز التقرير...', 'success');
