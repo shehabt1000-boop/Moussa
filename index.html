@@ -33,6 +33,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- تم إضافة مكتبة html2canvas للتصوير -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -1396,11 +1398,9 @@
         if(matches.length > 1) { let listHtml = `<div class="text-xs font-bold text-gray-900 mb-2">تم العثور على ${matches.length} طالب:</div><div class="max-h-40 overflow-y-auto border rounded">`; matches.forEach(s => { listHtml += `<div onclick="showSingleReport('${s.id}')" class="p-2 border-b hover:bg-gray-50 cursor-pointer flex justify-between"><span>${s.name}</span><span class="text-gray-500 font-mono">${s.id} (${stageMap[s.level] || s.level})</span></div>`; }); listHtml += `</div>`; resDiv.innerHTML = listHtml; resDiv.classList.remove('hidden'); } else { showSingleReport(matches[0].id); }
     }
 
-
-window.showSingleReport = function(studentId) {
+    window.showSingleReport = function(studentId) {
         const student = window.students.find(s => s.id === studentId);
         if (!student) return;
-
 
         const resDiv = document.getElementById('studentReportResult');
         currentParentPhone = student.phone;
@@ -1415,90 +1415,129 @@ window.showSingleReport = function(studentId) {
         // تجهيز النصوص
         const absenceList = regularAbsence.map(h => `${h.date} ${h.isExceptional ? '(استثنائي)' : ''}`).join('\n') || 'لا يوجد';
         const presentList = exceptionalPresent.map(h => `${h.date} (استثنائي)`).join('\n') || 'لا يوجد';
-        const paymentDetails = payments.map(p => `💵 ${p.amount} ج.م (${p.type}) - ${p.date}`).join('\n') || 'لا يوجد مدفوعات';
-        currentStudentReport = `*تقرير الطالب: ${student.name}*\nكود: ${student.id}\nتاريخ الاشتراك: ${student.date}\n----------------\n✅ أيام الحضور: ${stats.present}\n❌ أيام الغياب: ${stats.absent}\n💵 إجمالي المدفوعات: ${totalPaid} ج.م\n----------------\n*تفاصيل المدفوعات:*\n${paymentDetails}\n\n*تواريخ الغياب:*\n${absenceList}\n\n*🌟 حضور استثنائي:*\n${presentList}`;
+        const paymentDetails = payments.map(p => `💰 ${p.amount} ج.م (${p.type}) - ${p.date}`).join('\n') || 'لا يوجد مدفوعات';
+        currentStudentReport = `*تقرير الطالب: ${student.name}*\nكود: ${student.id}\nتاريخ الاشتراك: ${student.date}\n----------------\n✅ أيام الحضور: ${stats.present}\n❌ أيام الغياب: ${stats.absent}\n💰 إجمالي المدفوعات: ${totalPaid} ج.م\n----------------\n*تفاصيل المدفوعات:*\n${paymentDetails}\n\n*تواريخ الغياب:*\n${absenceList}\n\n*🌟 حضور استثنائي:*\n${presentList}`;
         
         // HTML بتصميم لوحة التحكم (Dashboard Style)
         resDiv.innerHTML = `
-            <div class="text-center border-b pb-3 mb-2">
-                <!-- اسم الطالب -->
-                <p class="text-[10px] text-gray-500 font-bold mb-0.5">اسم الطالب</p>
-                <h2 class="text-xl font-bold text-gray-900 mb-2">${student.name}</h2>
-                
-                <!-- كود الطالب -->
-                <p class="text-[10px] text-gray-500 font-bold mb-0.5">كود الطالب</p>
-                <p class="text-gray-500 font-mono text-lg font-bold mb-2">${student.id}</p>
-                
-                <!-- المرحلة -->
-                <p class="text-[10px] text-gray-500 font-bold mb-0.5">المرحلة</p>
-                <div class="bg-gray-100 rounded-lg p-2 text-xs text-gray-800 font-bold inline-block mb-3">
-                    ${stageMap[student.level] || student.level}
-                </div>
-
-
-                <!-- أرقام الهواتف (مفصولة بخط متقطع) -->
-                <div class="mt-2 pt-2 border-t border-dashed border-gray-300 text-xs">
-                    <div class="flex justify-between items-center mb-1 px-2">
-                        <span class="text-gray-500 font-bold">رقم الطالب:</span>
-                        <a href="https://wa.me/20${student.ownPhone}" target="_blank" class="text-blue-600 font-bold hover:underline font-mono">${student.ownPhone || 'غير مسجل'}</a>
+            <!-- هذا هو الجزء الذي سيتم تحويله لصورة -->
+            <div id="capture-area" class="bg-white p-2 rounded">
+                <div class="text-center border-b pb-3 mb-2">
+                    <p class="text-[10px] text-gray-500 font-bold mb-0.5">اسم الطالب</p>
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">${student.name}</h2>
+                    
+                    <p class="text-[10px] text-gray-500 font-bold mb-0.5">كود الطالب</p>
+                    <p class="text-gray-500 font-mono text-lg font-bold mb-2">${student.id}</p>
+                    
+                    <p class="text-[10px] text-gray-500 font-bold mb-0.5">المرحلة</p>
+                    <div class="bg-gray-100 rounded-lg p-2 text-xs text-gray-800 font-bold inline-block mb-3">
+                        ${stageMap[student.level] || student.level}
                     </div>
-                    <div class="flex justify-between items-center px-2">
-                        <span class="text-gray-500 font-bold">رقم ولي الأمر:</span>
-                        <a href="https://wa.me/20${student.phone}" target="_blank" class="text-blue-600 font-bold hover:underline font-mono">${student.phone}</a>
+
+                    <div class="mt-2 pt-2 border-t border-dashed border-gray-300 text-xs">
+                        <div class="flex justify-between items-center mb-1 px-2">
+                            <span class="text-gray-500 font-bold">رقم الطالب:</span>
+                            <span class="font-mono font-bold text-gray-800">${student.ownPhone || 'غير مسجل'}</span>
+                        </div>
+                        <div class="flex justify-between items-center px-2">
+                            <span class="text-gray-500 font-bold">رقم ولي الأمر:</span>
+                            <span class="font-mono font-bold text-gray-800">${student.phone}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-
-            <!-- عدادات الحضور والغياب -->
-            <div class="grid grid-cols-2 gap-2 mb-4 text-center">
-                <div class="bg-green-100 p-2 rounded">
-                    <div class="text-xs">الحضور</div>
-                    <div class="font-bold text-green-700">${stats.present}</div>
-                </div>
-                <div class="bg-red-100 p-2 rounded">
-                    <div class="text-xs">الغياب</div>
-                    <div class="font-bold text-red-700">${stats.absent}</div>
-                </div>
-            </div>
-
-
-            <!-- القوائم التفصيلية -->
-            <div class="grid grid-cols-2 gap-2 mb-4">
-                <div class="border rounded p-1">
-                    <h5 class="font-bold text-[10px] text-red-700 mb-1 border-b">سجل الغياب</h5>
-                    <div class="max-h-24 overflow-y-auto text-[9px] text-red-600">
-                        ${regularAbsence.map(h=>`<div>${h.date} (${h.day}) ${h.isExceptional ? '<span class="font-bold text-black">(استثنائي)</span>' : ''}</div>`).join('') || 'لا يوجد'}
+                <div class="grid grid-cols-2 gap-2 mb-4 text-center">
+                    <div class="bg-green-100 p-2 rounded">
+                        <div class="text-xs">الحضور</div>
+                        <div class="font-bold text-green-700">${stats.present}</div>
+                    </div>
+                    <div class="bg-red-100 p-2 rounded">
+                        <div class="text-xs">الغياب</div>
+                        <div class="font-bold text-red-700">${stats.absent}</div>
                     </div>
                 </div>
-                <div class="border rounded p-1">
-                    <h5 class="font-bold text-[10px] text-black mb-1 border-b">حضور استثنائي</h5>
-                    <div class="max-h-24 overflow-y-auto text-[9px] text-black font-bold">
-                        ${exceptionalPresent.map(h=>`<div>${h.date} (${h.day}) (استثنائي)</div>`).join('') || 'لا يوجد'}
+
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <div class="border rounded p-1">
+                        <h5 class="font-bold text-[10px] text-red-700 mb-1 border-b">سجل الغياب</h5>
+                        <div class="max-h-24 overflow-y-auto text-[9px] text-red-600">
+                            ${regularAbsence.map(h=>`<div>${h.date} (${h.day}) ${h.isExceptional ? '<span class="font-bold text-black">(استثنائي)</span>' : ''}</div>`).join('') || 'لا يوجد'}
+                        </div>
+                    </div>
+                    <div class="border rounded p-1">
+                        <h5 class="font-bold text-[10px] text-black mb-1 border-b">حضور استثنائي</h5>
+                        <div class="max-h-24 overflow-y-auto text-[9px] text-black font-bold">
+                            ${exceptionalPresent.map(h=>`<div>${h.date} (${h.day}) (استثنائي)</div>`).join('') || 'لا يوجد'}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-
-            <!-- المدفوعات -->
-            <div class="mb-4">
-                <h5 class="font-bold text-xs mb-1">المدفوعات (${totalPaid} ج.م)</h5>
-                <div class="max-h-32 overflow-y-auto text-xs border rounded p-1">
-                    ${payments.length ? payments.map(p => `<div class="flex justify-between border-b p-1"><span>${p.type}</span><span>${p.amount} (${p.date})</span></div>`).join('') : '<p class="text-center">لا يوجد</p>'}
+                <div class="mb-4">
+                    <h5 class="font-bold text-xs mb-1">المدفوعات (${totalPaid} ج.م)</h5>
+                    <div class="max-h-32 overflow-y-auto text-xs border rounded p-1">
+                        ${payments.length ? payments.map(p => `<div class="flex justify-between border-b p-1"><span>${p.type}</span><span>${p.amount} (${p.date})</span></div>`).join('') : '<p class="text-center">لا يوجد</p>'}
+                    </div>
                 </div>
+                <div class="text-center text-[8px] text-gray-400 mt-2">Smart Center Pro</div>
             </div>
-
 
             <!-- الأزرار -->
-            <div class="flex gap-2">
-                <button onclick="shareStudentReport()" class="flex-1 bg-green-700 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>📱</span> واتساب</button>
-                <button onclick="pdfDetailedStudentReport('${student.id}')" class="flex-1 bg-red-700 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>📄</span> PDF</button>
-                <button onclick="printDetailedStudentReport('${student.id}')" class="flex-1 bg-gray-800 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>🖨️</span> طباعة</button>
+            <div class="flex gap-2 mt-2">
+                <button onclick="shareReportAsImage()" class="flex-1 bg-green-600 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2 shadow hover:bg-green-700">
+                    <span>📷</span> واتساب (صورة)
+                </button>
+                <button onclick="pdfDetailedStudentReport('${student.id}')" class="flex-1 bg-red-700 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2 shadow hover:bg-red-800">
+                    <span>📄</span> PDF
+                </button>
+                <button onclick="printDetailedStudentReport('${student.id}')" class="flex-1 bg-gray-800 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2 shadow hover:bg-gray-900">
+                    <span>🖨️</span> طباعة
+                </button>
             </div>`;
         
         resDiv.classList.remove('hidden');
     }
 
+    // دالة التقاط الصورة والمشاركة
+    window.shareReportAsImage = async function() {
+        const element = document.getElementById('capture-area');
+        if (!element) return;
+
+        showToast('جاري إنشاء الصورة...', 'success');
+
+        try {
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                backgroundColor: "#ffffff",
+                useCORS: true
+            });
+
+            canvas.toBlob(async (blob) => {
+                const file = new File([blob], "report.png", { type: "image/png" });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: 'تقرير الطالب',
+                            text: 'تقرير متابعة من Smart Center'
+                        });
+                    } catch (err) {
+                        console.log('Share cancelled');
+                    }
+                } else {
+                    const link = document.createElement('a');
+                    link.download = 'report.png';
+                    link.href = canvas.toDataURL();
+                    link.click();
+                    showToast('تم تحميل الصورة', 'success');
+                }
+            }, 'image/png');
+
+        } catch (err) {
+            console.error(err);
+            showToast('حدث خطأ أثناء التصوير', 'error');
+        }
+    }
 
     window.printDetailedStudentReport = async function(studentId) {
         const s = window.students.find(st => st.id === studentId); if(!s) return;
@@ -1507,7 +1546,6 @@ window.showSingleReport = function(studentId) {
         const stats = calculateStudentStats(s);
         const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === s.id);
         const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-
 
         const content = `
             <div class="print-student-card">
@@ -1536,10 +1574,8 @@ window.showSingleReport = function(studentId) {
             <table class="print-table"><thead><tr><th>التاريخ</th><th>اليوم</th><th>الحالة</th><th>ملاحظات</th></tr></thead><tbody>${stats.history.map(h => `<tr><td>${h.date}</td><td>${h.day}</td><td>${h.status==='present'?'حضور':'غياب'}</td><td>${h.isExceptional?'استثنائي':''}</td></tr>`).join('')}</tbody></table>
         `;
 
-
         printHTML('تقرير طالب تفصيلي', content);
     }
-
 
     // دالة جديدة لحل مشكلة PDF البحث
     window.pdfDetailedStudentReport = async function(studentId) {
@@ -1553,7 +1589,6 @@ window.showSingleReport = function(studentId) {
         const stats = calculateStudentStats(s);
         const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === s.id);
         const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-
 
         // بناء المحتوى (نفس تصميم الطباعة)
         const content = `
@@ -1583,10 +1618,8 @@ window.showSingleReport = function(studentId) {
             <table class="print-table"><thead><tr><th>التاريخ</th><th>اليوم</th><th>الحالة</th><th>ملاحظات</th></tr></thead><tbody>${stats.history.map(h => `<tr><td>${h.date}</td><td>${h.day}</td><td>${h.status==='present'?'حضور':'غياب'}</td><td>${h.isExceptional?'استثنائي':''}</td></tr>`).join('')}</tbody></table>
         `;
 
-
         savePDF(`تقرير_${s.name}`, content);
     }
-
 
     function generateAdvancedReport() {
         const type = document.getElementById('reportType').value;
@@ -1596,14 +1629,11 @@ window.showSingleReport = function(studentId) {
         const category = document.getElementById('reportCategory').value;
         const resDiv = document.getElementById('reportResult');
 
-
         let totalRev = 0, totalExp = 0;
         currentReportData = { present: [], absent: [], revenues: [], expenses: [] };
 
-
         let targetStudents = window.students;
         if(stage !== 'all') targetStudents = window.students.filter(s => s.level === stage);
-
 
         if(type === 'daily') {
             if(!dateInput) return showToast('اختر التاريخ', 'error');
@@ -1626,16 +1656,13 @@ window.showSingleReport = function(studentId) {
                 daysArray.push(`${year}-${m}-${d}`);
             }
 
-
             let monthlyStats = {};
             targetStudents.forEach(s => { monthlyStats[s.id] = { name: s.name, level: s.level, present: 0, absentDates: [], exceptionalDates: [] }; });
-
 
             targetStudents.forEach(student => {
                 daysArray.forEach(dateStr => {
                     if (dateStr < student.date) return; 
                     if (dateStr > today) return; 
-
 
                     const statusObj = getStudentStatusForDate(student, dateStr);
                     if (statusObj.status === 'present') {
@@ -1649,22 +1676,17 @@ window.showSingleReport = function(studentId) {
                 });
             });
 
-
             currentReportData.present = Object.values(monthlyStats).filter(s => s.present > 0).map(s => ({ ...s, time: `${s.present} يوم`, exceptionalDates: s.exceptionalDates }));
             currentReportData.absent = Object.values(monthlyStats).filter(s => s.absentDates.length > 0).map(s => ({ ...s, time: `${s.absentDates.length} يوم`, absentDatesList: s.absentDates }));
-
 
             currentReportData.revenues = window.accounting.filter(r => r.category === 'revenue' && r.date.startsWith(monthInput));
             currentReportData.expenses = window.accounting.filter(e => e.category === 'expense' && e.date.startsWith(monthInput));
         }
 
-
         totalRev = currentReportData.revenues.reduce((a,b)=>a+b.amount,0);
         totalExp = currentReportData.expenses.reduce((a,b)=>a+b.amount,0);
 
-
         let html = `<h4 class="font-bold text-center border-b pb-2 mb-2">تقرير ${type === 'daily' ? dateInput : monthInput}</h4>`;
-
 
         if (category === 'attendance') {
             html += `<div class="grid grid-cols-2 gap-2 mb-4 text-center"><div onclick='openReportDetails("present")' class="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200"><div class="text-xs">حضور</div><div class="font-bold text-green-700">${currentReportData.present.length} طالب</div></div><div onclick='openReportDetails("absent")' class="bg-red-100 p-2 rounded cursor-pointer hover:bg-red-200"><div class="text-xs">غياب</div><div class="font-bold text-red-700">${currentReportData.absent.length} طالب</div></div></div>`;
@@ -1672,17 +1694,14 @@ window.showSingleReport = function(studentId) {
             html += `<div class="space-y-2"><div onclick='openReportDetails("revenues")' class="bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 flex justify-between"><span class="text-xs text-gray-500">إيرادات</span><span class="font-bold text-green-700">${totalRev} ج.م</span></div><div onclick='openReportDetails("expenses")' class="bg-red-50 p-2 rounded border border-red-200 cursor-pointer hover:bg-red-100 flex justify-between"><span class="text-xs text-gray-500">مصروفات</span><span class="font-bold text-red-700">${totalExp} ج.م</span></div><div class="bg-gray-800 p-3 rounded shadow-lg text-center"><span class="text-xs text-gray-300">الصافي</span><span class="font-bold text-white text-xl block">${totalRev - totalExp} ج.م</span></div></div>`;
         }
 
-
         resDiv.innerHTML = html; resDiv.classList.remove('hidden');
     }
-
 
     window.toggleReportView = function() {
         if (!document.getElementById('reportResult').classList.contains('hidden')) {
             generateAdvancedReport();
         }
     }
-
 
     function toggleBulkInputs() { const type = document.getElementById('bulkType').value; if(type === 'daily') { document.getElementById('bulkDateDiv').classList.remove('hidden'); document.getElementById('bulkMonthDiv').classList.add('hidden'); } else { document.getElementById('bulkDateDiv').classList.add('hidden'); document.getElementById('bulkMonthDiv').classList.remove('hidden'); } }
     function getBulkStudents() { const stage = document.getElementById('bulkStage').value; let students = window.students; if(stage !== 'all') students = students.filter(s => s.level === stage); return students; }
@@ -1698,7 +1717,6 @@ window.showSingleReport = function(studentId) {
         }
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.setAttribute("href", url); link.setAttribute("download", `تقرير_شامل_${dateVal}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
-
 
     let bulkQueue = [];
     function openBulkWhatsAppModal() {
@@ -1722,11 +1740,9 @@ window.showSingleReport = function(studentId) {
             const payments = window.accounting.filter(r => r.category === 'revenue' && r.stdId === student.id && r.date.startsWith(monthVal));
             const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
 
-
             const excPresentDates = stats.history.filter(h => h.date.startsWith(monthVal) && h.status === 'present' && h.isExceptional).map(h => h.date).join(', ') || 'لا يوجد';
             const excAbsentDates = stats.history.filter(h => h.date.startsWith(monthVal) && h.status === 'absent' && h.isExceptional).map(h => h.date).join(', ') || 'لا يوجد';
             const payDetails = payments.map(p => `${p.amount} ج.م (${p.type}) - ${p.date}`).join('\n') || 'لا يوجد';
-
 
             msg = `*تقرير شهر: ${monthVal}*\nاسم الطالب: ${student.name}\nكود الطالب: ${student.id}\nتاريخ اشتراك الطالب: ${student.date}\n----------------\nعدد ايام الحضور الاجمالي: ${monthPresent}\nعدد ايام الغياب الاجمالي: ${monthAbsent}\nتواريخ الحضور الاستثنائي: ${excPresentDates}\nتواريخ الغياب الاستثنائي: ${excAbsentDates}\n----------------\nاجمالي المدفوعات: ${totalPaid} ج.م\nتفاصيل المدفوعات:\n${payDetails}`;
         }
@@ -1736,14 +1752,12 @@ window.showSingleReport = function(studentId) {
         if(index + 1 < bulkQueue.length) { document.getElementById('bulkProgress').innerHTML = `التالي: <button onclick="sendSingleWhatsApp(${index+1})" class="text-blue-600 underline font-bold">${bulkQueue[index+1].name}</button>`; } else { document.getElementById('bulkProgress').innerText = "تم الانتهاء من القائمة!"; }
     }
 
-
     window.openScheduleModal = function() {
         const container = document.getElementById('scheduleContainer'); container.innerHTML = '';
         Object.keys(stageMap).forEach(level => { 
             const data = window.scheduleData[level] || { days: [], times: {} };
             const savedDays = data.days || [];
             const savedTimes = data.times || {};
-
 
             let daysHtml = daysOfWeek.map(day => `
                 <div class="flex items-center justify-between mb-2 border-b pb-2">
@@ -1760,7 +1774,6 @@ window.showSingleReport = function(studentId) {
         document.body.classList.add('modal-open');
     }
 
-
     window.saveSchedule = async function() {
         const newSchedule = {}; 
         Object.keys(stageMap).forEach(level => { 
@@ -1771,7 +1784,6 @@ window.showSingleReport = function(studentId) {
                 const timeVal = document.querySelector(`input[name="time_${level}_${day}"]`).value;
                 if(timeVal) times[day] = timeVal;
             });
-
 
             if(days.length > 0) newSchedule[level] = { days, times }; 
         });
@@ -1808,7 +1820,6 @@ window.showSingleReport = function(studentId) {
     let currentPayStudent = null;
     function togglePayMethod(method) { const btnScan = document.getElementById('btnPayScan'); const btnManual = document.getElementById('btnPayManual'); if(method === 'scan') { document.getElementById('payScanDiv').classList.remove('hidden'); document.getElementById('payManualDiv').classList.add('hidden'); btnScan.classList.add('active'); btnManual.classList.remove('active'); } else { document.getElementById('payScanDiv').classList.add('hidden'); document.getElementById('payManualDiv').classList.remove('hidden'); btnManual.classList.add('active'); btnScan.classList.remove('active'); stopScanner(); } }
 
-
     function handlePaymentScan(id) { 
         if(!document.getElementById('paymentForm').classList.contains('hidden')) return; 
         const student = window.students.find(s => s.id === id); 
@@ -1817,7 +1828,6 @@ window.showSingleReport = function(studentId) {
             const lastPay = window.accounting
                 .filter(a => a.stdId === id && a.date === today && a.category === 'revenue')
                 .sort((a,b) => b.timestamp - a.timestamp)[0];
-
 
             if (lastPay && (Date.now() - (lastPay.timestamp || 0)) < 120000) { 
                 document.getElementById('payConfirmMsg').innerText = `تنبيه: تم تسجيل دفع لهذا الطالب منذ أقل من دقيقتين (${lastPay.amount} ج.م). هل تريد المتابعة؟`;
@@ -1831,19 +1841,16 @@ window.showSingleReport = function(studentId) {
         } 
     }
 
-
     window.proceedWithPayment = function() {
         document.getElementById('paymentConfirmModal').style.display = 'none';
         isPaused = false;
         showPaymentForm();
     }
 
-
     window.closePaymentConfirm = function() {
         document.getElementById('paymentConfirmModal').style.display = 'none';
         isPaused = false;
     }
-
 
     window.cancelPayment = function() {
         document.getElementById('paymentForm').classList.add('hidden');
@@ -1852,22 +1859,18 @@ window.showSingleReport = function(studentId) {
         isPaused = false; 
     }
 
-
     function showPaymentForm() {
         document.getElementById('paymentForm').classList.remove('hidden'); 
         document.getElementById('payStdName').innerText = currentPayStudent.name; 
         document.getElementById('payStdID').innerText = currentPayStudent.id; 
 
-
         document.getElementById('payAmount').value = document.getElementById('defPayAmount').value;
         document.getElementById('payType').value = document.getElementById('defPayType').value;
         document.getElementById('payNote').value = document.getElementById('defPayNote').value;
 
-
         playSound('success'); 
         isPaused = true; 
     }
-
 
     function searchStudentForPay() { handlePaymentScan(document.getElementById('paySearchID').value); }
     async function confirmPayment() { 
@@ -1881,10 +1884,8 @@ window.showSingleReport = function(studentId) {
         const note = document.getElementById('payNote').value;
         const time = new Date().toLocaleTimeString('ar-EG'); 
 
-
         let typeText = type;
         if(note) typeText += ` (${note})`;
-
 
         await window.addDoc(window.collection(window.db, "accounting"), { 
             date: today, 
@@ -1908,14 +1909,11 @@ window.showSingleReport = function(studentId) {
         const amount = parseFloat(document.getElementById('expAmount').value); 
         const time = new Date().toLocaleTimeString('ar-EG'); 
 
-
         if(!type || !amount) return showToast('أكمل البيانات', 'error'); 
-
 
         let desc = type;
         if(details) desc += ` - ${details}`;
         if(note) desc += ` (${note})`;
-
 
         await window.addDoc(window.collection(window.db, "accounting"), { date: today, time, desc: desc, amount, category: 'expense' }); 
         document.getElementById('expType').value = ''; 
@@ -1933,10 +1931,8 @@ window.showSingleReport = function(studentId) {
         document.getElementById('totalExp').innerText = totalExp; 
         document.getElementById('netProfit').innerText = (totalRev - totalExp); 
 
-
         const todayRevs = revs.filter(r => r.date === today); 
         const todayExps = exps.filter(e => e.date === today); 
-
 
         document.getElementById('todayRevList').innerHTML = todayRevs.map(r => `<div class="flex justify-between border-b border-white/10 pb-1"><span>${r.name} <span class="text-[9px] opacity-70">(${r.type})</span></span><span>${r.amount}</span></div>`).join('') || '<div class="text-center opacity-50">لا يوجد</div>'; 
         document.getElementById('todayExpList').innerHTML = todayExps.map(e => `<div class="flex justify-between border-b border-white/10 pb-1"><span>${e.desc}</span><span>${e.amount}</span></div>`).join('') || '<div class="text-center opacity-50">لا يوجد</div>'; 
@@ -1950,16 +1946,13 @@ window.showSingleReport = function(studentId) {
         else if(key === 'revenues') title = 'تفاصيل الإيرادات'; 
         else title = 'تفاصيل المصروفات'; 
 
-
         document.getElementById('detailsTitle').innerText = title; 
         document.getElementById('modalFilterContainer').classList.add('hidden'); 
         const thead = document.getElementById('detailsTableHead'); 
         const tbody = document.getElementById('detailsTableBody'); 
 
-
         if(key === 'present' || key === 'absent') { 
             const isMonthly = document.getElementById('reportType').value === 'monthly'; 
-
 
             if (isMonthly) {
                 if (key === 'present') {
@@ -2009,7 +2002,6 @@ window.showSingleReport = function(studentId) {
         showToast('جاري تجهيز البطاقة...', 'success');
         const qrImageHtml = await generateQRBase64(s.id);
 
-
         const content = `
             <div class="print-student-card">
                 <div class="print-card-title">بطاقة الطالب</div>
@@ -2026,7 +2018,6 @@ window.showSingleReport = function(studentId) {
         printHTML('بطاقة طالب', content);
     }
 
-
     // --- تم تعديل هذه الدالة لحل مشكلة حفظ PDF للبطاقة ---
     window.shareStudentPdf = async function() { 
         const s = window.students.find(st => st.id === currentModalStudentId); 
@@ -2036,7 +2027,6 @@ window.showSingleReport = function(studentId) {
         
         // 1. توليد صورة الباركود أولاً لضمان ظهورها
         const qrImageHtml = await generateQRBase64(s.id);
-
 
         // 2. تجهيز المحتوى HTML
         const content = `
@@ -2056,14 +2046,12 @@ window.showSingleReport = function(studentId) {
         savePDF(`بطاقة_${s.name}`, content);
     }
 
-
     function printFinancialReport() { 
         const revs = window.accounting.filter(a => a.category === 'revenue' && a.date === today).sort((a,b) => a.time.localeCompare(b.time)); 
         const exps = window.accounting.filter(a => a.category === 'expense' && a.date === today).sort((a,b) => a.time.localeCompare(b.time)); 
         const totalRev = revs.reduce((sum, r) => sum + r.amount, 0); 
         const totalExp = exps.reduce((sum, e) => sum + e.amount, 0); 
         const net = totalRev - totalExp; 
-
 
         const content = `
             <table class="print-stats-table">
@@ -2088,7 +2076,6 @@ window.showSingleReport = function(studentId) {
         const totalRev = revs.reduce((sum, r) => sum + r.amount, 0); 
         const totalExp = exps.reduce((sum, e) => sum + e.amount, 0); 
         const net = totalRev - totalExp; 
-
 
         const content = `
             <table class="print-stats-table">
