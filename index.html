@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
     <title>السوق وياك | 2026</title>
 
-    <meta property="og:image" content="https://raw.githubusercontent.com/shehabt1000-boop/Moussa/main/647557c3-c686-4ae6-925e-9fd3765180a7.jpeg">
     <meta name="theme-color" content="#0f172a">
     <link id="manifest-link" rel="manifest">
 
@@ -52,18 +51,18 @@
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
-        /* --- Z-INDEX FIXES (Layer Management) --- */
+        /* Z-Index System */
         .mobile-full-modal { position: fixed; inset: 0; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
         .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); }
         
-        /* Specific Z-Indices to ensure correct stacking */
-        #details-modal { z-index: 100; } /* Base Modal */
-        #profile-modal { z-index: 110; } /* Above Details */
-        #order-modal { z-index: 110; }   /* Above Details */
+        /* Layering Fixes */
+        #details-modal { z-index: 100; }
+        #profile-modal { z-index: 110; }
+        #order-modal { z-index: 115; }
         #add-modal { z-index: 110; }
-        #chat-modal { z-index: 120; }    /* Chat always on top */
-        #lightbox { z-index: 150; }      /* Images on top of everything */
+        #chat-modal { z-index: 120; }
+        #lightbox { z-index: 150; }
         
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 750px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); } 
@@ -99,19 +98,35 @@
         .dark .full-screen-view { background-color: #0f172a; }
         .full-screen-view.hidden { display: none !important; }
         
+        /* Improved Star Rating */
+        .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 2px; }
+        .star-rating input { display: none; } /* Hide Radio Buttons */
+        .star-rating label { cursor: pointer; color: #cbd5e1; font-size: 1.5rem; transition: color 0.2s; line-height: 1; }
+        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }
+
+        /* Improved Details Table */
+        .details-table { width: 100%; font-size: 0.75rem; border-collapse: separate; border-spacing: 0; margin-bottom: 0.8rem; }
+        .details-table td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .dark .details-table td { border-color: #334155; }
+        .details-table td:first-child { color: #64748b; font-weight: 700; width: 30%; white-space: nowrap; }
+        .dark .details-table td:first-child { color: #94a3b8; }
+        .details-table td:last-child { color: #0f172a; font-weight: 800; text-align: right; padding-right: 1rem; }
+        .dark .details-table td:last-child { color: #f8fafc; }
+
+        /* Specs Grid */
+        .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; margin-bottom: 1rem; }
+        .spec-item { display: flex; flex-direction: column; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.5rem; overflow: hidden; }
+        .dark .spec-item { background-color: #1e293b; border-color: #334155; }
+        .spec-label { font-size: 0.6rem; color: #64748b; font-weight: 700; margin-bottom: 0.2rem; }
+        .dark .spec-label { color: #94a3b8; }
+        .spec-value { font-size: 0.8rem; color: #0f172a; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dark .spec-value { color: #f1f5f9; }
+
         /* Utility */
         .chip-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
         .smart-option:checked + div { background-color: #0f172a; color: white; border-color: #0f172a; }
         .dark .smart-option:checked + div { background-color: #10b981; border-color: #10b981; }
         .feature-checkbox:checked + div { background-color: #3b82f6; color: white; border-color: #3b82f6; }
-        
-        .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; }
-        .spec-item { display: flex; flex-direction: column; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.4rem 0.6rem; overflow: hidden; }
-        .dark .spec-item { background-color: #1e293b; border-color: #334155; }
-        .spec-label { font-size: 0.6rem; color: #64748b; font-weight: 700; margin-bottom: 0.1rem; }
-        .dark .spec-label { color: #94a3b8; }
-        .spec-value { font-size: 0.75rem; color: #0f172a; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .dark .spec-value { color: #f1f5f9; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-navy dark:text-slate-100 select-none">
@@ -921,7 +936,6 @@
                     document.getElementById('header-username').innerText = data.name || u.displayName;
                     document.getElementById('welcome-text').classList.remove('hidden');
                     
-                    // Load Favorites from Firestore
                     if(data.favorites) {
                         state.favorites = data.favorites;
                         updateFavBadge();
@@ -933,7 +947,6 @@
             document.getElementById('login-view').classList.add('hidden'); document.getElementById('app-content').classList.remove('hidden');
             if(globalLoader) { globalLoader.classList.add('fade-out'); setTimeout(() => globalLoader.style.display = 'none', 500); }
             
-            // FIX: Force Home View on Login to prevent blank screen
             switchToHomeView();
             checkUserChat(); 
             initCats(); 
@@ -958,7 +971,31 @@
     }
 
     window.setAuthRole = (role) => { state.authRole = role; document.getElementById('btn-role-customer').className = role === 'customer' ? "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md" : "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"; document.getElementById('btn-role-marketer').className = role === 'marketer' ? "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md" : "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-white dark:hover:bg-slate-700"; }
-    window.setAuthType = (type) => { state.authType = type; const btnLogin = document.getElementById('btn-type-login'); const btnSignup = document.getElementById('btn-type-signup'); const actionBtn = document.getElementById('btn-auth-action'); const imgField = document.getElementById('auth-image-field'); const signupFields = document.getElementById('signup-fields'); if (type === 'login') { btnLogin.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md"; btnSignup.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white"; actionBtn.innerHTML = `<span>دخول للحساب</span> <i data-lucide="arrow-left" class="w-4 h-4"></i>`; imgField.classList.add('hidden'); imgField.classList.remove('flex'); signupFields.classList.add('hidden'); } else { btnSignup.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md"; btnLogin.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white"; actionBtn.innerHTML = `<span>إنشاء حساب جديد</span> <i data-lucide="plus-circle" class="w-4 h-4"></i>`; imgField.classList.remove('hidden'); imgField.classList.add('flex'); signupFields.classList.remove('hidden'); } lucide.createIcons(); }
+    
+    // Optimized Toggle (No Re-render)
+    window.setAuthType = (type) => { 
+        state.authType = type; 
+        const btnLogin = document.getElementById('btn-type-login'); 
+        const btnSignup = document.getElementById('btn-type-signup'); 
+        const actionBtn = document.getElementById('btn-auth-action'); 
+        const imgField = document.getElementById('auth-image-field'); 
+        const signupFields = document.getElementById('signup-fields'); 
+        
+        if (type === 'login') { 
+            btnLogin.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md"; 
+            btnSignup.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white"; 
+            actionBtn.innerHTML = `<span>دخول للحساب</span> <i data-lucide="arrow-left" class="w-4 h-4"></i>`; 
+            imgField.classList.add('hidden'); imgField.classList.remove('flex'); 
+            signupFields.classList.add('hidden'); 
+        } else { 
+            btnSignup.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-navy dark:bg-primary text-white shadow-md"; 
+            btnLogin.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 transition-all hover:text-navy dark:hover:text-white"; 
+            actionBtn.innerHTML = `<span>إنشاء حساب جديد</span> <i data-lucide="plus-circle" class="w-4 h-4"></i>`; 
+            imgField.classList.remove('hidden'); imgField.classList.add('flex'); 
+            signupFields.classList.remove('hidden'); 
+        } 
+        lucide.createIcons(); 
+    }
 
     window.processAuth = async () => {
         const rawPhone = document.getElementById('auth-main-phone').value.trim();
@@ -1050,13 +1087,14 @@
         }
     }
 
+    // Optimized Logout (No Reload)
     window.logout = async () => { 
         try {
             const loader = document.getElementById('global-loader');
             if(loader) { loader.classList.remove('fade-out'); loader.style.display = 'flex'; }
             await signOut(auth);
             localStorage.clear();
-            window.location.href = window.location.origin + window.location.pathname;
+            // No window.location.reload() - onAuthStateChanged handles UI
         } catch(e) { window.location.reload(); }
     }
 
@@ -1077,13 +1115,24 @@
             if (state.currentFilter === 'fav') { searchContainer.classList.add('hidden'); catContainer.classList.add('hidden'); } 
             else { searchContainer.classList.remove('hidden'); filterBtn.classList.remove('hidden'); searchInput.placeholder = 'ابحث عن منتج...'; if (state.currentFilter === 'all' || state.currentFilter === 'عروض') catContainer.classList.remove('hidden'); else catContainer.classList.add('hidden'); }
             prodGrid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pb-2';
-            // Trigger loadListings only if we switched views, otherwise filters handle it
             if(!state.isLoadingMore) loadListings();
         }
         lucide.createIcons();
     }
 
-    window.applyFilters = () => { state.lastVisibleDoc = null; state.listings = []; loadListings(); }
+    // Fix: Force switch to category view if filtering from Home
+    window.applyFilters = () => { 
+        if(state.currentView === 'home') {
+            state.currentView = 'category';
+            state.currentFilter = 'all';
+            document.getElementById('view-title').innerText = 'كل المنتجات';
+            renderView();
+        }
+        state.lastVisibleDoc = null; 
+        state.listings = []; 
+        loadListings(); 
+    }
+
     window.toggleFilterPanel = () => { document.getElementById('filter-panel').classList.toggle('hidden'); }
     window.resetFilters = () => { document.getElementById('search-input').value = ''; document.getElementById('filter-price').value = ''; document.getElementById('filter-gov').value = ''; document.getElementById('filter-condition').value = ''; document.getElementById('filter-min-price').value = ''; document.getElementById('filter-max-price').value = ''; if (state.currentView === 'home') renderCategoryCards(); else { state.listings = []; state.lastVisibleDoc = null; loadListings(); } };
     window.switchToCategoryView = (category) => { state.currentView = 'category'; state.currentFilter = category; document.getElementById('search-input').value = ''; state.listings = []; state.lastVisibleDoc = null; window.scrollTo({ top: 0, behavior: 'smooth' }); renderView(); }
@@ -1103,7 +1152,6 @@
     }
     renderCategoryCards();
 
-    // FIXED: Server-Side Filtering Logic
     async function loadListings(isNext = false) {
         if(state.isLoadingMore) return;
         state.isLoadingMore = true;
@@ -1120,7 +1168,6 @@
             let qRef = collection(db, "listings");
             let constraints = [];
 
-            // Apply Filters
             if(state.currentFilter !== 'all' && state.currentFilter !== 'fav' && state.currentFilter !== 'عروض') {
                 constraints.push(where("category", "==", state.currentFilter));
             }
@@ -1134,18 +1181,16 @@
             const condFilter = document.getElementById('filter-condition').value;
             if(condFilter) constraints.push(where("condition", "==", condFilter));
 
-            // Ordering
             const priceFilter = document.getElementById('filter-price').value;
             if(priceFilter === 'low') constraints.push(orderBy("price", "asc"));
             else if(priceFilter === 'high') constraints.push(orderBy("price", "desc"));
             else constraints.push(orderBy("createdAt", "desc"));
 
-            // Pagination
             if (isNext && state.lastVisibleDoc) {
                 constraints.push(startAfter(state.lastVisibleDoc));
             }
             
-            constraints.push(limit(20)); // Increased limit
+            constraints.push(limit(20));
 
             const q = query(qRef, ...constraints);
             const snap = await getDocs(q);
@@ -1158,7 +1203,6 @@
                 document.getElementById('load-more-container').classList.add('hidden');
             }
 
-            // Handle Deep Link
             const params = new URLSearchParams(window.location.search); 
             const linkedProdId = params.get('product_id');
             if(linkedProdId && !state.currentItem && !isNext) { 
@@ -1178,10 +1222,8 @@
             renderProducts();
         } catch (e) {
             console.error("Error loading listings:", e);
-            // Fallback for index errors: try basic query
             if(e.code === 'failed-precondition') {
                 showToast("جاري تحسين نتائج البحث...", "s");
-                // Fallback to basic query
                  let q = query(collection(db, "listings"), orderBy("createdAt", "desc"), limit(20));
                  const snap = await getDocs(q);
                  state.listings = [];
@@ -1200,7 +1242,6 @@
         if (state.currentView === 'home') {
             renderCategoryCards();
         } else {
-            // Client-side text filtering on the fetched batch
             renderProducts();
         }
     };
@@ -1227,7 +1268,6 @@
         let filtered = state.listings.filter(item => { 
             let matchType = true; 
             if (state.currentFilter === 'fav') matchType = (state.favorites || []).includes(item.id);
-            // Other type filters are handled by server query now, but we keep this for safety
             
             const matchText = normalizeText(item.title).includes(q) || normalizeText(item.category || '').includes(q); 
             let matchPrice = true;
@@ -1237,7 +1277,6 @@
             return matchType && matchText && matchPrice; 
         }); 
 
-        // Client side sorting for price if not handled by server (due to index limits)
         const priceFilter = document.getElementById('filter-price').value;
         if (priceFilter === 'low') filtered.sort((a, b) => a.price - b.price);
         else if (priceFilter === 'high') filtered.sort((a, b) => b.price - a.price);
@@ -1245,7 +1284,6 @@
         if(!filtered.length) { cont.innerHTML = ''; document.getElementById('empty-state').classList.remove('hidden'); } 
         else { 
             document.getElementById('empty-state').classList.add('hidden'); 
-            // Optimized DOM insertion
             cont.innerHTML = filtered.map(item => createCard(item)).join('');
         } 
         lucide.createIcons(); 
@@ -1288,7 +1326,6 @@
         updateFavBadge(); 
         if(state.currentView === 'category' && state.currentFilter === 'fav') renderProducts();
 
-        // Save to Firestore
         try {
             await updateDoc(doc(db, "users", state.user.uid), { favorites: state.favorites });
         } catch(err) { console.error("Fav save failed", err); }
@@ -1300,15 +1337,11 @@
         state.currentView = 'category'; state.currentFilter = 'fav'; renderView(); showToast("عرض المفضلة ❤️"); 
     };
 
-    // Back Button Logic
     window.onpopstate = (event) => {
         if (event.state && event.state.modal) {
-            // Modal is open, do nothing (browser went forward?)
         } else {
-            // Close all modals
             document.querySelectorAll('.modal-overlay').forEach(el => el.classList.add('hidden'));
             document.body.style.overflow = '';
-            // Reset specific states
             state.currentItem = null;
             const url = new URL(window.location); url.searchParams.delete('product_id'); window.history.replaceState({}, '', url);
         }
@@ -1332,7 +1365,6 @@
         return isHidden; 
     }
 
-    // Updated Add Modal Toggle Logic
     window.toggleAddModal=()=>{ 
         if(state.userRole !== 'marketer') { 
             if(confirm("عفواً لا يمكن عرض هذه الصفحة لغير المسوقين وأصحاب العمل.\nهل تريد أن تصبح مسوق؟")) { 
@@ -1351,15 +1383,76 @@
     };
     function openAddModalLogic() { if(toggleModal('add-modal')) { resetForm(); } }
 
-    // ... (Rest of the logic remains similar but optimized) ...
-    // Keeping essential functions for details, chat, etc.
+    function renderSpecItem(label, value) {
+        if(!value) return '';
+        return `
+            <div class="spec-item">
+                <span class="spec-label">${label}</span>
+                <span class="spec-value" title="${value}">${value}</span>
+            </div>
+        `;
+    }
+
+    function renderSpecs(item) {
+        let html = '';
+        if(item.category === 'سيارات') {
+            if(item.carType === 'accessory') {
+                html += renderSpecItem('اسم القطعة', item.carAccName);
+                html += renderSpecItem('الحالة', item.condition === 'new' ? 'جديد' : 'مستعمل');
+            } else {
+                html += renderSpecItem('الماركة', item.carBrand);
+                html += renderSpecItem('الموديل', item.carModel);
+                html += renderSpecItem('السنة', item.carYear);
+                html += renderSpecItem('الوقود', item.carFuel);
+                html += renderSpecItem('الفتيس', item.carTrans);
+                html += renderSpecItem('العداد', item.carKm ? item.carKm + ' كم' : '');
+                html += renderSpecItem('سعة المحرك', item.carCc ? item.carCc + ' CC' : '');
+            }
+        } else if(item.category === 'الكترونيات وموبيلات') {
+            html += renderSpecItem('النوع', item.elecType);
+            html += renderSpecItem('الماركة', item.elecBrand);
+            html += renderSpecItem('الرام', item.elecRam ? item.elecRam + ' GB' : '');
+            html += renderSpecItem('المساحة', item.elecStorage ? item.elecStorage + ' GB' : '');
+            html += renderSpecItem('البطارية', item.elecBattery);
+        } else if(item.category === 'حيوانات أليفة') {
+            if(item.petType === 'sale') {
+                html += renderSpecItem('النوع', item.petCat);
+                html += renderSpecItem('السلالة', item.petBreed);
+                html += renderSpecItem('العمر', item.petAge);
+                html += renderSpecItem('الجنس', item.petGender === 'male' ? 'ذكر' : 'أنثى');
+            } else {
+                html += renderSpecItem('النوع', 'مستلزمات');
+            }
+        } else if(item.category === 'عقارات') {
+            html += renderSpecItem('نوع العرض', item.reType === 'sale' ? 'بيع' : 'إيجار');
+            html += renderSpecItem('نوع العقار', item.reCat);
+            html += renderSpecItem('المساحة', item.reArea ? item.reArea + ' م²' : '');
+            html += renderSpecItem('غرف', item.reRooms);
+            html += renderSpecItem('حمام', item.reBath);
+            html += renderSpecItem('التشطيب', item.reFinish);
+            html += renderSpecItem('الدور', item.reFloor);
+            html += renderSpecItem('الدفع', item.rePay === 'cash' ? 'كاش' : 'تقسيط');
+            html += renderSpecItem('مفروش', item.reFurnished === 'yes' ? 'نعم' : 'لا');
+        } else if(item.category === 'أجهزة كهربائية') {
+            html += renderSpecItem('الجهاز', item.eaType);
+            html += renderSpecItem('الماركة', item.eaBrand);
+            html += renderSpecItem('السعة', item.eaCap);
+        } else if(item.category === 'أثاث منزلي') {
+            html += renderSpecItem('النوع', item.furnType);
+            html += renderSpecItem('الخامة', item.furnMat);
+            html += renderSpecItem('المقاسات', item.furnDim);
+        }
+
+        if(html) return `<div class="specs-grid">${html}</div>`;
+        return '';
+    }
 
     window.openDetails = (id) => {
         const item = state.listings.find(i => i.id === id); if(!item) return; state.currentItem = item; 
         document.getElementById('d-title').innerText = item.title; document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; 
         
-        // FIX: Text Formatting
-        document.getElementById('d-cat').innerText = 'القسم: ' + item.category; 
+        // FIX: Clean Category Name
+        document.getElementById('d-cat').innerText = item.category; 
         
         document.getElementById('d-desc').innerText = item.desc; document.getElementById('d-date').innerText = formatDate(item.createdAt);
 
@@ -1372,10 +1465,15 @@
             badgeContainer.classList.add('hidden');
         }
 
-        // ... (Specs rendering logic same as before) ...
+        // FIX: Render Specs
         const specsContainer = document.getElementById('d-dynamic-specs');
-        // Simplified specs rendering for brevity in this response, assume renderSpecs exists or is inline
-        specsContainer.innerHTML = ''; // Add specs logic here if needed
+        const specsHTML = renderSpecs(item);
+        if(specsHTML) {
+            specsContainer.innerHTML = specsHTML;
+            specsContainer.classList.remove('hidden');
+        } else {
+            specsContainer.classList.add('hidden');
+        }
 
         const adminControls = document.getElementById('d-admin-controls'); if(adminControls) { adminControls.innerHTML = ''; const isOwner = state.user && state.user.uid === item.authorId; if (state.isAdmin || isOwner) { adminControls.innerHTML = `<button onclick="del(null, '${item.id}')" class="bg-white/80 dark:bg-black/50 text-red-500 p-1.5 rounded-full shadow-sm hover:bg-white transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button><button onclick="toggleStatus(event, '${item.id}', '${item.status || 'available'}')" class="bg-white/80 dark:bg-black/50 text-blue-500 p-1.5 rounded-full shadow-sm hover:bg-white transition"><i data-lucide="edit-3" class="w-5 h-5"></i></button>`; } }
         const pubName = document.getElementById('d-pub-name'); const pubImg = document.getElementById('d-pub-img'); const pubBadge = document.getElementById('d-pub-verified');
@@ -1442,7 +1540,6 @@
 
     window.closeDetails = () => { toggleModal('details-modal'); state.currentItem = null; document.getElementById('details-dots').innerHTML = ''; const imgEl = document.getElementById('details-img'); if (imgEl) { imgEl.src = ''; } const url = new URL(window.location); url.searchParams.delete('product_id'); window.history.replaceState({}, '', url); }
 
-    // Helper functions (scrollDetails, goToDetailsSlide, etc.) remain the same...
     function goToDetailsSlide(index, behavior = 'auto') {
         const total = state.detailsSliderImages.length; if (total === 0) return;
         if (index < 0) index = total - 1; if (index >= total) index = 0;
@@ -1452,9 +1549,6 @@
     }
     window.scrollDetails = (dir) => { const total = state.detailsSliderImages.length; if (total <= 1) return; goToDetailsSlide(state.detailsSliderIndex - dir); }
     function updateSliderDots() { if (state.detailsSliderImages.length <= 1) return; for (let i = 0; i < state.detailsSliderImages.length; i++) { const dot = document.getElementById(`dot-${i}`); if (dot) dot.className = i === state.detailsSliderIndex ? 'w-4 h-2 rounded-full bg-white shadow transition-all' : 'w-2 h-2 rounded-full bg-white/40 transition-all'; } }
-    
-    // ... (Rest of Form Logic, Submit Listing, Chat, Admin, etc. - kept for functionality) ...
-    // Ensure updateFormFields, toggleShipGov, resetForm, submitListing are present.
     
     window.updateFormFields = () => {
         const cat = document.getElementById('in-cat').value;
@@ -1494,7 +1588,6 @@
                 document.getElementById('car-fields-acc').classList.remove('hidden');
             }
         }
-        // ... (Add other category logic here similar to original) ...
         if(cat === 'الكترونيات وموبيلات') { showDynamic = true; document.getElementById('section-electronics').classList.remove('hidden'); }
         if(cat === 'حيوانات أليفة') { 
             showDynamic = true; document.getElementById('section-pets').classList.remove('hidden'); 
@@ -1565,7 +1658,6 @@
                 governorate: userGov, createdAt:serverTimestamp(), authorId:state.user.uid
             };
             
-            // Add specific category fields logic here (same as original)
             if(cat === 'سيارات') {
                 const carType = document.querySelector('input[name="car-type"]:checked').value;
                 data.carType = carType;
@@ -1584,7 +1676,7 @@
                     data.condition = document.getElementById('in-car-acc-cond').value; 
                 }
             }
-            // ... (Other categories) ...
+            // ... (Other categories logic) ...
 
             Object.keys(data).forEach(key => (data[key] === undefined || data[key] === '') && delete data[key]);
 
@@ -1660,8 +1752,8 @@
     async function calculateUserRating(userId) { const q = query(collection(db, "user_reviews"), where("targetUserId", "==", userId)); const snap = await getDocs(q); if(!snap.empty) { let total = 0; snap.forEach(d => total += d.data().rating); const avg = (total / snap.size).toFixed(1); document.getElementById('prof-rating-val').innerText = avg; document.getElementById('prof-rating-display').classList.remove('hidden'); } else { document.getElementById('prof-rating-display').classList.add('hidden'); } }
     window.setRating = (n) => { state.currentRating = n; }
     window.submitProductReview = async () => { if(!state.user) return showToast("يجب تسجيل الدخول للتقييم", "e"); if(!state.currentItem) return; if(state.currentRating === 0) return showToast("يرجى تحديد عدد النجوم", "e"); const text = document.getElementById('review-text').value; await addDoc(collection(db, "product_reviews"), { productId: state.currentItem.id, productAuthorId: state.currentItem.authorId, userId: state.user.uid, userName: state.userData.name || 'مستخدم', userImage: state.userData.image || null, rating: state.currentRating, text: text, timestamp: serverTimestamp() }); showToast("تم نشر التقييم"); document.getElementById('review-text').value = ''; state.productReviewsLimit = 1; loadProductReviews(false); }
-    window.loadProductReviews = async (append = false, reduce = false) => { if(!state.currentItem) return; const list = document.getElementById('product-reviews-list'); const btnMore = document.getElementById('load-more-reviews'); const btnLess = document.getElementById('load-less-reviews'); if(reduce) { state.productReviewsLimit = 1; append = false; } else if(append) { state.productReviewsLimit += 3; } const q = query( collection(db, "product_reviews"), where("productId", "==", state.currentItem.id), orderBy("timestamp", "desc"), limit(state.productReviewsLimit + 1) ); const snap = await getDocs(q); if(!append) list.innerHTML = ''; let count = 0; snap.forEach(doc => { if(count < state.productReviewsLimit) { const r = doc.data(); const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating); const img = r.userImage ? `<img src="${r.userImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; if(append && list.innerHTML.includes(r.text)) return; list.innerHTML += `<div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700"><div class="flex items-center gap-2 mb-1"><div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div><span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span><span class="text-yellow-400 text-xs tracking-tighter">${stars}</span><span class="text-[8px] text-slate-300 mr-auto">${formatDate(r.timestamp)}</span></div><p class="text-[10px] text-slate-600 dark:text-slate-300 pr-8">${r.text || ''}</p></div>`; } count++; }); if(snap.size > state.productReviewsLimit) { btnMore.classList.remove('hidden'); } else { btnMore.classList.add('hidden'); } if(state.productReviewsLimit > 1) { btnLess.classList.remove('hidden'); } else { btnLess.classList.add('hidden'); } lucide.createIcons(); }
-    window.loadProfileReviews = async (append = false, reduce = false) => { if(!state.viewingProfileId) return; const list = document.getElementById('prof-reviews-list'); const btnMore = document.getElementById('prof-reviews-more'); const btnLess = document.getElementById('prof-reviews-less'); if(reduce) { state.profileReviewsLimit = 3; append = false; } else if(append) { state.profileReviewsLimit += 3; } const q = query( collection(db, "user_reviews"), where("targetUserId", "==", state.viewingProfileId), orderBy("timestamp", "desc"), limit(state.profileReviewsLimit + 1) ); try { const snap = await getDocs(q); if(!append) list.innerHTML = ''; if(snap.empty) { list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">لا توجد تقييمات بعد</p>'; btnMore.classList.add('hidden'); btnLess.classList.add('hidden'); return; } let count = 0; snap.forEach(doc => { if(count < state.profileReviewsLimit) { const r = doc.data(); const stars = "★".repeat(r.rating); const img = r.reviewerImage ? `<img src="${r.reviewerImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; list.innerHTML += `<div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-xs"><div class="flex justify-between mb-1"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div><span class="font-bold">${r.reviewerName || 'مستخدم'}</span></div><span class="text-yellow-400">${stars}</span></div><p class="text-slate-600 dark:text-slate-300 pr-8">${r.text}</p><span class="text-[8px] text-slate-300 block mt-1">${formatDate(r.timestamp)}</span></div>`; } count++; }); if(snap.size > state.profileReviewsLimit) btnMore.classList.remove('hidden'); else btnMore.classList.add('hidden'); if(state.profileReviewsLimit > 3) btnLess.classList.remove('hidden'); else btnLess.classList.add('hidden'); } catch(e) { console.log("Index might be missing for profile reviews", e); list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">جاري تفعيل نظام التقييمات...</p>'; } }
+    window.loadProductReviews = async (append = false, reduce = false) => { if(!state.currentItem) return; const list = document.getElementById('product-reviews-list'); const btnMore = document.getElementById('load-more-reviews'); const btnLess = document.getElementById('load-less-reviews'); if(reduce) { state.productReviewsLimit = 1; append = false; } else if(append) { state.productReviewsLimit += 3; } const q = query( collection(db, "product_reviews"), where("productId", "==", state.currentItem.id), orderBy("timestamp", "desc"), limit(state.productReviewsLimit + 1) ); const snap = await getDocs(q); if(!append) list.innerHTML = ''; let count = 0; snap.forEach(doc => { if(count < state.productReviewsLimit) { const r = doc.data(); const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating); const img = r.userImage ? `<img src="${r.userImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; if(append && list.innerHTML.includes(r.text)) return; list.innerHTML += `<div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700"><div class="flex items-center gap-2 mb-1"><div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div><span class="text-[10px] font-bold text-navy dark:text-white">${r.userName}</span><span class="text-yellow-400 text-xs tracking-tighter">${stars}</span><span class="text-[8px] text-slate-300 mr-auto">${formatDate(r.timestamp)}</span></div><p class="text-[10px] text-slate-600 dark:text-slate-300 pr-8 break-words">${r.text || ''}</p></div>`; } count++; }); if(snap.size > state.productReviewsLimit) { btnMore.classList.remove('hidden'); } else { btnMore.classList.add('hidden'); } if(state.productReviewsLimit > 1) { btnLess.classList.remove('hidden'); } else { btnLess.classList.add('hidden'); } lucide.createIcons(); }
+    window.loadProfileReviews = async (append = false, reduce = false) => { if(!state.viewingProfileId) return; const list = document.getElementById('prof-reviews-list'); const btnMore = document.getElementById('prof-reviews-more'); const btnLess = document.getElementById('prof-reviews-less'); if(reduce) { state.profileReviewsLimit = 3; append = false; } else if(append) { state.profileReviewsLimit += 3; } const q = query( collection(db, "user_reviews"), where("targetUserId", "==", state.viewingProfileId), orderBy("timestamp", "desc"), limit(state.profileReviewsLimit + 1) ); try { const snap = await getDocs(q); if(!append) list.innerHTML = ''; if(snap.empty) { list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">لا توجد تقييمات بعد</p>'; btnMore.classList.add('hidden'); btnLess.classList.add('hidden'); return; } let count = 0; snap.forEach(doc => { if(count < state.profileReviewsLimit) { const r = doc.data(); const stars = "★".repeat(r.rating); const img = r.reviewerImage ? `<img src="${r.reviewerImage}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 text-slate-400"></i>`; list.innerHTML += `<div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-xs"><div class="flex justify-between mb-1"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">${img}</div><span class="font-bold">${r.reviewerName || 'مستخدم'}</span></div><span class="text-yellow-400">${stars}</span></div><p class="text-slate-600 dark:text-slate-300 pr-8 break-words">${r.text}</p><span class="text-[8px] text-slate-300 block mt-1">${formatDate(r.timestamp)}</span></div>`; } count++; }); if(snap.size > state.profileReviewsLimit) btnMore.classList.remove('hidden'); else btnMore.classList.add('hidden'); if(state.profileReviewsLimit > 3) btnLess.classList.remove('hidden'); else btnLess.classList.add('hidden'); } catch(e) { console.log("Index might be missing for profile reviews", e); list.innerHTML = '<p class="text-[10px] text-slate-400 text-center">جاري تفعيل نظام التقييمات...</p>'; } }
     window.toggleOrderModal = () => { if(toggleModal('order-modal')) { if(!state.currentItem) return; document.getElementById('ord-img').src = Array.isArray(state.currentItem.images) ? state.currentItem.images[0] : state.currentItem.image; document.getElementById('ord-title').innerText = state.currentItem.title; document.getElementById('ord-price').innerText = Number(state.currentItem.price).toLocaleString() + ' ج.م'; if(state.userData) { document.getElementById('ord-phone').value = state.userData.phone || ''; document.getElementById('ord-gov').value = state.userData.governorate || ''; updateOrderCities(); document.getElementById('ord-city').value = state.userData.city || ''; document.getElementById('ord-address').value = state.userData.address || ''; } state.orderItems = []; document.getElementById('order-items-container').innerHTML = ''; addOrderItem(); } }
     window.addOrderItem = () => { const index = state.orderItems.length; state.orderItems.push({ qty: 1, size: '', color: '' }); const container = document.getElementById('order-items-container'); const itemDiv = document.createElement('div'); itemDiv.className = "bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-600 relative"; itemDiv.id = `ord-item-${index}`; let sizeOptions = ''; if(state.currentItem.size && Array.isArray(state.currentItem.size)) { sizeOptions = `<select onchange="updateOrderItem(${index}, 'size', this.value)" class="form-input text-xs h-8 w-full mb-1"><option value="">المقاس</option>${state.currentItem.size.map(s => `<option value="${s}">${s}</option>`).join('')}</select>`; } let colorOptions = ''; if(state.currentItem.color && Array.isArray(state.currentItem.color)) { colorOptions = `<select onchange="updateOrderItem(${index}, 'color', this.value)" class="form-input text-xs h-8 w-full mb-1"><option value="">اللون</option>${state.currentItem.color.map(c => `<option value="${c}">${c}</option>`).join('')}</select>`; } itemDiv.innerHTML = `<div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-primary">المنتج #${index + 1}</span>${index > 0 ? `<button onclick="removeOrderItem(${index})" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}</div><div class="grid grid-cols-3 gap-2"><input type="number" value="" min="1" onchange="updateOrderItem(${index}, 'qty', this.value)" class="form-input text-xs h-8 text-center" placeholder="العدد"><div class="col-span-2 flex gap-1">${sizeOptions}${colorOptions}</div></div>`; container.appendChild(itemDiv); calculateOrderTotal(); lucide.createIcons(); }
     window.updateOrderItem = (index, field, value) => { if(state.orderItems[index]) { state.orderItems[index][field] = field === 'qty' ? Number(value) : value; calculateOrderTotal(); } }
