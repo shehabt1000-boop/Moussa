@@ -52,10 +52,18 @@
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
-        /* Z-Index System Fix */
-        .mobile-full-modal { position: fixed; inset: 0; z-index: 100; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
+        /* --- Z-INDEX FIXES (Layer Management) --- */
+        .mobile-full-modal { position: fixed; inset: 0; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #0f172a; }
-        .modal-overlay { position: fixed; inset: 0; z-index: 100; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); }
+        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); }
+        
+        /* Specific Z-Indices to ensure correct stacking */
+        #details-modal { z-index: 100; } /* Base Modal */
+        #profile-modal { z-index: 110; } /* Above Details */
+        #order-modal { z-index: 110; }   /* Above Details */
+        #add-modal { z-index: 110; }
+        #chat-modal { z-index: 120; }    /* Chat always on top */
+        #lightbox { z-index: 150; }      /* Images on top of everything */
         
         @media (min-width: 768px) { 
             .mobile-full-modal { position: relative; inset: auto; width: 100%; max-width: 28rem; height: 750px; max-height: 85vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); } 
@@ -329,7 +337,7 @@
         </div>
     </div>
 
-    <!-- Profile Modal -->
+    <!-- Profile Modal (Higher Z-Index) -->
     <div id="profile-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-navy dark:bg-primary p-3 text-white flex justify-between items-center shrink-0">
@@ -409,7 +417,7 @@
         </div>
     </div>
 
-    <!-- Order Modal -->
+    <!-- Order Modal (Higher Z-Index) -->
     <div id="order-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop border border-slate-200 dark:border-slate-700">
             <div class="bg-primary p-3 text-white flex justify-between items-center shrink-0">
@@ -924,7 +932,11 @@
             updateNavUI(); 
             document.getElementById('login-view').classList.add('hidden'); document.getElementById('app-content').classList.remove('hidden');
             if(globalLoader) { globalLoader.classList.add('fade-out'); setTimeout(() => globalLoader.style.display = 'none', 500); }
-            loadListings(); checkUserChat(); initCats(); 
+            
+            // FIX: Force Home View on Login to prevent blank screen
+            switchToHomeView();
+            checkUserChat(); 
+            initCats(); 
         } else {
             state.user = null;
             document.getElementById('login-view').classList.remove('hidden'); document.getElementById('app-content').classList.add('hidden');
@@ -1345,7 +1357,10 @@
     window.openDetails = (id) => {
         const item = state.listings.find(i => i.id === id); if(!item) return; state.currentItem = item; 
         document.getElementById('d-title').innerText = item.title; document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; 
-        document.getElementById('d-cat').innerText = 'قسم' + item.category; 
+        
+        // FIX: Text Formatting
+        document.getElementById('d-cat').innerText = 'القسم: ' + item.category; 
+        
         document.getElementById('d-desc').innerText = item.desc; document.getElementById('d-date').innerText = formatDate(item.createdAt);
 
         const badgeContainer = document.getElementById('d-condition-badge');
