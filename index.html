@@ -100,27 +100,25 @@
         
         /* Improved Star Rating */
         .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 2px; }
-        .star-rating input { display: none; } /* Hide Radio Buttons */
+        .star-rating input { display: none; } 
         .star-rating label { cursor: pointer; color: #cbd5e1; font-size: 1.5rem; transition: color 0.2s; line-height: 1; }
         .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }
 
-        /* Improved Details Table */
-        .details-table { width: 100%; font-size: 0.75rem; border-collapse: separate; border-spacing: 0; margin-bottom: 0.8rem; }
-        .details-table td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .dark .details-table td { border-color: #334155; }
-        .details-table td:first-child { color: #64748b; font-weight: 700; width: 30%; white-space: nowrap; }
-        .dark .details-table td:first-child { color: #94a3b8; }
-        .details-table td:last-child { color: #0f172a; font-weight: 800; text-align: right; padding-right: 1rem; }
-        .dark .details-table td:last-child { color: #f8fafc; }
-
-        /* Specs Grid */
-        .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; margin-bottom: 1rem; }
-        .spec-item { display: flex; flex-direction: column; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.5rem; overflow: hidden; }
-        .dark .spec-item { background-color: #1e293b; border-color: #334155; }
-        .spec-label { font-size: 0.6rem; color: #64748b; font-weight: 700; margin-bottom: 0.2rem; }
-        .dark .spec-label { color: #94a3b8; }
-        .spec-value { font-size: 0.8rem; color: #0f172a; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .dark .spec-value { color: #f1f5f9; }
+        /* NEW: Professional Data Table */
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #e2e8f0; border-radius: 0.5rem; overflow: hidden; margin-bottom: 1rem; background-color: #fff; }
+        .dark .data-table { border-color: #334155; background-color: #1e293b; }
+        .data-table tr { border-bottom: 1px solid #e2e8f0; }
+        .data-table tr:last-child { border-bottom: none; }
+        .dark .data-table tr { border-color: #334155; }
+        .data-table tr:nth-child(even) { background-color: #f8fafc; }
+        .dark .data-table tr:nth-child(even) { background-color: #0f172a; }
+        .data-table td { padding: 10px 12px; font-size: 0.75rem; vertical-align: middle; }
+        .data-table td.label { font-weight: 700; color: #64748b; width: 35%; border-left: 1px solid #e2e8f0; }
+        .dark .data-table td.label { color: #94a3b8; border-color: #334155; }
+        .data-table td.value { font-weight: 800; color: #0f172a; text-align: right; }
+        .dark .data-table td.value { color: #f1f5f9; }
+        .data-table td.full-row { text-align: center; background-color: #f1f5f9; color: #334155; font-weight: 800; padding: 6px; font-size: 0.7rem; }
+        .dark .data-table td.full-row { background-color: #334155; color: #cbd5e1; }
 
         /* Utility */
         .chip-checkbox:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
@@ -658,11 +656,6 @@
 
                 <div id="d-dynamic-specs" class="mb-4 hidden"></div>
 
-                <div id="d-features-container" class="mb-4 hidden">
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 mb-2">المميزات:</h3>
-                    <div id="d-features" class="flex flex-wrap gap-2"></div>
-                </div>
-
                 <div class="space-y-1 mb-6"><h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">الوصف</h3><p id="d-desc" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium select-text"></p></div>
 
                 <div id="d-shipping-bar" class="mb-4 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
@@ -952,6 +945,7 @@
             initCats(); 
         } else {
             state.user = null;
+            resetAuthForm(); // Ensure clean state on logout
             document.getElementById('login-view').classList.remove('hidden'); document.getElementById('app-content').classList.add('hidden');
             if(globalLoader) { globalLoader.classList.add('fade-out'); setTimeout(() => globalLoader.style.display = 'none', 500); }
         }
@@ -995,6 +989,20 @@
             signupFields.classList.remove('hidden'); 
         } 
         lucide.createIcons(); 
+    }
+
+    // New Function to Reset Auth State
+    function resetAuthForm() {
+        document.getElementById('auth-main-phone').value = '';
+        document.getElementById('auth-pass').value = '';
+        document.getElementById('auth-name-ar').value = '';
+        document.getElementById('auth-address').value = '';
+        const btn = document.getElementById('btn-auth-action');
+        btn.disabled = false;
+        btn.innerHTML = `<span>دخول للحساب</span> <i data-lucide="arrow-left" class="w-4 h-4"></i>`;
+        btn.classList.replace('bg-green-600', 'bg-navy');
+        document.getElementById('auth-error').classList.add('hidden');
+        lucide.createIcons();
     }
 
     window.processAuth = async () => {
@@ -1066,10 +1074,7 @@
             
             btn.innerHTML = `تم بنجاح <i data-lucide="check" class="w-4 h-4"></i>`; 
             btn.classList.replace('bg-navy', 'bg-green-600');
-            setTimeout(() => {
-                 document.getElementById('login-view').classList.add('hidden');
-                 document.getElementById('app-content').classList.remove('hidden');
-            }, 500);
+            // No manual hide - listener handles it
 
         } catch (error) {
             console.error("Auth Error:", error); let msg = `حدث خطأ: ${error.code}`; 
@@ -1094,7 +1099,7 @@
             if(loader) { loader.classList.remove('fade-out'); loader.style.display = 'flex'; }
             await signOut(auth);
             localStorage.clear();
-            // No window.location.reload() - onAuthStateChanged handles UI
+            resetAuthForm();
         } catch(e) { window.location.reload(); }
     }
 
@@ -1124,8 +1129,10 @@
     window.applyFilters = () => { 
         if(state.currentView === 'home') {
             state.currentView = 'category';
-            state.currentFilter = 'all';
-            document.getElementById('view-title').innerText = 'كل المنتجات';
+            // Don't reset currentFilter to 'all' if we want to keep context, but here we assume global filter
+            // If user selected a gov in home, we show ALL products in that gov
+            if(state.currentFilter === 'all') state.currentFilter = 'all'; 
+            document.getElementById('view-title').innerText = 'نتائج البحث';
             renderView();
         }
         state.lastVisibleDoc = null; 
@@ -1168,6 +1175,7 @@
             let qRef = collection(db, "listings");
             let constraints = [];
 
+            // Critical Fix: Respect current category filter
             if(state.currentFilter !== 'all' && state.currentFilter !== 'fav' && state.currentFilter !== 'عروض') {
                 constraints.push(where("category", "==", state.currentFilter));
             }
@@ -1354,10 +1362,13 @@
         if (isHidden) {
             m.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            // Scroll Lock Fix
+            document.body.style.overscrollBehavior = 'none';
             history.pushState({ modal: id }, null, "");
         } else {
             m.classList.add('hidden');
             document.body.style.overflow = '';
+            document.body.style.overscrollBehavior = '';
             if (history.state && history.state.modal === id) {
                 history.back();
             }
@@ -1383,89 +1394,95 @@
     };
     function openAddModalLogic() { if(toggleModal('add-modal')) { resetForm(); } }
 
-    function renderSpecItem(label, value) {
+    // NEW: Table Row Helper
+    function renderTableRow(label, value) {
         if(!value) return '';
-        return `
-            <div class="spec-item">
-                <span class="spec-label">${label}</span>
-                <span class="spec-value" title="${value}">${value}</span>
-            </div>
-        `;
+        return `<tr><td class="label">${label}</td><td class="value">${value}</td></tr>`;
     }
 
+    // NEW: Render Specs as Table
     function renderSpecs(item) {
-        let html = '';
-        if(item.category === 'سيارات') {
-            if(item.carType === 'accessory') {
-                html += renderSpecItem('اسم القطعة', item.carAccName);
-                html += renderSpecItem('الحالة', item.condition === 'new' ? 'جديد' : 'مستعمل');
-            } else {
-                html += renderSpecItem('الماركة', item.carBrand);
-                html += renderSpecItem('الموديل', item.carModel);
-                html += renderSpecItem('السنة', item.carYear);
-                html += renderSpecItem('الوقود', item.carFuel);
-                html += renderSpecItem('الفتيس', item.carTrans);
-                html += renderSpecItem('العداد', item.carKm ? item.carKm + ' كم' : '');
-                html += renderSpecItem('سعة المحرك', item.carCc ? item.carCc + ' CC' : '');
-            }
-        } else if(item.category === 'الكترونيات وموبيلات') {
-            html += renderSpecItem('النوع', item.elecType);
-            html += renderSpecItem('الماركة', item.elecBrand);
-            html += renderSpecItem('الرام', item.elecRam ? item.elecRam + ' GB' : '');
-            html += renderSpecItem('المساحة', item.elecStorage ? item.elecStorage + ' GB' : '');
-            html += renderSpecItem('البطارية', item.elecBattery);
-        } else if(item.category === 'حيوانات أليفة') {
-            if(item.petType === 'sale') {
-                html += renderSpecItem('النوع', item.petCat);
-                html += renderSpecItem('السلالة', item.petBreed);
-                html += renderSpecItem('العمر', item.petAge);
-                html += renderSpecItem('الجنس', item.petGender === 'male' ? 'ذكر' : 'أنثى');
-            } else {
-                html += renderSpecItem('النوع', 'مستلزمات');
-            }
-        } else if(item.category === 'عقارات') {
-            html += renderSpecItem('نوع العرض', item.reType === 'sale' ? 'بيع' : 'إيجار');
-            html += renderSpecItem('نوع العقار', item.reCat);
-            html += renderSpecItem('المساحة', item.reArea ? item.reArea + ' م²' : '');
-            html += renderSpecItem('غرف', item.reRooms);
-            html += renderSpecItem('حمام', item.reBath);
-            html += renderSpecItem('التشطيب', item.reFinish);
-            html += renderSpecItem('الدور', item.reFloor);
-            html += renderSpecItem('الدفع', item.rePay === 'cash' ? 'كاش' : 'تقسيط');
-            html += renderSpecItem('مفروش', item.reFurnished === 'yes' ? 'نعم' : 'لا');
-        } else if(item.category === 'أجهزة كهربائية') {
-            html += renderSpecItem('الجهاز', item.eaType);
-            html += renderSpecItem('الماركة', item.eaBrand);
-            html += renderSpecItem('السعة', item.eaCap);
-        } else if(item.category === 'أثاث منزلي') {
-            html += renderSpecItem('النوع', item.furnType);
-            html += renderSpecItem('الخامة', item.furnMat);
-            html += renderSpecItem('المقاسات', item.furnDim);
+        let rows = '';
+        
+        // Common Fields
+        if(USED_CATS.includes(item.category)) {
+             const condText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
+             rows += renderTableRow('الحالة', condText);
         }
 
-        if(html) return `<div class="specs-grid">${html}</div>`;
+        // Category Specifics
+        if(item.category === 'سيارات') {
+            if(item.carType === 'accessory') {
+                rows += renderTableRow('اسم القطعة', item.carAccName);
+            } else {
+                rows += renderTableRow('الماركة', item.carBrand);
+                rows += renderTableRow('الموديل', item.carModel);
+                rows += renderTableRow('السنة', item.carYear);
+                rows += renderTableRow('الوقود', item.carFuel);
+                rows += renderTableRow('الفتيس', item.carTrans);
+                rows += renderTableRow('العداد', item.carKm ? item.carKm + ' كم' : '');
+                rows += renderTableRow('سعة المحرك', item.carCc ? item.carCc + ' CC' : '');
+            }
+        } else if(item.category === 'الكترونيات وموبيلات') {
+            rows += renderTableRow('النوع', item.elecType);
+            rows += renderTableRow('الماركة', item.elecBrand);
+            rows += renderTableRow('الرام', item.elecRam ? item.elecRam + ' GB' : '');
+            rows += renderTableRow('المساحة', item.elecStorage ? item.elecStorage + ' GB' : '');
+            rows += renderTableRow('البطارية', item.elecBattery);
+        } else if(item.category === 'حيوانات أليفة') {
+            if(item.petType === 'sale') {
+                rows += renderTableRow('النوع', item.petCat);
+                rows += renderTableRow('السلالة', item.petBreed);
+                rows += renderTableRow('العمر', item.petAge);
+                rows += renderTableRow('الجنس', item.petGender === 'male' ? 'ذكر' : 'أنثى');
+            } else {
+                rows += renderTableRow('النوع', 'مستلزمات');
+            }
+        } else if(item.category === 'عقارات') {
+            rows += renderTableRow('نوع العرض', item.reType === 'sale' ? 'بيع' : 'إيجار');
+            rows += renderTableRow('نوع العقار', item.reCat);
+            rows += renderTableRow('المساحة', item.reArea ? item.reArea + ' م²' : '');
+            rows += renderTableRow('غرف', item.reRooms);
+            rows += renderTableRow('حمام', item.reBath);
+            rows += renderTableRow('التشطيب', item.reFinish);
+            rows += renderTableRow('الدور', item.reFloor);
+            rows += renderTableRow('الدفع', item.rePay === 'cash' ? 'كاش' : 'تقسيط');
+            rows += renderTableRow('مفروش', item.reFurnished === 'yes' ? 'نعم' : 'لا');
+        } else if(item.category === 'أجهزة كهربائية') {
+            rows += renderTableRow('الجهاز', item.eaType);
+            rows += renderTableRow('الماركة', item.eaBrand);
+            rows += renderTableRow('السعة', item.eaCap);
+        } else if(item.category === 'أثاث منزلي') {
+            rows += renderTableRow('النوع', item.furnType);
+            rows += renderTableRow('الخامة', item.furnMat);
+            rows += renderTableRow('المقاسات', item.furnDim);
+        }
+
+        // Features Loop (Must Appear)
+        if(item.features && item.features.length > 0) {
+            rows += `<tr><td colspan="2" class="full-row">المميزات والمواصفات الإضافية</td></tr>`;
+            // Split features into 2 columns if possible, or just list them
+            let featHtml = '';
+            item.features.forEach(f => {
+                featHtml += `<span class="inline-block bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-[10px] m-0.5 border border-slate-200 dark:border-slate-600">${f}</span>`;
+            });
+            rows += `<tr><td colspan="2" class="text-center py-2">${featHtml}</td></tr>`;
+        }
+
+        if(rows) return `<table class="data-table"><tbody>${rows}</tbody></table>`;
         return '';
     }
 
     window.openDetails = (id) => {
         const item = state.listings.find(i => i.id === id); if(!item) return; state.currentItem = item; 
         document.getElementById('d-title').innerText = item.title; document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' ج.م'; 
-        
-        // FIX: Clean Category Name
         document.getElementById('d-cat').innerText = item.category; 
-        
         document.getElementById('d-desc').innerText = item.desc; document.getElementById('d-date').innerText = formatDate(item.createdAt);
 
         const badgeContainer = document.getElementById('d-condition-badge');
-        if(USED_CATS.includes(item.category)) {
-            const condText = item.condition === 'new' ? 'جديد' : (item.condition === 'openbox' ? 'كسر زيرو' : 'مستعمل');
-            badgeContainer.innerHTML = `<div class="inline-flex items-center gap-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 px-3 py-1 rounded-full text-xs font-bold border border-orange-500/20"><i data-lucide="info" class="w-3 h-3"></i> الحالة: ${condText}</div>`;
-            badgeContainer.classList.remove('hidden');
-        } else {
-            badgeContainer.classList.add('hidden');
-        }
+        badgeContainer.classList.add('hidden'); // Hidden because it's in the table now
 
-        // FIX: Render Specs
+        // Render Specs Table
         const specsContainer = document.getElementById('d-dynamic-specs');
         const specsHTML = renderSpecs(item);
         if(specsHTML) {
@@ -1480,23 +1497,13 @@
         pubName.innerText = "جاري التحميل..."; pubImg.innerHTML = `<div class="animate-pulse bg-slate-300 w-full h-full"></div>`; pubBadge.classList.add('hidden');
         document.getElementById('d-pub-bar').onclick = () => toggleProfile(item.authorId);
 
-        const amCont = document.getElementById('d-features'); amCont.innerHTML=''; 
+        // Hide old features container as it's in table now
+        document.getElementById('d-features-container').classList.add('hidden');
+
         const sizeRow = document.getElementById('d-sizes-row'); const sizeList = document.getElementById('d-sizes-list'); const colorRow = document.getElementById('d-colors-row'); const colorList = document.getElementById('d-colors-list');
         sizeRow.classList.add('hidden'); colorRow.classList.add('hidden'); sizeList.innerHTML = ''; colorList.innerHTML = '';
         if(item.size && Array.isArray(item.size) && item.size.length > 0) { sizeRow.classList.remove('hidden'); item.size.forEach(s => { sizeList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm min-w-[30px] text-center">${s}</span>`; }); }
         if(item.color && Array.isArray(item.color) && item.color.length > 0) { colorRow.classList.remove('hidden'); item.color.forEach(c => { colorList.innerHTML += `<span class="bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-600 shadow-sm">${c}</span>`; }); }
-
-        const featContainer = document.getElementById('d-features-container');
-        if(item.category === 'سيارات' || item.category === 'عقارات') {
-             featContainer.classList.add('hidden');
-        } else {
-             if(item.features && item.features.length > 0) {
-                 item.features.forEach(a => amCont.innerHTML += `<span class="bg-slate-100 dark:bg-slate-700 dark:text-white px-2 py-1 rounded text-xs flex items-center gap-1 border border-slate-200 dark:border-slate-600 font-bold">${a}</span>`);
-                 featContainer.classList.remove('hidden');
-             } else {
-                 featContainer.classList.add('hidden');
-             }
-        }
 
         const shipInfo = document.getElementById('d-shipping-info');
         if(item.shippingMode === 'specific' && item.shippingGov) { let govText = Array.isArray(item.shippingGov) ? item.shippingGov.join('، ') : item.shippingGov; shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> <span class="whitespace-normal leading-tight text-right">الشحن متاح لـ: ${govText}</span>`; } else { shipInfo.innerHTML = `<i data-lucide="truck" class="w-3 h-3 shrink-0"></i> شحن لكل المحافظات`; }
