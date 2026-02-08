@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <title>Smart Center | Pro v4</title>
+    <title>Smart Center | Pro v5</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -52,8 +52,7 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- توحيد حجم الباركود --- */
-        .scanner-wrapper { border-radius: 0.5rem; overflow: hidden; background: #000000; position: relative; width: 100%; height: 250px; border: 2px solid #374151; }
+        .scanner-wrapper { border-radius: 0.5rem; overflow: hidden; background: #000000; position: relative; width: 100%; min-height: 250px; border: 2px solid #374151; }
         .scanner-wrapper video { object-fit: cover; width: 100% !important; height: 100% !important; }
         @media (min-width: 768px) { .scanner-wrapper { height: 400px; } }
         #html5-qrcode-button-camera-stop, #html5-qrcode-anchor-scan-type-change { display: none !important; }
@@ -125,12 +124,12 @@
             @page { size: A4; margin: 10mm; }
             .no-print { display: none !important; }
 
-            /* --- تصميم الكارنيه الجامعي للطباعة (منظم) --- */
+            /* --- تصميم الكارنيه الجامعي (مكبر) --- */
             .id-card-print-wrapper {
-                width: 85.6mm; /* عرض الكارنيه القياسي */
-                height: 53.98mm; /* ارتفاع الكارنيه القياسي */
-                border: 1px solid #000;
-                border-radius: 3mm;
+                width: 100mm; /* تكبير العرض */
+                height: 65mm; /* تكبير الارتفاع */
+                border: 2px solid #000;
+                border-radius: 4mm;
                 position: relative;
                 overflow: hidden;
                 background: #fff;
@@ -138,28 +137,29 @@
                 margin: 20px auto;
                 display: flex;
                 flex-direction: row-reverse; /* الصورة (الباركود) يمين */
+                box-shadow: 0 0 0 1px #ccc;
             }
             .id-card-qr {
-                width: 28mm;
+                width: 32mm;
                 height: 100%;
                 background: #fff;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border-left: 1px solid #000;
+                border-left: 2px solid #000;
             }
             .id-card-info {
                 flex: 1;
-                padding: 3mm;
+                padding: 4mm;
                 text-align: right;
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-start;
             }
-            .id-card-title { font-size: 9pt; color: #333; font-weight: bold; margin-bottom: 2mm; text-align: center; border-bottom: 1px solid #ccc; padding-bottom: 1mm; }
-            .id-card-name { font-size: 12pt; font-weight: 900; color: #000; margin-bottom: 2mm; line-height: 1.1; }
-            .id-card-row { font-size: 8pt; font-weight: bold; margin-bottom: 1mm; display: flex; justify-content: space-between; }
-            .id-card-footer { font-size: 7pt; margin-top: auto; color: #777; text-align: center; }
+            .id-card-title { font-size: 11pt; color: #000; font-weight: 900; margin-bottom: 3mm; text-align: center; border-bottom: 2px solid #000; padding-bottom: 1mm; }
+            .id-card-name { font-size: 14pt; font-weight: 900; color: #000; margin-bottom: 3mm; line-height: 1.1; }
+            .id-card-row { font-size: 10pt; font-weight: bold; margin-bottom: 1.5mm; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; }
+            .id-card-footer { font-size: 8pt; margin-top: auto; color: #555; text-align: center; font-weight: bold; }
         }
     </style>
 </head>
@@ -1192,7 +1192,7 @@
         savePDF('قائمة الطلاب المسجلين', content);
     }
 
-    // --- تعديل طباعة الجدول الرسمي (تقريب الوقت من اليوم) ---
+    // --- تعديل طباعة الجدول الرسمي (تصميم ملون وجميل) ---
     window.printFormalSchedule = function() { 
         let cleanRows = '';
         Object.keys(stageMap).forEach(level => {
@@ -1200,40 +1200,36 @@
             const days = data.days || [];
             const times = data.times || {};
             if(days.length > 0) {
-                // إنشاء جدول داخلي للأيام والمواعيد
-                let innerTable = `<table style="width:100%; border-collapse:collapse; border:none;">`;
-                days.forEach(day => {
-                    innerTable += `
-                        <tr>
-                            <td style="border:none; border-bottom:1px dashed #ccc; padding:4px; text-align:right; width:40%; font-weight:bold;">${dayMap[day]}</td>
-                            <td style="border:none; border-bottom:1px dashed #ccc; padding:4px; text-align:right; width:60%;">${times[day] || '-'}</td>
-                        </tr>
-                    `;
+                // دمج الخلايا للمرحلة
+                const rowSpan = days.length;
+                days.forEach((day, index) => {
+                    cleanRows += `<tr>`;
+                    if (index === 0) {
+                        cleanRows += `<td rowspan="${rowSpan}" style="vertical-align:middle; font-weight:bold; font-size:14pt; background-color:#f3f4f6; border-bottom:2px solid #000;">${stageMap[level]}</td>`;
+                    }
+                    cleanRows += `
+                        <td style="padding:8px; border-bottom:1px solid #ccc; font-weight:bold; background-color:${index % 2 === 0 ? '#fff' : '#f9fafb'};">${dayMap[day]}</td>
+                        <td style="padding:8px; border-bottom:1px solid #ccc; background-color:${index % 2 === 0 ? '#fff' : '#f9fafb'};">${times[day] || '-'}</td>
+                    </tr>`;
                 });
-                innerTable += `</table>`;
-
-                cleanRows += `
-                    <tr>
-                        <td style="width:30%; font-size:14pt; font-weight:bold; background:#f9f9f9; vertical-align:middle;">${stageMap[level]}</td>
-                        <td style="padding:0;">${innerTable}</td>
-                    </tr>
-                `;
             }
         });
 
         const content = `
-            <table style="width:100%; border-collapse:collapse; border:1px solid #000;">
+            <style>
+                .schedule-print-table { width: 100%; border-collapse: collapse; font-family: 'Cairo', sans-serif; }
+                .schedule-print-table th { background-color: #1f2937 !important; color: white !important; padding: 10px; border: 1px solid #000; font-size: 12pt; }
+                .schedule-print-table td { border: 1px solid #9ca3af; text-align: center; }
+            </style>
+            <table class="schedule-print-table">
                 <thead>
-                    <tr style="background:#eee;">
-                        <th style="border:1px solid #000; padding:10px;">المرحلة</th>
-                        <th style="border:1px solid #000; padding:10px;">
-                            <div style="display:flex; justify-content:space-between; padding:0 20px;">
-                                <span>اليوم</span><span>الموعد</span>
-                            </div>
-                        </th>
+                    <tr>
+                        <th style="width: 30%;">المرحلة الدراسية</th>
+                        <th style="width: 30%;">اليوم</th>
+                        <th style="width: 40%;">الموعد</th>
                     </tr>
                 </thead>
-                <tbody>${cleanRows || '<tr><td colspan="2">لم يتم تحديد مواعيد</td></tr>'}</tbody>
+                <tbody>${cleanRows || '<tr><td colspan="3">لم يتم تحديد مواعيد</td></tr>'}</tbody>
             </table>
         `;
         printHTML('جدول المواعيد الرسمي', content);
@@ -1247,15 +1243,17 @@
             const days = data.days || [];
             const times = data.times || {};
             if(days.length > 0) {
-                let innerTable = `<table style="width:100%; border-collapse:collapse; border:none;">`;
-                days.forEach(day => {
-                    innerTable += `<tr><td style="border:none; border-bottom:1px dashed #ccc; padding:4px; text-align:right; width:40%; font-weight:bold;">${dayMap[day]}</td><td style="border:none; border-bottom:1px dashed #ccc; padding:4px; text-align:right; width:60%;">${times[day] || '-'}</td></tr>`;
+                const rowSpan = days.length;
+                days.forEach((day, index) => {
+                    cleanRows += `<tr>`;
+                    if (index === 0) {
+                        cleanRows += `<td rowspan="${rowSpan}" style="vertical-align:middle; font-weight:bold; font-size:14pt; background-color:#f3f4f6; border-bottom:2px solid #000;">${stageMap[level]}</td>`;
+                    }
+                    cleanRows += `<td style="padding:8px; border-bottom:1px solid #ccc; font-weight:bold;">${dayMap[day]}</td><td style="padding:8px; border-bottom:1px solid #ccc;">${times[day] || '-'}</td></tr>`;
                 });
-                innerTable += `</table>`;
-                cleanRows += `<tr><td style="width:30%; font-size:14pt; font-weight:bold; background:#f9f9f9; vertical-align:middle;">${stageMap[level]}</td><td style="padding:0;">${innerTable}</td></tr>`;
             }
         });
-        const content = `<table style="width:100%; border-collapse:collapse; border:1px solid #000;"><thead><tr style="background:#eee;"><th style="border:1px solid #000; padding:10px;">المرحلة</th><th style="border:1px solid #000; padding:10px;"><div style="display:flex; justify-content:space-between; padding:0 20px;"><span>اليوم</span><span>الموعد</span></div></th></tr></thead><tbody>${cleanRows || '<tr><td colspan="2">لم يتم تحديد مواعيد</td></tr>'}</tbody></table>`;
+        const content = `<table style="width:100%; border-collapse:collapse; border:1px solid #000;"><thead><tr style="background:#1f2937; color:white;"><th style="padding:10px; border:1px solid #000;">المرحلة</th><th style="padding:10px; border:1px solid #000;">اليوم</th><th style="padding:10px; border:1px solid #000;">الموعد</th></tr></thead><tbody>${cleanRows || '<tr><td colspan="3">لم يتم تحديد مواعيد</td></tr>'}</tbody></table>`;
         savePDF('جدول المواعيد الرسمي', content);
     }
 
@@ -1877,7 +1875,7 @@
         savePDF(`جدول_${stageMap[currentScheduleLevel]}`, content);
     }
     let currentPayStudent = null;
-    function togglePayMethod(method) { const btnScan = document.getElementById('btnPayScan'); const btnManual = document.getElementById('btnPayManual'); if(method === 'scan') { document.getElementById('payScanDiv').classList.remove('hidden'); document.getElementById('payManualDiv').classList.add('hidden'); btnScan.classList.add('active'); btnManual.classList.remove('active'); } else { document.getElementById('payScanDiv').classList.add('hidden'); document.getElementById('payManualDiv').classList.remove('hidden'); btnManual.classList.add('active'); btnScan.classList.remove('active'); stopScanner(); } }
+    function togglePayMethod(method) { const btnScan = document.getElementById('btnPayScan'); const btnManual = document.getElementById('btnPayManual'); if(method === 'scan') { document.getElementById('payScanDiv').classList.remove('hidden'); document.getElementById('payManualDiv').classList.add('hidden'); btnScan.classList.add('active'); btnManual.classList.remove('active'); startScanner('payReader', 'payment'); } else { document.getElementById('payScanDiv').classList.add('hidden'); document.getElementById('payManualDiv').classList.remove('hidden'); btnManual.classList.add('active'); btnScan.classList.remove('active'); stopScanner(); } }
 
     function handlePaymentScan(id) { 
         if(!document.getElementById('paymentForm').classList.contains('hidden')) return; 
@@ -2054,7 +2052,7 @@
         savePDF(title, content);
     }
     
-    // --- تعديل طباعة الكارنيه (منظم + أرقام الهواتف) ---
+    // --- تعديل طباعة الكارنيه (مكبر + رقم الطالب) ---
     window.printStudentCard = async function() { 
         const s = window.students.find(st => st.id === currentModalStudentId); 
         if(!s) return; 
@@ -2074,7 +2072,7 @@
                     <div class="id-card-name">${s.name}</div>
                     <div class="id-card-row"><span>الكود:</span> <span>${s.id}</span></div>
                     <div class="id-card-row"><span>المرحلة:</span> <span>${stageMap[s.level] || s.level}</span></div>
-                    <div class="id-card-row"><span>الطالب:</span> <span>${stdPhone}</span></div>
+                    <div class="id-card-row"><span>رقم الطالب:</span> <span>${stdPhone}</span></div>
                     <div class="id-card-row"><span>ولي الأمر:</span> <span>${parentPhone}</span></div>
                     <div class="id-card-footer">بطاقة هوية طالب</div>
                 </div>
