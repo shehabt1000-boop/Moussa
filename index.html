@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <title>Smart Center | Pro v5</title>
+    <title>Smart Center | Pro v6 (Fixed)</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -52,9 +52,23 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .scanner-wrapper { border-radius: 0.5rem; overflow: hidden; background: #000000; position: relative; width: 100%; min-height: 250px; border: 2px solid #374151; }
-        .scanner-wrapper video { object-fit: cover; width: 100% !important; height: 100% !important; }
-        @media (min-width: 768px) { .scanner-wrapper { height: 400px; } }
+        /* --- إصلاح حجم الباركود ومنع التمدد --- */
+        .scanner-wrapper { 
+            border-radius: 0.5rem; 
+            overflow: hidden; 
+            background: #000000; 
+            position: relative; 
+            width: 100%; 
+            height: 250px !important; /* تثبيت الارتفاع */
+            border: 2px solid #374151; 
+        }
+        .scanner-wrapper video { 
+            object-fit: cover; 
+            width: 100% !important; 
+            height: 100% !important; 
+            border-radius: 0.5rem;
+        }
+        @media (min-width: 768px) { .scanner-wrapper { height: 400px !important; } }
         #html5-qrcode-button-camera-stop, #html5-qrcode-anchor-scan-type-change { display: none !important; }
 
         .glass-card { background: white; border-radius: 0.5rem; padding: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #d1d5db; margin-bottom: 0.5rem; }
@@ -1200,16 +1214,15 @@
             const days = data.days || [];
             const times = data.times || {};
             if(days.length > 0) {
-                // دمج الخلايا للمرحلة
                 const rowSpan = days.length;
                 days.forEach((day, index) => {
                     cleanRows += `<tr>`;
                     if (index === 0) {
-                        cleanRows += `<td rowspan="${rowSpan}" style="vertical-align:middle; font-weight:bold; font-size:14pt; background-color:#f3f4f6; border-bottom:2px solid #000;">${stageMap[level]}</td>`;
+                        cleanRows += `<td rowspan="${rowSpan}" style="vertical-align:middle; font-weight:bold; font-size:14pt; background-color:#f3f4f6; border-bottom:2px solid #000; color:#1f2937;">${stageMap[level]}</td>`;
                     }
                     cleanRows += `
-                        <td style="padding:8px; border-bottom:1px solid #ccc; font-weight:bold; background-color:${index % 2 === 0 ? '#fff' : '#f9fafb'};">${dayMap[day]}</td>
-                        <td style="padding:8px; border-bottom:1px solid #ccc; background-color:${index % 2 === 0 ? '#fff' : '#f9fafb'};">${times[day] || '-'}</td>
+                        <td style="padding:12px; border-bottom:1px solid #e5e7eb; font-weight:bold; background-color:${index % 2 === 0 ? '#ffffff' : '#f9fafb'}; color:#374151;">${dayMap[day]}</td>
+                        <td style="padding:12px; border-bottom:1px solid #e5e7eb; background-color:${index % 2 === 0 ? '#ffffff' : '#f9fafb'}; color:#111827; font-weight:bold;">${times[day] || '-'}</td>
                     </tr>`;
                 });
             }
@@ -1217,10 +1230,14 @@
 
         const content = `
             <style>
-                .schedule-print-table { width: 100%; border-collapse: collapse; font-family: 'Cairo', sans-serif; }
-                .schedule-print-table th { background-color: #1f2937 !important; color: white !important; padding: 10px; border: 1px solid #000; font-size: 12pt; }
-                .schedule-print-table td { border: 1px solid #9ca3af; text-align: center; }
+                .schedule-print-table { width: 100%; border-collapse: collapse; font-family: 'Cairo', sans-serif; margin-top: 20px; }
+                .schedule-print-table th { background-color: #1f2937 !important; color: white !important; padding: 15px; border: 1px solid #000; font-size: 14pt; font-weight: 900; }
+                .schedule-print-table td { border: 1px solid #9ca3af; text-align: center; font-size: 12pt; }
             </style>
+            <div style="text-align:center; margin-bottom:20px;">
+                <h2 style="font-size:24pt; font-weight:900; color:#1f2937; margin:0;">جدول المواعيد الرسمي</h2>
+                <p style="font-size:12pt; color:#6b7280; margin:5px 0;">Smart Center Pro</p>
+            </div>
             <table class="schedule-print-table">
                 <thead>
                     <tr>
@@ -1229,7 +1246,7 @@
                         <th style="width: 40%;">الموعد</th>
                     </tr>
                 </thead>
-                <tbody>${cleanRows || '<tr><td colspan="3">لم يتم تحديد مواعيد</td></tr>'}</tbody>
+                <tbody>${cleanRows || '<tr><td colspan="3" style="padding:20px;">لم يتم تحديد مواعيد</td></tr>'}</tbody>
             </table>
         `;
         printHTML('جدول المواعيد الرسمي', content);
