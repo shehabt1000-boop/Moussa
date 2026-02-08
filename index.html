@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <title>Smart Center | Pro v3</title>
+    <title>Smart Center | Pro v4</title>
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -52,8 +52,8 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- استعادة حجم الباركود --- */
-        .scanner-wrapper { border-radius: 0.5rem; overflow: hidden; background: #000000; position: relative; width: 100%; min-height: 250px; border: 2px solid #374151; }
+        /* --- توحيد حجم الباركود --- */
+        .scanner-wrapper { border-radius: 0.5rem; overflow: hidden; background: #000000; position: relative; width: 100%; height: 250px; border: 2px solid #374151; }
         .scanner-wrapper video { object-fit: cover; width: 100% !important; height: 100% !important; }
         @media (min-width: 768px) { .scanner-wrapper { height: 400px; } }
         #html5-qrcode-button-camera-stop, #html5-qrcode-anchor-scan-type-change { display: none !important; }
@@ -471,17 +471,14 @@
                     <button onclick="setAttMode('manual')" id="btnAttManual" class="sub-nav-item flex-1 rounded text-[10px] transition-all">⌨️ يدوي</button>
                 </div>
 
-                <!-- منطقة الباركود (مخفية افتراضياً) -->
+                <!-- منطقة الباركود (مباشرة) -->
                 <div id="attScanArea" class="relative">
-                    <button id="btnShowAttScan" onclick="toggleAttScanner()" class="w-full bg-gray-800 text-white py-3 rounded font-bold text-sm shadow mb-2">📷 تشغيل الكاميرا</button>
-                    
-                    <div id="attScanContainer" class="hidden">
-                        <div id="reader" class="scanner-wrapper w-full mb-2"></div>
-                        <div id="scanOverlay" class="absolute inset-0 pointer-events-none border-2 border-gray-500 hidden md:block" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px;"></div>
-                        <div id="scanFeedback" class="absolute inset-0 flex items-center justify-center bg-green-500/90 hidden z-10 rounded-lg"><div class="text-white font-bold text-lg animate-bounce md:text-2xl">✅ تم التسجيل</div></div>
-                        <div class="flex justify-center gap-2 no-print">
-                            <button onclick="stopAttScanner()" class="bg-red-100 text-red-600 px-4 py-1 rounded text-[10px] border border-red-300 font-bold">إغلاق الكاميرا</button>
-                        </div>
+                    <div id="reader" class="scanner-wrapper w-full mb-2"></div>
+                    <div id="scanOverlay" class="absolute inset-0 pointer-events-none border-2 border-gray-500 hidden md:block" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px;"></div>
+                    <div id="scanFeedback" class="absolute inset-0 flex items-center justify-center bg-green-500/90 hidden z-10 rounded-lg"><div class="text-white font-bold text-lg animate-bounce md:text-2xl">✅ تم التسجيل</div></div>
+                    <div class="flex justify-center gap-2 no-print">
+                        <button onclick="startScanner('reader', 'attendance')" class="bg-gray-800 text-white px-4 py-1 rounded shadow text-[10px] border border-gray-900">تشغيل</button>
+                        <button onclick="stopScanner()" class="bg-red-100 text-red-600 px-4 py-1 rounded text-[10px] border border-red-300">إيقاف</button>
                     </div>
                 </div>
 
@@ -546,13 +543,10 @@
                     </div>
 
                     <div id="payScanDiv" class="mb-2">
-                        <button id="btnShowPayScan" onclick="togglePayScanner()" class="w-full bg-green-700 text-white py-3 rounded font-bold text-sm shadow mb-2">📷 تشغيل الكاميرا</button>
-                        
-                        <div id="payScanContainer" class="hidden">
-                            <div id="payReader" class="scanner-wrapper h-24 mb-2 md:h-48"></div>
-                            <div class="flex gap-2">
-                                <button onclick="stopPayScanner()" class="flex-1 bg-red-100 text-red-600 border border-red-200 py-1 rounded text-[10px] no-print md:text-sm md:py-2 font-bold">إغلاق الكاميرا</button>
-                            </div>
+                        <div id="payReader" class="scanner-wrapper h-24 mb-2 md:h-48"></div>
+                        <div class="flex gap-2">
+                            <button onclick="startScanner('payReader', 'payment')" class="flex-1 bg-green-700 text-white py-1 rounded text-[10px] no-print md:text-sm md:py-2 border border-green-800">تشغيل</button>
+                            <button onclick="stopScanner()" class="flex-1 bg-red-100 text-red-600 border border-red-200 py-1 rounded text-[10px] no-print md:text-sm md:py-2 font-bold">إيقاف</button>
                         </div>
                     </div>
 
@@ -1440,27 +1434,42 @@
     window.startCheckScanner = function() { document.getElementById('checkReader').classList.remove('hidden'); document.getElementById('btnStartCheck').classList.add('hidden'); document.getElementById('btnStopCheck').classList.remove('hidden'); startScanner('checkReader', 'check'); }
     window.stopCheckScanner = function() { stopScanner(); document.getElementById('checkReader').classList.add('hidden'); document.getElementById('btnStartCheck').classList.remove('hidden'); document.getElementById('btnStopCheck').classList.add('hidden'); }
     
-    // --- دوال التحكم في كاميرا الحضور والمحاسبة ---
-    window.toggleAttScanner = function() {
-        document.getElementById('attScanContainer').classList.remove('hidden');
-        document.getElementById('btnShowAttScan').classList.add('hidden');
-        startScanner('reader', 'attendance');
-    }
-    window.stopAttScanner = function() {
-        stopScanner();
-        document.getElementById('attScanContainer').classList.add('hidden');
-        document.getElementById('btnShowAttScan').classList.remove('hidden');
+    // --- دوال التحكم في كاميرا الحضور والمحاسبة (مباشرة) ---
+    function setAttMode(mode) { 
+        stopScanner().then(() => { 
+            const btnScan = document.getElementById('btnAttScan'); 
+            const btnManual = document.getElementById('btnAttManual'); 
+            if(mode === 'scan') { 
+                document.getElementById('attScanArea').classList.remove('hidden'); 
+                document.getElementById('attManualArea').classList.add('hidden'); 
+                btnScan.classList.add('active'); 
+                btnManual.classList.remove('active'); 
+                startScanner('reader', 'attendance'); // تشغيل مباشر
+            } else { 
+                document.getElementById('attScanArea').classList.add('hidden'); 
+                document.getElementById('attManualArea').classList.remove('hidden'); 
+                btnManual.classList.add('active'); 
+                btnScan.classList.remove('active'); 
+            } 
+        }); 
     }
 
-    window.togglePayScanner = function() {
-        document.getElementById('payScanContainer').classList.remove('hidden');
-        document.getElementById('btnShowPayScan').classList.add('hidden');
-        startScanner('payReader', 'payment');
-    }
-    window.stopPayScanner = function() {
-        stopScanner();
-        document.getElementById('payScanContainer').classList.add('hidden');
-        document.getElementById('btnShowPayScan').classList.remove('hidden');
+    function togglePayMethod(method) { 
+        const btnScan = document.getElementById('btnPayScan'); 
+        const btnManual = document.getElementById('btnPayManual'); 
+        if(method === 'scan') { 
+            document.getElementById('payScanDiv').classList.remove('hidden'); 
+            document.getElementById('payManualDiv').classList.add('hidden'); 
+            btnScan.classList.add('active'); 
+            btnManual.classList.remove('active'); 
+            startScanner('payReader', 'payment'); // تشغيل مباشر
+        } else { 
+            document.getElementById('payScanDiv').classList.add('hidden'); 
+            document.getElementById('payManualDiv').classList.remove('hidden'); 
+            btnManual.classList.add('active'); 
+            btnScan.classList.remove('active'); 
+            stopScanner(); 
+        } 
     }
 
     function handleCheckScan(id) {
@@ -1534,7 +1543,7 @@
         setTimeout(() => { isPaused = false; showScanFeedback(false); }, 2000);
     }
     function showScanFeedback(show) { const el = document.getElementById('scanFeedback'); if(show) el.classList.remove('hidden'); else el.classList.add('hidden'); }
-    function setAttMode(mode) { stopScanner().then(() => { const btnScan = document.getElementById('btnAttScan'); const btnManual = document.getElementById('btnAttManual'); if(mode === 'scan') { document.getElementById('attScanArea').classList.remove('hidden'); document.getElementById('attManualArea').classList.add('hidden'); btnScan.classList.add('active'); btnManual.classList.remove('active'); } else { document.getElementById('attScanArea').classList.add('hidden'); document.getElementById('attManualArea').classList.remove('hidden'); btnManual.classList.add('active'); btnScan.classList.remove('active'); } }); }
+    
     function manualAttendance() { const id = document.getElementById('manualAttID').value; handleAttendanceScan(id); document.getElementById('manualAttID').value = ''; }
     let currentAttType = 'present';
     function openAttendanceModal(type) { currentAttType = type; const title = type === 'present' ? `حضور (${selectedAttendanceDate})` : `غياب (${selectedAttendanceDate})`; document.getElementById('detailsTitle').innerText = title; const mainStage = document.getElementById('attendanceStage').value; const filterDropdown = document.getElementById('attFilterLevel'); if(mainStage) filterDropdown.value = mainStage; else filterDropdown.value = 'all'; document.getElementById('modalFilterContainer').classList.remove('hidden'); const thead = document.getElementById('detailsTableHead'); thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>الكود</th><th>المرحلة</th><th>${type === 'present' ? 'وقت' : 'تاريخ'}</th></tr>`; document.getElementById('detailsModal').classList.remove('hidden'); document.body.classList.add('modal-open'); filterAttendanceList(); }
