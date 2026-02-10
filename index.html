@@ -33,17 +33,18 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .select-none { user-select: none; }
 
-        /* --- Fixed Background Setup --- */
+        /* --- Fixed Background Setup (Fixed for Keyboard) --- */
         #app-background {
             position: fixed;
             top: 0; left: 0; width: 100%; 
-            height: 100vh;
+            height: 100dvh; /* Dynamic Viewport Height */
             z-index: -1;
             background-image: url('https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             transform: translateZ(0);
+            pointer-events: none;
         }
         
         #app-background::after {
@@ -164,6 +165,9 @@
             will-change: max-height, opacity; 
         }
         #filter-panel.open { max-height: 450px; opacity: 1; }
+
+        /* Hide Bottom Nav on Keyboard Open (handled by JS class) */
+        body.keyboard-open #bottom-nav { display: none; }
     </style>
 </head>
 <body class="text-slate-800 dark:text-slate-100 select-none">
@@ -211,8 +215,8 @@
         <main class="pt-[3.5rem] pb-20 container mx-auto px-2 max-w-5xl min-h-screen">
             
             <!-- Search Container -->
-            <div class="sticky top-[3.5rem] z-40 space-y-1 pointer-events-none mb-2 mt-1">
-                <div class="relative px-1 py-1.5 bg-slate-50/95 dark:bg-navy/95 rounded-b-xl shadow-sm pointer-events-auto transform-gpu border-t-0 border-x border-b border-slate-100 dark:border-slate-700">
+            <div class="sticky top-[3.5rem] z-40 space-y-1 pointer-events-none mb-1 mt-0.5">
+                <div class="relative px-1 py-0.5 bg-slate-50/95 dark:bg-navy/95 rounded-b-xl shadow-sm pointer-events-auto transform-gpu border-t-0 border-x border-b border-slate-100 dark:border-slate-700">
                     
                     <!-- Search Input Row -->
                     <div class="relative w-full px-1">
@@ -225,7 +229,7 @@
                             <span id="fav-count" class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full hidden border border-white dark:border-darkbg"></span>
                         </button>
 
-                        <!-- Input Field (Increased padding-left to fit buttons) -->
+                        <!-- Input Field -->
                         <input type="text" id="search-input" placeholder="ابحث (شقة، أرض، عنوان)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-lg pl-20 pr-9 py-1 text-xs shadow-sm focus:ring-1 focus:ring-emerald-500 outline-none dark:text-white transition font-bold h-8">
                         
                         <!-- Search Button (Right) -->
@@ -284,8 +288,8 @@
             </div>
         </main>
 
-        <!-- Floating Dock -->
-        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border border-slate-200 dark:border-slate-600 px-5 py-1.5 rounded-full flex items-center gap-6 shadow-xl transform transition-all hover:scale-105 transform-gpu">
+        <!-- Floating Dock (Bottom Nav) -->
+        <nav id="bottom-nav" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border border-slate-200 dark:border-slate-600 px-5 py-1.5 rounded-full flex items-center gap-6 shadow-xl transform transition-all hover:scale-105 transform-gpu">
             <button onclick="resetFilters(); window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center gap-0.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
             <button onclick="toggleAddModal()" class="w-12 h-12 bg-slate-900 dark:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-[#f8fafc] dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
             <button onclick="toggleChat()" class="flex flex-col items-center gap-0.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
@@ -536,6 +540,22 @@
                 checkAdminStatus(); 
                 renderAmenities(ALL_AMENITIES); 
                 initLocations();
+                
+                // Keyboard detection
+                const originalHeight = window.innerHeight;
+                window.addEventListener('resize', () => {
+                    if (window.innerHeight < originalHeight * 0.8) {
+                        document.body.classList.add('keyboard-open');
+                    } else {
+                        document.body.classList.remove('keyboard-open');
+                    }
+                });
+                
+                // Focus detection as backup
+                document.querySelectorAll('input, textarea').forEach(el => {
+                    el.addEventListener('focus', () => document.body.classList.add('keyboard-open'));
+                    el.addEventListener('blur', () => document.body.classList.remove('keyboard-open'));
+                });
             } 
         });
 
@@ -838,7 +858,7 @@
                 const updateWaLink = (imgUrl) => {
                     const shareUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
                     // Adding the image URL directly in the text body
-                    const waMsg = `استفسار بخصوص: ${item.title} ${shareUrl} ${imgUrl}`;
+                    const waMsg = `استفسار بخصوص: ${item.title}\nرابط الاعلان: ${shareUrl}\nصورة العقار: ${imgUrl}`;
                     document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`; 
                 };
                 
