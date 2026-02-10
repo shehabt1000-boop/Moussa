@@ -46,16 +46,15 @@
             transform: translateZ(0);
         }
         
-        /* تقليل درجة الطبقة لتوضيح الخلفية أكثر */
         #app-background::after {
             content: '';
             position: absolute; inset: 0;
-            background: rgba(241, 245, 249, 0.65); /* تم التخفيف */
+            background: rgba(241, 245, 249, 0.65);
             transition: background-color 0.2s ease;
         }
 
         .dark #app-background::after {
-            background: rgba(15, 23, 42, 0.75); /* تم التخفيف */
+            background: rgba(15, 23, 42, 0.75);
         }
 
         /* Animations */
@@ -184,7 +183,7 @@
 
         <div id="toast-container" class="fixed top-4 left-0 right-0 z-[100] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
-        <!-- Header (Only Logo & Buttons) -->
+        <!-- Header -->
         <header class="fixed top-0 w-full sticky-header bg-white/95 dark:bg-navy/95 backdrop-blur-none border-b-0 rounded-b-[1.5rem] flex items-center justify-between px-4 shadow-md z-50 h-12">
             
             <!-- Welcome Text -->
@@ -211,23 +210,26 @@
         <!-- Main Content -->
         <main class="pt-[3.5rem] pb-20 container mx-auto px-2 max-w-5xl min-h-screen">
             
-            <!-- Search Container (Filters + Input) -->
+            <!-- Search Container -->
             <div class="sticky top-[3.5rem] z-40 space-y-1 pointer-events-none mb-2 mt-1">
                 <div class="relative px-1 py-1.5 bg-slate-50/95 dark:bg-navy/95 rounded-b-xl shadow-sm pointer-events-auto transform-gpu border-t-0 border-x border-b border-slate-100 dark:border-slate-700">
                     
-                    <!-- Filter Buttons (Moved Inside) -->
-                    <div class="grid grid-cols-4 gap-1.5 px-1 mb-1.5">
-                        <button onclick="filter('all')" id="chip-all" class="w-full py-0.5 rounded bg-slate-900 dark:bg-emerald-600 text-white text-[9px] font-bold shadow transition transform active:scale-95 flex justify-center items-center">الكل</button>
-                        <button onclick="filter('sale')" id="chip-sale" class="w-full py-0.5 rounded bg-slate-100 dark:bg-darkbg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[9px] font-bold transition active:scale-95 flex justify-center items-center">بيع</button>
-                        <button onclick="filter('rent')" id="chip-rent" class="w-full py-0.5 rounded bg-slate-100 dark:bg-darkbg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[9px] font-bold transition active:scale-95 flex justify-center items-center">إيجار</button>
-                        <button onclick="toggleFavView()" id="chip-fav" class="w-full py-0.5 rounded bg-slate-100 dark:bg-darkbg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[9px] font-bold transition active:scale-95 flex justify-center items-center gap-1"><i data-lucide="heart" class="w-3 h-3 fill-current"></i> <span id="fav-count" class="bg-red-600 text-white text-[8px] px-1 rounded-full hidden"></span></button>
-                    </div>
-
-                    <!-- Search Input -->
+                    <!-- Search Input Row -->
                     <div class="relative w-full px-1">
-                        <input type="text" id="search-input" placeholder="ابحث (شقة، أرض، عنوان)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-lg pl-9 pr-9 py-1 text-xs shadow-sm focus:ring-1 focus:ring-emerald-500 outline-none dark:text-white transition font-bold h-8">
+                        <!-- Filter Toggle Button (Left) -->
+                        <button onclick="toggleFilterPanel()" class="absolute left-1 top-0 h-full w-9 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-white transition z-10"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
+                        
+                        <!-- Favorites Toggle Button (Next to Filter) -->
+                        <button onclick="toggleFavView()" id="btn-fav-toggle" class="absolute left-9 top-0 h-full w-9 flex items-center justify-center text-slate-400 hover:text-red-500 transition z-10 group">
+                            <i data-lucide="heart" class="w-4 h-4 group-hover:scale-110 transition"></i>
+                            <span id="fav-count" class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full hidden border border-white dark:border-darkbg"></span>
+                        </button>
+
+                        <!-- Input Field (Increased padding-left to fit buttons) -->
+                        <input type="text" id="search-input" placeholder="ابحث (شقة، أرض، عنوان)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-lg pl-20 pr-9 py-1 text-xs shadow-sm focus:ring-1 focus:ring-emerald-500 outline-none dark:text-white transition font-bold h-8">
+                        
+                        <!-- Search Button (Right) -->
                         <button onclick="performSearch()" class="absolute right-1 top-0 h-full w-9 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition"><i data-lucide="search" class="w-4 h-4"></i></button>
-                        <button onclick="toggleFilterPanel()" class="absolute left-1 top-0 h-full w-9 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-white transition"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
                     </div>
 
                     <!-- Advanced Filter Panel -->
@@ -627,7 +629,25 @@
         function initFavs() { state.favorites = JSON.parse(localStorage.getItem('souq_favs') || '[]'); updateFavBadge(); }
         window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); performSearch(); };
         function updateFavBadge() { const b = document.getElementById('fav-count'); if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); b.innerText = state.favorites.length; }
-        window.toggleFavView = () => { document.getElementById('search-input').value = ''; filter('fav'); showToast("المفضلة ❤️"); };
+        
+        // Updated Toggle Fav View Logic
+        window.toggleFavView = () => { 
+            const btn = document.getElementById('btn-fav-toggle');
+            const icon = btn.querySelector('i');
+            
+            if (state.currentFilter === 'fav') {
+                state.currentFilter = 'all';
+                icon.classList.remove('fill-red-500', 'text-red-500');
+                icon.classList.add('text-slate-400');
+                showToast("عرض الكل");
+            } else {
+                state.currentFilter = 'fav';
+                icon.classList.remove('text-slate-400');
+                icon.classList.add('fill-red-500', 'text-red-500');
+                showToast("المفضلة ❤️");
+            }
+            performSearch(); 
+        };
 
         function loadListings() { 
             showSkeletons(); 
@@ -721,25 +741,10 @@
         document.getElementById('search-input').addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(performSearch, 200); });
         document.getElementById('search-input').addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); performSearch(); document.getElementById('search-input').blur(); } });
         
+        // Filter function simplified since buttons are gone
         window.filter = (t) => { 
             state.currentFilter = t; 
             state.visibleLimit = 12; 
-            
-            ['all','sale','rent','fav'].forEach(k => {
-                const btn = document.getElementById(`chip-${k}`);
-                let baseClass = "w-full py-0.5 rounded bg-slate-100 dark:bg-darkbg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[9px] font-bold transition active:scale-95 flex justify-center items-center";
-                if(k === 'fav') baseClass += " gap-1";
-                btn.className = baseClass;
-            });
-
-            const activeClass = "w-full py-0.5 rounded bg-slate-900 dark:bg-emerald-600 text-white text-[9px] font-bold shadow transition transform active:scale-95 flex justify-center items-center";
-            
-            if(t === 'fav') {
-                document.getElementById('chip-fav').className = activeClass + " gap-1";
-            } else {
-                document.getElementById(`chip-${t}`).className = activeClass;
-            }
-            
             performSearch(); 
         };
 
@@ -833,7 +838,7 @@
                 const updateWaLink = (imgUrl) => {
                     const shareUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
                     // Adding the image URL directly in the text body
-                    const waMsg = `استفسار بخصوص: ${item.title}\nرابط الاعلان: ${shareUrl}\nصورة العقار: ${imgUrl}`;
+                    const waMsg = `استفسار بخصوص: ${item.title} ${shareUrl} ${imgUrl}`;
                     document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`; 
                 };
                 
