@@ -76,7 +76,12 @@
         .toast { animation: slideInDown 0.3s ease-out forwards; }
         .toast.hiding { animation: fadeOut 0.3s ease-in forwards; }
 
-        .sticky-header { z-index: 50; transform: translateZ(0); }
+        /* --- Header Styling --- */
+        .sticky-header { 
+            z-index: 50; 
+            transform: translateZ(0); 
+        }
+
         .sticky-filter { z-index: 40; transform: translateZ(0); }
         
         /* --- Splash Screen --- */
@@ -139,7 +144,7 @@
         /* Table Styles (Compact) */
         .modern-table { border-collapse: collapse; width: 100%; }
         .modern-table td, .modern-table th { 
-            padding: 0.4rem; /* Reduced padding */
+            padding: 0.4rem; 
             border-bottom: 1px solid #e2e8f0; 
         }
         .dark .modern-table td, .dark .modern-table th { border-color: #334155; }
@@ -148,9 +153,13 @@
 
         .amenity-tile input:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
         
-        /* Filter Panel Transition */
-        #filter-panel { transition: max-height 0.2s ease-in-out, opacity 0.2s; max-height: 0; opacity: 0; overflow: hidden; will-change: max-height, opacity; }
-        #filter-panel.open { max-height: 400px; opacity: 1; }
+        /* Filter Panel Transition - Optimized */
+        #filter-panel { 
+            transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s; 
+            max-height: 0; opacity: 0; overflow: hidden; 
+            will-change: max-height, opacity; 
+        }
+        #filter-panel.open { max-height: 450px; opacity: 1; }
     </style>
 </head>
 <body class="text-slate-800 dark:text-slate-100 select-none transition-colors duration-300">
@@ -169,13 +178,19 @@
 
     <div id="toast-container" class="fixed top-4 left-0 right-0 z-[100] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
-    <!-- Header -->
-    <header class="fixed top-0 w-full sticky-header bg-white/95 dark:bg-navy/95 backdrop-blur border-b border-slate-200 dark:border-slate-700 h-12 flex items-center justify-between px-3 shadow-sm transition-colors transform-gpu">
-        <div class="flex items-center gap-1.5 cursor-pointer" id="logo-trigger">
-            <div class="bg-slate-900 dark:bg-emerald-600 text-white p-1 rounded"><i data-lucide="building-2" class="w-4 h-4"></i></div>
-            <h1 class="font-bold text-sm">السوق <span class="text-emerald-600 dark:text-emerald-400">وياك</span></h1>
+    <!-- Header (Reduced Curve, Centered Logo Stack) -->
+    <header class="fixed top-0 w-full sticky-header bg-white/95 dark:bg-navy/95 backdrop-blur-none border-b-0 h-14 rounded-b-[1.5rem] flex items-center px-4 shadow-md transition-colors transform-gpu z-50">
+        
+        <!-- Center: Logo & Title Stacked -->
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center cursor-pointer group" id="logo-trigger">
+            <div class="bg-slate-900 dark:bg-emerald-600 text-white p-1 rounded-[4px] mb-[2px] shadow-sm group-hover:scale-110 transition">
+                <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+            </div>
+            <h1 class="font-bold text-[10px] leading-none tracking-tight text-slate-800 dark:text-white">السوق <span class="text-emerald-600 dark:text-emerald-400">وياك</span></h1>
         </div>
-        <div class="flex gap-1.5 items-center">
+
+        <!-- Left Side (RTL End): Buttons -->
+        <div class="flex gap-1.5 items-center mr-auto">
             <a href="https://wa.me/201206244875" target="_blank" class="p-1.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 border border-green-100 dark:border-green-900/50 transition shadow-sm"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
             <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
             <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
@@ -183,22 +198,19 @@
     </header>
 
     <!-- Main Content -->
-    <main class="pt-14 pb-20 container mx-auto px-2 max-w-5xl min-h-screen">
+    <main class="pt-16 pb-20 container mx-auto px-2 max-w-5xl min-h-screen">
         
         <!-- Search & Filter -->
-        <div class="sticky top-12 sticky-filter z-40 space-y-2 pointer-events-none">
+        <div class="sticky top-16 sticky-filter z-40 space-y-2 pointer-events-none">
             
-            <!-- Top Row: Search Input -->
-            <div class="relative px-2 py-1.5 bg-slate-50/95 dark:bg-navy/95 backdrop-blur-sm rounded-b-xl shadow-sm pointer-events-auto transform-gpu">
-                <!-- Adjusted padding for icons -->
-                <input type="text" id="search-input" placeholder="ابحث (عنوان، كلمة مفتاحية)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-lg pl-9 pr-9 py-2 text-xs shadow-sm focus:ring-1 focus:ring-emerald-500 outline-none dark:text-white transition font-bold">
-                
-                <!-- Search Icon (Right) -->
-                <button onclick="performSearch()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-emerald-600 transition"><i data-lucide="search" class="w-4 h-4"></i></button>
-                
-                <!-- Filter Button (Left) - Inside Input -->
-                <button onclick="toggleFilterPanel()" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
-                
+            <!-- Top Row: Search Input (Square Top, Rounded Bottom) -->
+            <div class="relative px-2 py-1.5 bg-slate-50/95 dark:bg-navy/95 rounded-b-xl shadow-sm pointer-events-auto transform-gpu border-t-0 border-x border-b border-slate-100 dark:border-slate-700">
+                <div class="relative w-full">
+                    <input type="text" id="search-input" placeholder="ابحث (شقة، أرض، عنوان)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-lg pl-9 pr-9 py-2 text-xs shadow-sm focus:ring-1 focus:ring-emerald-500 outline-none dark:text-white transition font-bold h-9">
+                    <button onclick="performSearch()" class="absolute right-0 top-0 h-full w-9 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition"><i data-lucide="search" class="w-4 h-4"></i></button>
+                    <button onclick="toggleFilterPanel()" class="absolute left-0 top-0 h-full w-9 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-white transition"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
+                </div>
+
                 <!-- Advanced Filter Panel -->
                 <div id="filter-panel" class="mt-2 bg-white dark:bg-slate-800 rounded-lg border border-black dark:border-slate-600 shadow-lg">
                     <div class="p-2 space-y-1.5">
@@ -206,6 +218,15 @@
                             <h3 class="text-[10px] font-bold text-slate-700 dark:text-white flex items-center gap-1"><i data-lucide="filter" class="w-3 h-3"></i> تصفية</h3>
                             <button onclick="resetFilters()" class="text-[9px] text-red-500 font-bold underline">إعادة تعيين</button>
                         </div>
+                        <div class="custom-select-wrapper">
+                            <select id="filter-type" class="custom-select py-1 text-[10px]">
+                                <option value="">كل الأنواع (بيع/إيجار)</option>
+                                <option value="sale">بيع</option>
+                                <option value="rent">إيجار</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
+                        </div>
+
                         <div class="grid grid-cols-2 gap-1.5">
                             <div class="custom-select-wrapper">
                                 <select id="filter-gov" onchange="populateCities('filter-gov', 'filter-city')" class="custom-select py-1 text-[10px]"><option value="">كل المحافظات</option></select>
@@ -220,7 +241,11 @@
                             <input type="number" id="filter-min-price" placeholder="أقل سعر" class="input-box text-[10px] py-1">
                             <input type="number" id="filter-max-price" placeholder="أعلى سعر" class="input-box text-[10px] py-1">
                         </div>
-                        <button onclick="performSearch(); toggleFilterPanel()" class="w-full bg-emerald-600 text-white py-1 rounded font-bold text-[10px] shadow">تطبيق</button>
+                        <!-- Split Buttons: Apply & Close -->
+                        <div class="flex gap-2">
+                            <button onclick="performSearch(); toggleFilterPanel()" class="flex-1 bg-emerald-600 text-white py-1.5 rounded font-bold text-[10px] shadow hover:bg-emerald-700 transition">تطبيق</button>
+                            <button onclick="toggleFilterPanel()" class="w-16 bg-red-500 text-white py-1.5 rounded font-bold text-[10px] shadow hover:bg-red-600 transition flex items-center justify-center"><i data-lucide="x" class="w-3 h-3"></i> إغلاق</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -236,6 +261,11 @@
 
         <div id="grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-2"></div>
         
+        <!-- Load More Button -->
+        <div id="load-more-container" class="hidden mt-4 text-center">
+            <button onclick="loadMore()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-6 py-2 rounded-full text-xs font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition">عرض المزيد</button>
+        </div>
+
         <div id="empty-state" class="hidden text-center py-16 opacity-60 flex flex-col items-center">
             <div class="bg-slate-200 dark:bg-slate-700 p-3 rounded-full inline-block mb-2"><i data-lucide="search-x" class="w-6 h-6 text-slate-400"></i></div>
             <p class="text-slate-500 dark:text-slate-400 font-bold text-xs">لا توجد نتائج</p>
@@ -250,7 +280,7 @@
         <button onclick="toggleChat()" class="flex flex-col items-center gap-0.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
     </nav>
 
-    <!-- Details Modal (Highly Compressed) -->
+    <!-- Details Modal -->
     <div id="details-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop">
             <div class="relative h-44 bg-gray-200 dark:bg-slate-800 shrink-0 group">
@@ -259,13 +289,14 @@
                     <button onclick="downloadImages()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1 rounded-full shadow-sm"><i data-lucide="download" class="w-4 h-4"></i></button>
                     <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1 rounded-full shadow-sm"><i data-lucide="share-2" class="w-4 h-4"></i></button>
                 </div>
+                <!-- Slider -->
                 <div id="details-slider" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth"></div>
                 <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-4 h-4"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-4 h-4"></i></button></div>
                 <span id="d-type-badge" class="absolute bottom-2 right-2 text-white px-2 py-0.5 rounded text-[10px] font-bold shadow backdrop-blur-sm"></span>
             </div>
+            <!-- Content Area with Scroll -->
             <div class="flex-1 overflow-y-auto bg-white dark:bg-darkbg">
                 <div id="d-controls" class="hidden p-2 bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-700 flex gap-2"></div>
-                <!-- Reduced padding to p-2 and spacing -->
                 <div class="p-2 space-y-2">
                     <div class="space-y-1">
                         <div><span class="text-[9px] font-bold text-slate-400 block mb-0">العنوان العقاري</span><h2 id="d-title" class="text-sm font-bold text-slate-900 dark:text-white leading-tight"></h2></div>
@@ -427,7 +458,7 @@
         
         const COLLECTION_NAME = "listings_v2"; 
         
-        let state = { user: null, listings: [], filesToUpload: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all' };
+        let state = { user: null, listings: [], filesToUpload: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', visibleLimit: 12 };
 
         const ALL_AMENITIES = ["غاز طبيعي", "كهرباء", "مياه", "أسانسير", "واي فاي", "حمام سباحة", "حديقة", "جراج", "أمن وحراسة", "كاميرات مراقبة", "مطبخ أمريكاني", "غرفة خادمة", "مسموح بالحيوانات", "على ناصية"];
         const LAND_AMENITIES = ["كهرباء", "مياه", "غاز طبيعي", "على ناصية"];
@@ -435,7 +466,18 @@
         const CAT_MAP = { 'apartment': 'شقة', 'villa': 'فيلا', 'chalet': 'شالية', 'office': 'مكتب', 'shop': 'محل', 'land': 'أرض', 'building': 'عمارة', 'warehouse': 'مخزن' };
         const FINISH_MAP = { 'red': 'طوب أحمر', 'semi': 'نصف تشطيب', 'full': 'تشطيب كامل', 'super': 'سوبر لوكس', 'ultra': 'الترا سوبر لوكس' };
 
-        // Egypt Data
+        // Keywords for Smart Search
+        const CAT_KEYWORDS = {
+            'شقة': 'apartment', 'شقق': 'apartment',
+            'فيلا': 'villa', 'فلل': 'villa',
+            'شالية': 'chalet', 'شاليهات': 'chalet',
+            'مكتب': 'office', 'مكاتب': 'office',
+            'محل': 'shop', 'محلات': 'shop',
+            'ارض': 'land', 'اراضي': 'land',
+            'عمارة': 'building', 'عماير': 'building',
+            'مخزن': 'warehouse', 'مخازن': 'warehouse'
+        };
+
         const EGYPT_LOCATIONS = {
             "الشرقية": ["الزقازيق", "العاشر من رمضان", "منيا القمح", "بلبيس", "مشتول السوق", "القنايات", "أبو حماد", "القرين", "ههيا", "أبو كبير", "فاقوس", "الصالحية الجديدة", "الإبراهيمية", "ديرب نجم", "كفر صقر", "أولاد صقر", "الحسينية", "صان الحجر", "منشأة أبو عمر"],
             "القاهرة": ["مدينة نصر", "مصر الجديدة", "المعادي", "التجمع الخامس", "الرحاب", "مدينتي", "الشروق", "العبور", "المقطم", "الزيتون", "حدائق القبة", "شبرا", "وسط البلد", "المنيل", "الزمالك", "المهندسين", "الدقي", "العجوزة"],
@@ -533,7 +575,6 @@
             buildingFields.classList.add('hidden');
             extraFields.classList.remove('hidden');
 
-            // Update Amenities based on category
             if(cat === 'land') {
                 renderAmenities(LAND_AMENITIES);
                 roomFields.classList.add('hidden');
@@ -570,14 +611,13 @@
         function initFavs() { state.favorites = JSON.parse(localStorage.getItem('souq_favs') || '[]'); updateFavBadge(); }
         window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); performSearch(); };
         function updateFavBadge() { const b = document.getElementById('fav-count'); if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); b.innerText = state.favorites.length; }
-        window.toggleFavView = () => { document.getElementById('search-input').value = ''; state.currentFilter = 'fav'; performSearch(); showToast("المفضلة ❤️"); };
+        window.toggleFavView = () => { document.getElementById('search-input').value = ''; filter('fav'); showToast("المفضلة ❤️"); };
 
         function loadListings() { 
             showSkeletons(); 
             onSnapshot(query(collection(db, COLLECTION_NAME)), (snap) => { 
                 state.listings = []; 
                 snap.forEach(d => state.listings.push({id:d.id, ...d.data()})); 
-                // Sort: Pinned first, then Newest
                 state.listings.sort((a,b) => {
                     if (a.isPinned === b.isPinned) {
                         return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
@@ -600,8 +640,17 @@
             const q = normalizeText(document.getElementById('search-input').value); 
             const filterGov = document.getElementById('filter-gov').value;
             const filterCity = document.getElementById('filter-city').value;
+            const filterType = document.getElementById('filter-type').value;
             const minPrice = Number(document.getElementById('filter-min-price').value) || 0;
             const maxPrice = Number(document.getElementById('filter-max-price').value) || Infinity;
+
+            let detectedCat = '';
+            for (const [key, val] of Object.entries(CAT_KEYWORDS)) {
+                if (q.includes(key)) {
+                    detectedCat = val;
+                    break; 
+                }
+            }
 
             const cont = document.getElementById('grid-container'); 
             const filtered = state.listings.filter(item => { 
@@ -609,51 +658,72 @@
                 if (state.currentFilter === 'fav') matchType = state.favorites.includes(item.id); 
                 else matchType = state.currentFilter === 'all' || item.type === state.currentFilter; 
                 
-                const matchText = normalizeText(item.title).includes(q) || normalizeText(item.desc).includes(q) || normalizeText(item.phone).includes(q);
+                if (filterType && item.type !== filterType) matchType = false;
+
+                const catNameAr = CAT_MAP[item.category] || '';
+                const itemText = normalizeText(item.title + item.desc + item.phone + item.gov + item.city + item.location + catNameAr);
+                const matchText = itemText.includes(q);
                 
-                // Location Filter
+                const matchCat = !detectedCat || item.category === detectedCat;
                 const matchGov = !filterGov || item.gov === filterGov;
                 const matchCity = !filterCity || item.city === filterCity;
-                
-                // Price Filter
                 const matchPrice = item.price >= minPrice && item.price <= maxPrice;
 
-                return matchType && matchText && matchGov && matchCity && matchPrice; 
+                return matchType && matchText && matchCat && matchGov && matchCity && matchPrice; 
             }); 
-            if(!filtered.length) { document.getElementById('empty-state').classList.remove('hidden'); cont.innerHTML = ''; } 
-            else { document.getElementById('empty-state').classList.add('hidden'); cont.innerHTML = filtered.map(item => createCard(item)).join(''); lucide.createIcons({ root: cont }); } 
+
+            // Pagination Logic
+            const visibleItems = filtered.slice(0, state.visibleLimit);
+            const loadMoreBtn = document.getElementById('load-more-container');
+            
+            if(!filtered.length) { 
+                document.getElementById('empty-state').classList.remove('hidden'); 
+                cont.innerHTML = ''; 
+                loadMoreBtn.classList.add('hidden');
+            } else { 
+                document.getElementById('empty-state').classList.add('hidden'); 
+                cont.innerHTML = visibleItems.map(item => createCard(item)).join(''); 
+                lucide.createIcons({ root: cont }); 
+                
+                if(filtered.length > state.visibleLimit) {
+                    loadMoreBtn.classList.remove('hidden');
+                } else {
+                    loadMoreBtn.classList.add('hidden');
+                }
+            } 
         };
 
-        window.resetFilters = () => {
-            document.getElementById('search-input').value = '';
-            document.getElementById('filter-gov').value = '';
-            document.getElementById('filter-city').innerHTML = '<option value="">كل المراكز</option>';
-            document.getElementById('filter-min-price').value = '';
-            document.getElementById('filter-max-price').value = '';
-            filter('all');
-            document.getElementById('filter-panel').classList.remove('open');
+        window.loadMore = () => {
+            state.visibleLimit += 12;
+            performSearch();
         };
 
         let searchTimeout;
         document.getElementById('search-input').addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(performSearch, 200); });
         document.getElementById('search-input').addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); performSearch(); document.getElementById('search-input').blur(); } });
+        
         window.filter = (t) => { 
             state.currentFilter = t; 
+            state.visibleLimit = 12; // Reset pagination on filter change
+            
+            // Reset all buttons
             ['all','sale','rent','fav'].forEach(k => {
                 const btn = document.getElementById(`chip-${k}`);
-                if(k === 'fav') {
-                    btn.className = "w-full py-1.5 rounded bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold transition active:scale-95 flex justify-center items-center gap-1";
-                } else {
-                    btn.className = "w-full py-1.5 rounded bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold transition active:scale-95 flex justify-center items-center";
-                }
+                // Default inactive style
+                let baseClass = "w-full py-1.5 rounded bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold transition active:scale-95 flex justify-center items-center";
+                if(k === 'fav') baseClass += " gap-1";
+                btn.className = baseClass;
             });
 
+            // Set active button style
+            const activeClass = "w-full py-1.5 rounded bg-slate-900 dark:bg-emerald-600 text-white text-[10px] font-bold shadow transition transform active:scale-95 flex justify-center items-center";
+            
             if(t === 'fav') {
-                 // Active State for Favorites (Black like others)
-                 document.getElementById('chip-fav').className = "w-full py-1.5 rounded bg-slate-900 dark:bg-emerald-600 text-white text-[10px] font-bold shadow transition transform active:scale-95 flex justify-center items-center gap-1";
+                document.getElementById('chip-fav').className = activeClass + " gap-1";
             } else {
-                document.getElementById(`chip-${t}`).className = "w-full py-1.5 rounded bg-slate-900 dark:bg-emerald-600 text-white text-[10px] font-bold shadow transition transform active:scale-95 flex justify-center items-center";
+                document.getElementById(`chip-${t}`).className = activeClass;
             }
+            
             performSearch(); 
         };
 
@@ -682,6 +752,11 @@
 
             const locDisplay = item.gov ? `${item.gov}، ${item.city}` : item.location;
 
+            // WhatsApp Logic for Card (Uses Main Image)
+            const waImg = imgs[0] || '';
+            const waMsg = `استفسار بخصوص: ${item.title}\nصورة: ${waImg}`;
+            const waLink = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`;
+
             return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border border-black dark:border-slate-500 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative transform-gpu" onclick="openDetails('${item.id}')">
                 <div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">
                     ${statusOverlay} <button onclick="toggleFav(event, '${item.id}')" class="absolute top-1.5 left-1.5 z-20 p-1 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-sm transition"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button>
@@ -696,7 +771,7 @@
                     <div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><div class="flex flex-col items-end"><span class="font-black text-emerald-600 dark:text-emerald-400 text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج</span>${!statusOverlay ? badge : ''}</div></div>
                     <div class="flex items-center gap-0.5 text-[9px] text-slate-500 dark:text-slate-400 mb-0.5"><i data-lucide="map-pin" class="w-2.5 h-2.5 text-emerald-500"></i> <span class="truncate">${locDisplay}</span></div>
                     <div class="flex items-center gap-2 text-[9px] text-slate-600 dark:text-slate-300 font-bold mb-1.5">${iconsHtml}</div>
-                    <div class="mt-auto flex gap-1 pt-1.5 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-emerald-600 text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-2.5 h-2.5"></i> واتس</a><a href="tel:${item.phone}" onclick="event.stopPropagation()" class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 p-1 rounded"><i data-lucide="phone" class="w-2.5 h-2.5"></i></a></div>
+                    <div class="mt-auto flex gap-1 pt-1.5 border-t border-slate-100 dark:border-slate-700"><a href="${waLink}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-emerald-600 text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-2.5 h-2.5"></i> واتس</a><a href="tel:${item.phone}" onclick="event.stopPropagation()" class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 p-1 rounded"><i data-lucide="phone" class="w-2.5 h-2.5"></i></a></div>
                 </div>
             </div>`;
         }
@@ -709,18 +784,31 @@
                 const mapBtn = document.getElementById('d-map'); if(item.mapLink) { mapBtn.classList.remove('hidden'); mapBtn.classList.add('flex'); mapBtn.href = item.mapLink; } else { mapBtn.classList.add('hidden'); mapBtn.classList.remove('flex'); }
                 const typeEl = document.getElementById('d-type-badge'); typeEl.innerText = item.type === 'sale' ? 'للبيع' : 'للإيجار'; typeEl.className = `absolute bottom-2 right-2 text-white px-2 py-0.5 rounded text-[10px] font-bold shadow backdrop-blur-sm ${item.type === 'sale' ? 'bg-emerald-600/90' : 'bg-blue-600/90'}`;
                 
-                const shareUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
-                const waMsg = `استفسار بخصوص: ${item.title}\nرابط الاعلان: ${shareUrl}`;
-                document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`; 
+                const imgs = Array.isArray(item.images) ? item.images : [item.image]; 
+                
+                // Dynamic WhatsApp Link Logic
+                const updateWaLink = (imgUrl) => {
+                    const shareUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
+                    const waMsg = `استفسار بخصوص: ${item.title}\nرابط الاعلان: ${shareUrl}\nصورة: ${imgUrl}`;
+                    document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`; 
+                };
+                
+                // Initial WA Link
+                updateWaLink(imgs[0]);
                 document.getElementById('d-call').href = `tel:${item.phone}`;
                 
-                const imgs = Array.isArray(item.images) ? item.images : [item.image]; 
                 const slider = document.getElementById('details-slider'); 
                 slider.innerHTML = imgs.map(src => {
                     const isVid = src.includes('.mp4') || src.includes('.mov');
                     return isVid ? `<video src="${src}" controls class="w-full h-full object-contain snap-center shrink-0 bg-black"></video>` : `<img src="${src}" class="w-full h-full object-cover snap-center shrink-0 cursor-pointer" onclick="openLightbox('${src}')">`
                 }).join('');
                 document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
+
+                // Scroll Listener to update WA link based on current image
+                slider.onscroll = () => {
+                    const index = Math.round(slider.scrollLeft / slider.clientWidth);
+                    if(imgs[index]) updateWaLink(imgs[index]);
+                };
 
                 const locDisplay = item.gov ? `${item.gov}، ${item.city}` : item.location;
 
@@ -752,7 +840,6 @@
                 const controlsDiv = document.getElementById('d-controls');
                 if(showControls) {
                     controlsDiv.classList.remove('hidden');
-                    // Only show Pin button if Admin
                     controlsDiv.innerHTML = `<button onclick="del(event,'${item.id}')" class="flex-1 bg-red-50 text-red-600 border border-red-200 py-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> حذف</button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}','${item.type}')" class="flex-1 bg-blue-50 text-blue-600 border border-blue-200 py-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1"><i data-lucide="edit-3" class="w-3 h-3"></i> حالة</button>${state.isAdmin ? `<button onclick="pin(event,'${item.id}',${item.isPinned})" class="flex-1 ${item.isPinned ? 'bg-yellow-100 text-yellow-600 border-yellow-300' : 'bg-slate-100 text-slate-600 border-slate-200'} border py-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1"><i data-lucide="star" class="w-3 h-3 ${item.isPinned?'fill-current':''}"></i> تثبيت</button>` : ''}`;
                 } else { controlsDiv.classList.add('hidden'); }
 
