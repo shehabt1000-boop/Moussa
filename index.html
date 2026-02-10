@@ -26,7 +26,10 @@
             font-family: 'Cairo', sans-serif; 
             -webkit-tap-highlight-color: transparent;
             overscroll-behavior-y: none;
+            background-color: #f1f5f9;
         }
+        .dark body { background-color: #0f172a; }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .select-none { user-select: none; }
 
@@ -41,28 +44,26 @@
             background-position: center;
             background-repeat: no-repeat;
             transform: translateZ(0);
-            will-change: transform;
         }
         
         #app-background::after {
             content: '';
             position: absolute; inset: 0;
-            background: rgba(241, 245, 249, 0.15); 
-            backdrop-filter: blur(0px);
-            transition: background 0.3s ease;
+            background: rgba(241, 245, 249, 0.75);
+            transition: background-color 0.2s ease;
         }
 
         .dark #app-background::after {
-            background: linear-gradient(rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.5));
+            background: rgba(15, 23, 42, 0.85);
         }
 
         /* Animations */
         @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
-        .skeleton { animation: shimmer 2s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
+        .skeleton { animation: shimmer 1.5s infinite linear; background: linear-gradient(to right, #f1f5f9 4%, #e2e8f0 25%, #f1f5f9 36%); background-size: 1000px 100%; }
         .dark .skeleton { background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%); }
 
-        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; }
+        @keyframes popIn { from { transform: scale(0.98); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: popIn 0.1s ease-out forwards; will-change: transform, opacity; }
 
         .mobile-full-modal { position: fixed; inset: 0; z-index: 60; background-color: white; display: flex; flex-direction: column; height: 100dvh; }
         .dark .mobile-full-modal { background-color: #1e293b; }
@@ -73,34 +74,37 @@
 
         @keyframes slideInDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-        .toast { animation: slideInDown 0.3s ease-out forwards; }
-        .toast.hiding { animation: fadeOut 0.3s ease-in forwards; }
+        .toast { animation: slideInDown 0.2s ease-out forwards; }
+        .toast.hiding { animation: fadeOut 0.2s ease-in forwards; }
 
         /* --- Header Styling --- */
         .sticky-header { 
             z-index: 50; 
             transform: translateZ(0); 
+            transition: background-color 0.2s ease;
         }
 
-        .sticky-filter { z-index: 40; transform: translateZ(0); }
-        
         /* --- Splash Screen --- */
         #splash-screen { 
-            position: fixed; inset: 0; z-index: 9999; 
+            position: fixed; inset: 0; z-index: 10000; 
             background-image: linear-gradient(rgba(15, 23, 42, 0.60), rgba(15, 23, 42, 0.80)), url('https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
             background-size: cover;
             background-position: center;
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.5s ease-out, visibility 0.5s; 
+            transition: opacity 0.3s ease-out, visibility 0.3s; 
         }
         .splash-icon-container { position: relative; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; }
         .splash-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(16, 185, 129, 0.3); border-top-color: #10b981; animation: spin 1s infinite linear; }
         .splash-logo { color: white; z-index: 10; animation: pulse 2s infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes pulse { 50% { transform: scale(0.9); opacity: 0.8; } }
+        
         .hidden-splash { opacity: 0; visibility: hidden; pointer-events: none; }
 
-        /* --- Input Styles (Compact) --- */
+        body:not(.app-loaded) #app-content-wrapper { opacity: 0; visibility: hidden; }
+        #app-content-wrapper { transition: opacity 0.4s ease-in-out; opacity: 1; }
+
+        /* --- Input Styles --- */
         .input-box {
             width: 100%; 
             background: white;
@@ -121,7 +125,7 @@
         }
         .input-box::placeholder { color: #64748b; font-weight: 500; font-size: 0.75rem; }
 
-        /* Custom Select Styling (Compact) */
+        /* Custom Select */
         .custom-select-wrapper { position: relative; }
         .custom-select {
             appearance: none;
@@ -141,7 +145,7 @@
             pointer-events: none; color: #64748b; width: 0.8rem; height: 0.8rem;
         }
 
-        /* Table Styles (Compact) */
+        /* Table */
         .modern-table { border-collapse: collapse; width: 100%; }
         .modern-table td, .modern-table th { 
             padding: 0.4rem; 
@@ -153,19 +157,16 @@
 
         .amenity-tile input:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
         
-        /* Filter Panel Transition - Optimized */
+        /* Filter Panel */
         #filter-panel { 
-            transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s; 
+            transition: max-height 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s; 
             max-height: 0; opacity: 0; overflow: hidden; 
             will-change: max-height, opacity; 
         }
         #filter-panel.open { max-height: 450px; opacity: 1; }
     </style>
 </head>
-<body class="text-slate-800 dark:text-slate-100 select-none transition-colors duration-300">
-
-    <!-- Fixed Background Layer -->
-    <div id="app-background"></div>
+<body class="text-slate-800 dark:text-slate-100 select-none">
 
     <!-- Splash Screen -->
     <div id="splash-screen">
@@ -176,109 +177,118 @@
         <div class="mt-4 text-white font-bold text-lg tracking-wide">السوق <span class="text-emerald-500">وياك</span></div>
     </div>
 
-    <div id="toast-container" class="fixed top-4 left-0 right-0 z-[100] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
+    <!-- Wrapper -->
+    <div id="app-content-wrapper">
+        <div id="app-background"></div>
 
-    <!-- Header (Reduced Curve, Centered Logo Stack) -->
-    <header class="fixed top-0 w-full sticky-header bg-white/95 dark:bg-navy/95 backdrop-blur-none border-b-0 h-14 rounded-b-[1.5rem] flex items-center px-4 shadow-md transition-colors transform-gpu z-50">
-        
-        <!-- Center: Logo & Title Stacked -->
-        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center cursor-pointer group" id="logo-trigger">
-            <div class="bg-slate-900 dark:bg-emerald-600 text-white p-1 rounded-[4px] mb-[2px] shadow-sm group-hover:scale-110 transition">
-                <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
-            </div>
-            <h1 class="font-bold text-[10px] leading-none tracking-tight text-slate-800 dark:text-white">السوق <span class="text-emerald-600 dark:text-emerald-400">وياك</span></h1>
-        </div>
+        <div id="toast-container" class="fixed top-4 left-0 right-0 z-[100] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
-        <!-- Left Side (RTL End): Buttons -->
-        <div class="flex gap-1.5 items-center mr-auto">
-            <a href="https://wa.me/201206244875" target="_blank" class="p-1.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 border border-green-100 dark:border-green-900/50 transition shadow-sm"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
-            <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
-            <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="pt-16 pb-20 container mx-auto px-2 max-w-5xl min-h-screen">
-        
-        <!-- Search & Filter -->
-        <div class="sticky top-16 sticky-filter z-40 space-y-2 pointer-events-none">
+        <!-- Header (Reduced Height & Compact) -->
+        <header class="fixed top-0 w-full sticky-header bg-white/95 dark:bg-navy/95 backdrop-blur-none border-b-0 rounded-b-[1.5rem] flex flex-col shadow-md z-50 pb-1">
             
-            <!-- Top Row: Search Input (Square Top, Rounded Bottom) -->
-            <div class="relative px-2 py-1.5 bg-slate-50/95 dark:bg-navy/95 rounded-b-xl shadow-sm pointer-events-auto transform-gpu border-t-0 border-x border-b border-slate-100 dark:border-slate-700">
-                <div class="relative w-full">
-                    <input type="text" id="search-input" placeholder="ابحث (شقة، أرض، عنوان)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-lg pl-9 pr-9 py-2 text-xs shadow-sm focus:ring-1 focus:ring-emerald-500 outline-none dark:text-white transition font-bold h-9">
-                    <button onclick="performSearch()" class="absolute right-0 top-0 h-full w-9 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition"><i data-lucide="search" class="w-4 h-4"></i></button>
-                    <button onclick="toggleFilterPanel()" class="absolute left-0 top-0 h-full w-9 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-white transition"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
+            <!-- Top Row: Very Compact -->
+            <div class="w-full flex justify-between items-center px-4 h-10">
+                <!-- Welcome Text -->
+                <div class="flex flex-col justify-center">
+                    <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 leading-none">مرحبا بكم في</span>
+                    <span class="text-[10px] font-black text-slate-800 dark:text-white leading-tight">سوق <span class="text-emerald-600 dark:text-emerald-400">العقارات</span></span>
                 </div>
 
-                <!-- Advanced Filter Panel -->
-                <div id="filter-panel" class="mt-2 bg-white dark:bg-slate-800 rounded-lg border border-black dark:border-slate-600 shadow-lg">
-                    <div class="p-2 space-y-1.5">
-                        <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-1">
-                            <h3 class="text-[10px] font-bold text-slate-700 dark:text-white flex items-center gap-1"><i data-lucide="filter" class="w-3 h-3"></i> تصفية</h3>
-                            <button onclick="resetFilters()" class="text-[9px] text-red-500 font-bold underline">إعادة تعيين</button>
-                        </div>
-                        <div class="custom-select-wrapper">
-                            <select id="filter-type" class="custom-select py-1 text-[10px]">
-                                <option value="">كل الأنواع (بيع/إيجار)</option>
-                                <option value="sale">بيع</option>
-                                <option value="rent">إيجار</option>
-                            </select>
-                            <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
-                        </div>
+                <!-- Logo -->
+                <div class="absolute left-1/2 top-5 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center cursor-pointer group" id="logo-trigger">
+                    <div class="bg-slate-900 dark:bg-emerald-600 text-white p-1 rounded-[4px] mb-[1px] shadow-sm group-hover:scale-110 transition">
+                        <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+                    </div>
+                </div>
 
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <div class="custom-select-wrapper">
-                                <select id="filter-gov" onchange="populateCities('filter-gov', 'filter-city')" class="custom-select py-1 text-[10px]"><option value="">كل المحافظات</option></select>
-                                <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
+                <!-- Buttons -->
+                <div class="flex gap-1.5 items-center">
+                    <a href="https://wa.me/201206244875" target="_blank" class="p-1.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 border border-green-100 dark:border-green-900/50 transition shadow-sm"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i></a>
+                    <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-3.5 h-3.5 block dark:hidden"></i><i data-lucide="sun" class="w-3.5 h-3.5 hidden dark:block"></i></button>
+                    <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-3.5 h-3.5"></i></button>
+                </div>
+            </div>
+
+            <!-- Filter Buttons (Pulled up closer to logo) -->
+            <div class="grid grid-cols-4 gap-1.5 px-6 w-full max-w-[95%] mx-auto -mt-1.5">
+                <button onclick="filter('all')" id="chip-all" class="w-full py-0.5 rounded bg-slate-900 dark:bg-emerald-600 text-white text-[9px] font-bold shadow transition transform active:scale-95 flex justify-center items-center">الكل</button>
+                <button onclick="filter('sale')" id="chip-sale" class="w-full py-0.5 rounded bg-slate-100 dark:bg-darkbg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[9px] font-bold transition active:scale-95 flex justify-center items-center">بيع</button>
+                <button onclick="filter('rent')" id="chip-rent" class="w-full py-0.5 rounded bg-slate-100 dark:bg-darkbg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[9px] font-bold transition active:scale-95 flex justify-center items-center">إيجار</button>
+                <button onclick="toggleFavView()" id="chip-fav" class="w-full py-0.5 rounded bg-slate-100 dark:bg-darkbg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[9px] font-bold transition active:scale-95 flex justify-center items-center gap-1"><i data-lucide="heart" class="w-3 h-3 fill-current"></i> <span id="fav-count" class="bg-red-600 text-white text-[8px] px-1 rounded-full hidden"></span></button>
+            </div>
+        </header>
+
+        <!-- Main Content (Adjusted Padding for very compact header) -->
+        <main class="pt-[4.1rem] pb-20 container mx-auto px-2 max-w-5xl min-h-screen">
+            
+            <!-- Search Bar (Tight Spacing & Reduced Padding) -->
+            <div class="sticky top-[4.1rem] z-40 space-y-1 pointer-events-none mb-2">
+                <div class="relative px-1 py-0.5 bg-slate-50/95 dark:bg-navy/95 rounded-b-xl shadow-sm pointer-events-auto transform-gpu border-t-0 border-x border-b border-slate-100 dark:border-slate-700">
+                    <div class="relative w-full p-0.5">
+                        <input type="text" id="search-input" placeholder="ابحث (شقة، أرض، عنوان)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-lg pl-9 pr-9 py-1 text-xs shadow-sm focus:ring-1 focus:ring-emerald-500 outline-none dark:text-white transition font-bold h-8">
+                        <button onclick="performSearch()" class="absolute right-1 top-0.5 h-full w-9 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition"><i data-lucide="search" class="w-4 h-4"></i></button>
+                        <button onclick="toggleFilterPanel()" class="absolute left-1 top-0.5 h-full w-9 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-white transition"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
+                    </div>
+
+                    <!-- Filter Panel -->
+                    <div id="filter-panel" class="mt-1 bg-white dark:bg-slate-800 rounded-lg border border-black dark:border-slate-600 shadow-lg mx-1">
+                        <div class="p-2 space-y-1.5">
+                            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-1">
+                                <h3 class="text-[10px] font-bold text-slate-700 dark:text-white flex items-center gap-1"><i data-lucide="filter" class="w-3 h-3"></i> تصفية</h3>
+                                <button onclick="resetFilters()" class="text-[9px] text-red-500 font-bold underline">إعادة تعيين</button>
                             </div>
                             <div class="custom-select-wrapper">
-                                <select id="filter-city" class="custom-select py-1 text-[10px]"><option value="">كل المراكز</option></select>
+                                <select id="filter-type" class="custom-select py-1 text-[10px]">
+                                    <option value="">كل الأنواع (بيع/إيجار)</option>
+                                    <option value="sale">بيع</option>
+                                    <option value="rent">إيجار</option>
+                                </select>
                                 <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
                             </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <input type="number" id="filter-min-price" placeholder="أقل سعر" class="input-box text-[10px] py-1">
-                            <input type="number" id="filter-max-price" placeholder="أعلى سعر" class="input-box text-[10px] py-1">
-                        </div>
-                        <!-- Split Buttons: Apply & Close -->
-                        <div class="flex gap-2">
-                            <button onclick="performSearch(); toggleFilterPanel()" class="flex-1 bg-emerald-600 text-white py-1.5 rounded font-bold text-[10px] shadow hover:bg-emerald-700 transition">تطبيق</button>
-                            <button onclick="toggleFilterPanel()" class="w-16 bg-red-500 text-white py-1.5 rounded font-bold text-[10px] shadow hover:bg-red-600 transition flex items-center justify-center"><i data-lucide="x" class="w-3 h-3"></i> إغلاق</button>
+
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <div class="custom-select-wrapper">
+                                    <select id="filter-gov" onchange="populateCities('filter-gov', 'filter-city')" class="custom-select py-1 text-[10px]"><option value="">كل المحافظات</option></select>
+                                    <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
+                                </div>
+                                <div class="custom-select-wrapper">
+                                    <select id="filter-city" class="custom-select py-1 text-[10px]"><option value="">كل المراكز</option></select>
+                                    <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <input type="number" id="filter-min-price" placeholder="أقل سعر" class="input-box text-[10px] py-1">
+                                <input type="number" id="filter-max-price" placeholder="أعلى سعر" class="input-box text-[10px] py-1">
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="performSearch(); toggleFilterPanel()" class="flex-1 bg-emerald-600 text-white py-1.5 rounded font-bold text-[10px] shadow hover:bg-emerald-700 transition">تطبيق</button>
+                                <button onclick="toggleFilterPanel()" class="w-16 bg-red-500 text-white py-1.5 rounded font-bold text-[10px] shadow hover:bg-red-600 transition flex items-center justify-center"><i data-lucide="x" class="w-3 h-3"></i> إغلاق</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Bottom Row: Filter Buttons -->
-            <div class="grid grid-cols-4 gap-1.5 px-2 pointer-events-auto">
-                <button onclick="filter('all')" id="chip-all" class="w-full py-1.5 rounded bg-slate-900 dark:bg-emerald-600 text-white text-[10px] font-bold shadow transition transform active:scale-95 flex justify-center items-center">الكل</button>
-                <button onclick="filter('sale')" id="chip-sale" class="w-full py-1.5 rounded bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold transition active:scale-95 flex justify-center items-center">بيع</button>
-                <button onclick="filter('rent')" id="chip-rent" class="w-full py-1.5 rounded bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold transition active:scale-95 flex justify-center items-center">إيجار</button>
-                <button onclick="toggleFavView()" id="chip-fav" class="w-full py-1.5 rounded bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold transition active:scale-95 flex justify-center items-center gap-1"><i data-lucide="heart" class="w-3 h-3 fill-current"></i> <span id="fav-count" class="bg-red-600 text-white text-[8px] px-1 rounded-full hidden"></span></button>
+            <div id="grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-2"></div>
+            
+            <div id="load-more-container" class="hidden mt-4 text-center">
+                <button onclick="loadMore()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-6 py-2 rounded-full text-xs font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition">عرض المزيد</button>
             </div>
-        </div>
 
-        <div id="grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-2"></div>
-        
-        <!-- Load More Button -->
-        <div id="load-more-container" class="hidden mt-4 text-center">
-            <button onclick="loadMore()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-6 py-2 rounded-full text-xs font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition">عرض المزيد</button>
-        </div>
+            <div id="empty-state" class="hidden text-center py-16 opacity-60 flex flex-col items-center">
+                <div class="bg-slate-200 dark:bg-slate-700 p-3 rounded-full inline-block mb-2"><i data-lucide="search-x" class="w-6 h-6 text-slate-400"></i></div>
+                <p class="text-slate-500 dark:text-slate-400 font-bold text-xs">لا توجد نتائج</p>
+                <button onclick="resetFilters()" class="mt-1 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold underline">عرض الكل</button>
+            </div>
+        </main>
 
-        <div id="empty-state" class="hidden text-center py-16 opacity-60 flex flex-col items-center">
-            <div class="bg-slate-200 dark:bg-slate-700 p-3 rounded-full inline-block mb-2"><i data-lucide="search-x" class="w-6 h-6 text-slate-400"></i></div>
-            <p class="text-slate-500 dark:text-slate-400 font-bold text-xs">لا توجد نتائج</p>
-            <button onclick="resetFilters()" class="mt-1 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold underline">عرض الكل</button>
-        </div>
-    </main>
-
-    <!-- Floating Dock -->
-    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border border-slate-200 dark:border-slate-600 px-5 py-1.5 rounded-full flex items-center gap-6 shadow-xl transform transition-all hover:scale-105 transform-gpu">
-        <button onclick="resetFilters(); window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center gap-0.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
-        <button onclick="toggleAddModal()" class="w-12 h-12 bg-slate-900 dark:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-[#f8fafc] dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
-        <button onclick="toggleChat()" class="flex flex-col items-center gap-0.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
-    </nav>
+        <!-- Floating Dock -->
+        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border border-slate-200 dark:border-slate-600 px-5 py-1.5 rounded-full flex items-center gap-6 shadow-xl transform transition-all hover:scale-105 transform-gpu">
+            <button onclick="resetFilters(); window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center gap-0.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
+            <button onclick="toggleAddModal()" class="w-12 h-12 bg-slate-900 dark:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-[#f8fafc] dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
+            <button onclick="toggleChat()" class="flex flex-col items-center gap-0.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
+        </nav>
+    </div>
 
     <!-- Details Modal -->
     <div id="details-modal" class="hidden modal-overlay">
@@ -289,14 +299,14 @@
                     <button onclick="downloadImages()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1 rounded-full shadow-sm"><i data-lucide="download" class="w-4 h-4"></i></button>
                     <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1 rounded-full shadow-sm"><i data-lucide="share-2" class="w-4 h-4"></i></button>
                 </div>
-                <!-- Slider -->
                 <div id="details-slider" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth"></div>
                 <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-4 h-4"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-4 h-4"></i></button></div>
                 <span id="d-type-badge" class="absolute bottom-2 right-2 text-white px-2 py-0.5 rounded text-[10px] font-bold shadow backdrop-blur-sm"></span>
             </div>
-            <!-- Content Area with Scroll -->
             <div class="flex-1 overflow-y-auto bg-white dark:bg-darkbg">
-                <div id="d-controls" class="hidden p-2 bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-700 flex gap-2"></div>
+                <!-- Admin Controls: Compact -->
+                <div id="d-controls" class="hidden p-2 bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-700 flex gap-2 justify-end"></div>
+                
                 <div class="p-2 space-y-2">
                     <div class="space-y-1">
                         <div><span class="text-[9px] font-bold text-slate-400 block mb-0">العنوان العقاري</span><h2 id="d-title" class="text-sm font-bold text-slate-900 dark:text-white leading-tight"></h2></div>
@@ -308,7 +318,13 @@
                     <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
                         <table class="w-full text-[10px] modern-table"><tbody id="d-table-body"></tbody></table>
                     </div>
-                    <div><h3 class="text-[10px] font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3 text-yellow-500"></i> المميزات</h3><div id="d-amenities" class="flex flex-wrap gap-1"></div></div>
+                    
+                    <!-- Amenities Table -->
+                    <div>
+                        <h3 class="text-[10px] font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3 text-yellow-500"></i> المميزات</h3>
+                        <div id="d-amenities" class="grid grid-cols-3 gap-0 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-800/50"></div>
+                    </div>
+
                     <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200 dark:border-slate-700"><h3 class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">التفاصيل الكاملة</h3><p id="d-desc" class="text-[10px] text-slate-700 dark:text-slate-300 leading-snug whitespace-pre-wrap font-medium"></p></div>
                 </div>
             </div>
@@ -422,6 +438,7 @@
 
                     <div class="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-black dark:border-slate-500 shadow-sm space-y-1.5">
                         <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700 pb-0.5 mb-0.5">الموقع والتواصل</h4>
+                        <input id="in-address" class="input-box mb-1.5" placeholder="العنوان بالتفصيل (اسم الشارع، علامة مميزة)...">
                         <div class="grid grid-cols-2 gap-1.5">
                             <div class="custom-select-wrapper">
                                 <select id="in-gov" onchange="populateCities('in-gov', 'in-city')" class="custom-select"><option value="" disabled selected>المحافظة</option></select>
@@ -466,7 +483,6 @@
         const CAT_MAP = { 'apartment': 'شقة', 'villa': 'فيلا', 'chalet': 'شالية', 'office': 'مكتب', 'shop': 'محل', 'land': 'أرض', 'building': 'عمارة', 'warehouse': 'مخزن' };
         const FINISH_MAP = { 'red': 'طوب أحمر', 'semi': 'نصف تشطيب', 'full': 'تشطيب كامل', 'super': 'سوبر لوكس', 'ultra': 'الترا سوبر لوكس' };
 
-        // Keywords for Smart Search
         const CAT_KEYWORDS = {
             'شقة': 'apartment', 'شقق': 'apartment',
             'فيلا': 'villa', 'فلل': 'villa',
@@ -625,7 +641,11 @@
                     return (a.isPinned ? -1 : 1);
                 });
                 performSearch(); 
-                document.getElementById('splash-screen').classList.add('hidden-splash');
+                
+                document.body.classList.add('app-loaded');
+                setTimeout(() => {
+                    document.getElementById('splash-screen').classList.add('hidden-splash');
+                }, 100);
                 
                 const urlParams = new URLSearchParams(window.location.search);
                 const sharedId = urlParams.get('id');
@@ -661,7 +681,7 @@
                 if (filterType && item.type !== filterType) matchType = false;
 
                 const catNameAr = CAT_MAP[item.category] || '';
-                const itemText = normalizeText(item.title + item.desc + item.phone + item.gov + item.city + item.location + catNameAr);
+                const itemText = normalizeText(item.title + item.desc + item.phone + item.gov + item.city + item.location + (item.address || '') + catNameAr);
                 const matchText = itemText.includes(q);
                 
                 const matchCat = !detectedCat || item.category === detectedCat;
@@ -672,7 +692,6 @@
                 return matchType && matchText && matchCat && matchGov && matchCity && matchPrice; 
             }); 
 
-            // Pagination Logic
             const visibleItems = filtered.slice(0, state.visibleLimit);
             const loadMoreBtn = document.getElementById('load-more-container');
             
@@ -704,19 +723,16 @@
         
         window.filter = (t) => { 
             state.currentFilter = t; 
-            state.visibleLimit = 12; // Reset pagination on filter change
+            state.visibleLimit = 12; 
             
-            // Reset all buttons
             ['all','sale','rent','fav'].forEach(k => {
                 const btn = document.getElementById(`chip-${k}`);
-                // Default inactive style
-                let baseClass = "w-full py-1.5 rounded bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold transition active:scale-95 flex justify-center items-center";
+                let baseClass = "w-full py-0.5 rounded bg-slate-100 dark:bg-darkbg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[9px] font-bold transition active:scale-95 flex justify-center items-center";
                 if(k === 'fav') baseClass += " gap-1";
                 btn.className = baseClass;
             });
 
-            // Set active button style
-            const activeClass = "w-full py-1.5 rounded bg-slate-900 dark:bg-emerald-600 text-white text-[10px] font-bold shadow transition transform active:scale-95 flex justify-center items-center";
+            const activeClass = "w-full py-0.5 rounded bg-slate-900 dark:bg-emerald-600 text-white text-[9px] font-bold shadow transition transform active:scale-95 flex justify-center items-center";
             
             if(t === 'fav') {
                 document.getElementById('chip-fav').className = activeClass + " gap-1";
@@ -731,7 +747,7 @@
             const imgs = Array.isArray(item.images)?item.images:[item.image];
             const isFav = state.favorites.includes(item.id);
             const heartClass = isFav ? "fill-red-500 text-red-500" : "text-white";
-            let badge = item.badge==='hot' ? `<span class="inline-block bg-orange-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow animate-pulse mt-0.5">🔥 لقطة</span>` : (item.badge==='verified' ? `<span class="inline-block bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow flex items-center gap-0.5 mt-0.5"><i data-lucide="check-circle" class="w-2 h-2"></i> موثوق</span>` : '');
+            let badge = item.badge==='hot' ? `<span class="inline-block bg-orange-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow animate-pulse">🔥 لقطة</span>` : (item.badge==='verified' ? `<span class="inline-block bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow flex items-center gap-0.5"><i data-lucide="check-circle" class="w-2 h-2"></i> موثوق</span>` : '');
             let statusOverlay = ''; 
             if(item.status && item.status !== 'available') { 
                 const txt = item.status==='sold'?'تم البيع':'تم التأجير'; 
@@ -752,13 +768,12 @@
 
             const locDisplay = item.gov ? `${item.gov}، ${item.city}` : item.location;
 
-            // WhatsApp Logic for Card (Uses Main Image)
             const waImg = imgs[0] || '';
             const waMsg = `استفسار بخصوص: ${item.title}\nصورة: ${waImg}`;
             const waLink = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`;
 
             return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border border-black dark:border-slate-500 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative transform-gpu" onclick="openDetails('${item.id}')">
-                <div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">
+                <div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700 shrink-0">
                     ${statusOverlay} <button onclick="toggleFav(event, '${item.id}')" class="absolute top-1.5 left-1.5 z-20 p-1 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-sm transition"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button>
                     <span class="absolute top-1.5 right-1.5 ${item.type === 'sale' ? 'bg-emerald-600' : 'bg-blue-600'} text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-20 card-overlay-z">${item.type === 'sale' ? 'بيع' : 'إيجار'}</span>
                     ${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-0.5 rounded-full z-10 hidden group-hover:block"><i data-lucide="chevron-right" class="w-3 h-3"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-0.5 rounded-full z-10 hidden group-hover:block"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}
@@ -768,10 +783,27 @@
                     }).join('')}</div>
                 </div>
                 <div class="p-1.5 flex-1 flex flex-col">
-                    <div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><div class="flex flex-col items-end"><span class="font-black text-emerald-600 dark:text-emerald-400 text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج</span>${!statusOverlay ? badge : ''}</div></div>
-                    <div class="flex items-center gap-0.5 text-[9px] text-slate-500 dark:text-slate-400 mb-0.5"><i data-lucide="map-pin" class="w-2.5 h-2.5 text-emerald-500"></i> <span class="truncate">${locDisplay}</span></div>
-                    <div class="flex items-center gap-2 text-[9px] text-slate-600 dark:text-slate-300 font-bold mb-1.5">${iconsHtml}</div>
-                    <div class="mt-auto flex gap-1 pt-1.5 border-t border-slate-100 dark:border-slate-700"><a href="${waLink}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-emerald-600 text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-2.5 h-2.5"></i> واتس</a><a href="tel:${item.phone}" onclick="event.stopPropagation()" class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 p-1 rounded"><i data-lucide="phone" class="w-2.5 h-2.5"></i></a></div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-0.5">
+                            <h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1 leading-tight">${item.title}</h3>
+                            <span class="font-black text-emerald-600 dark:text-emerald-400 text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج</span>
+                        </div>
+                        <!-- Reserved Space for Badge -->
+                        <div class="h-3.5 flex justify-end items-center mt-0.5">
+                            ${!statusOverlay ? badge : ''}
+                        </div>
+                        <div class="flex items-center gap-0.5 text-[9px] text-slate-500 dark:text-slate-400 mb-0.5 mt-0.5">
+                            <i data-lucide="map-pin" class="w-2.5 h-2.5 text-emerald-500 shrink-0"></i> 
+                            <span class="truncate leading-tight">${locDisplay}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-[9px] text-slate-600 dark:text-slate-300 font-bold mb-1.5 h-4">
+                            ${iconsHtml}
+                        </div>
+                    </div>
+                    <div class="mt-auto flex gap-1 pt-1.5 border-t border-slate-100 dark:border-slate-700">
+                        <a href="${waLink}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-emerald-600 text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-2.5 h-2.5"></i> واتس</a>
+                        <a href="tel:${item.phone}" onclick="event.stopPropagation()" class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 p-1 rounded"><i data-lucide="phone" class="w-2.5 h-2.5"></i></a>
+                    </div>
                 </div>
             </div>`;
         }
@@ -780,20 +812,31 @@
             try {
                 const item = state.listings.find(i => i.id === id); if(!item) return;
                 state.currentItem = item; document.getElementById('d-title').innerText = item.title; document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' جنيه'; document.getElementById('d-desc').innerText = item.desc; document.getElementById('d-time-badge').innerText = timeAgo(item.createdAt);
-                const amCont = document.getElementById('d-amenities'); amCont.innerHTML=''; if(item.amenities && Array.isArray(item.amenities)) item.amenities.forEach(a => amCont.innerHTML += `<span class="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-2 py-1 rounded text-[9px] font-bold flex items-center gap-0.5 border border-emerald-100 dark:border-emerald-800"><i data-lucide="check" class="w-2.5 h-2.5"></i> ${a}</span>`);
+                
+                // Amenities as Table Grid
+                const amCont = document.getElementById('d-amenities'); 
+                amCont.innerHTML=''; 
+                if(item.amenities && Array.isArray(item.amenities) && item.amenities.length > 0) {
+                    item.amenities.forEach(a => {
+                        amCont.innerHTML += `<div class="p-1.5 text-center text-[9px] font-bold text-slate-700 dark:text-slate-300 border-r border-b border-slate-200 dark:border-slate-700 last:border-r-0">${a}</div>`;
+                    });
+                } else {
+                    amCont.innerHTML = `<div class="col-span-3 p-2 text-center text-[9px] text-slate-400">لا توجد مميزات إضافية</div>`;
+                }
+
                 const mapBtn = document.getElementById('d-map'); if(item.mapLink) { mapBtn.classList.remove('hidden'); mapBtn.classList.add('flex'); mapBtn.href = item.mapLink; } else { mapBtn.classList.add('hidden'); mapBtn.classList.remove('flex'); }
                 const typeEl = document.getElementById('d-type-badge'); typeEl.innerText = item.type === 'sale' ? 'للبيع' : 'للإيجار'; typeEl.className = `absolute bottom-2 right-2 text-white px-2 py-0.5 rounded text-[10px] font-bold shadow backdrop-blur-sm ${item.type === 'sale' ? 'bg-emerald-600/90' : 'bg-blue-600/90'}`;
                 
                 const imgs = Array.isArray(item.images) ? item.images : [item.image]; 
                 
-                // Dynamic WhatsApp Link Logic
+                // Dynamic WhatsApp Link Logic (Merged Image Link)
                 const updateWaLink = (imgUrl) => {
                     const shareUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
-                    const waMsg = `استفسار بخصوص: ${item.title}\nرابط الاعلان: ${shareUrl}\nصورة: ${imgUrl}`;
+                    // Adding the image URL directly in the text body
+                    const waMsg = `استفسار بخصوص: ${item.title}\nرابط الاعلان: ${shareUrl}\nصورة العقار: ${imgUrl}`;
                     document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`; 
                 };
                 
-                // Initial WA Link
                 updateWaLink(imgs[0]);
                 document.getElementById('d-call').href = `tel:${item.phone}`;
                 
@@ -804,7 +847,6 @@
                 }).join('');
                 document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
 
-                // Scroll Listener to update WA link based on current image
                 slider.onscroll = () => {
                     const index = Math.round(slider.scrollLeft / slider.clientWidth);
                     if(imgs[index]) updateWaLink(imgs[index]);
@@ -815,6 +857,8 @@
                 let tableHtml = `<tr><th class="w-1/3 text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="home" class="w-3 h-3"></i> نوع العقار</th><td class="font-bold text-slate-800 dark:text-slate-200">${CAT_MAP[item.category] || 'عقار'}</td></tr>`;
                 tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> الموقع</th><td class="font-bold text-slate-800 dark:text-slate-200">${locDisplay}</td></tr>`;
                 
+                if(item.address) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="map" class="w-3 h-3"></i> العنوان</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.address}</td></tr>`;
+
                 if(item.area) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="ruler" class="w-3 h-3"></i> المساحة</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.area} م²</td></tr>`;
                 
                 if(item.category === 'land') {
@@ -840,7 +884,8 @@
                 const controlsDiv = document.getElementById('d-controls');
                 if(showControls) {
                     controlsDiv.classList.remove('hidden');
-                    controlsDiv.innerHTML = `<button onclick="del(event,'${item.id}')" class="flex-1 bg-red-50 text-red-600 border border-red-200 py-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> حذف</button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}','${item.type}')" class="flex-1 bg-blue-50 text-blue-600 border border-blue-200 py-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1"><i data-lucide="edit-3" class="w-3 h-3"></i> حالة</button>${state.isAdmin ? `<button onclick="pin(event,'${item.id}',${item.isPinned})" class="flex-1 ${item.isPinned ? 'bg-yellow-100 text-yellow-600 border-yellow-300' : 'bg-slate-100 text-slate-600 border-slate-200'} border py-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1"><i data-lucide="star" class="w-3 h-3 ${item.isPinned?'fill-current':''}"></i> تثبيت</button>` : ''}`;
+                    // Smaller buttons
+                    controlsDiv.innerHTML = `<button onclick="del(event,'${item.id}')" class="bg-red-50 text-red-600 border border-red-200 py-1 px-3 rounded text-[9px] font-bold flex items-center justify-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> حذف</button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}','${item.type}')" class="bg-blue-50 text-blue-600 border border-blue-200 py-1 px-3 rounded text-[9px] font-bold flex items-center justify-center gap-1"><i data-lucide="edit-3" class="w-3 h-3"></i> حالة</button>${state.isAdmin ? `<button onclick="pin(event,'${item.id}',${item.isPinned})" class="${item.isPinned ? 'bg-yellow-100 text-yellow-600 border-yellow-300' : 'bg-slate-100 text-slate-600 border-slate-200'} border py-1 px-3 rounded text-[9px] font-bold flex items-center justify-center gap-1"><i data-lucide="star" class="w-3 h-3 ${item.isPinned?'fill-current':''}"></i> تثبيت</button>` : ''}`;
                 } else { controlsDiv.classList.add('hidden'); }
 
                 toggleModal('details-modal'); lucide.createIcons();
@@ -954,6 +999,7 @@
                     furnished: furnished,
                     gov: gov,
                     city: city,
+                    address: document.getElementById('in-address').value,
                     location:document.getElementById('in-loc')?.value || '', 
                     phone:document.getElementById('in-phone').value,
                     desc:document.getElementById('in-desc').value,
@@ -985,7 +1031,7 @@
         window.toggleStatus=async(e,id,currentStatus,type)=>{if(e)e.stopPropagation();let nextStatus='available';if(currentStatus==='available'){nextStatus=type==='sale'?'sold':'rented'};await updateDoc(doc(db, COLLECTION_NAME, id),{status:nextStatus});showToast(`الحالة: ${nextStatus==='available'?'متاح':(nextStatus==='sold'?'تم البيع':'تم التأجير')}`); closeDetails();};
 
         window.toggleChat=()=>{if(toggleModal('chat-modal')){if(!state.chatId&&state.chatStep===0&&!state.welcomeSent){state.welcomeSent=true;setTimeout(()=>botMsg('مرحباً! 👋<br>ما هو الاسم؟'),100)}}};
-        window.sendMsg=async()=>{const t=document.getElementById('chat-msg').value.trim();if(!t)return;document.getElementById('chat-msg').value='';userMsg(t);if(!state.chatId){if(state.chatStep===0){state.tempName=t;state.chatStep=1;setTimeout(()=>botMsg(`أهلاً ${t}، كيف نساعدك؟`),200)}else if(state.chatStep===1){state.chatStep=2;setTimeout(()=>botMsg('جاري التوصيل...'),200);const r=await addDoc(collection(db,"chats"),{userId:state.user.uid,userName:state.tempName,lastMsg:t,status:'waiting',messages:[{s:'bot',t:`الاسم: ${state.tempName}`,d:new Date()},{s:'user',t,d:new Date()}],createdAt:serverTimestamp()});state.chatId=r.id;listenChat(r.id)}}else{const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));if(!s.empty){const m=s.docs[0].data().messages;m.push({s:'user',t,d:new Date()});await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'})}}};
+        window.sendMsg=async()=>{const t=document.getElementById('chat-msg').value.trim();if(!t)return;document.getElementById('chat-msg').value='';userMsg(t);if(!state.chatId){if(state.chatStep===0){state.tempName=t;state.chatStep=1;setTimeout(()=>botMsg(`أهلاً ${t}، كيف نساعدك؟`),200)}else if(state.chatStep===1){state.chatStep=2;setTimeout(()=>botMsg('جاري تحويلك للدعم الفني...'),200);const r=await addDoc(collection(db,"chats"),{userId:state.user.uid,userName:state.tempName,lastMsg:t,status:'waiting',messages:[{s:'bot',t:`الاسم: ${state.tempName}`,d:new Date()},{s:'user',t,d:new Date()},{s:'bot',t:'جاري تحويلك للدعم الفني...',d:new Date()}],createdAt:serverTimestamp()});state.chatId=r.id;listenChat(r.id)}}else{const s=await getDocs(query(collection(db,"chats"),where('__name__','==',state.chatId)));if(!s.empty){const m=s.docs[0].data().messages;m.push({s:'user',t,d:new Date()});await updateDoc(doc(db,"chats",state.chatId),{messages:m,lastMsg:t,status:'waiting'})}}};
         function listenChat(id){onSnapshot(doc(db,"chats",id),s=>{if(s.exists()){const d=s.data();if(d.status==='closed'){state.chatId=null;state.chatStep=0;state.welcomeSent=false;document.getElementById('chat-box').innerHTML='';showToast("تم إنهاء المحادثة");toggleModal('chat-modal');return}document.getElementById('chat-box').innerHTML='';d.messages.forEach(m=>{if(!m.t.startsWith('الاسم'))(m.s==='user'?userMsg:botMsg)(m.t)})}})};
         function checkUserChat(){onSnapshot(query(collection(db,"chats"),where('userId','==',state.user.uid),where('status','!=','closed')),s=>{if(!s.empty){state.chatId=s.docs[0].id;state.chatStep=2;listenChat(state.chatId)}})};
         function userMsg(t){const d=document.createElement('div');d.className="flex justify-start";d.innerHTML=`<div class="bg-emerald-100 text-emerald-900 px-3 py-2 rounded-xl rounded-tr-none shadow-sm text-xs max-w-[85%]">${t}</div>`;document.getElementById('chat-box').appendChild(d);document.getElementById('chat-box').scrollTop=9999}
