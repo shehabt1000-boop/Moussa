@@ -30,30 +30,27 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .select-none { user-select: none; }
 
-        /* --- Fixed Background Setup (Modified for Stability) --- */
+        /* --- Fixed Background Setup --- */
         #app-background {
             position: fixed;
             top: 0; left: 0; width: 100%; 
-            height: 100vh; /* Changed from 100dvh to 100vh to prevent jump on scroll */
+            height: 100vh;
             z-index: -1;
             background-image: url('https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            transform: translateZ(0); /* Hardware acceleration to prevent flicker */
+            transform: translateZ(0);
         }
         
-        /* Overlay for Light Mode (Reduced Opacity) */
         #app-background::after {
             content: '';
             position: absolute; inset: 0;
-            /* Reduced opacity from 0.35 to 0.15 */
             background: rgba(241, 245, 249, 0.15); 
             backdrop-filter: blur(0px);
             transition: background 0.3s ease;
         }
 
-        /* Overlay for Dark Mode */
         .dark #app-background::after {
             background: linear-gradient(rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.5));
         }
@@ -97,13 +94,13 @@
         @keyframes pulse { 50% { transform: scale(0.9); opacity: 0.8; } }
         .hidden-splash { opacity: 0; visibility: hidden; pointer-events: none; }
 
-        /* --- Input Styles --- */
+        /* --- Input Styles (Compact) --- */
         .input-box {
             width: 100%; 
             background: white;
             border: 1px solid #000000; 
-            border-radius: 0.5rem;
-            padding: 0.6rem 0.75rem; font-size: 0.9rem; font-weight: 700;
+            border-radius: 0.4rem;
+            padding: 0.4rem 0.5rem; font-size: 0.8rem; font-weight: 700;
             outline: none; color: #0f172a;
             transition: all 0.2s; 
         }
@@ -116,32 +113,32 @@
             border-color: #10b981;
             box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
         }
-        .input-box::placeholder { color: #64748b; font-weight: 500; font-size: 0.8rem; }
+        .input-box::placeholder { color: #64748b; font-weight: 500; font-size: 0.75rem; }
 
-        /* Custom Select Styling */
+        /* Custom Select Styling (Compact) */
         .custom-select-wrapper { position: relative; }
         .custom-select {
             appearance: none;
             background-color: #f8fafc;
             border: 1px solid #000;
-            border-radius: 0.5rem;
-            padding: 0.6rem 2rem 0.6rem 0.75rem;
+            border-radius: 0.4rem;
+            padding: 0.4rem 1.5rem 0.4rem 0.5rem;
             width: 100%;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #334155;
             cursor: pointer;
         }
         .dark .custom-select { background-color: #1e293b; color: white; border-color: #94a3b8; }
         .custom-select-icon {
-            position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
-            pointer-events: none; color: #64748b;
+            position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%);
+            pointer-events: none; color: #64748b; width: 0.8rem; height: 0.8rem;
         }
 
-        /* Table Styles */
+        /* Table Styles (Compact) */
         .modern-table { border-collapse: collapse; width: 100%; }
         .modern-table td, .modern-table th { 
-            padding: 0.75rem; 
+            padding: 0.5rem; 
             border-bottom: 1px solid #e2e8f0; 
         }
         .dark .modern-table td, .dark .modern-table th { border-color: #334155; }
@@ -153,6 +150,18 @@
         /* Filter Panel Transition */
         #filter-panel { transition: max-height 0.3s ease-in-out, opacity 0.3s; max-height: 0; opacity: 0; overflow: hidden; }
         #filter-panel.open { max-height: 400px; opacity: 1; }
+
+        /* Pinned Ribbon */
+        .pinned-ribbon {
+            position: absolute; top: 0; left: 0; z-index: 25;
+            width: 0; height: 0;
+            border-top: 40px solid #fbbf24; /* Yellow-400 */
+            border-right: 40px solid transparent;
+        }
+        .pinned-icon {
+            position: absolute; top: -35px; left: 2px;
+            width: 14px; height: 14px; color: white; fill: white;
+        }
     </style>
 </head>
 <body class="text-slate-800 dark:text-slate-100 select-none transition-colors duration-300">
@@ -171,195 +180,183 @@
 
     <div id="toast-container" class="fixed top-4 left-0 right-0 z-[100] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
-    <!-- Header -->
-    <header class="fixed top-0 w-full sticky-header bg-white/95 dark:bg-navy/95 backdrop-blur border-b border-slate-200 dark:border-slate-700 h-14 flex items-center justify-between px-4 shadow-sm transition-colors">
-        <div class="flex items-center gap-2 cursor-pointer" id="logo-trigger">
-            <div class="bg-slate-900 dark:bg-emerald-600 text-white p-1.5 rounded"><i data-lucide="building-2" class="w-5 h-5"></i></div>
-            <h1 class="font-bold text-base">السوق <span class="text-emerald-600 dark:text-emerald-400">وياك</span></h1>
+    <!-- Header (Reduced Height h-12) -->
+    <header class="fixed top-0 w-full sticky-header bg-white/95 dark:bg-navy/95 backdrop-blur border-b border-slate-200 dark:border-slate-700 h-12 flex items-center justify-between px-3 shadow-sm transition-colors">
+        <div class="flex items-center gap-1.5 cursor-pointer" id="logo-trigger">
+            <div class="bg-slate-900 dark:bg-emerald-600 text-white p-1 rounded"><i data-lucide="building-2" class="w-4 h-4"></i></div>
+            <h1 class="font-bold text-sm">السوق <span class="text-emerald-600 dark:text-emerald-400">وياك</span></h1>
         </div>
-        <div class="flex gap-2 items-center">
-            <a href="https://wa.me/201206244875" target="_blank" class="p-2 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 border border-green-100 dark:border-green-900/50 transition shadow-sm"><i data-lucide="message-circle" class="w-5 h-5"></i></a>
-            <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i></button>
-            <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-5 h-5"></i></button>
+        <div class="flex gap-1.5 items-center">
+            <a href="https://wa.me/201206244875" target="_blank" class="p-1.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 border border-green-100 dark:border-green-900/50 transition shadow-sm"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
+            <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i></button>
+            <button onclick="toggleAdminPanel()" id="btn-admin-top" class="hidden bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full text-slate-600 dark:text-white"><i data-lucide="shield" class="w-4 h-4"></i></button>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="pt-16 pb-28 container mx-auto px-2 max-w-5xl min-h-screen">
+    <!-- Main Content (Reduced Padding pt-14) -->
+    <main class="pt-14 pb-20 container mx-auto px-2 max-w-5xl min-h-screen">
         
-        <!-- Search & Filter (Redesigned) -->
-        <div class="sticky top-14 sticky-filter bg-slate-50/90 dark:bg-navy/90 backdrop-blur-sm pb-2 pt-1 transition-colors rounded-b-xl shadow-sm">
+        <!-- Search & Filter (Compact) -->
+        <div class="sticky top-12 sticky-filter bg-slate-50/90 dark:bg-navy/90 backdrop-blur-sm pb-1.5 pt-1 transition-colors rounded-b-xl shadow-sm">
             
-            <!-- Top Row: Search Input (Compact) -->
-            <div class="relative px-2 mb-2">
-                <!-- Reduced padding (py-2.5) and margin -->
-                <input type="text" id="search-input" placeholder="ابحث (عنوان، كلمة مفتاحية)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-xl pl-12 pr-10 py-2.5 text-sm shadow-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition font-bold">
-                <button onclick="performSearch()" class="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-emerald-600 transition"><i data-lucide="search" class="w-5 h-5"></i></button>
-                <!-- Filter Button -->
-                <button onclick="toggleFilterPanel()" class="absolute left-4 top-1/2 -translate-y-1/2 p-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-white rounded-lg hover:bg-slate-200 transition border border-slate-300 dark:border-slate-600"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
+            <!-- Top Row: Search Input -->
+            <div class="relative px-2 mb-1.5">
+                <input type="text" id="search-input" placeholder="ابحث (عنوان، كلمة مفتاحية)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-lg pl-10 pr-9 py-2 text-xs shadow-sm focus:ring-1 focus:ring-emerald-500 outline-none dark:text-white transition font-bold">
+                <button onclick="performSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-emerald-600 transition"><i data-lucide="search" class="w-4 h-4"></i></button>
+                <button onclick="toggleFilterPanel()" class="absolute left-3 top-1/2 -translate-y-1/2 p-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-white rounded hover:bg-slate-200 transition border border-slate-300 dark:border-slate-600"><i data-lucide="sliders-horizontal" class="w-3 h-3"></i></button>
             </div>
 
-            <!-- Advanced Filter Panel (Hidden by default) -->
-            <div id="filter-panel" class="mx-2 mb-2 bg-white dark:bg-slate-800 rounded-xl border border-black dark:border-slate-600 shadow-lg">
-                <div class="p-2 space-y-2">
+            <!-- Advanced Filter Panel -->
+            <div id="filter-panel" class="mx-2 mb-1.5 bg-white dark:bg-slate-800 rounded-lg border border-black dark:border-slate-600 shadow-lg">
+                <div class="p-2 space-y-1.5">
                     <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-1">
-                        <h3 class="text-xs font-bold text-slate-700 dark:text-white flex items-center gap-1"><i data-lucide="filter" class="w-3 h-3"></i> تصفية</h3>
-                        <button onclick="resetFilters()" class="text-[10px] text-red-500 font-bold underline">إعادة تعيين</button>
+                        <h3 class="text-[10px] font-bold text-slate-700 dark:text-white flex items-center gap-1"><i data-lucide="filter" class="w-3 h-3"></i> تصفية</h3>
+                        <button onclick="resetFilters()" class="text-[9px] text-red-500 font-bold underline">إعادة تعيين</button>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-2 gap-1.5">
                         <div class="custom-select-wrapper">
-                            <select id="filter-gov" onchange="populateCities('filter-gov', 'filter-city')" class="custom-select py-1.5 text-xs"><option value="">كل المحافظات</option></select>
+                            <select id="filter-gov" onchange="populateCities('filter-gov', 'filter-city')" class="custom-select py-1 text-[10px]"><option value="">كل المحافظات</option></select>
                             <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
                         </div>
                         <div class="custom-select-wrapper">
-                            <select id="filter-city" class="custom-select py-1.5 text-xs"><option value="">كل المراكز</option></select>
+                            <select id="filter-city" class="custom-select py-1 text-[10px]"><option value="">كل المراكز</option></select>
                             <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="number" id="filter-min-price" placeholder="أقل سعر" class="input-box text-xs py-1.5">
-                        <input type="number" id="filter-max-price" placeholder="أعلى سعر" class="input-box text-xs py-1.5">
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <input type="number" id="filter-min-price" placeholder="أقل سعر" class="input-box text-[10px] py-1">
+                        <input type="number" id="filter-max-price" placeholder="أعلى سعر" class="input-box text-[10px] py-1">
                     </div>
-                    <button onclick="performSearch(); toggleFilterPanel()" class="w-full bg-emerald-600 text-white py-1.5 rounded-lg font-bold text-xs shadow">تطبيق</button>
+                    <button onclick="performSearch(); toggleFilterPanel()" class="w-full bg-emerald-600 text-white py-1 rounded font-bold text-[10px] shadow">تطبيق</button>
                 </div>
             </div>
 
-            <!-- Bottom Row: Filter Buttons (Distributed Grid) -->
-            <div class="grid grid-cols-4 gap-2 px-2">
-                <button onclick="filter('all')" id="chip-all" class="w-full py-2 rounded-lg bg-slate-900 dark:bg-emerald-600 text-white text-xs font-bold shadow transition transform active:scale-95 flex justify-center items-center">الكل</button>
-                <button onclick="filter('sale')" id="chip-sale" class="w-full py-2 rounded-lg bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold transition active:scale-95 flex justify-center items-center">بيع</button>
-                <button onclick="filter('rent')" id="chip-rent" class="w-full py-2 rounded-lg bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold transition active:scale-95 flex justify-center items-center">إيجار</button>
-                <button onclick="toggleFavView()" id="chip-fav" class="w-full py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 text-xs font-bold transition active:scale-95 flex justify-center items-center gap-1"><i data-lucide="heart" class="w-3 h-3 fill-current"></i> <span id="fav-count" class="bg-red-600 text-white text-[8px] px-1 rounded-full hidden"></span></button>
+            <!-- Bottom Row: Filter Buttons -->
+            <div class="grid grid-cols-4 gap-1.5 px-2">
+                <button onclick="filter('all')" id="chip-all" class="w-full py-1.5 rounded bg-slate-900 dark:bg-emerald-600 text-white text-[10px] font-bold shadow transition transform active:scale-95 flex justify-center items-center">الكل</button>
+                <button onclick="filter('sale')" id="chip-sale" class="w-full py-1.5 rounded bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold transition active:scale-95 flex justify-center items-center">بيع</button>
+                <button onclick="filter('rent')" id="chip-rent" class="w-full py-1.5 rounded bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold transition active:scale-95 flex justify-center items-center">إيجار</button>
+                <button onclick="toggleFavView()" id="chip-fav" class="w-full py-1.5 rounded bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 text-[10px] font-bold transition active:scale-95 flex justify-center items-center gap-1"><i data-lucide="heart" class="w-3 h-3 fill-current"></i> <span id="fav-count" class="bg-red-600 text-white text-[8px] px-1 rounded-full hidden"></span></button>
             </div>
         </div>
 
-        <div id="grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-2"></div>
+        <div id="grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-2"></div>
         
-        <div id="empty-state" class="hidden text-center py-20 opacity-60 flex flex-col items-center">
-            <div class="bg-slate-200 dark:bg-slate-700 p-4 rounded-full inline-block mb-2"><i data-lucide="search-x" class="w-8 h-8 text-slate-400"></i></div>
-            <p class="text-slate-500 dark:text-slate-400 font-bold text-sm">لا توجد نتائج</p>
-            <button onclick="resetFilters()" class="mt-2 text-emerald-600 dark:text-emerald-400 text-xs font-bold underline">عرض الكل</button>
+        <div id="empty-state" class="hidden text-center py-16 opacity-60 flex flex-col items-center">
+            <div class="bg-slate-200 dark:bg-slate-700 p-3 rounded-full inline-block mb-2"><i data-lucide="search-x" class="w-6 h-6 text-slate-400"></i></div>
+            <p class="text-slate-500 dark:text-slate-400 font-bold text-xs">لا توجد نتائج</p>
+            <button onclick="resetFilters()" class="mt-1 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold underline">عرض الكل</button>
         </div>
     </main>
 
-    <!-- Floating Dock -->
-    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border border-slate-200 dark:border-slate-600 px-6 py-2 rounded-full flex items-center gap-8 shadow-xl transform transition-all hover:scale-105">
-        <button onclick="resetFilters(); window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group"><i data-lucide="home" class="w-6 h-6 group-hover:scale-110 transition"></i></button>
-        <button onclick="toggleAddModal()" class="w-14 h-14 bg-slate-900 dark:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-6 border-4 border-[#f8fafc] dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-7 h-7"></i></button>
-        <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-6 h-6 group-hover:scale-110 transition"></i></button>
+    <!-- Floating Dock (Smaller) -->
+    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border border-slate-200 dark:border-slate-600 px-5 py-1.5 rounded-full flex items-center gap-6 shadow-xl transform transition-all hover:scale-105">
+        <button onclick="resetFilters(); window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center gap-0.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
+        <button onclick="toggleAddModal()" class="w-12 h-12 bg-slate-900 dark:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-[#f8fafc] dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
+        <button onclick="toggleChat()" class="flex flex-col items-center gap-0.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group relative"><div id="chat-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800"></div><i data-lucide="message-circle" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
     </nav>
 
-    <!-- Details Modal -->
+    <!-- Details Modal (Compact) -->
     <div id="details-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop">
-            <div class="relative h-64 bg-gray-200 dark:bg-slate-800 shrink-0 group">
-                <button onclick="closeDetails()" class="absolute top-3 left-3 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
-                <div class="absolute top-3 right-3 flex gap-2 z-20">
-                    <button onclick="downloadImages()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm"><i data-lucide="download" class="w-5 h-5"></i></button>
-                    <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1.5 rounded-full shadow-sm"><i data-lucide="share-2" class="w-5 h-5"></i></button>
+            <div class="relative h-48 bg-gray-200 dark:bg-slate-800 shrink-0 group">
+                <button onclick="closeDetails()" class="absolute top-2 left-2 bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1 rounded-full z-20 shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <div class="absolute top-2 right-2 flex gap-2 z-20">
+                    <button onclick="downloadImages()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1 rounded-full shadow-sm"><i data-lucide="download" class="w-4 h-4"></i></button>
+                    <button onclick="shareListing()" class="bg-white/80 dark:bg-black/50 text-slate-800 dark:text-white p-1 rounded-full shadow-sm"><i data-lucide="share-2" class="w-4 h-4"></i></button>
                 </div>
                 <div id="details-slider" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth"></div>
-                <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-5 h-5"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-5 h-5"></i></button></div>
-                <span id="d-type-badge" class="absolute bottom-3 right-3 text-white px-3 py-1 rounded-lg text-xs font-bold shadow backdrop-blur-sm"></span>
+                <div id="details-arrows"><button onclick="scrollDetails(1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-left" class="w-4 h-4"></i></button><button onclick="scrollDetails(-1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-1 rounded-full z-10"><i data-lucide="chevron-right" class="w-4 h-4"></i></button></div>
+                <span id="d-type-badge" class="absolute bottom-2 right-2 text-white px-2 py-0.5 rounded text-[10px] font-bold shadow backdrop-blur-sm"></span>
             </div>
             <div class="flex-1 overflow-y-auto bg-white dark:bg-darkbg">
-                <div id="d-controls" class="hidden p-3 bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-700 flex gap-2"></div>
-                <div class="p-5 space-y-6">
-                    <div class="space-y-4">
-                        <div><span class="text-[10px] font-bold text-slate-400 block mb-1">العنوان العقاري</span><h2 id="d-title" class="text-lg font-bold text-slate-900 dark:text-white leading-snug"></h2></div>
-                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
-                            <div><span class="text-[10px] font-bold text-slate-400 block mb-1">السعر المطلوب</span><span id="d-price" class="text-emerald-600 dark:text-emerald-400 font-black text-2xl"></span></div>
-                            <span id="d-time-badge" class="text-[10px] text-slate-400 font-medium bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full"></span>
+                <div id="d-controls" class="hidden p-2 bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-700 flex gap-2"></div>
+                <div class="p-3 space-y-4">
+                    <div class="space-y-2">
+                        <div><span class="text-[9px] font-bold text-slate-400 block mb-0.5">العنوان العقاري</span><h2 id="d-title" class="text-base font-bold text-slate-900 dark:text-white leading-snug"></h2></div>
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+                            <div><span class="text-[9px] font-bold text-slate-400 block mb-0.5">السعر المطلوب</span><span id="d-price" class="text-emerald-600 dark:text-emerald-400 font-black text-xl"></span></div>
+                            <span id="d-time-badge" class="text-[9px] text-slate-400 font-medium bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full"></span>
                         </div>
                     </div>
-                    <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
-                        <table class="w-full text-sm modern-table"><tbody id="d-table-body"></tbody></table>
+                    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                        <table class="w-full text-xs modern-table"><tbody id="d-table-body"></tbody></table>
                     </div>
-                    <div><h3 class="text-xs font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2"><i data-lucide="sparkles" class="w-3 h-3 text-yellow-500"></i> المميزات</h3><div id="d-amenities" class="flex flex-wrap gap-2"></div></div>
-                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700"><h3 class="text-[10px] font-bold text-slate-400 uppercase mb-2">التفاصيل الكاملة</h3><p id="d-desc" class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium"></p></div>
+                    <div><h3 class="text-[10px] font-bold text-slate-900 dark:text-white mb-1.5 flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3 text-yellow-500"></i> المميزات</h3><div id="d-amenities" class="flex flex-wrap gap-1.5"></div></div>
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700"><h3 class="text-[9px] font-bold text-slate-400 uppercase mb-1">التفاصيل الكاملة</h3><p id="d-desc" class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium"></p></div>
                 </div>
             </div>
-            <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex flex-col gap-2 shrink-0 pb-8 md:pb-4">
-                <a id="d-map" href="#" target="_blank" class="hidden w-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 py-3 rounded-xl flex justify-center items-center gap-2 font-bold text-sm border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition"><i data-lucide="map" class="w-4 h-4"></i> الموقع على الخريطة</a>
-                <div class="flex gap-3"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-3.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition"><i data-lucide="message-circle" class="w-5 h-5"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-slate-900 dark:bg-slate-700 text-white py-3.5 rounded-xl flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition"><i data-lucide="phone" class="w-5 h-5"></i> اتصال</a></div>
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg flex flex-col gap-2 shrink-0 pb-6 md:pb-3">
+                <a id="d-map" href="#" target="_blank" class="hidden w-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 py-2.5 rounded-lg flex justify-center items-center gap-2 font-bold text-xs border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition"><i data-lucide="map" class="w-3 h-3"></i> الموقع على الخريطة</a>
+                <div class="flex gap-2"><a id="d-wa" href="#" target="_blank" class="flex-1 bg-[#25D366] text-white py-3 rounded-lg flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-xs"><i data-lucide="message-circle" class="w-4 h-4"></i> واتساب</a><a id="d-call" href="#" class="flex-1 bg-slate-900 dark:bg-slate-700 text-white py-3 rounded-lg flex justify-center items-center gap-2 font-bold shadow-lg hover:opacity-90 transition text-xs"><i data-lucide="phone" class="w-4 h-4"></i> اتصال</a></div>
             </div>
         </div>
     </div>
 
-    <!-- Add Modal -->
+    <!-- Add Modal (Compact) -->
     <div id="add-modal" class="hidden modal-overlay">
         <div class="mobile-full-modal animate-pop">
-            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-white dark:bg-darkbg shrink-0">
-                <h3 class="font-bold text-slate-800 dark:text-white text-base">إضافة عقار</h3>
-                <button onclick="toggleAddModal()" class="bg-slate-100 dark:bg-slate-700 p-1.5 rounded-full text-slate-500 dark:text-white hover:bg-slate-200 transition"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <div class="p-2.5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-white dark:bg-darkbg shrink-0">
+                <h3 class="font-bold text-slate-800 dark:text-white text-sm">إضافة عقار</h3>
+                <button onclick="toggleAddModal()" class="bg-slate-100 dark:bg-slate-700 p-1 rounded-full text-slate-500 dark:text-white hover:bg-slate-200 transition"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
-            <div class="flex-1 overflow-y-auto p-3 bg-slate-50 dark:bg-darkbg">
-                <div class="space-y-3">
-                    <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-black dark:border-slate-500 shadow-sm">
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">صور وفيديوهات العقار <span class="text-red-500">*</span></label>
-                        <div class="grid grid-cols-4 gap-2">
+            <div class="flex-1 overflow-y-auto p-2.5 bg-slate-50 dark:bg-darkbg">
+                <div class="space-y-2.5">
+                    <div class="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-black dark:border-slate-500 shadow-sm">
+                        <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">صور وفيديوهات العقار <span class="text-red-500">*</span></label>
+                        <div class="grid grid-cols-4 gap-1.5">
                             <label class="aspect-square border-2 border-dashed border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-emerald-100 transition text-emerald-600 dark:text-emerald-400 relative overflow-hidden">
-                                <input type="file" multiple accept="image/*,video/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">إضافة</span>
+                                <input type="file" multiple accept="image/*,video/*" onchange="handleUpload(this)" class="absolute inset-0 opacity-0 z-10"><i data-lucide="camera" class="w-4 h-4 mb-0.5"></i><span class="text-[8px] font-bold">إضافة</span>
                             </label>
-                            <div id="preview-area" class="col-span-3 flex gap-2 overflow-x-auto no-scrollbar py-1"></div>
+                            <div id="preview-area" class="col-span-3 flex gap-1.5 overflow-x-auto no-scrollbar py-0.5"></div>
                         </div>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-black dark:border-slate-500 shadow-sm space-y-2">
-                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700 pb-1 mb-1">بيانات أساسية</h4>
-                        <div class="flex gap-2">
+                    <div class="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-black dark:border-slate-500 shadow-sm space-y-1.5">
+                        <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700 pb-0.5 mb-0.5">بيانات أساسية</h4>
+                        <div class="flex gap-1.5">
                             <div class="custom-select-wrapper flex-1">
                                 <select id="in-category" onchange="updateFormFields()" class="custom-select">
                                     <option value="apartment">شقة</option><option value="villa">فيلا</option><option value="chalet">شالية</option><option value="office">مكتب</option><option value="shop">محل</option><option value="land">أرض</option><option value="building">عمارة</option><option value="warehouse">مخزن</option>
                                 </select>
-                                <i data-lucide="chevron-down" class="custom-select-icon w-4 h-4"></i>
+                                <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
                             </div>
-                            <div class="custom-select-wrapper w-24 shrink-0">
+                            <div class="custom-select-wrapper w-20 shrink-0">
                                 <select id="in-type" class="custom-select"><option value="sale">بيع</option><option value="rent">إيجار</option></select>
-                                <i data-lucide="chevron-down" class="custom-select-icon w-4 h-4"></i>
+                                <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
                             </div>
                         </div>
                         <input id="in-title" class="input-box" placeholder="عنوان الإعلان">
                         <input id="in-price" type="number" class="input-box" placeholder="السعر (جنيه)">
                         
-                        <!-- Area & Level / Land Type / Floors (Dynamic) -->
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-2 gap-1.5">
                             <input id="in-area" type="number" class="input-box" placeholder="المساحة (م²)">
-                            
-                            <!-- Normal Level Input (Apartments etc) -->
                             <input id="in-level" type="text" class="input-box" placeholder="الدور">
-                            
-                            <!-- Floors Input (Moved here when Building is selected) -->
                             <input id="in-floors-alt" type="number" class="input-box hidden" placeholder="عدد الأدوار">
-
-                            <!-- Land Type Selector (Hidden by default) -->
                             <div id="land-type-wrapper" class="hidden custom-select-wrapper">
                                 <select id="in-land-type" class="custom-select">
                                     <option value="building">مباني</option>
                                     <option value="agriculture">زراعية</option>
                                 </select>
-                                <i data-lucide="chevron-down" class="custom-select-icon w-4 h-4"></i>
+                                <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
                             </div>
                         </div>
                         
-                        <!-- Land Specific Fields -->
-                        <div id="land-fields" class="hidden grid grid-cols-2 gap-2">
+                        <div id="land-fields" class="hidden grid grid-cols-2 gap-1.5">
                             <input id="in-feddan" type="number" class="input-box" placeholder="فدان (اختياري)">
                             <input id="in-qirat" type="number" class="input-box" placeholder="قيراط (اختياري)">
                         </div>
 
-                        <!-- Building Specific Fields (Apartments only, floors moved up) -->
-                        <div id="building-fields" class="hidden grid grid-cols-2 gap-2">
+                        <div id="building-fields" class="hidden grid grid-cols-2 gap-1.5">
                             <input id="in-apartments" type="number" class="input-box" placeholder="عدد الشقق">
                         </div>
 
-                        <div id="room-fields" class="grid grid-cols-2 gap-2">
+                        <div id="room-fields" class="grid grid-cols-2 gap-1.5">
                             <input id="in-rooms" type="number" class="input-box" placeholder="عدد الغرف">
                             <input id="in-baths" type="number" class="input-box" placeholder="عدد الحمامات">
                         </div>
                         
-                        <!-- New Fields: Balconies & Finishing -->
-                        <div id="extra-fields" class="grid grid-cols-2 gap-2">
+                        <div id="extra-fields" class="grid grid-cols-2 gap-1.5">
                             <input id="in-balconies" type="number" class="input-box" placeholder="عدد البلكونات">
                             <div class="custom-select-wrapper">
                                 <select id="in-finishing" class="custom-select">
@@ -370,43 +367,43 @@
                                     <option value="super">سوبر لوكس</option>
                                     <option value="ultra">الترا سوبر لوكس</option>
                                 </select>
-                                <i data-lucide="chevron-down" class="custom-select-icon w-4 h-4"></i>
+                                <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
                             </div>
                         </div>
 
-                        <div id="furnished-field" class="flex items-center justify-between bg-slate-50 dark:bg-slate-700/50 p-2 rounded-lg border border-black dark:border-slate-500">
-                            <span class="text-xs font-bold text-slate-600 dark:text-slate-300">مفروش؟</span>
-                            <div class="flex gap-2">
-                                <label class="cursor-pointer"><input type="radio" name="furnished" value="yes" class="peer hidden"><span class="px-3 py-1 rounded text-[10px] font-bold bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 text-slate-500 peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-500 transition">نعم</span></label>
-                                <label class="cursor-pointer"><input type="radio" name="furnished" value="no" checked class="peer hidden"><span class="px-3 py-1 rounded text-[10px] font-bold bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 text-slate-500 peer-checked:bg-slate-800 peer-checked:text-white peer-checked:border-slate-800 transition">لا</span></label>
+                        <div id="furnished-field" class="flex items-center justify-between bg-slate-50 dark:bg-slate-700/50 p-1.5 rounded-lg border border-black dark:border-slate-500">
+                            <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300">مفروش؟</span>
+                            <div class="flex gap-1.5">
+                                <label class="cursor-pointer"><input type="radio" name="furnished" value="yes" class="peer hidden"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 text-slate-500 peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-500 transition">نعم</span></label>
+                                <label class="cursor-pointer"><input type="radio" name="furnished" value="no" checked class="peer hidden"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 text-slate-500 peer-checked:bg-slate-800 peer-checked:text-white peer-checked:border-slate-800 transition">لا</span></label>
                             </div>
                         </div>
 
-                        <div class="flex gap-3 items-center pt-1">
-                            <span class="text-xs font-bold text-slate-600 dark:text-slate-400">شارة:</span>
-                            <div class="flex gap-2">
-                                <label class="cursor-pointer amenity-tile"><input type="radio" name="badge" value="none" checked class="hidden"><div class="px-3 py-1 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold text-slate-600 dark:text-slate-300 transition">عادي</div></label>
-                                <label class="cursor-pointer amenity-tile"><input type="radio" name="badge" value="hot" class="hidden"><div class="px-3 py-1 rounded border border-orange-200 text-[10px] font-bold text-orange-600 transition hover:bg-orange-50">🔥 لقطة</div></label>
+                        <div class="flex gap-2 items-center pt-0.5">
+                            <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400">شارة:</span>
+                            <div class="flex gap-1.5">
+                                <label class="cursor-pointer amenity-tile"><input type="radio" name="badge" value="none" checked class="hidden"><div class="px-2 py-0.5 rounded border border-slate-200 dark:border-slate-600 text-[9px] font-bold text-slate-600 dark:text-slate-300 transition">عادي</div></label>
+                                <label class="cursor-pointer amenity-tile"><input type="radio" name="badge" value="hot" class="hidden"><div class="px-2 py-0.5 rounded border border-orange-200 text-[9px] font-bold text-orange-600 transition hover:bg-orange-50">🔥 لقطة</div></label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-black dark:border-slate-500 shadow-sm space-y-2">
-                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700 pb-1 mb-1">المميزات</h4>
-                        <div class="grid grid-cols-4 gap-1.5" id="amenities-grid"></div>
-                        <textarea id="in-desc" rows="3" class="input-box resize-none" placeholder="وصف تفصيلي..."></textarea>
+                    <div class="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-black dark:border-slate-500 shadow-sm space-y-1.5">
+                        <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700 pb-0.5 mb-0.5">المميزات</h4>
+                        <div class="grid grid-cols-4 gap-1" id="amenities-grid"></div>
+                        <textarea id="in-desc" rows="2" class="input-box resize-none" placeholder="وصف تفصيلي..."></textarea>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-black dark:border-slate-500 shadow-sm space-y-2">
-                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700 pb-1 mb-1">الموقع والتواصل</h4>
-                        <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-black dark:border-slate-500 shadow-sm space-y-1.5">
+                        <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700 pb-0.5 mb-0.5">الموقع والتواصل</h4>
+                        <div class="grid grid-cols-2 gap-1.5">
                             <div class="custom-select-wrapper">
                                 <select id="in-gov" onchange="populateCities('in-gov', 'in-city')" class="custom-select"><option value="" disabled selected>المحافظة</option></select>
-                                <i data-lucide="chevron-down" class="custom-select-icon w-4 h-4"></i>
+                                <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
                             </div>
                             <div class="custom-select-wrapper">
                                 <select id="in-city" class="custom-select"><option value="" disabled selected>المركز/المدينة</option></select>
-                                <i data-lucide="chevron-down" class="custom-select-icon w-4 h-4"></i>
+                                <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
                             </div>
                         </div>
                         <input id="in-map" class="input-box" placeholder="رابط جوجل ماب (اختياري)">
@@ -414,8 +411,8 @@
                     </div>
                 </div>
             </div>
-            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg shrink-0 pb-8 md:pb-4">
-                <button onclick="submitListing()" id="btn-publish" class="w-full bg-slate-900 dark:bg-emerald-600 text-white py-3 rounded-lg font-bold text-xs shadow-lg hover:opacity-90 transition transform active:scale-95">نشر الإعلان</button>
+            <div class="p-2.5 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-darkbg shrink-0 pb-6 md:pb-3">
+                <button onclick="submitListing()" id="btn-publish" class="w-full bg-slate-900 dark:bg-emerald-600 text-white py-2.5 rounded-lg font-bold text-xs shadow-lg hover:opacity-90 transition transform active:scale-95">نشر الإعلان</button>
             </div>
         </div>
     </div>
@@ -485,7 +482,7 @@
             } 
         });
 
-        function initAmenities() { document.getElementById('amenities-grid').innerHTML = AMENITIES_LIST.map(a => `<label class="amenity-tile cursor-pointer"><input type="checkbox" class="amenity-check hidden" value="${a}"><div class="text-center py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-[9px] font-bold text-slate-600 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-700 truncate">${a}</div></label>`).join(''); }
+        function initAmenities() { document.getElementById('amenities-grid').innerHTML = AMENITIES_LIST.map(a => `<label class="amenity-tile cursor-pointer"><input type="checkbox" class="amenity-check hidden" value="${a}"><div class="text-center py-1 border border-slate-200 dark:border-slate-600 rounded-lg text-[8px] font-bold text-slate-600 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-700 truncate">${a}</div></label>`).join(''); }
 
         function initLocations() {
             const govSelects = ['in-gov', 'filter-gov'];
@@ -565,7 +562,7 @@
 
         function normalizeText(t) { return t ? t.toString().toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي') : ""; }
         function timeAgo(d) { if(!d) return 'جديد'; const s=Math.floor((new Date()-d.toDate())/1000); if(s<60)return 'الآن'; if(s<3600)return `منذ ${Math.floor(s/60)} د`; if(s<86400)return `منذ ${Math.floor(s/3600)} س`; return `منذ ${Math.floor(s/86400)} ي`; }
-        function showSkeletons() { const c=document.getElementById('grid-container'); c.innerHTML=''; for(let i=0;i<6;i++) c.innerHTML+=`<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-navy/10 dark:border-slate-700 h-full"><div class="h-32 skeleton rounded-t-lg"></div><div class="p-2 space-y-2"><div class="h-4 rounded skeleton w-3/4"></div><div class="h-3 rounded skeleton w-1/2"></div></div></div>`; }
+        function showSkeletons() { const c=document.getElementById('grid-container'); c.innerHTML=''; for(let i=0;i<6;i++) c.innerHTML+=`<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-navy/10 dark:border-slate-700 h-full"><div class="h-28 skeleton rounded-t-lg"></div><div class="p-2 space-y-2"><div class="h-3 rounded skeleton w-3/4"></div><div class="h-2 rounded skeleton w-1/2"></div></div></div>`; }
         function initFavs() { state.favorites = JSON.parse(localStorage.getItem('souq_favs') || '[]'); updateFavBadge(); }
         window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); performSearch(); };
         function updateFavBadge() { const b = document.getElementById('fav-count'); if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); b.innerText = state.favorites.length; }
@@ -576,7 +573,13 @@
             onSnapshot(query(collection(db, COLLECTION_NAME)), (snap) => { 
                 state.listings = []; 
                 snap.forEach(d => state.listings.push({id:d.id, ...d.data()})); 
-                state.listings.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)); 
+                // Sort: Pinned first, then Newest
+                state.listings.sort((a,b) => {
+                    if (a.isPinned === b.isPinned) {
+                        return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+                    }
+                    return (a.isPinned ? -1 : 1);
+                });
                 performSearch(); 
                 document.getElementById('splash-screen').classList.add('hidden-splash');
                 
@@ -632,25 +635,20 @@
         document.getElementById('search-input').addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); performSearch(); document.getElementById('search-input').blur(); } });
         window.filter = (t) => { 
             state.currentFilter = t; 
-            
-            // Reset all buttons
             ['all','sale','rent','fav'].forEach(k => {
                 const btn = document.getElementById(`chip-${k}`);
                 if(k === 'fav') {
-                    // Special styling for Fav button when inactive
-                    btn.className = "w-full py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 text-xs font-bold transition active:scale-95 flex justify-center items-center gap-1";
+                    btn.className = "w-full py-1.5 rounded bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 text-[10px] font-bold transition active:scale-95 flex justify-center items-center gap-1";
                 } else {
-                    btn.className = "w-full py-2 rounded-lg bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-bold transition active:scale-95 flex justify-center items-center";
+                    btn.className = "w-full py-1.5 rounded bg-white dark:bg-darkbg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold transition active:scale-95 flex justify-center items-center";
                 }
             });
 
-            // Style active button
             if(t === 'fav') {
-                 document.getElementById('chip-fav').className = "w-full py-2 rounded-lg bg-red-600 text-white text-xs font-bold shadow transition transform active:scale-95 flex justify-center items-center gap-1";
+                 document.getElementById('chip-fav').className = "w-full py-1.5 rounded bg-red-600 text-white text-[10px] font-bold shadow transition transform active:scale-95 flex justify-center items-center gap-1";
             } else {
-                document.getElementById(`chip-${t}`).className = "w-full py-2 rounded-lg bg-slate-900 dark:bg-emerald-600 text-white text-xs font-bold shadow transition transform active:scale-95 flex justify-center items-center";
+                document.getElementById(`chip-${t}`).className = "w-full py-1.5 rounded bg-slate-900 dark:bg-emerald-600 text-white text-[10px] font-bold shadow transition transform active:scale-95 flex justify-center items-center";
             }
-
             performSearch(); 
         };
 
@@ -658,38 +656,44 @@
             const imgs = Array.isArray(item.images)?item.images:[item.image];
             const isFav = state.favorites.includes(item.id);
             const heartClass = isFav ? "fill-red-500 text-red-500" : "text-white";
-            let badge = item.badge==='hot' ? `<span class="inline-block bg-orange-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow animate-pulse mt-1">🔥 لقطة</span>` : (item.badge==='verified' ? `<span class="inline-block bg-blue-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow flex items-center gap-1 mt-1"><i data-lucide="check-circle" class="w-2.5 h-2.5"></i> موثوق</span>` : '');
-            let statusOverlay = ''; let isClickable = true; if(item.status && item.status !== 'available') { isClickable = false; const txt = item.status==='sold'?'تم البيع':'تم التأجير'; const clr = item.status==='sold'?'bg-red-600':'bg-blue-600'; statusOverlay=`<div class="absolute inset-0 sold-overlay flex items-center justify-center z-30"><span class="${clr} text-white font-bold px-4 py-2 rounded-xl shadow-xl transform -rotate-12 text-sm">${txt}</span></div>`; }
+            let badge = item.badge==='hot' ? `<span class="inline-block bg-orange-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow animate-pulse mt-0.5">🔥 لقطة</span>` : (item.badge==='verified' ? `<span class="inline-block bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow flex items-center gap-0.5 mt-0.5"><i data-lucide="check-circle" class="w-2 h-2"></i> موثوق</span>` : '');
+            let statusOverlay = ''; 
+            // Removed isClickable check - always clickable now
+            if(item.status && item.status !== 'available') { 
+                const txt = item.status==='sold'?'تم البيع':'تم التأجير'; 
+                const clr = item.status==='sold'?'bg-red-600':'bg-blue-600'; 
+                statusOverlay=`<div class="absolute inset-0 sold-overlay flex items-center justify-center z-30 pointer-events-none"><span class="${clr} text-white font-bold px-3 py-1 rounded-lg shadow-xl transform -rotate-12 text-xs">${txt}</span></div>`; 
+            }
             
             let iconsHtml = '';
             if(item.category === 'land') {
-                if(item.feddan || item.qirat) iconsHtml += `<span class="flex items-center gap-0.5"><i data-lucide="maximize" class="w-3 h-3 text-slate-400"></i> ${item.feddan?item.feddan+' ف':''} ${item.qirat?item.qirat+' ق':''}</span>`;
+                if(item.feddan || item.qirat) iconsHtml += `<span class="flex items-center gap-0.5"><i data-lucide="maximize" class="w-2.5 h-2.5 text-slate-400"></i> ${item.feddan?item.feddan+' ف':''} ${item.qirat?item.qirat+' ق':''}</span>`;
             } else if (item.category === 'building') {
-                if(item.floors) iconsHtml += `<span class="flex items-center gap-0.5"><i data-lucide="layers" class="w-3 h-3 text-slate-400"></i> ${item.floors}</span>`;
+                if(item.floors) iconsHtml += `<span class="flex items-center gap-0.5"><i data-lucide="layers" class="w-2.5 h-2.5 text-slate-400"></i> ${item.floors}</span>`;
             } else {
-                if(item.rooms) iconsHtml += `<span class="flex items-center gap-0.5"><i data-lucide="bed-double" class="w-3 h-3 text-slate-400"></i> ${item.rooms}</span>`;
-                if(item.baths) iconsHtml += `<span class="flex items-center gap-0.5"><i data-lucide="bath" class="w-3 h-3 text-slate-400"></i> ${item.baths}</span>`;
+                if(item.rooms) iconsHtml += `<span class="flex items-center gap-0.5"><i data-lucide="bed-double" class="w-2.5 h-2.5 text-slate-400"></i> ${item.rooms}</span>`;
+                if(item.baths) iconsHtml += `<span class="flex items-center gap-0.5"><i data-lucide="bath" class="w-2.5 h-2.5 text-slate-400"></i> ${item.baths}</span>`;
             }
-            if(item.area) iconsHtml += `<span class="flex items-center gap-0.5"><i data-lucide="ruler" class="w-3 h-3 text-slate-400"></i> ${item.area}م</span>`;
+            if(item.area) iconsHtml += `<span class="flex items-center gap-0.5"><i data-lucide="ruler" class="w-2.5 h-2.5 text-slate-400"></i> ${item.area}م</span>`;
 
-            // Location Display
             const locDisplay = item.gov ? `${item.gov}، ${item.city}` : item.location;
 
-            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border border-black dark:border-slate-500 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="${isClickable ? `openDetails('${item.id}')` : ''}">
-                <div class="relative w-full h-32 sm:h-40 bg-gray-200 dark:bg-slate-700">
-                    ${statusOverlay} <button onclick="toggleFav(event, '${item.id}')" class="absolute top-2 left-2 z-20 p-1.5 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-sm transition"><i data-lucide="heart" class="w-4 h-4 ${heartClass}"></i></button>
-                    <span class="absolute top-2 right-2 ${item.type === 'sale' ? 'bg-emerald-600' : 'bg-blue-600'} text-white px-2 py-0.5 rounded text-[9px] font-bold shadow z-20 card-overlay-z">${item.type === 'sale' ? 'بيع' : 'إيجار'}</span>
-                    ${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 hidden group-hover:block"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full z-10 hidden group-hover:block"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>` : ''}
+            return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border border-black dark:border-slate-500 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative" onclick="openDetails('${item.id}')">
+                ${item.isPinned ? `<div class="pinned-ribbon"></div><i data-lucide="star" class="pinned-icon"></i>` : ''}
+                <div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700">
+                    ${statusOverlay} <button onclick="toggleFav(event, '${item.id}')" class="absolute top-1.5 left-1.5 z-20 p-1 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-sm transition"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button>
+                    <span class="absolute top-1.5 right-1.5 ${item.type === 'sale' ? 'bg-emerald-600' : 'bg-blue-600'} text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-20 card-overlay-z">${item.type === 'sale' ? 'بيع' : 'إيجار'}</span>
+                    ${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-0.5 rounded-full z-10 hidden group-hover:block"><i data-lucide="chevron-right" class="w-3 h-3"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-0.5 rounded-full z-10 hidden group-hover:block"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}
                     <div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth">${imgs.map(src => {
                         const isVid = src.includes('.mp4') || src.includes('.mov');
                         return isVid ? `<video src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}" muted playsinline></video>` : `<img src="${src}" class="w-full h-full object-cover shrink-0 snap-center ${statusOverlay?'grayscale':''}">`
                     }).join('')}</div>
                 </div>
-                <div class="p-2 flex-1 flex flex-col">
-                    <div class="flex justify-between items-start mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-xs line-clamp-1">${item.title}</h3><div class="flex flex-col items-end"><span class="font-black text-emerald-600 dark:text-emerald-400 text-xs whitespace-nowrap">${Number(item.price).toLocaleString()} جنيه</span>${!statusOverlay ? badge : ''}</div></div>
-                    <div class="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 mb-1"><i data-lucide="map-pin" class="w-3 h-3 text-emerald-500"></i> <span class="truncate">${locDisplay}</span></div>
-                    <div class="flex items-center gap-3 text-[10px] text-slate-600 dark:text-slate-300 font-bold mb-2">${iconsHtml}</div>
-                    <div class="mt-auto flex gap-1 pt-2 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-emerald-600 text-white py-1.5 rounded flex justify-center items-center gap-1 text-[10px] font-bold"><i data-lucide="message-circle" class="w-3 h-3"></i> واتس</a><a href="tel:${item.phone}" onclick="event.stopPropagation()" class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 p-1.5 rounded"><i data-lucide="phone" class="w-3 h-3"></i></a></div>
+                <div class="p-1.5 flex-1 flex flex-col">
+                    <div class="flex justify-between items-start mb-0.5"><h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1">${item.title}</h3><div class="flex flex-col items-end"><span class="font-black text-emerald-600 dark:text-emerald-400 text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج</span>${!statusOverlay ? badge : ''}</div></div>
+                    <div class="flex items-center gap-0.5 text-[9px] text-slate-500 dark:text-slate-400 mb-0.5"><i data-lucide="map-pin" class="w-2.5 h-2.5 text-emerald-500"></i> <span class="truncate">${locDisplay}</span></div>
+                    <div class="flex items-center gap-2 text-[9px] text-slate-600 dark:text-slate-300 font-bold mb-1.5">${iconsHtml}</div>
+                    <div class="mt-auto flex gap-1 pt-1.5 border-t border-slate-100 dark:border-slate-700"><a href="https://wa.me/20${item.phone}" target="_blank" onclick="event.stopPropagation()" class="flex-1 bg-emerald-600 text-white py-1 rounded flex justify-center items-center gap-1 text-[9px] font-bold"><i data-lucide="message-circle" class="w-2.5 h-2.5"></i> واتس</a><a href="tel:${item.phone}" onclick="event.stopPropagation()" class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 p-1 rounded"><i data-lucide="phone" class="w-2.5 h-2.5"></i></a></div>
                 </div>
             </div>`;
         }
@@ -698,9 +702,9 @@
             try {
                 const item = state.listings.find(i => i.id === id); if(!item) return;
                 state.currentItem = item; document.getElementById('d-title').innerText = item.title; document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' جنيه'; document.getElementById('d-desc').innerText = item.desc; document.getElementById('d-time-badge').innerText = timeAgo(item.createdAt);
-                const amCont = document.getElementById('d-amenities'); amCont.innerHTML=''; if(item.amenities && Array.isArray(item.amenities)) item.amenities.forEach(a => amCont.innerHTML += `<span class="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 border border-emerald-100 dark:border-emerald-800"><i data-lucide="check" class="w-3 h-3"></i> ${a}</span>`);
+                const amCont = document.getElementById('d-amenities'); amCont.innerHTML=''; if(item.amenities && Array.isArray(item.amenities)) item.amenities.forEach(a => amCont.innerHTML += `<span class="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-2 py-1 rounded text-[9px] font-bold flex items-center gap-0.5 border border-emerald-100 dark:border-emerald-800"><i data-lucide="check" class="w-2.5 h-2.5"></i> ${a}</span>`);
                 const mapBtn = document.getElementById('d-map'); if(item.mapLink) { mapBtn.classList.remove('hidden'); mapBtn.classList.add('flex'); mapBtn.href = item.mapLink; } else { mapBtn.classList.add('hidden'); mapBtn.classList.remove('flex'); }
-                const typeEl = document.getElementById('d-type-badge'); typeEl.innerText = item.type === 'sale' ? 'للبيع' : 'للإيجار'; typeEl.className = `absolute bottom-3 right-3 text-white px-3 py-1 rounded-lg text-xs font-bold shadow backdrop-blur-sm ${item.type === 'sale' ? 'bg-emerald-600/90' : 'bg-blue-600/90'}`;
+                const typeEl = document.getElementById('d-type-badge'); typeEl.innerText = item.type === 'sale' ? 'للبيع' : 'للإيجار'; typeEl.className = `absolute bottom-2 right-2 text-white px-2 py-0.5 rounded text-[10px] font-bold shadow backdrop-blur-sm ${item.type === 'sale' ? 'bg-emerald-600/90' : 'bg-blue-600/90'}`;
                 
                 const shareUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
                 const waMsg = `استفسار بخصوص: ${item.title}\nرابط الاعلان: ${shareUrl}`;
@@ -717,27 +721,27 @@
 
                 const locDisplay = item.gov ? `${item.gov}، ${item.city}` : item.location;
 
-                let tableHtml = `<tr><th class="w-1/3 text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="home" class="w-3 h-3"></i> نوع العقار</th><td class="font-bold text-slate-800 dark:text-slate-200">${CAT_MAP[item.category] || 'عقار'}</td></tr>`;
-                tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> الموقع</th><td class="font-bold text-slate-800 dark:text-slate-200">${locDisplay}</td></tr>`;
+                let tableHtml = `<tr><th class="w-1/3 text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="home" class="w-3 h-3"></i> نوع العقار</th><td class="font-bold text-slate-800 dark:text-slate-200">${CAT_MAP[item.category] || 'عقار'}</td></tr>`;
+                tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> الموقع</th><td class="font-bold text-slate-800 dark:text-slate-200">${locDisplay}</td></tr>`;
                 
-                if(item.area) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="ruler" class="w-3 h-3"></i> المساحة</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.area} م²</td></tr>`;
+                if(item.area) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="ruler" class="w-3 h-3"></i> المساحة</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.area} م²</td></tr>`;
                 
                 if(item.category === 'land') {
-                    if(item.landType) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="sprout" class="w-3 h-3"></i> نوع الأرض</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.landType==='building'?'مباني':'زراعية'}</td></tr>`;
-                    if(item.feddan) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="maximize" class="w-3 h-3"></i> فدان</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.feddan}</td></tr>`;
-                    if(item.qirat) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="minimize" class="w-3 h-3"></i> قيراط</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.qirat}</td></tr>`;
+                    if(item.landType) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="sprout" class="w-3 h-3"></i> نوع الأرض</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.landType==='building'?'مباني':'زراعية'}</td></tr>`;
+                    if(item.feddan) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="maximize" class="w-3 h-3"></i> فدان</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.feddan}</td></tr>`;
+                    if(item.qirat) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="minimize" class="w-3 h-3"></i> قيراط</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.qirat}</td></tr>`;
                 } else if (item.category === 'building') {
-                    if(item.floors) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="layers" class="w-3 h-3"></i> عدد الأدوار</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.floors}</td></tr>`;
-                    if(item.apartments) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="grid" class="w-3 h-3"></i> عدد الشقق</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.apartments}</td></tr>`;
+                    if(item.floors) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="layers" class="w-3 h-3"></i> عدد الأدوار</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.floors}</td></tr>`;
+                    if(item.apartments) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="grid" class="w-3 h-3"></i> عدد الشقق</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.apartments}</td></tr>`;
                 } else {
-                    if(item.rooms) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="bed-double" class="w-3 h-3"></i> الغرف</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.rooms}</td></tr>`;
-                    if(item.baths) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="bath" class="w-3 h-3"></i> الحمامات</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.baths}</td></tr>`;
-                    if(item.balconies) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="wind" class="w-3 h-3"></i> البلكونات</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.balconies}</td></tr>`;
-                    if(item.finishing) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="paint-bucket" class="w-3 h-3"></i> التشطيب</th><td class="font-bold text-slate-800 dark:text-slate-200">${FINISH_MAP[item.finishing] || item.finishing}</td></tr>`;
-                    if(item.level) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="arrow-up-circle" class="w-3 h-3"></i> الدور</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.level}</td></tr>`;
-                    if(item.furnished) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="sofa" class="w-3 h-3"></i> الفرش</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.furnished==='yes'?'مفروش':'غير مفروش'}</td></tr>`;
+                    if(item.rooms) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="bed-double" class="w-3 h-3"></i> الغرف</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.rooms}</td></tr>`;
+                    if(item.baths) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="bath" class="w-3 h-3"></i> الحمامات</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.baths}</td></tr>`;
+                    if(item.balconies) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="wind" class="w-3 h-3"></i> البلكونات</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.balconies}</td></tr>`;
+                    if(item.finishing) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="paint-bucket" class="w-3 h-3"></i> التشطيب</th><td class="font-bold text-slate-800 dark:text-slate-200">${FINISH_MAP[item.finishing] || item.finishing}</td></tr>`;
+                    if(item.level) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="arrow-up-circle" class="w-3 h-3"></i> الدور</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.level}</td></tr>`;
+                    if(item.furnished) tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="sofa" class="w-3 h-3"></i> الفرش</th><td class="font-bold text-slate-800 dark:text-slate-200">${item.furnished==='yes'?'مفروش':'غير مفروش'}</td></tr>`;
                 }
-                tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-xs flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> الحالة</th><td class="font-bold text-slate-800 dark:text-slate-200">متاح</td></tr>`;
+                tableHtml += `<tr><th class="text-slate-500 dark:text-slate-400 font-normal bg-slate-50 dark:bg-slate-800/50 text-[10px] flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> الحالة</th><td class="font-bold text-slate-800 dark:text-slate-200">متاح</td></tr>`;
                 document.getElementById('d-table-body').innerHTML = tableHtml;
 
                 const isOwner = state.user && state.user.uid === item.authorId;
@@ -745,7 +749,8 @@
                 const controlsDiv = document.getElementById('d-controls');
                 if(showControls) {
                     controlsDiv.classList.remove('hidden');
-                    controlsDiv.innerHTML = `<button onclick="del(event,'${item.id}')" class="flex-1 bg-red-50 text-red-600 border border-red-200 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><i data-lucide="trash-2" class="w-4 h-4"></i> حذف</button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}','${item.type}')" class="flex-1 bg-blue-50 text-blue-600 border border-blue-200 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><i data-lucide="edit-3" class="w-4 h-4"></i> حالة</button>${state.isAdmin ? `<button onclick="pin(event,'${item.id}',${item.isPinned})" class="flex-1 ${item.isPinned ? 'bg-yellow-100 text-yellow-600 border-yellow-300' : 'bg-slate-100 text-slate-600 border-slate-200'} border py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><i data-lucide="star" class="w-4 h-4 ${item.isPinned?'fill-current':''}"></i> تثبيت</button>` : ''}`;
+                    // Only show Pin button if Admin
+                    controlsDiv.innerHTML = `<button onclick="del(event,'${item.id}')" class="flex-1 bg-red-50 text-red-600 border border-red-200 py-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> حذف</button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}','${item.type}')" class="flex-1 bg-blue-50 text-blue-600 border border-blue-200 py-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1"><i data-lucide="edit-3" class="w-3 h-3"></i> حالة</button>${state.isAdmin ? `<button onclick="pin(event,'${item.id}',${item.isPinned})" class="flex-1 ${item.isPinned ? 'bg-yellow-100 text-yellow-600 border-yellow-300' : 'bg-slate-100 text-slate-600 border-slate-200'} border py-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1"><i data-lucide="star" class="w-3 h-3 ${item.isPinned?'fill-current':''}"></i> تثبيت</button>` : ''}`;
                 } else { controlsDiv.classList.add('hidden'); }
 
                 toggleModal('details-modal'); lucide.createIcons();
@@ -792,8 +797,8 @@
                 const isVid = f.type.startsWith('video');
                 const url = URL.createObjectURL(f);
                 return `
-                <div class="relative w-14 h-14 shrink-0 group">
-                    ${isVid ? `<video src="${url}" class="w-full h-full rounded-xl object-cover border border-gray-200"></video>` : `<img src="${url}" class="w-full h-full rounded-xl object-cover border border-gray-200">`}
+                <div class="relative w-12 h-12 shrink-0 group">
+                    ${isVid ? `<video src="${url}" class="w-full h-full rounded-lg object-cover border border-gray-200"></video>` : `<img src="${url}" class="w-full h-full rounded-lg object-cover border border-gray-200">`}
                     <button onclick="removeFile(${idx})" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 shadow-sm"><i data-lucide="x" class="w-3 h-3"></i></button>
                 </div>
             `}).join('');
