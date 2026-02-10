@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
     
-    <!-- Meta Tags -->
+    <!-- Meta Tags (Default Site Preview) -->
     <meta property="og:title" content="السوق وياك">
     <meta property="og:description" content="عقارات مصر">
     <meta property="og:image" content="https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=512&h=512&dpr=1">
@@ -39,16 +39,17 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .select-none { user-select: none; }
 
-        /* --- Fixed Background --- */
+        /* --- Fixed Background (Height set via JS for stability) --- */
         #app-background {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; 
+            position: fixed; top: 0; left: 0; width: 100%; 
+            /* Height is set by JS to avoid address bar jumps */
             z-index: -50;
             background-image: url('https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
             background-size: cover; background-position: center; background-repeat: no-repeat;
             pointer-events: none; will-change: transform;
         }
         
-        /* Background Overlay */
+        /* Overlay */
         #app-background::after {
             content: ''; position: absolute; inset: 0;
             background: rgba(241, 245, 249, 0.85);
@@ -77,12 +78,11 @@
         .toast { animation: slideInDown 0.2s ease-out forwards; }
         .toast.hiding { animation: fadeOut 0.2s ease-in forwards; }
 
-        /* --- Header Styling (Restored) --- */
+        /* --- Header Styling --- */
         .sticky-header { 
             z-index: 50; 
             transform: translateZ(0); 
             transition: background-color 0.2s ease;
-            /* Restored rounded corners and shadow */
             border-bottom-left-radius: 1.5rem;
             border-bottom-right-radius: 1.5rem;
         }
@@ -153,7 +153,7 @@
 
         <div id="toast-container" class="fixed top-4 left-0 right-0 z-[100] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
-        <!-- Header (Restored) -->
+        <!-- Header -->
         <header class="fixed top-0 w-full sticky-header bg-white/95 dark:bg-navy/95 backdrop-blur-none flex items-center justify-between px-4 h-12 shadow-md z-50">
             
             <!-- Welcome Text -->
@@ -180,16 +180,17 @@
         <!-- Main Content -->
         <main class="pt-[3.5rem] pb-20 container mx-auto px-2 max-w-5xl min-h-screen">
             
-            <!-- Search Container (Restored Floating Style) -->
-            <div class="sticky top-[3.5rem] z-40 space-y-1 pointer-events-none mb-1 mt-0.5">
-                <div class="relative px-1 py-2 bg-slate-50/95 dark:bg-navy/95 rounded-b-xl shadow-sm pointer-events-auto transform-gpu border-t-0 border-x border-b border-slate-100 dark:border-slate-700">
+            <!-- Search Container (Fixed Gap Issue) -->
+            <!-- top-12 ensures it touches the header. pt-2 creates the visual gap but blocks scrolling content -->
+            <div class="sticky top-12 z-40 space-y-1 pointer-events-none mb-1">
+                <div class="relative px-1 pt-2 pb-1 bg-slate-50/95 dark:bg-navy/95 rounded-b-xl shadow-sm pointer-events-auto transform-gpu border-t-0 border-x border-b border-slate-100 dark:border-slate-700">
                     
                     <!-- Search Input Row -->
                     <div class="relative w-full px-1">
                         <!-- Filter Toggle Button (Left) -->
                         <button onclick="toggleFilterPanel()" class="absolute left-1 top-0 h-full w-9 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-white transition z-10"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
                         
-                        <!-- Input Field (Padding Adjusted - No Fav Button) -->
+                        <!-- Input Field -->
                         <input type="text" id="search-input" placeholder="ابحث (شقة، أرض، عنوان)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-lg pl-10 pr-9 py-1 text-xs shadow-sm focus:ring-1 focus:ring-emerald-500 outline-none dark:text-white transition font-bold h-8">
                         
                         <!-- Search Button (Right) -->
@@ -494,6 +495,8 @@
         onAuthStateChanged(auth, (u) => { 
             if(u) { 
                 state.user=u; 
+                // Fix background height on load to prevent jump
+                document.getElementById('app-background').style.height = window.innerHeight + 'px';
                 loadListings(); 
                 checkUserChat(); 
                 checkAdminStatus(); 
@@ -803,8 +806,8 @@
                 const updateWaLink = (imgUrl) => {
                     const shareUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
                     const resizedImg = getCloudinaryThumb(imgUrl); // Resize here
-                    // Shortened Message
-                    const waMsg = `مهتم بهذا العقار: ${item.title} (${Number(item.price).toLocaleString()} ج)\nالرابط: ${shareUrl}`;
+                    // Shortened Message with Direct Image Link
+                    const waMsg = `مهتم بهذا العقار: ${item.title} (${Number(item.price).toLocaleString()} ج)\nالرابط: ${shareUrl}\nصورة: ${resizedImg}`;
                     document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`; 
                 };
                 
