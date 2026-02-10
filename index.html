@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
     
-    <!-- Meta Tags for WhatsApp Preview (Static Default) -->
-    <meta property="og:title" content="السوق وياك | عقارات مصر">
-    <meta property="og:description" content="أفضل منصة لبيع وشراء العقارات في مصر">
+    <!-- Meta Tags -->
+    <meta property="og:title" content="السوق وياك">
+    <meta property="og:description" content="عقارات مصر">
     <meta property="og:image" content="https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=512&h=512&dpr=1">
     <meta property="og:type" content="website">
 
@@ -29,42 +29,33 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
+        html { background-color: #0f172a; }
         body { 
             font-family: 'Cairo', sans-serif; 
             -webkit-tap-highlight-color: transparent;
             overscroll-behavior-y: none;
-            background-color: transparent; /* Changed to transparent to show fixed bg */
+            background-color: transparent;
         }
-        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .select-none { user-select: none; }
 
-        /* --- Fixed Background Setup (Fixed for Keyboard) --- */
+        /* --- Fixed Background --- */
         #app-background {
-            position: fixed;
-            top: 0; left: 0; width: 100%; 
-            height: 100dvh; /* Dynamic Viewport Height ignores keyboard on modern browsers */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; 
             z-index: -50;
             background-image: url('https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            pointer-events: none;
-            will-change: transform; /* Performance optimization */
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            pointer-events: none; will-change: transform;
         }
         
-        /* Reduced Opacity (Less Foggy) */
+        /* Background Overlay */
         #app-background::after {
-            content: '';
-            position: absolute; inset: 0;
-            background: rgba(241, 245, 249, 0.40); /* Reduced from 0.65 to 0.40 */
-            backdrop-filter: blur(2px); /* Slight blur instead of heavy color */
+            content: ''; position: absolute; inset: 0;
+            background: rgba(241, 245, 249, 0.85);
+            backdrop-filter: blur(3px);
             transition: background-color 0.2s ease;
         }
-
-        .dark #app-background::after {
-            background: rgba(15, 23, 42, 0.60); /* Reduced from 0.75 to 0.60 */
-        }
+        .dark #app-background::after { background: rgba(15, 23, 42, 0.90); }
 
         /* Animations */
         @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
@@ -86,19 +77,21 @@
         .toast { animation: slideInDown 0.2s ease-out forwards; }
         .toast.hiding { animation: fadeOut 0.2s ease-in forwards; }
 
-        /* --- Header Styling --- */
+        /* --- Header Styling (Restored) --- */
         .sticky-header { 
             z-index: 50; 
             transform: translateZ(0); 
             transition: background-color 0.2s ease;
+            /* Restored rounded corners and shadow */
+            border-bottom-left-radius: 1.5rem;
+            border-bottom-right-radius: 1.5rem;
         }
 
         /* --- Splash Screen --- */
         #splash-screen { 
-            position: fixed; inset: 0; z-index: 10000; 
+            position: fixed; inset: 0; z-index: 10000; background-color: #0f172a;
             background-image: linear-gradient(rgba(15, 23, 42, 0.60), rgba(15, 23, 42, 0.80)), url('https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
-            background-size: cover;
-            background-position: center;
+            background-size: cover; background-position: center;
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             transition: opacity 0.3s ease-out, visibility 0.3s; 
         }
@@ -107,7 +100,6 @@
         .splash-logo { color: white; z-index: 10; animation: pulse 2s infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes pulse { 50% { transform: scale(0.9); opacity: 0.8; } }
-        
         .hidden-splash { opacity: 0; visibility: hidden; pointer-events: none; }
 
         body:not(.app-loaded) #app-content-wrapper { opacity: 0; visibility: hidden; }
@@ -115,66 +107,32 @@
 
         /* --- Input Styles --- */
         .input-box {
-            width: 100%; 
-            background: white;
-            border: 1px solid #000000; 
-            border-radius: 0.4rem;
-            padding: 0.4rem 0.5rem; font-size: 0.8rem; font-weight: 700;
-            outline: none; color: #0f172a;
-            transition: border-color 0.2s;
+            width: 100%; background: white; border: 1px solid #000000; border-radius: 0.4rem;
+            padding: 0.4rem 0.5rem; font-size: 0.8rem; font-weight: 700; outline: none; color: #0f172a; transition: border-color 0.2s;
         }
-        .dark .input-box { 
-            background: #1e293b;
-            border-color: #94a3b8;
-            color: white; 
-        }
-        .input-box:focus { 
-            border-color: #10b981;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-        }
+        .dark .input-box { background: #1e293b; border-color: #94a3b8; color: white; }
+        .input-box:focus { border-color: #10b981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
         .input-box::placeholder { color: #64748b; font-weight: 500; font-size: 0.75rem; }
 
-        /* Custom Select */
         .custom-select-wrapper { position: relative; }
         .custom-select {
-            appearance: none;
-            background-color: #f8fafc;
-            border: 1px solid #000;
-            border-radius: 0.4rem;
-            padding: 0.4rem 1.5rem 0.4rem 0.5rem;
-            width: 100%;
-            font-weight: 700;
-            font-size: 0.75rem;
-            color: #334155;
-            cursor: pointer;
+            appearance: none; background-color: #f8fafc; border: 1px solid #000; border-radius: 0.4rem;
+            padding: 0.4rem 1.5rem 0.4rem 0.5rem; width: 100%; font-weight: 700; font-size: 0.75rem; color: #334155; cursor: pointer;
         }
         .dark .custom-select { background-color: #1e293b; color: white; border-color: #94a3b8; }
-        .custom-select-icon {
-            position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%);
-            pointer-events: none; color: #64748b; width: 0.8rem; height: 0.8rem;
-        }
+        .custom-select-icon { position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: #64748b; width: 0.8rem; height: 0.8rem; }
 
-        /* Table */
         .modern-table { border-collapse: collapse; width: 100%; }
-        .modern-table td, .modern-table th { 
-            padding: 0.4rem; 
-            border-bottom: 1px solid #e2e8f0; 
-        }
+        .modern-table td, .modern-table th { padding: 0.4rem; border-bottom: 1px solid #e2e8f0; }
         .dark .modern-table td, .dark .modern-table th { border-color: #334155; }
         .modern-table tr:nth-child(even) { background-color: #f8fafc; }
         .dark .modern-table tr:nth-child(even) { background-color: #1e293b; }
 
         .amenity-tile input:checked + div { background-color: #10b981; color: white; border-color: #10b981; }
         
-        /* Filter Panel */
-        #filter-panel { 
-            transition: max-height 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s; 
-            max-height: 0; opacity: 0; overflow: hidden; 
-            will-change: max-height, opacity; 
-        }
+        #filter-panel { transition: max-height 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s; max-height: 0; opacity: 0; overflow: hidden; will-change: max-height, opacity; }
         #filter-panel.open { max-height: 450px; opacity: 1; }
 
-        /* Hide Bottom Nav on Keyboard Open (handled by JS class) */
         body.keyboard-open #bottom-nav { display: none; }
     </style>
 </head>
@@ -195,8 +153,8 @@
 
         <div id="toast-container" class="fixed top-4 left-0 right-0 z-[100] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
-        <!-- Header -->
-        <header class="fixed top-0 w-full sticky-header bg-white/95 dark:bg-navy/95 backdrop-blur-none border-b-0 rounded-b-[1.5rem] flex items-center justify-between px-4 shadow-md z-50 h-12">
+        <!-- Header (Restored) -->
+        <header class="fixed top-0 w-full sticky-header bg-white/95 dark:bg-navy/95 backdrop-blur-none flex items-center justify-between px-4 h-12 shadow-md z-50">
             
             <!-- Welcome Text -->
             <div class="flex flex-col justify-center">
@@ -222,24 +180,17 @@
         <!-- Main Content -->
         <main class="pt-[3.5rem] pb-20 container mx-auto px-2 max-w-5xl min-h-screen">
             
-            <!-- Search Container (Reduced Padding) -->
+            <!-- Search Container (Restored Floating Style) -->
             <div class="sticky top-[3.5rem] z-40 space-y-1 pointer-events-none mb-1 mt-0.5">
-                <!-- Reduced py-0.5 to make container smaller -->
-                <div class="relative px-1 py-0.5 bg-slate-50/95 dark:bg-navy/95 rounded-b-xl shadow-sm pointer-events-auto transform-gpu border-t-0 border-x border-b border-slate-100 dark:border-slate-700">
+                <div class="relative px-1 py-2 bg-slate-50/95 dark:bg-navy/95 rounded-b-xl shadow-sm pointer-events-auto transform-gpu border-t-0 border-x border-b border-slate-100 dark:border-slate-700">
                     
                     <!-- Search Input Row -->
                     <div class="relative w-full px-1">
                         <!-- Filter Toggle Button (Left) -->
                         <button onclick="toggleFilterPanel()" class="absolute left-1 top-0 h-full w-9 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-white transition z-10"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
                         
-                        <!-- Favorites Toggle Button (Next to Filter) -->
-                        <button onclick="toggleFavView()" id="btn-fav-toggle" class="absolute left-9 top-0 h-full w-9 flex items-center justify-center text-slate-400 hover:text-red-500 transition z-10 group">
-                            <i data-lucide="heart" class="w-4 h-4 group-hover:scale-110 transition"></i>
-                            <span id="fav-count" class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full hidden border border-white dark:border-darkbg"></span>
-                        </button>
-
-                        <!-- Input Field -->
-                        <input type="text" id="search-input" placeholder="ابحث (شقة، أرض، عنوان)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-lg pl-20 pr-9 py-1 text-xs shadow-sm focus:ring-1 focus:ring-emerald-500 outline-none dark:text-white transition font-bold h-8">
+                        <!-- Input Field (Padding Adjusted - No Fav Button) -->
+                        <input type="text" id="search-input" placeholder="ابحث (شقة، أرض، عنوان)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-lg pl-10 pr-9 py-1 text-xs shadow-sm focus:ring-1 focus:ring-emerald-500 outline-none dark:text-white transition font-bold h-8">
                         
                         <!-- Search Button (Right) -->
                         <button onclick="performSearch()" class="absolute right-1 top-0 h-full w-9 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition"><i data-lucide="search" class="w-4 h-4"></i></button>
@@ -490,7 +441,7 @@
         
         const COLLECTION_NAME = "listings_v2"; 
         
-        let state = { user: null, listings: [], filesToUpload: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, favorites: [], currentFilter: 'all', visibleLimit: 12 };
+        let state = { user: null, listings: [], filesToUpload: [], chatId: null, chatStep: 0, tempName: '', activeAdminChat: null, isAdmin: false, welcomeSent: false, currentFilter: 'all', visibleLimit: 12 };
 
         const ALL_AMENITIES = ["غاز طبيعي", "كهرباء", "مياه", "أسانسير", "واي فاي", "حمام سباحة", "حديقة", "جراج", "أمن وحراسة", "كاميرات مراقبة", "مطبخ أمريكاني", "غرفة خادمة", "مسموح بالحيوانات", "على ناصية"];
         const LAND_AMENITIES = ["كهرباء", "مياه", "غاز طبيعي", "على ناصية"];
@@ -545,7 +496,6 @@
                 state.user=u; 
                 loadListings(); 
                 checkUserChat(); 
-                initFavs(); 
                 checkAdminStatus(); 
                 renderAmenities(ALL_AMENITIES); 
                 initLocations();
@@ -655,55 +605,7 @@
         function normalizeText(t) { return t ? t.toString().toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي') : ""; }
         function timeAgo(d) { if(!d) return 'جديد'; const s=Math.floor((new Date()-d.toDate())/1000); if(s<60)return 'الآن'; if(s<3600)return `منذ ${Math.floor(s/60)} د`; if(s<86400)return `منذ ${Math.floor(s/3600)} س`; return `منذ ${Math.floor(s/86400)} ي`; }
         function showSkeletons() { const c=document.getElementById('grid-container'); c.innerHTML=''; for(let i=0;i<6;i++) c.innerHTML+=`<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-navy/10 dark:border-slate-700 h-full"><div class="h-28 skeleton rounded-t-lg"></div><div class="p-2 space-y-2"><div class="h-3 rounded skeleton w-3/4"></div><div class="h-2 rounded skeleton w-1/2"></div></div></div>`; }
-        function initFavs() { state.favorites = JSON.parse(localStorage.getItem('souq_favs') || '[]'); updateFavBadge(); }
         
-        window.toggleFav = (e, id) => { 
-            e.stopPropagation(); 
-            if(state.favorites.includes(id)) {
-                state.favorites = state.favorites.filter(i => i !== id); 
-            } else {
-                state.favorites.push(id); 
-            }
-            localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); 
-            updateFavBadge(); 
-            
-            // If currently viewing favorites, refresh the list
-            if (state.currentFilter === 'fav') {
-                performSearch();
-            } else {
-                // Just update the heart icon on the card
-                const btn = e.currentTarget.querySelector('i');
-                if (state.favorites.includes(id)) {
-                    btn.classList.remove('text-white');
-                    btn.classList.add('fill-red-500', 'text-red-500');
-                } else {
-                    btn.classList.remove('fill-red-500', 'text-red-500');
-                    btn.classList.add('text-white');
-                }
-            }
-        };
-
-        function updateFavBadge() { const b = document.getElementById('fav-count'); if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); b.innerText = state.favorites.length; }
-        
-        // Updated Toggle Fav View Logic (Fixed)
-        window.toggleFavView = () => { 
-            const btn = document.getElementById('btn-fav-toggle');
-            const icon = btn.querySelector('i');
-            
-            if (state.currentFilter === 'fav') {
-                state.currentFilter = 'all';
-                icon.classList.remove('fill-red-500', 'text-red-500');
-                icon.classList.add('text-slate-400');
-                showToast("عرض الكل");
-            } else {
-                state.currentFilter = 'fav';
-                icon.classList.remove('text-slate-400');
-                icon.classList.add('fill-red-500', 'text-red-500');
-                showToast("المفضلة ❤️");
-            }
-            performSearch(); 
-        };
-
         function loadListings() { 
             showSkeletons(); 
             onSnapshot(query(collection(db, COLLECTION_NAME)), (snap) => { 
@@ -749,13 +651,8 @@
 
             const cont = document.getElementById('grid-container'); 
             const filtered = state.listings.filter(item => { 
-                // Filter Logic Fix
                 let matchType = true; 
-                if (state.currentFilter === 'fav') {
-                    if (!state.favorites.includes(item.id)) return false;
-                } else {
-                    if (state.currentFilter !== 'all' && item.type !== state.currentFilter) matchType = false;
-                }
+                if (state.currentFilter !== 'all' && item.type !== state.currentFilter) matchType = false;
                 
                 if (filterType && item.type !== filterType) matchType = false;
 
@@ -818,8 +715,6 @@
 
         function createCard(item) {
             const imgs = Array.isArray(item.images)?item.images:[item.image];
-            const isFav = state.favorites.includes(item.id);
-            const heartClass = isFav ? "fill-red-500 text-red-500" : "text-white";
             let badge = item.badge==='hot' ? `<span class="inline-block bg-orange-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow animate-pulse">🔥 لقطة</span>` : (item.badge==='verified' ? `<span class="inline-block bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow flex items-center gap-0.5"><i data-lucide="check-circle" class="w-2 h-2"></i> موثوق</span>` : '');
             let statusOverlay = ''; 
             if(item.status && item.status !== 'available') { 
@@ -843,12 +738,13 @@
 
             // Use resized image for WhatsApp link in card
             const waImg = getCloudinaryThumb(imgs[0] || '');
-            const waMsg = `استفسار بخصوص: ${item.title}\nصورة: ${waImg}`;
+            // Shortened WhatsApp Message
+            const waMsg = `مهتم بهذا العقار: ${item.title} (${Number(item.price).toLocaleString()} ج)`;
             const waLink = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`;
 
             return `<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border border-black dark:border-slate-500 flex flex-col h-full cursor-pointer active:scale-95 transition-transform group relative transform-gpu" onclick="openDetails('${item.id}')">
                 <div class="relative w-full h-28 sm:h-36 bg-gray-200 dark:bg-slate-700 shrink-0">
-                    ${statusOverlay} <button onclick="toggleFav(event, '${item.id}')" class="absolute top-1.5 left-1.5 z-20 p-1 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-sm transition"><i data-lucide="heart" class="w-3.5 h-3.5 ${heartClass}"></i></button>
+                    ${statusOverlay}
                     <span class="absolute top-1.5 right-1.5 ${item.type === 'sale' ? 'bg-emerald-600' : 'bg-blue-600'} text-white px-1.5 py-0.5 rounded text-[8px] font-bold shadow z-20 card-overlay-z">${item.type === 'sale' ? 'بيع' : 'إيجار'}</span>
                     ${imgs.length > 1 ? `<button onclick="scrollCard(event, '${item.id}', -1)" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-0.5 rounded-full z-10 hidden group-hover:block"><i data-lucide="chevron-right" class="w-3 h-3"></i></button><button onclick="scrollCard(event, '${item.id}', 1)" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-0.5 rounded-full z-10 hidden group-hover:block"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}
                     <div id="slider-${item.id}" class="flex w-full h-full overflow-x-auto no-scrollbar snap-x scroll-smooth">${imgs.map(src => {
@@ -907,8 +803,8 @@
                 const updateWaLink = (imgUrl) => {
                     const shareUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
                     const resizedImg = getCloudinaryThumb(imgUrl); // Resize here
-                    // Adding the image URL directly in the text body
-                    const waMsg = `استفسار بخصوص: ${item.title}\nرابط الاعلان: ${shareUrl}\nصورة العقار: ${resizedImg}`;
+                    // Shortened Message
+                    const waMsg = `مهتم بهذا العقار: ${item.title} (${Number(item.price).toLocaleString()} ج)\nالرابط: ${shareUrl}`;
                     document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`; 
                 };
                 
