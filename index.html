@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
     
-    <!-- Meta Tags (Default Site Preview) -->
+    <!-- Meta Tags -->
     <meta property="og:title" content="السوق وياك">
     <meta property="og:description" content="عقارات مصر">
     <meta property="og:image" content="https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=512&h=512&dpr=1">
@@ -39,24 +39,41 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .select-none { user-select: none; }
 
-        /* --- Fixed Background (Height set via JS for stability) --- */
+        /* --- Fixed Background Optimization (LVH Fix) --- */
         #app-background {
-            position: fixed; top: 0; left: 0; width: 100%; 
-            /* Height is set by JS to avoid address bar jumps */
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            /* 
+               100lvh = Largest Viewport Height. 
+               This equals the screen height when the browser address bar is HIDDEN.
+               It prevents the background from resizing/jumping when you scroll.
+            */
+            height: 100vh; /* Fallback for older browsers */
+            height: 100lvh; 
             z-index: -50;
             background-image: url('https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
-            background-size: cover; background-position: center; background-repeat: no-repeat;
-            pointer-events: none; will-change: transform;
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+            pointer-events: none; 
+            will-change: transform; /* Performance: Promotes to own layer to prevent lag */
+            transform: translate3d(0,0,0); /* Hardware acceleration */
         }
         
         /* Overlay */
         #app-background::after {
             content: ''; position: absolute; inset: 0;
-            background: rgba(241, 245, 249, 0.85);
-            backdrop-filter: blur(3px);
-            transition: background-color 0.2s ease;
+            /* Light Mode: Reduced opacity */
+            background: rgba(241, 245, 249, 0.75);
+            backdrop-filter: blur(2px);
+            transition: background-color 0.3s ease;
         }
-        .dark #app-background::after { background: rgba(15, 23, 42, 0.90); }
+        .dark #app-background::after { 
+            /* Dark Mode: Reduced opacity */
+            background: rgba(15, 23, 42, 0.80); 
+        }
 
         /* Animations */
         @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
@@ -78,7 +95,6 @@
         .toast { animation: slideInDown 0.2s ease-out forwards; }
         .toast.hiding { animation: fadeOut 0.2s ease-in forwards; }
 
-        /* --- Header Styling --- */
         .sticky-header { 
             z-index: 50; 
             transform: translateZ(0); 
@@ -87,7 +103,7 @@
             border-bottom-right-radius: 1.5rem;
         }
 
-        /* --- Splash Screen --- */
+        /* Splash Screen */
         #splash-screen { 
             position: fixed; inset: 0; z-index: 10000; background-color: #0f172a;
             background-image: linear-gradient(rgba(15, 23, 42, 0.60), rgba(15, 23, 42, 0.80)), url('https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
@@ -105,7 +121,6 @@
         body:not(.app-loaded) #app-content-wrapper { opacity: 0; visibility: hidden; }
         #app-content-wrapper { transition: opacity 0.4s ease-in-out; opacity: 1; }
 
-        /* --- Input Styles --- */
         .input-box {
             width: 100%; background: white; border: 1px solid #000000; border-radius: 0.4rem;
             padding: 0.4rem 0.5rem; font-size: 0.8rem; font-weight: 700; outline: none; color: #0f172a; transition: border-color 0.2s;
@@ -155,21 +170,15 @@
 
         <!-- Header -->
         <header class="fixed top-0 w-full sticky-header bg-white/95 dark:bg-navy/95 backdrop-blur-none flex items-center justify-between px-4 h-12 shadow-md z-50">
-            
-            <!-- Welcome Text -->
             <div class="flex flex-col justify-center">
                 <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 leading-none">مرحبا بكم في</span>
                 <span class="text-[10px] font-black text-slate-800 dark:text-white leading-tight">سوق <span class="text-emerald-600 dark:text-emerald-400">العقارات</span></span>
             </div>
-
-            <!-- Logo -->
             <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center cursor-pointer group" id="logo-trigger">
                 <div class="bg-slate-900 dark:bg-emerald-600 text-white p-1 rounded-[4px] mb-[1px] shadow-sm group-hover:scale-110 transition">
                     <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
                 </div>
             </div>
-
-            <!-- Buttons -->
             <div class="flex gap-1.5 items-center">
                 <a href="https://wa.me/201206244875" target="_blank" class="p-1.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 border border-green-100 dark:border-green-900/50 transition shadow-sm"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i></a>
                 <button onclick="toggleDarkMode()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 transition"><i data-lucide="moon" class="w-3.5 h-3.5 block dark:hidden"></i><i data-lucide="sun" class="w-3.5 h-3.5 hidden dark:block"></i></button>
@@ -179,25 +188,13 @@
 
         <!-- Main Content -->
         <main class="pt-[3.5rem] pb-20 container mx-auto px-2 max-w-5xl min-h-screen">
-            
-            <!-- Search Container (Fixed Gap Issue) -->
-            <!-- top-12 ensures it touches the header. pt-2 creates the visual gap but blocks scrolling content -->
             <div class="sticky top-12 z-40 space-y-1 pointer-events-none mb-1">
                 <div class="relative px-1 pt-2 pb-1 bg-slate-50/95 dark:bg-navy/95 rounded-b-xl shadow-sm pointer-events-auto transform-gpu border-t-0 border-x border-b border-slate-100 dark:border-slate-700">
-                    
-                    <!-- Search Input Row -->
                     <div class="relative w-full px-1">
-                        <!-- Filter Toggle Button (Left) -->
                         <button onclick="toggleFilterPanel()" class="absolute left-1 top-0 h-full w-9 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-white transition z-10"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
-                        
-                        <!-- Input Field -->
                         <input type="text" id="search-input" placeholder="ابحث (شقة، أرض، عنوان)..." class="w-full bg-white dark:bg-darkbg border border-black dark:border-slate-500 rounded-lg pl-10 pr-9 py-1 text-xs shadow-sm focus:ring-1 focus:ring-emerald-500 outline-none dark:text-white transition font-bold h-8">
-                        
-                        <!-- Search Button (Right) -->
                         <button onclick="performSearch()" class="absolute right-1 top-0 h-full w-9 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition"><i data-lucide="search" class="w-4 h-4"></i></button>
                     </div>
-
-                    <!-- Advanced Filter Panel -->
                     <div id="filter-panel" class="mt-1 bg-white dark:bg-slate-800 rounded-lg border border-black dark:border-slate-600 shadow-lg mx-1">
                         <div class="p-2 space-y-1.5">
                             <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-1">
@@ -212,7 +209,6 @@
                                 </select>
                                 <i data-lucide="chevron-down" class="custom-select-icon w-3 h-3"></i>
                             </div>
-
                             <div class="grid grid-cols-2 gap-1.5">
                                 <div class="custom-select-wrapper">
                                     <select id="filter-gov" onchange="populateCities('filter-gov', 'filter-city')" class="custom-select py-1 text-[10px]"><option value="">كل المحافظات</option></select>
@@ -249,7 +245,7 @@
             </div>
         </main>
 
-        <!-- Floating Dock (Bottom Nav) -->
+        <!-- Floating Dock -->
         <nav id="bottom-nav" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border border-slate-200 dark:border-slate-600 px-5 py-1.5 rounded-full flex items-center gap-6 shadow-xl transform transition-all hover:scale-105 transform-gpu">
             <button onclick="resetFilters(); window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center gap-0.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group"><i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition"></i></button>
             <button onclick="toggleAddModal()" class="w-12 h-12 bg-slate-900 dark:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 transform -translate-y-5 border-4 border-[#f8fafc] dark:border-navy hover:scale-110 transition active:scale-90"><i data-lucide="plus" class="w-6 h-6"></i></button>
@@ -271,9 +267,7 @@
                 <span id="d-type-badge" class="absolute bottom-2 right-2 text-white px-2 py-0.5 rounded text-[10px] font-bold shadow backdrop-blur-sm"></span>
             </div>
             <div class="flex-1 overflow-y-auto bg-white dark:bg-darkbg">
-                <!-- Admin Controls: Compact -->
                 <div id="d-controls" class="hidden p-2 bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-700 flex gap-2 justify-end"></div>
-                
                 <div class="p-2 space-y-2">
                     <div class="space-y-1">
                         <div><span class="text-[9px] font-bold text-slate-400 block mb-0">العنوان العقاري</span><h2 id="d-title" class="text-sm font-bold text-slate-900 dark:text-white leading-tight"></h2></div>
@@ -285,13 +279,10 @@
                     <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
                         <table class="w-full text-[10px] modern-table"><tbody id="d-table-body"></tbody></table>
                     </div>
-                    
-                    <!-- Amenities Table -->
                     <div>
                         <h3 class="text-[10px] font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3 text-yellow-500"></i> المميزات</h3>
                         <div id="d-amenities" class="grid grid-cols-3 gap-0 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-800/50"></div>
                     </div>
-
                     <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200 dark:border-slate-700"><h3 class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">التفاصيل الكاملة</h3><p id="d-desc" class="text-[10px] text-slate-700 dark:text-slate-300 leading-snug whitespace-pre-wrap font-medium"></p></div>
                 </div>
             </div>
@@ -495,15 +486,13 @@
         onAuthStateChanged(auth, (u) => { 
             if(u) { 
                 state.user=u; 
-                // Fix background height on load to prevent jump
-                document.getElementById('app-background').style.height = window.innerHeight + 'px';
+                // Removed manual height calculation to let CSS lvh handle it
                 loadListings(); 
                 checkUserChat(); 
                 checkAdminStatus(); 
                 renderAmenities(ALL_AMENITIES); 
                 initLocations();
                 
-                // Keyboard detection
                 const originalHeight = window.innerHeight;
                 window.addEventListener('resize', () => {
                     if (window.innerHeight < originalHeight * 0.8) {
@@ -513,7 +502,6 @@
                     }
                 });
                 
-                // Focus detection as backup
                 document.querySelectorAll('input, textarea').forEach(el => {
                     el.addEventListener('focus', () => document.body.classList.add('keyboard-open'));
                     el.addEventListener('blur', () => document.body.classList.remove('keyboard-open'));
@@ -700,17 +688,14 @@
         document.getElementById('search-input').addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(performSearch, 200); });
         document.getElementById('search-input').addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); performSearch(); document.getElementById('search-input').blur(); } });
         
-        // Filter function simplified since buttons are gone
         window.filter = (t) => { 
             state.currentFilter = t; 
             state.visibleLimit = 12; 
             performSearch(); 
         };
 
-        // Helper to get resized Cloudinary Image for WhatsApp
         const getCloudinaryThumb = (url) => {
             if (url && url.includes('cloudinary.com')) {
-                // Inject resize parameters: w_512,h_512,c_fill
                 return url.replace('/upload/', '/upload/w_512,h_512,c_fill,q_auto/');
             }
             return url;
@@ -739,9 +724,7 @@
 
             const locDisplay = item.gov ? `${item.gov}، ${item.city}` : item.location;
 
-            // Use resized image for WhatsApp link in card
-            const waImg = getCloudinaryThumb(imgs[0] || '');
-            // Shortened WhatsApp Message
+            // WhatsApp Message - No Image Link
             const waMsg = `مهتم بهذا العقار: ${item.title} (${Number(item.price).toLocaleString()} ج)`;
             const waLink = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`;
 
@@ -761,7 +744,6 @@
                             <h3 class="font-bold text-slate-900 dark:text-white text-[10px] line-clamp-1 leading-tight">${item.title}</h3>
                             <span class="font-black text-emerald-600 dark:text-emerald-400 text-[10px] whitespace-nowrap">${Number(item.price).toLocaleString()} ج</span>
                         </div>
-                        <!-- Reserved Space for Badge -->
                         <div class="h-3.5 flex justify-end items-center mt-0.5">
                             ${!statusOverlay ? badge : ''}
                         </div>
@@ -786,7 +768,6 @@
                 const item = state.listings.find(i => i.id === id); if(!item) return;
                 state.currentItem = item; document.getElementById('d-title').innerText = item.title; document.getElementById('d-price').innerText = Number(item.price).toLocaleString() + ' جنيه'; document.getElementById('d-desc').innerText = item.desc; document.getElementById('d-time-badge').innerText = timeAgo(item.createdAt);
                 
-                // Amenities as Table Grid
                 const amCont = document.getElementById('d-amenities'); 
                 amCont.innerHTML=''; 
                 if(item.amenities && Array.isArray(item.amenities) && item.amenities.length > 0) {
@@ -802,16 +783,14 @@
                 
                 const imgs = Array.isArray(item.images) ? item.images : [item.image]; 
                 
-                // Dynamic WhatsApp Link Logic (Merged Image Link with Resize)
-                const updateWaLink = (imgUrl) => {
+                // WhatsApp Link - No Image Link
+                const updateWaLink = () => {
                     const shareUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
-                    const resizedImg = getCloudinaryThumb(imgUrl); // Resize here
-                    // Shortened Message with Direct Image Link
-                    const waMsg = `مهتم بهذا العقار: ${item.title} (${Number(item.price).toLocaleString()} ج)\nالرابط: ${shareUrl}\nصورة: ${resizedImg}`;
+                    const waMsg = `مهتم بهذا العقار: ${item.title} (${Number(item.price).toLocaleString()} ج)\nالرابط: ${shareUrl}`;
                     document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`; 
                 };
                 
-                updateWaLink(imgs[0]);
+                updateWaLink();
                 document.getElementById('d-call').href = `tel:${item.phone}`;
                 
                 const slider = document.getElementById('details-slider'); 
@@ -820,11 +799,6 @@
                     return isVid ? `<video src="${src}" controls class="w-full h-full object-contain snap-center shrink-0 bg-black"></video>` : `<img src="${src}" class="w-full h-full object-cover snap-center shrink-0 cursor-pointer" onclick="openLightbox('${src}')">`
                 }).join('');
                 document.getElementById('details-arrows').style.display = imgs.length > 1 ? 'block' : 'none';
-
-                slider.onscroll = () => {
-                    const index = Math.round(slider.scrollLeft / slider.clientWidth);
-                    if(imgs[index]) updateWaLink(imgs[index]);
-                };
 
                 const locDisplay = item.gov ? `${item.gov}، ${item.city}` : item.location;
 
@@ -858,7 +832,6 @@
                 const controlsDiv = document.getElementById('d-controls');
                 if(showControls) {
                     controlsDiv.classList.remove('hidden');
-                    // Smaller buttons
                     controlsDiv.innerHTML = `<button onclick="del(event,'${item.id}')" class="bg-red-50 text-red-600 border border-red-200 py-1 px-3 rounded text-[9px] font-bold flex items-center justify-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> حذف</button><button onclick="toggleStatus(event,'${item.id}','${item.status||'available'}','${item.type}')" class="bg-blue-50 text-blue-600 border border-blue-200 py-1 px-3 rounded text-[9px] font-bold flex items-center justify-center gap-1"><i data-lucide="edit-3" class="w-3 h-3"></i> حالة</button>${state.isAdmin ? `<button onclick="pin(event,'${item.id}',${item.isPinned})" class="${item.isPinned ? 'bg-yellow-100 text-yellow-600 border-yellow-300' : 'bg-slate-100 text-slate-600 border-slate-200'} border py-1 px-3 rounded text-[9px] font-bold flex items-center justify-center gap-1"><i data-lucide="star" class="w-3 h-3 ${item.isPinned?'fill-current':''}"></i> تثبيت</button>` : ''}`;
                 } else { controlsDiv.classList.add('hidden'); }
 
