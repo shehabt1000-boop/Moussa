@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    
+    <!-- Meta Tags for WhatsApp Preview (Static Default) -->
+    <meta property="og:title" content="السوق وياك | عقارات مصر">
+    <meta property="og:description" content="أفضل منصة لبيع وشراء العقارات في مصر">
+    <meta property="og:image" content="https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=512&h=512&dpr=1">
+    <meta property="og:type" content="website">
+
     <title>السوق وياك | عقارات مصر</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,10 +33,9 @@
             font-family: 'Cairo', sans-serif; 
             -webkit-tap-highlight-color: transparent;
             overscroll-behavior-y: none;
-            background-color: #f1f5f9;
+            background-color: transparent; /* Changed to transparent to show fixed bg */
         }
-        .dark body { background-color: #0f172a; }
-
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .select-none { user-select: none; }
 
@@ -37,25 +43,27 @@
         #app-background {
             position: fixed;
             top: 0; left: 0; width: 100%; 
-            height: 100dvh; /* Dynamic Viewport Height */
-            z-index: -1;
+            height: 100dvh; /* Dynamic Viewport Height ignores keyboard on modern browsers */
+            z-index: -50;
             background-image: url('https://images.pexels.com/photos/19213018/pexels-photo-19213018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            transform: translateZ(0);
             pointer-events: none;
+            will-change: transform; /* Performance optimization */
         }
         
+        /* Reduced Opacity (Less Foggy) */
         #app-background::after {
             content: '';
             position: absolute; inset: 0;
-            background: rgba(241, 245, 249, 0.65);
+            background: rgba(241, 245, 249, 0.40); /* Reduced from 0.65 to 0.40 */
+            backdrop-filter: blur(2px); /* Slight blur instead of heavy color */
             transition: background-color 0.2s ease;
         }
 
         .dark #app-background::after {
-            background: rgba(15, 23, 42, 0.75);
+            background: rgba(15, 23, 42, 0.60); /* Reduced from 0.75 to 0.60 */
         }
 
         /* Animations */
@@ -214,8 +222,9 @@
         <!-- Main Content -->
         <main class="pt-[3.5rem] pb-20 container mx-auto px-2 max-w-5xl min-h-screen">
             
-            <!-- Search Container -->
+            <!-- Search Container (Reduced Padding) -->
             <div class="sticky top-[3.5rem] z-40 space-y-1 pointer-events-none mb-1 mt-0.5">
+                <!-- Reduced py-0.5 to make container smaller -->
                 <div class="relative px-1 py-0.5 bg-slate-50/95 dark:bg-navy/95 rounded-b-xl shadow-sm pointer-events-auto transform-gpu border-t-0 border-x border-b border-slate-100 dark:border-slate-700">
                     
                     <!-- Search Input Row -->
@@ -647,10 +656,36 @@
         function timeAgo(d) { if(!d) return 'جديد'; const s=Math.floor((new Date()-d.toDate())/1000); if(s<60)return 'الآن'; if(s<3600)return `منذ ${Math.floor(s/60)} د`; if(s<86400)return `منذ ${Math.floor(s/3600)} س`; return `منذ ${Math.floor(s/86400)} ي`; }
         function showSkeletons() { const c=document.getElementById('grid-container'); c.innerHTML=''; for(let i=0;i<6;i++) c.innerHTML+=`<div class="bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm border-2 border-navy/10 dark:border-slate-700 h-full"><div class="h-28 skeleton rounded-t-lg"></div><div class="p-2 space-y-2"><div class="h-3 rounded skeleton w-3/4"></div><div class="h-2 rounded skeleton w-1/2"></div></div></div>`; }
         function initFavs() { state.favorites = JSON.parse(localStorage.getItem('souq_favs') || '[]'); updateFavBadge(); }
-        window.toggleFav = (e, id) => { e.stopPropagation(); if(state.favorites.includes(id)) state.favorites = state.favorites.filter(i => i !== id); else state.favorites.push(id); localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); updateFavBadge(); performSearch(); };
+        
+        window.toggleFav = (e, id) => { 
+            e.stopPropagation(); 
+            if(state.favorites.includes(id)) {
+                state.favorites = state.favorites.filter(i => i !== id); 
+            } else {
+                state.favorites.push(id); 
+            }
+            localStorage.setItem('souq_favs', JSON.stringify(state.favorites)); 
+            updateFavBadge(); 
+            
+            // If currently viewing favorites, refresh the list
+            if (state.currentFilter === 'fav') {
+                performSearch();
+            } else {
+                // Just update the heart icon on the card
+                const btn = e.currentTarget.querySelector('i');
+                if (state.favorites.includes(id)) {
+                    btn.classList.remove('text-white');
+                    btn.classList.add('fill-red-500', 'text-red-500');
+                } else {
+                    btn.classList.remove('fill-red-500', 'text-red-500');
+                    btn.classList.add('text-white');
+                }
+            }
+        };
+
         function updateFavBadge() { const b = document.getElementById('fav-count'); if(state.favorites.length) b.classList.remove('hidden'); else b.classList.add('hidden'); b.innerText = state.favorites.length; }
         
-        // Updated Toggle Fav View Logic
+        // Updated Toggle Fav View Logic (Fixed)
         window.toggleFavView = () => { 
             const btn = document.getElementById('btn-fav-toggle');
             const icon = btn.querySelector('i');
@@ -714,9 +749,13 @@
 
             const cont = document.getElementById('grid-container'); 
             const filtered = state.listings.filter(item => { 
+                // Filter Logic Fix
                 let matchType = true; 
-                if (state.currentFilter === 'fav') matchType = state.favorites.includes(item.id); 
-                else matchType = state.currentFilter === 'all' || item.type === state.currentFilter; 
+                if (state.currentFilter === 'fav') {
+                    if (!state.favorites.includes(item.id)) return false;
+                } else {
+                    if (state.currentFilter !== 'all' && item.type !== state.currentFilter) matchType = false;
+                }
                 
                 if (filterType && item.type !== filterType) matchType = false;
 
@@ -768,6 +807,15 @@
             performSearch(); 
         };
 
+        // Helper to get resized Cloudinary Image for WhatsApp
+        const getCloudinaryThumb = (url) => {
+            if (url && url.includes('cloudinary.com')) {
+                // Inject resize parameters: w_512,h_512,c_fill
+                return url.replace('/upload/', '/upload/w_512,h_512,c_fill,q_auto/');
+            }
+            return url;
+        };
+
         function createCard(item) {
             const imgs = Array.isArray(item.images)?item.images:[item.image];
             const isFav = state.favorites.includes(item.id);
@@ -793,7 +841,8 @@
 
             const locDisplay = item.gov ? `${item.gov}، ${item.city}` : item.location;
 
-            const waImg = imgs[0] || '';
+            // Use resized image for WhatsApp link in card
+            const waImg = getCloudinaryThumb(imgs[0] || '');
             const waMsg = `استفسار بخصوص: ${item.title}\nصورة: ${waImg}`;
             const waLink = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`;
 
@@ -854,11 +903,12 @@
                 
                 const imgs = Array.isArray(item.images) ? item.images : [item.image]; 
                 
-                // Dynamic WhatsApp Link Logic (Merged Image Link)
+                // Dynamic WhatsApp Link Logic (Merged Image Link with Resize)
                 const updateWaLink = (imgUrl) => {
                     const shareUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
+                    const resizedImg = getCloudinaryThumb(imgUrl); // Resize here
                     // Adding the image URL directly in the text body
-                    const waMsg = `استفسار بخصوص: ${item.title}\nرابط الاعلان: ${shareUrl}\nصورة العقار: ${imgUrl}`;
+                    const waMsg = `استفسار بخصوص: ${item.title}\nرابط الاعلان: ${shareUrl}\nصورة العقار: ${resizedImg}`;
                     document.getElementById('d-wa').href = `https://wa.me/20${item.phone}?text=${encodeURIComponent(waMsg)}`; 
                 };
                 
